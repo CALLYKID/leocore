@@ -6,35 +6,71 @@ export default async function handler(req, res) {
     try {
         const { message } = req.body;
 
-        // --- TEXT RESPONSE FROM GROQ ---
-        const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        // -----------------------------
+        // 1) TEXT GENERATION (OpenAI)
+        // -----------------------------
+        const textResponse = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.GROQ_API_KEY}`
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
             },
             body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
+                model: "gpt-4o-mini",
                 messages: [
                     {
                         role: "system",
                         content:
-                            "You are Leocore — hyper-intelligent, calm, modern, and relatable. You respond like a real person: clear, concise, no roleplay actions, no physical descriptions. Just clean, natural, smart conversation."
+                        "You are Leocore — smart, calm, modern, helpful. You sound natural and real. Keep it short unless depth is asked. No roleplay actions."
                     },
                     { role: "user", content: message }
                 ]
             })
         });
 
-        const textData = await groqResponse.json();
+        const textData = await textResponse.json();
+        const replyText = textData?.choices?.[0]?.message?.content || "Error generating response.";
 
-        const reply = textData?.choices?.[0]?.message?.content || "Error generating reply.";
+
+        // -----------------------------
+        // 2) TEXT-TO-SPEECH (OpenAI)
+        // -----------------------------
+        let audioBase64 = null;
+
+        try {
+            const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini-tts",
+                    input: replyText,
+                    voice: "alloy" // clean & modern voice
+                })
+            });
+
+            const audioArrayBuf = await ttsResponse.arrayBuffer();
+            audioBase64 = Buffer.from(audioArrayBuf).toString("base64");
+
+        } catch (err) {
+            console.log("TTS Error:", err.message);
+        }
 
 
-        // --- AUDIO RESPONSE FROM OPENAI ---
-        const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
-            method: "POST",
-            headers: {
+        // -----------------------------
+        // 3) SEND TEXT + AUDIO BACK
+        // -----------------------------
+        return res.status(200).json({
+            reply: replyText,
+            audio: audioBase64
+        });
+
+    } catch (err) {
+        return res.status(500).json({ reply: "Server error: " + err.message });
+    }
+}            headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
             },
