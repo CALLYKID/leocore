@@ -34,7 +34,7 @@ function addMessage(text, sender) {
     messages.scrollTop = messages.scrollHeight;
 }
 
-// SEND FUNCTION
+// SEND FUNCTION TO BACKEND
 async function sendToGroq(prompt) {
     try {
         const res = await fetch("/api/chat", {
@@ -43,11 +43,7 @@ async function sendToGroq(prompt) {
             body: JSON.stringify({ message: prompt })
         });
 
-        const data = await res.json();
-
-        if (!data.reply) return "AI error: No response";
-        return data;
-
+        return await res.json(); // MUST return full JSON for audio + text
     } catch (err) {
         return { reply: "AI error: " + err.message };
     }
@@ -64,14 +60,12 @@ sendBtn.addEventListener("click", async () => {
 
     const data = await sendToGroq(text);
 
-    messages.lastChild.remove(); // remove "Processing"
+    messages.lastChild.remove();
     addMessage(data.reply, "ai");
 
-    // ✅ NEW — AUDIO PLAYBACK
+    // AUDIO
     if (data.audio) {
         const audio = new Audio("data:audio/mp3;base64," + data.audio);
-        audio.play().catch(() => {
-            console.log("Audio failed to play.");
-        });
+        audio.play().catch(() => {});
     }
 });
