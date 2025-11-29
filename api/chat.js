@@ -15,7 +15,10 @@ export default async function handler(req, res) {
             body: JSON.stringify({
                 model: "llama-3.3-70b-versatile",
                 messages: [
-                    { role: "system", content: "You are LEOCore, a friendly AI inside a glowing orb." },
+                    { 
+  role: "system", 
+  content: "You are Leocore — a calm, helpful, intelligent assistant. Speak naturally, avoid roleplay actions, avoid describing yourself doing physical things. Keep answers short, modern, and human-like." 
+},
                     { role: "user", content: message }
                 ]
             })
