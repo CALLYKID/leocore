@@ -21,7 +21,7 @@ export default async function handler(req, res) {
                     {
                         role: "system",
                         content:
-                        "You are Leocore — smart, calm, modern, helpful. You sound natural and real. Keep it short unless depth is asked. No roleplay actions. No cringe."
+                        "You are Leocore — smart, calm, modern, helpful. Sound natural and human-like. Keep replies short unless user asks for depth. No roleplay actions."
                     },
                     { role: "user", content: message }
                 ]
@@ -29,19 +29,16 @@ export default async function handler(req, res) {
         });
 
         const textData = await textResponse.json();
-
-        const replyText =
-            textData?.choices?.[0]?.message?.content ||
-            "Sorry, something went wrong.";
+        const replyText = textData?.choices?.[0]?.message?.content || "Error generating response.";
 
 
         // --------------------------------------
-        // 2) TTS AUDIO (GPT-4o-mini-tts)
+        // 2) TEXT-TO-SPEECH (GPT-4o-mini-tts)
         // --------------------------------------
         let audioBase64 = null;
 
         try {
-            const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
+            const tts = await fetch("https://api.openai.com/v1/audio/speech", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -49,13 +46,13 @@ export default async function handler(req, res) {
                 },
                 body: JSON.stringify({
                     model: "gpt-4o-mini-tts",
-                    voice: "alloy",   // free voice
-                    input: replyText   // what it will speak
+                    voice: "alloy",
+                    input: replyText
                 })
             });
 
-            const audioBuffer = await ttsResponse.arrayBuffer();
-            audioBase64 = Buffer.from(audioBuffer).toString("base64");
+            const buffer = await tts.arrayBuffer();
+            audioBase64 = Buffer.from(buffer).toString("base64");
 
         } catch (err) {
             console.log("TTS ERROR:", err.message);
@@ -63,92 +60,11 @@ export default async function handler(req, res) {
 
 
         // --------------------------------------
-        // 3) SEND TEXT + AUDIO
+        // 3) SEND TEXT + AUDIO BACK
         // --------------------------------------
         return res.status(200).json({
             reply: replyText,
             audio: audioBase64
-        });
-
-    } catch (err) {
-        return res.status(500).json({ reply: "Server error: " + err.message });
-    }
-}        // -----------------------------
-        let audioBase64 = null;
-
-        try {
-            const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-                },
-                body: JSON.stringify({
-                    model: "gpt-4o-mini-tts",
-                    input: replyText,
-                    voice: "alloy" // clean & modern voice
-                })
-            });
-
-            const audioArrayBuf = await ttsResponse.arrayBuffer();
-            audioBase64 = Buffer.from(audioArrayBuf).toString("base64");
-
-        } catch (err) {
-            console.log("TTS Error:", err.message);
-        }
-
-
-        // -----------------------------
-        // 3) SEND TEXT + AUDIO BACK
-        // -----------------------------
-        return res.status(200).json({
-            reply: replyText,
-            audio: audioBase64
-        });
-
-    } catch (err) {
-        return res.status(500).json({ reply: "Server error: " + err.message });
-    }
-}            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini-tts",   // Free TTS model
-                voice: "nova",              // Free voice
-                input: reply
-            })
-        });
-
-        const arrayBuffer = await ttsResponse.arrayBuffer();
-        const audioBase64 = Buffer.from(arrayBuffer).toString("base64");
-
-
-        // --- SEND BOTH TEXT + AUDIO BACK TO FRONTEND ---
-        return res.status(200).json({
-            reply: reply,
-            audio: audioBase64
-        });
-
-    } catch (err) {
-        return res.status(500).json({ reply: "Server error: " + err.message });
-    }
-}                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini-tts",
-                voice: "alloy",
-                input: replyText
-            })
-        });
-
-        const audioBuffer = await tts.arrayBuffer();
-        const base64Audio = Buffer.from(audioBuffer).toString("base64");
-
-        // 3️⃣ Return BOTH text + audio
-        return res.status(200).json({
-            reply: replyText,
-            audio: base64Audio
         });
 
     } catch (err) {
