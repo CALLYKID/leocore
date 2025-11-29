@@ -6,7 +6,7 @@ export default async function handler(req, res) {
     try {
         const { message } = req.body;
 
-        // 1️⃣ Get text reply from Groq
+        // --- TEXT RESPONSE FROM GROQ ---
         const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -19,22 +19,46 @@ export default async function handler(req, res) {
                     {
                         role: "system",
                         content:
-                          "You are Leocore — a smart, helpful, relatable, modern assistant. Clear, calm, Gen-Z vibe. No roleplay actions, no physical movement descriptions. Just natural and human-like."
+                            "You are Leocore — hyper-intelligent, calm, modern, and relatable. You respond like a real person: clear, concise, no roleplay actions, no physical descriptions. Just clean, natural, smart conversation."
                     },
                     { role: "user", content: message }
                 ]
             })
         });
 
-        const data = await groqResponse.json();
-        const replyText = data?.choices?.[0]?.message?.content || "Error.";
+        const textData = await groqResponse.json();
 
-        // 2️⃣ Turn reply text into speech using OpenAI TTS
-        const tts = await fetch("https://api.openai.com/v1/audio/speech", {
+        const reply = textData?.choices?.[0]?.message?.content || "Error generating reply.";
+
+
+        // --- AUDIO RESPONSE FROM OPENAI ---
+        const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini-tts",   // Free TTS model
+                voice: "nova",              // Free voice
+                input: reply
+            })
+        });
+
+        const arrayBuffer = await ttsResponse.arrayBuffer();
+        const audioBase64 = Buffer.from(arrayBuffer).toString("base64");
+
+
+        // --- SEND BOTH TEXT + AUDIO BACK TO FRONTEND ---
+        return res.status(200).json({
+            reply: reply,
+            audio: audioBase64
+        });
+
+    } catch (err) {
+        return res.status(500).json({ reply: "Server error: " + err.message });
+    }
+}                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini-tts",
