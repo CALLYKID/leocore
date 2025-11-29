@@ -46,10 +46,10 @@ async function sendToGroq(prompt) {
         const data = await res.json();
 
         if (!data.reply) return "AI error: No response";
-        return data.reply;
+        return data;
 
     } catch (err) {
-        return "AI error: " + err.message;
+        return { reply: "AI error: " + err.message };
     }
 }
 
@@ -62,8 +62,16 @@ sendBtn.addEventListener("click", async () => {
 
     addMessage("Processing...", "ai");
 
-    const reply = await sendToGroq(text);
+    const data = await sendToGroq(text);
 
     messages.lastChild.remove(); // remove "Processing"
-    addMessage(reply, "ai");
+    addMessage(data.reply, "ai");
+
+    // ✅ NEW — AUDIO PLAYBACK
+    if (data.audio) {
+        const audio = new Audio("data:audio/mp3;base64," + data.audio);
+        audio.play().catch(() => {
+            console.log("Audio failed to play.");
+        });
+    }
 });
