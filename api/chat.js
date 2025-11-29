@@ -6,9 +6,9 @@ export default async function handler(req, res) {
     try {
         const { message } = req.body;
 
-        // -----------------------------
-        // 1) TEXT GENERATION (OpenAI)
-        // -----------------------------
+        // --------------------------------------
+        // 1) TEXT RESPONSE (GPT-4o-mini)
+        // --------------------------------------
         const textResponse = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
                     {
                         role: "system",
                         content:
-                        "You are Leocore — smart, calm, modern, helpful. You sound natural and real. Keep it short unless depth is asked. No roleplay actions."
+                        "You are Leocore — smart, calm, modern, helpful. You sound natural and real. Keep it short unless depth is asked. No roleplay actions. No cringe."
                     },
                     { role: "user", content: message }
                 ]
@@ -29,12 +29,51 @@ export default async function handler(req, res) {
         });
 
         const textData = await textResponse.json();
-        const replyText = textData?.choices?.[0]?.message?.content || "Error generating response.";
+
+        const replyText =
+            textData?.choices?.[0]?.message?.content ||
+            "Sorry, something went wrong.";
 
 
-        // -----------------------------
-        // 2) TEXT-TO-SPEECH (OpenAI)
-        // -----------------------------
+        // --------------------------------------
+        // 2) TTS AUDIO (GPT-4o-mini-tts)
+        // --------------------------------------
+        let audioBase64 = null;
+
+        try {
+            const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini-tts",
+                    voice: "alloy",   // free voice
+                    input: replyText   // what it will speak
+                })
+            });
+
+            const audioBuffer = await ttsResponse.arrayBuffer();
+            audioBase64 = Buffer.from(audioBuffer).toString("base64");
+
+        } catch (err) {
+            console.log("TTS ERROR:", err.message);
+        }
+
+
+        // --------------------------------------
+        // 3) SEND TEXT + AUDIO
+        // --------------------------------------
+        return res.status(200).json({
+            reply: replyText,
+            audio: audioBase64
+        });
+
+    } catch (err) {
+        return res.status(500).json({ reply: "Server error: " + err.message });
+    }
+}        // -----------------------------
         let audioBase64 = null;
 
         try {
