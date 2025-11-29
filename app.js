@@ -3,10 +3,27 @@ const orb = document.getElementById("orb");
 const centerWrapper = document.querySelector(".center-wrapper");
 
 orb.addEventListener("click", () => {
+    // smooth scale pop
     orb.style.transform = "scale(1.12)";
     setTimeout(() => {
         orb.style.transform = "";
-    }, 300);
+    }, 250);
+
+    // shockwave
+    const shock = document.getElementById("shockwave");
+    shock.style.transition = "none";
+    shock.style.transform = "translate(-50%, -50%) scale(0)";
+    shock.style.opacity = "0";
+
+    requestAnimationFrame(() => {
+        shock.style.transition = "0.4s ease-out";
+        shock.style.transform = "translate(-50%, -50%) scale(5)";
+        shock.style.opacity = "0.7";
+    });
+
+    setTimeout(() => {
+        shock.style.opacity = "0";
+    }, 350);
 });
 
 // CHAT SYSTEM
@@ -68,7 +85,4 @@ sendBtn.addEventListener("click", async () => {
         const audio = new Audio("data:audio/mp3;base64," + data.audio);
         audio.play().catch(() => {});
     }
-});
-orb.addEventListener("click", () => {
-    alert("ORB CLICKED!");
 });
