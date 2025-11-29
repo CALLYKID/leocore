@@ -53,6 +53,21 @@ body{
     z-index:5;
 }
 
+/* ORB FIX — ensure it can be clicked */
+.orb {
+    position: relative;
+    z-index: 9999 !important;
+    pointer-events: auto !important;
+}
+
+/* Stop layers from blocking clicks */
+.swirl,
+.inner-glow,
+.shine,
+.ripple,
+.ripple2 {
+    pointer-events: none !important;
+}
 @keyframes breath{
     0%,100%{transform:scale(1);}
     50%{transform:scale(1.07);}
