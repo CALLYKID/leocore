@@ -69,3 +69,6 @@ sendBtn.addEventListener("click", async () => {
         audio.play().catch(() => {});
     }
 });
+orb.addEventListener("click", () => {
+    alert("ORB CLICKED!");
+});
