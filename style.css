@@ -21,7 +21,7 @@ body{
     pointer-events:none;
 }
 
-/* Transparent dark overlay */
+/* Overlay */
 .overlay{
     position:fixed;
     inset:0;
@@ -50,27 +50,24 @@ body{
     box-shadow:0 0 70px #6dc7ff;
     animation:breath 5s ease-in-out infinite;
     position:relative;
-    z-index:5;
+
+    /* MUST BE CLICKABLE */
+    z-index:20;
+    pointer-events:auto;
 }
 
-/* ORB FIX — ensure it can be clicked */
-.orb {
-    position: relative;
-    z-index: 9999 !important;
-    pointer-events: auto !important;
+@keyframes breath{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.07);}
 }
 
-/* Stop layers from blocking clicks */
+/* ORB INNER LAYERS NEVER BLOCK TAPS */
 .swirl,
 .inner-glow,
 .shine,
 .ripple,
 .ripple2 {
-    pointer-events: none !important;
-}
-@keyframes breath{
-    0%,100%{transform:scale(1);}
-    50%{transform:scale(1.07);}
+    pointer-events:none;
 }
 
 .swirl{
@@ -101,6 +98,22 @@ body{
     background:radial-gradient(circle at 70% 30%, rgba(255,255,255,.5), transparent);
 }
 
+/* SHOCKWAVE */
+#shockwave {
+    position:absolute;
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    border:4px solid rgba(120,200,255,0.9);
+    left:50%;
+    top:50%;
+    transform:translate(-50%, -50%) scale(0);
+    opacity:0;
+    pointer-events:none;
+    transition:0.35s ease-out;
+    z-index:50;
+}
+
 .tap-text{
     margin-top:25px;
     font-size:18px;
@@ -128,15 +141,12 @@ body{
 /* CHAT SCREEN */
 .chat-screen{
     position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
+    inset:0;
     display:none;
     flex-direction:column;
     background:rgba(5,10,30,0.92);
     backdrop-filter:blur(10px);
-    z-index:20;
+    z-index:100;
 }
 
 .chat-screen.active{
@@ -189,7 +199,7 @@ body{
     max-width:75%;
 }
 
-/* INPUT AREA */
+/* INPUT */
 .chat-input-area{
     padding:12px;
     display:flex;
@@ -211,49 +221,4 @@ body{
     border-radius:10px;
     background:#00c8ff;
     color:white;
-}
-#shockwave {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 4px solid rgba(120,200,255,0.9);
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 9999;
-    transition: 0.4s ease-out;
-}
-/* --- ORB SHOULD ALWAYS BE CLICKABLE --- */
-.orb {
-    position: relative;
-    z-index: 9999 !important;
-    pointer-events: auto !important;
-}
-
-/* Prevent inner layers blocking taps */
-.swirl,
-.inner-glow,
-.shine,
-.ripple,
-.ripple2 {
-    pointer-events: none !important;
-}
-
-/* --- SHOCKWAVE FIXED STYLE --- */
-#shockwave {
-    position: absolute;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 4px solid rgba(120,200,255,0.9);
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) scale(0);
-    opacity: 0;
-    pointer-events: none;
-    z-index: 99999;
-    transition: 0.35s ease-out;
 }
