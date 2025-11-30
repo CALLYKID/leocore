@@ -1,15 +1,36 @@
+// ===============================================================
+// LEOCORE — CLEAN CHAT SYSTEM
+// ===============================================================
+
 window.addEventListener("DOMContentLoaded", () => {
 
+    // ELEMENTS
     const chatScreen = document.getElementById("chatScreen");
-    const openChat = document.getElementById("openChat");
+    const openChat = document.getElementById("openChat");   // main homepage chat opener
+    const fakeInput = document.getElementById("fakeInput"); // fake bar that opens chat
     const closeChat = document.getElementById("closeChat");
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
 
-    openChat.addEventListener("click", () => chatScreen.classList.add("active"));
-    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
+    // OPEN CHAT — homepage chat button
+    if (openChat) {
+        openChat.addEventListener("click", () => {
+            chatScreen.classList.add("active");
+        });
+    }
 
+    // OPEN CHAT — clicking fake input bar
+    fakeInput.addEventListener("click", () => {
+        chatScreen.classList.add("active");
+    });
+
+    // CLOSE CHAT
+    closeChat.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+    });
+
+    // ADD MESSAGE TO CHAT
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -18,6 +39,7 @@ window.addEventListener("DOMContentLoaded", () => {
         messages.scrollTop = messages.scrollHeight;
     }
 
+    // SEND MESSAGE TO BACKEND
     async function sendToGroq(textMessage) {
         try {
             const res = await fetch("/api/chat", {
@@ -30,10 +52,11 @@ window.addEventListener("DOMContentLoaded", () => {
             return JSON.parse(raw);
 
         } catch (err) {
-            return { reply: "Network error.", audio: null };
+            return { reply: "Network error occurred.", audio: null };
         }
     }
 
+    // USER SENDS MESSAGE
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
@@ -45,61 +68,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const data = await sendToGroq(text);
 
-        messages.lastChild.remove();
+        messages.lastChild.remove(); 
         addMessage(data.reply, "ai");
 
         if (data.audio) {
             const audio = new Audio("data:audio/mp3;base64," + data.audio);
-            audio.play();
+            audio.play().catch(() => {});
         }
     });
-
-
-
-    // =========================================================
-    // 🔥 ANIMATED PLACEHOLDER (HOMEPAGE FAKE INPUT)
-    // =========================================================
-
-    const fake = document.getElementById("fakeInput");
-
-    // If homepage exists (not chat page)
-    if (fake) {
-
-        const phrases = [
-            "Message Leocore...",
-            "Give me a summer plan.",
-            "Create a menu for me.",
-            "Give me a funny quote."
-        ];
-
-        let current = 0;
-        let index = 0;
-        let forward = true;
-
-        function animatePlaceholder() {
-            const text = phrases[current];
-
-            if (forward) {
-                index++;
-                if (index === text.length) {
-                    forward = false;
-                    setTimeout(animatePlaceholder, 1300);
-                    return;
-                }
-            } else {
-                index--;
-                if (index === 0) {
-                    forward = true;
-                    current = (current + 1) % phrases.length;
-                }
-            }
-
-            fake.placeholder = text.slice(0, index);
-
-            setTimeout(animatePlaceholder, 70); // typing speed
-        }
-
-        animatePlaceholder();
-    }
 
 });
