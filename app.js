@@ -1,22 +1,37 @@
-// ORB EFFECTS
+// ORB EFFECTS — FINAL FIXED VERSION
 const orb = document.getElementById("orb");
-const centerWrapper = document.querySelector(".center-wrapper");
+const shock = document.getElementById("shockwave");
 
 orb.addEventListener("click", () => {
+    // Pop animation
+    orb.style.transition = "0.25s ease";
     orb.style.transform = "scale(1.12)";
-    setTimeout(() => orb.style.transform = "", 250);
+    setTimeout(() => orb.style.transform = "scale(1)", 250);
 
-    const shock = document.getElementById("shockwave");
-    shock.style.transform = "translate(-50%, -50%) scale(5)";
-    shock.style.opacity = "0.7";
+    // Reset shockwave instantly
+    shock.style.transition = "none";
+    shock.style.transform = "translate(-50%, -50%) scale(0)";
+    shock.style.opacity = "0";
 
+    // Animate shockwave outward
+    requestAnimationFrame(() => {
+        shock.style.transition = "0.45s ease-out";
+        shock.style.transform = "translate(-50%, -50%) scale(5)";
+        shock.style.opacity = "0.7";
+    });
+
+    // Fade out
     setTimeout(() => {
-        shock.style.transform = "translate(-50%, -50%) scale(0)";
         shock.style.opacity = "0";
-    }, 300);
+    }, 350);
+
+    console.log("ORB CLICKED ✔️");
 });
 
+
+// ------------------------------------------------------
 // CHAT SYSTEM
+// ------------------------------------------------------
 const chatScreen = document.getElementById("chatScreen");
 const openChat = document.getElementById("openChat");
 const closeChat = document.getElementById("closeChat");
@@ -32,6 +47,7 @@ closeChat.addEventListener("click", () => {
     chatScreen.classList.remove("active");
 });
 
+
 // Add message bubble
 function addMessage(text, sender) {
     const div = document.createElement("div");
@@ -41,7 +57,10 @@ function addMessage(text, sender) {
     messages.scrollTop = messages.scrollHeight;
 }
 
-// SEND FUNCTION TO BACKEND
+
+// ------------------------------------------------------
+// SEND FUNCTION TO BACKEND (TEXT + AUDIO)
+// ------------------------------------------------------
 async function sendToGroq(prompt) {
     try {
         const res = await fetch("/api/chat", {
@@ -50,12 +69,16 @@ async function sendToGroq(prompt) {
             body: JSON.stringify({ message: prompt })
         });
 
-        return await res.json(); // MUST return full JSON for audio + text
+        return await res.json();
     } catch (err) {
         return { reply: "AI error: " + err.message };
     }
 }
 
+
+// ------------------------------------------------------
+// SEND MESSAGE
+// ------------------------------------------------------
 sendBtn.addEventListener("click", async () => {
     const text = input.value.trim();
     if (!text) return;
@@ -70,9 +93,9 @@ sendBtn.addEventListener("click", async () => {
     messages.lastChild.remove();
     addMessage(data.reply, "ai");
 
-    // AUDIO
+    // AUDIO 🔊
     if (data.audio) {
         const audio = new Audio("data:audio/mp3;base64," + data.audio);
-        audio.play().catch(() => {});
+        audio.play().catch(() => console.log("Audio failed to play."));
     }
-});console.log("ORB CLICKED", shock);
+});
