@@ -1,8 +1,7 @@
 // Force Node runtime
 module.exports.config = { runtime: "nodejs20.x" };
 
-// Import built-in Node globals for File, FormData, fetch (Node 18+)
-const { File, FormData } = global;
+const { File, FormData, fetch } = require("undici");
 
 // MAIN HANDLER
 module.exports = async function handler(req, res) {
@@ -11,15 +10,16 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        // Parse body
+        // Parse body safely
         const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
         const { message, audio } = body;
 
         let finalText = message;
 
-        // 1) Audio → Whisper
+        // 1) AUDIO → WHISPER
         if (!message && audio) {
             const audioBuffer = Buffer.from(audio, "base64");
+
             const audioFile = new File([audioBuffer], "audio.webm", {
                 type: "audio/webm"
             });
@@ -30,7 +30,9 @@ module.exports = async function handler(req, res) {
 
             const whisperResp = await fetch("https://api.openai.com/v1/audio/transcriptions", {
                 method: "POST",
-                headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+                headers: {
+                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+                },
                 body: form
             });
 
@@ -38,14 +40,15 @@ module.exports = async function handler(req, res) {
             finalText = whisperData.text || "";
         }
 
+        // No text? Return fallback
         if (!finalText || !finalText.trim()) {
             return res.status(200).json({
-                reply: "I didn’t catch that, try speaking louder.",
+                reply: "I didn’t catch that, try again.",
                 audio: null
             });
         }
 
-        // 2) Chat Completion
+        // 2) GPT RESPONSE
         const chatResp = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
