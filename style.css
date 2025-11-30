@@ -21,7 +21,7 @@ body{
     pointer-events:none;
 }
 
-/* Transparent dark overlay */
+/* Overlay tint */
 .overlay{
     position:fixed;
     inset:0;
@@ -29,136 +29,29 @@ body{
     z-index:-5;
 }
 
-/* CENTER WRAPPER */
+/* CENTER TITLE */
 .center-wrapper{
     position:absolute;
     top:47%;
     left:50%;
     transform:translate(-50%,-50%);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
+    text-align:center;
+    color:white;
 }
 
-/* ORB BASE STYLE */
-.orb{
-    width:260px;
-    height:260px;
-    border-radius:50%;
-    background:radial-gradient(circle,#8ce4ff,#8aa8ff,#c77cff);
-    box-shadow:0 0 70px #6dc7ff;
-    animation:breath 5s ease-in-out infinite;
-    position:relative;
-    z-index:9999 !important;
-    pointer-events:auto !important;
-    transition:0.15s ease-out;
+.title{
+    font-size:48px;
+    font-weight:800;
+    letter-spacing:5px;
+    text-shadow:0 0 25px #00d0ff;
 }
 
-/* Orb breathing animation */
-@keyframes breath{
-    0%,100%{transform:scale(1);}
-    50%{transform:scale(1.07);}
+.subtitle{
+    margin-top:10px;
+    font-size:20px;
+    opacity:0.8;
+    letter-spacing:3px;
 }
-
-/* INNER LAYERS (no blocking clicks) */
-.swirl,
-.inner-glow,
-.shine,
-.ripple,
-.ripple2 {
-    pointer-events:none !important;
-}
-
-/* Swirl spin */
-.swirl{
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    background:conic-gradient(#9ff,#55f,#c7f,#9ff);
-    opacity:0.3;
-    animation:spin 6s linear infinite;
-}
-
-@keyframes spin{
-    from{transform:rotate(0deg);}
-    to{transform:rotate(360deg);}
-}
-
-.inner-glow{
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    background:radial-gradient(circle,rgba(255,255,255,0.4),transparent);
-}
-
-.shine{
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    background:radial-gradient(circle at 70% 30%, rgba(255,255,255,.5), transparent);
-}
-
-/* Tap label */
-.tap-text{
-    margin-top:25px;
-    font-size:18px;
-    letter-spacing:7px;
-    color:rgba(200,230,255,.85);
-}
-
-/* CONSTANT RIPPLES */
-.ripple{
-    position:absolute;
-    width:330px;
-    height:330px;
-    border-radius:50%;
-    border:3px solid rgba(100,160,255,0.45);
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    animation:rippleAnim 3s ease-out infinite;
-}
-
-.ripple2{
-    animation-delay:1.2s;
-}
-
-@keyframes rippleAnim{
-    0% { transform:translate(-50%, -50%) scale(1); opacity:0.8; }
-    70% { opacity:0.3; }
-    100% { transform:translate(-50%, -50%) scale(2.2); opacity:0; }
-}
-
-/* SHOCKWAVE (tap effect + listening glow support) */
-#shockwave {
-    position:absolute;
-    width:26px;
-    height:26px;
-    border-radius:50%;
-    border:4px solid rgba(120,200,255,0.9);
-    left:50%;
-    top:50%;
-    transform:translate(-50%, -50%) scale(0);
-    opacity:0;
-    pointer-events:none;
-    z-index:99999;
-    transition:0.35s ease-out;
-}
-
-/* 🔴 LISTENING MODE (active when recording) */
-.orb.listening {
-    box-shadow:0 0 45px rgba(255,70,70,1),
-               0 0 90px rgba(255,0,0,0.8);
-    animation:listeningPulse 1.3s infinite ease-in-out !important;
-}
-
-@keyframes listeningPulse {
-    0% { transform:scale(1.05); }
-    50% { transform:scale(1.13); }
-    100% { transform:scale(1.05); }
-}
-
 
 /* CHAT BUTTON */
 .chat-btn{
@@ -212,6 +105,7 @@ body{
     border:none;
     color:white;
     font-size:30px;
+    cursor:pointer;
 }
 
 /* MESSAGES */
@@ -242,7 +136,7 @@ body{
     max-width:75%;
 }
 
-/* INPUT AREA */
+/* INPUT */
 .chat-input-area{
     padding:12px;
     display:flex;
@@ -255,6 +149,7 @@ body{
     padding:14px;
     border-radius:10px;
     border:none;
+    outline:none;
 }
 
 #sendBtn{
@@ -264,4 +159,5 @@ body{
     border-radius:10px;
     background:#00c8ff;
     color:white;
+    cursor:pointer;
 }
