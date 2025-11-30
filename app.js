@@ -73,19 +73,19 @@ window.addEventListener("DOMContentLoaded", () => {
        ADD TYPING LOADER BUBBLE
     ====================================================== */
     function addTypingBubble() {
-        const wrap = document.createElement("div");
-        wrap.className = "ai-msg typing-bubble";
+    const wrap = document.createElement("div");
+    wrap.className = "ai-msg typing-bubble";
 
-        wrap.innerHTML = `
-            <span class="dot"></span>
-            <span class="dot"></span>
-            <span class="dot"></span>
-        `;
+    wrap.innerHTML = `
+        <span class="dot d1"></span>
+        <span class="dot d2"></span>
+        <span class="dot d3"></span>
+    `;
 
-        messages.appendChild(wrap);
-        messages.scrollTop = messages.scrollHeight;
-        return wrap;
-    }
+    messages.appendChild(wrap);
+    messages.scrollTop = messages.scrollHeight;
+    return wrap;
+}
 
     /* ======================================================
        SEND MESSAGE TO GROQ API
