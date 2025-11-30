@@ -1,5 +1,5 @@
 // ===============================================================
-// ORB VOICE CONTROL (Tap to start • Tap to stop)
+// ORB VOICE CONTROL
 // ===============================================================
 let isRecording = false;
 let mediaRecorder;
@@ -8,8 +8,8 @@ let audioChunks = [];
 const orb = document.getElementById("orb");
 const shockwave = document.getElementById("shockwave");
 
-// Start or stop recording when orb is tapped
-orb.addEventListener("click", async () => {
+// Tap = Start / Stop mic
+orb.addEventListener("click", () => {
     if (!isRecording) {
         startRecording();
     } else {
@@ -17,23 +17,30 @@ orb.addEventListener("click", async () => {
     }
 });
 
-// Start recording -------------------------------------------------
+
+// ===============================================================
+// START RECORDING
+// ===============================================================
 async function startRecording() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: true
+        });
 
-        mediaRecorder = new MediaRecorder(stream);
+        // WebM audio for Whisper
+        mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
         audioChunks = [];
 
-        mediaRecorder.ondataavailable = (e) => {
+        mediaRecorder.ondataavailable = e => {
             audioChunks.push(e.data);
         };
 
         mediaRecorder.onstop = async () => {
-            const blob = new Blob(audioChunks, { type: "audio/webm; codecs=opus" });
+            const blob = new Blob(audioChunks, { type: "audio/webm" });
+
             const reader = new FileReader();
             reader.onloadend = async () => {
-                const base64Audio = reader.result.split(",")[1];
+                let base64Audio = reader.result.split(",")[1];
 
                 addMessage("🎤 Listening ended…", "user");
 
@@ -51,9 +58,9 @@ async function startRecording() {
         };
 
         mediaRecorder.start();
-
         isRecording = true;
 
+        // UI animation
         orb.classList.add("listening");
         shockwave.style.transform = "translate(-50%, -50%) scale(3)";
         shockwave.style.opacity = "0.9";
@@ -62,11 +69,14 @@ async function startRecording() {
 
     } catch (err) {
         console.error(err);
-        addMessage("Mic blocked. Enable microphone access.", "ai");
+        addMessage("Mic blocked — enable microphone access.", "ai");
     }
 }
 
-// Stop recording ---------------------------------------------------
+
+// ===============================================================
+// STOP RECORDING
+// ===============================================================
 function stopRecording() {
     if (mediaRecorder && mediaRecorder.state !== "inactive") {
         mediaRecorder.stop();
@@ -100,7 +110,7 @@ closeChat.addEventListener("click", () => {
 });
 
 
-// Add message bubble ----------------------------------------------
+// Add message bubble
 function addMessage(text, sender) {
     const div = document.createElement("div");
     div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -110,7 +120,9 @@ function addMessage(text, sender) {
 }
 
 
-// Send to backend ---------------------------------------------------
+// ===============================================================
+// SEND TO BACKEND (TEXT OR VOICE)
+// ===============================================================
 async function sendToGroq(textMessage, audioBase64 = null) {
     try {
         const res = await fetch("/api/chat", {
@@ -123,13 +135,16 @@ async function sendToGroq(textMessage, audioBase64 = null) {
         });
 
         return await res.json();
+
     } catch (err) {
         return { reply: "AI error: " + err.message };
     }
 }
 
 
-// Text send button ---------------------------------------------------
+// ===============================================================
+// TEXT SEND BUTTON
+// ===============================================================
 sendBtn.addEventListener("click", async () => {
     const text = input.value.trim();
     if (!text) return;
