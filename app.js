@@ -21,20 +21,24 @@ orb.addEventListener("click", () => {
 
 
 // ===============================================================
-// START RECORDING — FULLY FIXED FOR ANDROID + WHISPER
+// START RECORDING — NEW ANDROID FIX
 // ===============================================================
 async function startRecording() {
     try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+                channelCount: 1,
+                noiseSuppression: false,
+                echoCancellation: false,
+                autoGainControl: false
+            }
+        });
 
-        // 🔥 Force high-quality OPUS for Whisper
-        const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-            ? "audio/webm;codecs=opus"
-            : "audio/webm";
+        const mime = "audio/webm;codecs=opus";
 
         mediaRecorder = new MediaRecorder(stream, {
             mimeType: mime,
-            audioBitsPerSecond: 256000 // <<< MAJOR FIX: Strong bitrate (Android needs this)
+            bitsPerSecond: 192000
         });
 
         audioChunks = [];
@@ -46,44 +50,38 @@ async function startRecording() {
         mediaRecorder.onstop = async () => {
             const blob = new Blob(audioChunks, { type: mime });
 
-            console.log("🎤 Blob size:", blob.size);
+            console.log("🎤 Final blob size:", blob.size);
 
-            // 🔥 FIX: Only detect real silence, not quiet speech
-            if (blob.size < 2000) {
-                addMessage("🎤 I couldn't hear anything. Try again.", "ai");
+            if (blob.size < 3000) {
+                addMessage("🎤 I didn't catch that, try speaking louder.", "ai");
                 return;
             }
 
             const reader = new FileReader();
+
             reader.onloadend = async () => {
                 let base64Audio = reader.result.split(",")[1];
-
-                // 🔥 Whisper anti-silence hack (boosts signal)
-                base64Audio = base64Audio + "==";
 
                 addMessage("🎤 Listening ended…", "user");
 
                 const data = await sendToGroq(null, base64Audio);
-
                 addMessage(data.reply, "ai");
 
                 if (data.audio) {
-                    const audio = new Audio("data:audio/mp3;base64," + data.audio);
-                    audio.play().catch(() => {});
+                    const a = new Audio("data:audio/mp3;base64," + data.audio);
+                    a.play().catch(() => {});
                 }
             };
 
             reader.readAsDataURL(blob);
         };
 
-        mediaRecorder.start(150); // more frequent chunks = better quality
+        mediaRecorder.start(200);
 
         isRecording = true;
-
-        // UI animations
         orb.classList.add("listening");
-        shockwave.style.transform = "translate(-50%, -50%) scale(3)";
         shockwave.style.opacity = "0.9";
+        shockwave.style.transform = "translate(-50%, -50%) scale(3)";
 
         addMessage("🎤 Listening… tap again to stop.", "user");
 
