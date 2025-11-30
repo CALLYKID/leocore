@@ -4,41 +4,34 @@ export default async function handler(req, res) {
     }
 
     try {
-        let userMessage = "";
-        let audioBase64 = null;
+        const { message, audio } = req.body;
 
-        // If user sent text
-        if (req.body.message) {
-            userMessage = req.body.message;
-        }
+        let finalText = message;
 
-        // If user sent audio -> transcribe with Whisper
-        if (req.body.audio) {
-            const audioBuffer = Buffer.from(req.body.audio, "base64");
-
-            const whisperRes = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+        // =====================================================
+        // 1) VOICE INPUT → TRANSCRIBE WITH OPENAI WHISPER
+        // =====================================================
+        if (!message && audio) {
+            const whisperResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
                 method: "POST",
-                headers: { 
+                headers: {
                     "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
                 },
-                body: (() => {
-                    const formData = new FormData();
-                    formData.append("file", new Blob([audioBuffer]), "audio.webm");
-                    formData.append("model", "whisper-1");
-                    return formData;
-                })()
+                body: createWhisperForm(audio)
             });
 
-            const whisperJson = await whisperRes.json();
-            userMessage = whisperJson.text || "";
+            const whisperData = await whisperResponse.json();
+            finalText = whisperData.text || "";
         }
 
-        if (!userMessage.trim()) {
-            return res.status(400).json({ reply: "I didn’t catch that, try speaking louder." });
+        if (!finalText || finalText.trim().length === 0) {
+            return res.status(200).json({ reply: "I didn't catch that, try speaking louder." });
         }
 
-        // 🌟 AI TEXT
-        const textRes = await fetch("https://api.openai.com/v1/chat/completions", {
+        // =====================================================
+        // 2) GPT TEXT GENERATION
+        // =====================================================
+        const textResponse = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -50,17 +43,19 @@ export default async function handler(req, res) {
                     {
                         role: "system",
                         content:
-                            "You are Leocore — smart, calm, helpful, modern. Keep it short unless asked. No roleplay actions."
+                            "You are Leocore — calm, smart, modern, and friendly. Keep replies short and natural."
                     },
-                    { role: "user", content: userMessage }
+                    { role: "user", content: finalText }
                 ]
             })
         });
 
-        const textJson = await textRes.json();
-        const replyText = textJson?.choices?.[0]?.message?.content || "Something went wrong.";
+        const textData = await textResponse.json();
+        const replyText = textData.choices?.[0]?.message?.content || "Error generating response.";
 
-        // 🌟 AI AUDIO (TTS)
+        // =====================================================
+        // 3) TEXT → SPEECH
+        // =====================================================
         const ttsRes = await fetch("https://api.openai.com/v1/audio/speech", {
             method: "POST",
             headers: {
@@ -74,15 +69,30 @@ export default async function handler(req, res) {
             })
         });
 
-        const audioBuf = await ttsRes.arrayBuffer();
-        const audioReplyBase64 = Buffer.from(audioBuf).toString("base64");
+        const audioBuffer = await ttsRes.arrayBuffer();
+        const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
+        // =====================================================
+        // 4) SEND BACK BOTH TEXT + AUDIO
+        // =====================================================
         return res.status(200).json({
             reply: replyText,
-            audio: audioReplyBase64
+            audio: audioBase64
         });
 
     } catch (err) {
         return res.status(500).json({ reply: "Server error: " + err.message });
     }
+}
+
+
+// =====================================================
+// HELPER — Creates Whisper Multipart/FormData body
+// =====================================================
+function createWhisperForm(base64Audio) {
+    const buffer = Buffer.from(base64Audio, "base64");
+    const form = new FormData();
+    form.append("file", buffer, { filename: "audio.webm", contentType: "audio/webm" });
+    form.append("model", "whisper-1");
+    return form;
 }
