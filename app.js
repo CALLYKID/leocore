@@ -46,6 +46,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     typeAnimation();
 
+
     /* ======================================================
        OPEN CHAT WHEN CLICKING FAKE BAR
     ====================================================== */
@@ -57,8 +58,9 @@ window.addEventListener("DOMContentLoaded", () => {
         chatScreen.classList.remove("active");
     });
 
+
     /* ======================================================
-       ADD MESSAGE (USER OR AI)
+       ADD NORMAL MESSAGE
     ====================================================== */
     function addMessage(text, sender) {
         const div = document.createElement("div");
@@ -69,26 +71,28 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
+
     /* ======================================================
-       ADD TYPING LOADER BUBBLE
+       ADD TYPING LOADER
     ====================================================== */
     function addTypingBubble() {
-    const wrap = document.createElement("div");
-    wrap.className = "ai-msg typing-bubble";
+        const wrap = document.createElement("div");
+        wrap.className = "typing-bubble";
 
-    wrap.innerHTML = `
-        <span class="dot d1"></span>
-        <span class="dot d2"></span>
-        <span class="dot d3"></span>
-    `;
+        wrap.innerHTML = `
+            <span class="dot d1"></span>
+            <span class="dot d2"></span>
+            <span class="dot d3"></span>
+        `;
 
-    messages.appendChild(wrap);
-    messages.scrollTop = messages.scrollHeight;
-    return wrap;
-}
+        messages.appendChild(wrap);
+        messages.scrollTop = messages.scrollHeight;
+        return wrap;
+    }
+
 
     /* ======================================================
-       SEND MESSAGE TO GROQ API
+       SEND TO GROQ
     ====================================================== */
     async function sendToGroq(textMessage) {
         try {
@@ -98,33 +102,37 @@ window.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ message: textMessage })
             });
 
-            return await res.json();
+            const data = await res.json();
+
+            // If Groq sends nothing → fallback
+            if (!data.reply || data.reply === "Error." || data.reply.startsWith("Error")) {
+                return { reply: "I didn’t quite catch that. Try asking again in a different way!" };
+            }
+
+            return data;
+
         } catch (err) {
-            return { reply: "Network error.", audio: null };
+            return { reply: "Network error." };
         }
     }
 
+
     /* ======================================================
-       HANDLE SEND BUTTON
+       HANDLE SEND
     ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
 
-        // User bubble
         addMessage(text, "user");
         input.value = "";
 
-        // Typing bubble
         const loader = addTypingBubble();
 
-        // API response
         const data = await sendToGroq(text);
 
-        // remove loader
         loader.remove();
 
-        // final reply
         addMessage(data.reply, "ai");
     });
 
