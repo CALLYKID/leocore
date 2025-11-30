@@ -50,7 +50,7 @@ async function startRecording() {
         mediaRecorder.onstop = async () => {
             const blob = new Blob(audioChunks, { type: mime });
 
-            console.log("🎤 Final blob size:", blob.size);
+            addMessage("DEBUG SIZE: " + blob.size, "ai");
 
             if (blob.size < 3000) {
                 addMessage("🎤 I didn't catch that, try speaking louder.", "ai");
