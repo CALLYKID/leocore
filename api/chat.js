@@ -1,6 +1,6 @@
 export const config = { runtime: "nodejs" };
 
-import { File, FormData } from "undici";
+// Node 18+ already includes fetch, File, FormData globally
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
