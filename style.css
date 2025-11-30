@@ -202,3 +202,31 @@ body{
         transform: translateY(0);
     }
 }
+/* Typing indicator bubble */
+.typing-bubble {
+    background: #222b45;
+    padding: 10px 14px;
+    border-radius: 12px 12px 12px 4px;
+    display: flex;
+    gap: 6px;
+    width: fit-content;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background: #bcc4ff;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation: bounce 1.3s infinite;
+}
+
+.d1 { animation-delay: 0s;   }
+.d2 { animation-delay: 0.2s; }
+.d3 { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%   { transform: translateY(0); opacity: 0.3; }
+    35%  { transform: translateY(-6px); opacity: 1; }
+    70%  { transform: translateY(0); opacity: 0.3; }
+}
