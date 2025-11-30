@@ -6,7 +6,9 @@ window.addEventListener("DOMContentLoaded", () => {
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
+
     const fakeInput = document.getElementById("fakeInput");
+    const fakeText = document.getElementById("fakeText"); // ✅ REAL TEXT TARGET
 
     const prompts = [
         "Message Leocore…",
@@ -24,14 +26,14 @@ window.addEventListener("DOMContentLoaded", () => {
         const current = prompts[promptIndex];
 
         if (!deleting) {
-            fakeInput.innerText = current.substring(0, charIndex++);
+            fakeText.innerText = current.substring(0, charIndex++); // ✅ FIXED
             if (charIndex > current.length) {
                 deleting = true;
-                setTimeout(typeAnimation, 1300);
+                setTimeout(typeAnimation, 1200);
                 return;
             }
         } else {
-            fakeInput.innerText = current.substring(0, charIndex--);
+            fakeText.innerText = current.substring(0, charIndex--); // ✅ FIXED
             if (charIndex < 0) {
                 deleting = false;
                 promptIndex = (promptIndex + 1) % prompts.length;
