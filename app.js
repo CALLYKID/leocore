@@ -4,127 +4,142 @@
 window.addEventListener("DOMContentLoaded", () => {
 
     // ===============================================================
-// ORB VOICE CONTROL — ANDROID + WHISPER FIXED VERSION
-// ===============================================================
-let isRecording = false;
-let mediaRecorder;
-let audioChunks = [];
+    // ORB STATE
+    // ===============================================================
+    let isRecording = false;
+    let stopRecording = null;
 
-const orb = document.getElementById("orb");
-const shockwave = document.getElementById("shockwave");
+    const orb = document.getElementById("orb");
+    const shockwave = document.getElementById("shockwave");
 
-// Tap = Start / Stop mic
-orb.addEventListener("click", () => {
-    if (!isRecording) startRecording();
-    else stopRecording();
-});
-
-
-// ===============================================================
-// FINAL PERFECT ANDROID → WHISPER RECORDING FUNCTION
-// ===============================================================
-async function startRecording() {
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-                sampleRate: 48000,          // Whisper’s native rate
-                channelCount: 1,            // Mono → cleanest input
-                noiseSuppression: false,
-                echoCancellation: false,
-                autoGainControl: false
-            }
-        });
-
-        // Force OPUS WebM — best for Whisper
-        const mime = "audio/webm;codecs=opus";
-
-        mediaRecorder = new MediaRecorder(stream, {
-            mimeType: mime,
-            audioBitsPerSecond: 96000      // 96kbps = perfect sweet spot
-        });
-
-        audioChunks = [];
-
-        mediaRecorder.ondataavailable = e => {
-            if (e.data && e.data.size > 0) {
-                audioChunks.push(e.data);
-            }
-        };
-
-        mediaRecorder.onstop = async () => {
-            const blob = new Blob(audioChunks, { type: mime });
-
-            addMessage("DEBUG SIZE: " + blob.size, "ai");
-
-            // Dynamic silence detection
-            // OPUS compresses differently depending on pitch
-            const tooSmall = blob.size < 6000;  // 6kb is reliable minimum
-            const tooShort = blob.size < 20000; // <20kb = likely too quiet
-
-            if (tooSmall) {
-                addMessage("🎤 I didn't hear anything.", "ai");
-                return;
-            }
-
-            if (tooShort) {
-                addMessage("🎤 Try speaking a little closer.", "ai");
-                // still send to Whisper; just warn user
-            }
-
-            const reader = new FileReader();
-
-            reader.onloadend = async () => {
-                const base64Audio = reader.result.split(",")[1];
-
-                addMessage("🎤 Processing…", "user");
-
-                const data = await sendToGroq(null, base64Audio);
-
-                addMessage(data.reply, "ai");
-
-                if (data.audio) {
-                    const audio = new Audio("data:audio/mp3;base64," + data.audio);
-                    audio.play().catch(() => {});
-                }
-            };
-
-            reader.readAsDataURL(blob);
-        };
-
-        // Shorter intervals = more accurate timestamps for Whisper
-        mediaRecorder.start(100);
-
-        isRecording = true;
-        orb.classList.add("listening");
-        shockwave.style.opacity = "0.9";
-        shockwave.style.transform = "translate(-50%, -50%) scale(3)";
-
-        addMessage("🎤 Listening… tap again to stop.", "user");
-
-    } catch (err) {
-        console.error(err);
-        addMessage("Mic blocked — enable microphone access.", "ai");
-    }
-}
-
-
-// ===============================================================
-// STOP RECORDING
-// ===============================================================
-function stopRecording() {
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-        mediaRecorder.stop();
-    }
-
-    isRecording = false;
-
-    orb.classList.remove("listening");
-    shockwave.style.opacity = "0";
-    shockwave.style.transform = "translate(-50%, -50%) scale(0)";
-}
+    orb.addEventListener("click", () => {
+        if (!isRecording) startRecording();
+        else stopRecording();
+    });
 
     // ===============================================================
-    // CHAT SYSTEM
+    // START RECORDING — UNIVERSAL ANDROID + WHISPER SAFE (WAV)
+    // ===============================================================
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    sampleRate: 48000,
+                    channelCount: 1,
+                    noiseSuppression: false,
+                    echoCancellation: false,
+                    autoGainControl: false
+                }
+            });
+
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)({
+                sampleRate: 48000
+            });
+
+            const source = audioContext.createMediaStreamSource(stream);
+            const processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+            let samples = [];
+
+            processor.onaudioprocess = e => {
+                samples.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+            };
+
+            source.connect(processor);
+            processor.connect(audioContext.destination);
+
+            // UI
+            isRecording = true;
+            orb.classList.add("listening");
+            shockwave.style.opacity = "0.9";
+            shockwave.style.transform = "translate(-50%, -50%) scale(3)";
+            addMessage("🎤 Listening… tap again to stop.", "user");
+
+            // STOP FUNCTION (REPLACED)
+            stopRecording = async () => {
+                processor.disconnect();
+                source.disconnect();
+                stream.getTracks().forEach(t => t.stop());
+                isRecording = false;
+
+                orb.classList.remove("listening");
+                shockwave.style.opacity = "0";
+                shockwave.style.transform = "translate(-50%, -50%) scale(0)";
+
+                // MERGE SAMPLES
+                let length = samples.reduce((a, b) => a + b.length, 0);
+                let pcm = new Float32Array(length);
+                let offset = 0;
+                for (let chunk of samples) {
+                    pcm.set(chunk, offset);
+                    offset += chunk.length;
+                }
+
+                // ENCODE WAV
+                const wavBlob = encodeWAV(pcm, audioContext.sampleRate);
+
+                addMessage("DEBUG SIZE: " + wavBlob.size, "ai"); // keep for testing
+
+                const reader = new FileReader();
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result.split(",")[1];
+
+                    addMessage("🎤 Processing…", "user");
+                    const data = await sendToGroq(null, base64Audio);
+
+                    addMessage(data.reply, "ai");
+
+                    if (data.audio) {
+                        const audio = new Audio("data:audio/mp3;base64," + data.audio);
+                        audio.play().catch(() => {});
+                    }
+                };
+
+                reader.readAsDataURL(wavBlob);
+            };
+
+        } catch (err) {
+            console.error(err);
+            addMessage("Mic blocked — enable microphone access.", "ai");
+        }
+    }
+
+    // ===============================================================
+    // WAV ENCODER — WHISPER SAFE FORMAT
+    // ===============================================================
+    function encodeWAV(samples, sampleRate) {
+        const buffer = new ArrayBuffer(44 + samples.length * 2);
+        const view = new DataView(buffer);
+
+        function writeString(v, s, o) {
+            for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
+        }
+
+        writeString(view, "RIFF", 0);
+        view.setUint32(4, 36 + samples.length * 2, true);
+        writeString(view, "WAVE", 8);
+        writeString(view, "fmt ", 12);
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeString(view, "data", 36);
+        view.setUint32(40, samples.length * 2, true);
+
+        let offset = 44;
+        for (let i = 0; i < samples.length; i++, offset += 2) {
+            const s = Math.max(-1, Math.min(1, samples[i]));
+            view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7fff, true);
+        }
+
+        return new Blob([buffer], { type: "audio/wav" });
+    }
+
+    // ===============================================================
+    // CHAT SYSTEM UI
     // ===============================================================
     const chatScreen = document.getElementById("chatScreen");
     const openChat = document.getElementById("openChat");
@@ -133,13 +148,8 @@ function stopRecording() {
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
 
-    openChat.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-    });
-
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
+    openChat.addEventListener("click", () => chatScreen.classList.add("active"));
+    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
     function addMessage(text, sender) {
         const div = document.createElement("div");
@@ -191,7 +201,6 @@ function stopRecording() {
         input.value = "";
 
         addMessage("Processing…", "ai");
-
         const data = await sendToGroq(text);
 
         messages.lastChild.remove();
@@ -202,4 +211,5 @@ function stopRecording() {
             audio.play().catch(() => {});
         }
     });
+
 });
