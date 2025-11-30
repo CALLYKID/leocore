@@ -1,51 +1,50 @@
-// =============================
-// ORB + VOICE RECORDING
-// =============================
-
-// DOM
-const orb = document.getElementById("orb");
-const messages = document.getElementById("messages");
-const input = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
-const chatScreen = document.getElementById("chatScreen");
-const openChat = document.getElementById("openChat");
-const closeChat = document.getElementById("closeChat");
-
-// --- VOICE RECORDER ---
+// ===============================================================
+// ORB VOICE CONTROL (Tap to start • Tap to stop)
+// ===============================================================
+let isRecording = false;
 let mediaRecorder;
 let audioChunks = [];
 
+const orb = document.getElementById("orb");
+const shockwave = document.getElementById("shockwave");
+
+// Start or stop recording when orb is tapped
+orb.addEventListener("click", async () => {
+    if (!isRecording) {
+        startRecording();
+    } else {
+        stopRecording();
+    }
+});
+
+// Start recording -------------------------------------------------
 async function startRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
 
+        mediaRecorder = new MediaRecorder(stream);
         audioChunks = [];
 
-        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.ondataavailable = (e) => {
+            audioChunks.push(e.data);
+        };
 
         mediaRecorder.onstop = async () => {
             const blob = new Blob(audioChunks, { type: "audio/webm" });
-            const reader = new FileReader();
 
+            const reader = new FileReader();
             reader.onloadend = async () => {
                 const base64Audio = reader.result.split(",")[1];
 
-                // SEND AUDIO TO BACKEND
-                const res = await fetch("/api/chat", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ audio: base64Audio })
-                });
+                addMessage("🎤 Listening ended…", "user");
 
-                const data = await res.json();
+                const data = await sendToGroq(null, base64Audio);
 
-                addMessage("🎤 Voice message", "user");
                 addMessage(data.reply, "ai");
 
                 if (data.audio) {
                     const audio = new Audio("data:audio/mp3;base64," + data.audio);
-                    audio.play();
+                    audio.play().catch(() => {});
                 }
             };
 
@@ -53,46 +52,56 @@ async function startRecording() {
         };
 
         mediaRecorder.start();
-        console.log("🎙 recording…");
 
-        // Auto-stop after 1.5s
-        setTimeout(() => mediaRecorder.stop(), 1500);
+        isRecording = true;
+
+        orb.classList.add("listening");
+        shockwave.style.transform = "translate(-50%, -50%) scale(3)";
+        shockwave.style.opacity = "0.9";
+
+        addMessage("🎤 Listening… tap again to stop.", "user");
 
     } catch (err) {
-        console.log("Mic error:", err);
-        addMessage("Mic access blocked.", "ai");
+        console.error(err);
+        addMessage("Mic blocked. Enable microphone access.", "ai");
     }
 }
 
-// --- ORB CLICK ---
-orb.addEventListener("click", () => {
-    console.log("ORB CLICKED");
-    startRecording();
+// Stop recording ---------------------------------------------------
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
+    }
 
-    // POP EFFECT
-    orb.style.transform = "scale(1.12)";
-    setTimeout(() => (orb.style.transform = ""), 250);
+    isRecording = false;
 
-    // SHOCKWAVE
-    const shock = document.getElementById("shockwave");
-    shock.style.transform = "translate(-50%, -50%) scale(5)";
-    shock.style.opacity = "0.7";
+    orb.classList.remove("listening");
+    shockwave.style.opacity = "0";
+    shockwave.style.transform = "translate(-50%, -50%) scale(0)";
+}
 
-    setTimeout(() => {
-        shock.style.transform = "translate(-50%, -50%) scale(0)";
-        shock.style.opacity = "0";
-    }, 300);
+
+
+// ===============================================================
+// CHAT SYSTEM
+// ===============================================================
+const chatScreen = document.getElementById("chatScreen");
+const openChat = document.getElementById("openChat");
+const closeChat = document.getElementById("closeChat");
+const messages = document.getElementById("messages");
+const input = document.getElementById("userInput");
+const sendBtn = document.getElementById("sendBtn");
+
+openChat.addEventListener("click", () => {
+    chatScreen.classList.add("active");
 });
 
-// =============================
-// CHAT SYSTEM
-// =============================
+closeChat.addEventListener("click", () => {
+    chatScreen.classList.remove("active");
+});
 
-// open + close UI
-openChat.addEventListener("click", () => chatScreen.classList.add("active"));
-closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
-// Add text bubble
+// Add message bubble ----------------------------------------------
 function addMessage(text, sender) {
     const div = document.createElement("div");
     div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -101,23 +110,27 @@ function addMessage(text, sender) {
     messages.scrollTop = messages.scrollHeight;
 }
 
-// SEND TEXT TO BACKEND
-async function sendToBackend(prompt) {
+
+// Send to backend ---------------------------------------------------
+async function sendToGroq(textMessage, audioBase64 = null) {
     try {
         const res = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: prompt })
+            body: JSON.stringify({
+                message: textMessage,
+                audio: audioBase64
+            })
         });
 
         return await res.json();
-
     } catch (err) {
         return { reply: "AI error: " + err.message };
     }
 }
 
-// TEXT SEND BUTTON
+
+// Text send button ---------------------------------------------------
 sendBtn.addEventListener("click", async () => {
     const text = input.value.trim();
     if (!text) return;
@@ -125,9 +138,9 @@ sendBtn.addEventListener("click", async () => {
     addMessage(text, "user");
     input.value = "";
 
-    addMessage("Processing...", "ai");
+    addMessage("Processing…", "ai");
 
-    const data = await sendToBackend(text);
+    const data = await sendToGroq(text);
 
     messages.lastChild.remove();
     addMessage(data.reply, "ai");
