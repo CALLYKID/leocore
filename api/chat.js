@@ -111,11 +111,11 @@ export default async function handler(req, res) {
 function createWhisperForm(base64Audio) {
     const buffer = Buffer.from(base64Audio, "base64");
 
+    // Convert to Blob (Vercel requires Blob)
+    const blob = new Blob([buffer], { type: "audio/webm" });
+
     const form = new FormData();
-    form.append("file", buffer, {
-        filename: "audio.webm",
-        contentType: "audio/webm"
-    });
+    form.append("file", blob, "audio.webm");
     form.append("model", "whisper-1");
 
     return form;
