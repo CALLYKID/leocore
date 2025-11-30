@@ -19,7 +19,7 @@ orb.addEventListener("click", () => {
 
 
 // ===============================================================
-// START RECORDING
+// START RECORDING (FIXED FOR ANDROID + WHISPER)
 // ===============================================================
 async function startRecording() {
     try {
@@ -27,16 +27,35 @@ async function startRecording() {
             audio: true
         });
 
-        // WebM audio for Whisper
-        mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+        // 🔥 FIX 1: Use proper codec and force bitrate (Android needs this)
+        const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+            ? "audio/webm;codecs=opus"
+            : "audio/webm";
+
+        mediaRecorder = new MediaRecorder(stream, {
+            mimeType: mime,
+            audioBitsPerSecond: 128000  // <<< prevents silent recordings
+        });
+
         audioChunks = [];
 
         mediaRecorder.ondataavailable = e => {
-            audioChunks.push(e.data);
+            if (e.data.size > 0) {
+                audioChunks.push(e.data);
+            }
         };
 
         mediaRecorder.onstop = async () => {
-            const blob = new Blob(audioChunks, { type: "audio/webm" });
+            // 🔥 FIX 2: Combine chunks properly
+            const blob = new Blob(audioChunks, { type: mime });
+
+            // Debug check
+            console.log("Recorded blob size:", blob.size);
+
+            if (blob.size < 4000) {  
+                addMessage("🎤 I couldn't hear anything. Try again.", "ai");
+                return;
+            }
 
             const reader = new FileReader();
             reader.onloadend = async () => {
@@ -57,7 +76,7 @@ async function startRecording() {
             reader.readAsDataURL(blob);
         };
 
-        mediaRecorder.start();
+        mediaRecorder.start(200); // gather data every 200ms
         isRecording = true;
 
         // UI animation
@@ -72,112 +91,3 @@ async function startRecording() {
         addMessage("Mic blocked — enable microphone access.", "ai");
     }
 }
-
-
-// ===============================================================
-// STOP RECORDING
-// ===============================================================
-function stopRecording() {
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-        mediaRecorder.stop();
-    }
-
-    isRecording = false;
-
-    orb.classList.remove("listening");
-    shockwave.style.opacity = "0";
-    shockwave.style.transform = "translate(-50%, -50%) scale(0)";
-}
-
-
-
-// ===============================================================
-// CHAT SYSTEM
-// ===============================================================
-const chatScreen = document.getElementById("chatScreen");
-const openChat = document.getElementById("openChat");
-const closeChat = document.getElementById("closeChat");
-const messages = document.getElementById("messages");
-const input = document.getElementById("userInput");
-const sendBtn = document.getElementById("sendBtn");
-
-openChat.addEventListener("click", () => {
-    chatScreen.classList.add("active");
-});
-
-closeChat.addEventListener("click", () => {
-    chatScreen.classList.remove("active");
-});
-
-
-// Add message bubble
-function addMessage(text, sender) {
-    const div = document.createElement("div");
-    div.className = sender === "user" ? "user-msg" : "ai-msg";
-    div.innerText = text;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
-}
-
-
-
-// ===============================================================
-// SEND TO BACKEND (TEXT OR VOICE) — FIXED + SAFE
-// ===============================================================
-async function sendToGroq(textMessage, audioBase64 = null) {
-    try {
-        const res = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: textMessage,
-                audio: audioBase64
-            })
-        });
-
-        // Get raw backend response
-        const raw = await res.text();
-        console.log("RAW BACKEND:", raw);
-
-        // Try JSON parse safely
-        try {
-            return JSON.parse(raw);
-        } catch (err) {
-            return {
-                reply: "Backend returned invalid JSON.",
-                audio: null
-            };
-        }
-
-    } catch (err) {
-        return {
-            reply: "Network error: " + err.message,
-            audio: null
-        };
-    }
-}
-
-
-
-// ===============================================================
-// TEXT SEND BUTTON
-// ===============================================================
-sendBtn.addEventListener("click", async () => {
-    const text = input.value.trim();
-    if (!text) return;
-
-    addMessage(text, "user");
-    input.value = "";
-
-    addMessage("Processing…", "ai");
-
-    const data = await sendToGroq(text);
-
-    messages.lastChild.remove();
-    addMessage(data.reply, "ai");
-
-    if (data.audio) {
-        const audio = new Audio("data:audio/mp3;base64," + data.audio);
-        audio.play().catch(() => {});
-    }
-});
