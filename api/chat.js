@@ -1,40 +1,60 @@
-export const runtime = "edge";
+export const config = { runtime: "nodejs" };
 
 import { File, FormData } from "undici";
 
-export default async function handler(req) {
+export default async function handler(req, res) {
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
+
     try {
-        const { message, audio } = await req.json();
+        // Safe body parsing
+        const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+        const { message, audio } = body;
+
         let finalText = message;
 
-        // 1) TRANSCRIBE AUDIO
+        // ===========================================
+        // 1) TRANSCRIBE AUDIO → WHISPER
+        ===========================================
         if (!message && audio) {
-            const buf = Buffer.from(audio, "base64");
-            const file = new File([buf], "audio.webm", { type: "audio/webm" });
+            const audioBuffer = Buffer.from(audio, "base64");
 
-            const form = new FormData();
-            form.append("file", file);
-            form.append("model", "whisper-1");
-
-            const whisper = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-                body: form
+            const audioFile = new File([audioBuffer], "audio.webm", {
+                type: "audio/webm"
             });
 
-            const data = await whisper.json();
-            finalText = data.text || "";
+            const form = new FormData();
+            form.append("file", audioFile);
+            form.append("model", "whisper-1");
+
+            const whisperResp = await fetch(
+                "https://api.openai.com/v1/audio/transcriptions",
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+                    },
+                    body: form
+                }
+            );
+
+            const whisperData = await whisperResp.json();
+            finalText = whisperData.text || "";
         }
 
-        if (!finalText.trim()) {
-            return new Response(JSON.stringify({
+        // If still no text
+        if (!finalText || !finalText.trim()) {
+            return res.status(200).json({
                 reply: "I didn’t catch that, try speaking louder.",
                 audio: null
-            }), { status: 200 });
+            });
         }
 
-        // 2) GPT COMPLETION
-        const chat = await fetch("https://api.openai.com/v1/chat/completions", {
+        // ===========================================
+        // 2) GPT RESPONSE
+        ===========================================
+        const chatResp = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -49,11 +69,13 @@ export default async function handler(req) {
             })
         });
 
-        const chatData = await chat.json();
-        const reply = chatData.choices?.[0]?.message?.content || "Error.";
+        const chatData = await chatResp.json();
+        const reply = chatData?.choices?.[0]?.message?.content || "Error.";
 
-        // 3) TTS
-        const tts = await fetch("https://api.openai.com/v1/audio/speech", {
+        // ===========================================
+        // 3) TEXT → SPEECH (TTS)
+        ===========================================
+        const ttsResp = await fetch("https://api.openai.com/v1/audio/speech", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -66,17 +88,21 @@ export default async function handler(req) {
             })
         });
 
-        const audioBuf = await tts.arrayBuffer();
-        const audioBase64 = Buffer.from(audioBuf).toString("base64");
+        const audioBuffer = await ttsResp.arrayBuffer();
+        const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
-        return new Response(JSON.stringify({
+        // ===========================================
+        // RETURN JSON SAFELY
+        ===========================================
+        return res.status(200).json({
             reply,
             audio: audioBase64
-        }), { status: 200 });
+        });
 
     } catch (err) {
-        return new Response(JSON.stringify({
-            reply: "Server error: " + err.message
-        }), { status: 500 });
+        return res.status(500).json({
+            error: "Server error",
+            details: err.message
+        });
     }
 }
