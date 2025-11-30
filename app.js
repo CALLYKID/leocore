@@ -120,8 +120,9 @@ function addMessage(text, sender) {
 }
 
 
+
 // ===============================================================
-// SEND TO BACKEND (TEXT OR VOICE)
+// SEND TO BACKEND (TEXT OR VOICE) — FIXED + SAFE
 // ===============================================================
 async function sendToGroq(textMessage, audioBase64 = null) {
     try {
@@ -134,12 +135,28 @@ async function sendToGroq(textMessage, audioBase64 = null) {
             })
         });
 
-        return await res.json();
+        // Get raw backend response
+        const raw = await res.text();
+        console.log("RAW BACKEND:", raw);
+
+        // Try JSON parse safely
+        try {
+            return JSON.parse(raw);
+        } catch (err) {
+            return {
+                reply: "Backend returned invalid JSON.",
+                audio: null
+            };
+        }
 
     } catch (err) {
-        return { reply: "AI error: " + err.message };
+        return {
+            reply: "Network error: " + err.message,
+            audio: null
+        };
     }
 }
+
 
 
 // ===============================================================
