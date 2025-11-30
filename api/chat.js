@@ -1,54 +1,47 @@
-module.exports.config = { runtime: "nodejs20.x" };
-
-module.exports = async function handler(req, res) {
+module.exports = async (req, res) => {
     if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method not allowed" });
+        return res.status(405).json({ reply: "Method not allowed." });
     }
 
     try {
-        const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-        const { message } = body;
+        const { message } = typeof req.body === "string"
+            ? JSON.parse(req.body)
+            : req.body;
 
         if (!message || !message.trim()) {
-            return res.status(200).json({
-                reply: "Say something and I’ll reply instantly.",
-                audio: null
-            });
+            return res.status(200).json({ reply: "Say something..." });
         }
 
-        // ============================
-        // 🚀 GROQ TEXT-GENERATION
-        // ============================
-        const groqResp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        // 🔥 Groq request
+        const groq = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest",   // REQUIRED FOR STABILITY
                 Authorization: `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
                 model: "llama-3.1-70b-versatile",
                 messages: [
-                    { role: "system", content: "You are Leocore, a fast, helpful AI with a friendly vibe." },
+                    { role: "system", content: "You are Leocore. Respond fast, friendly, and clear." },
                     { role: "user", content: message }
                 ]
-            })
+            }),
+            // Prevent Vercel timeout
+            timeout: 12000
         });
 
-        const data = await groqResp.json();
-        console.log("GROQ RESPONSE:", data);
+        const data = await groq.json();
 
-        const reply = data?.choices?.[0]?.message?.content || "Error talking to Groq.";
+        if (!data?.choices?.[0]?.message?.content) {
+            return res.status(200).json({ reply: "I couldn't understand. Try again." });
+        }
 
         return res.status(200).json({
-            reply,
-            audio: null
+            reply: data.choices[0].message.content
         });
 
     } catch (err) {
-        console.error("SERVER ERROR:", err);
-        return res.status(500).json({
-            reply: "Server issue. Try again.",
-            audio: null
-        });
+        return res.status(200).json({ reply: "Server busy. Try again." });
     }
 };
