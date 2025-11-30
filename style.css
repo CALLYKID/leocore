@@ -71,22 +71,6 @@ body{
     letter-spacing:3px;
 }
 
-/* CHAT BUTTON */
-.chat-btn{
-    position:absolute;
-    bottom:50px;
-    left:50%;
-    transform:translateX(-50%);
-    padding:20px 60px;
-    font-size:26px;
-    border-radius:40px;
-    border:none;
-    color:#fff;
-    background:linear-gradient(90deg,#00d0ff,#ff00ea);
-    box-shadow:0 0 25px rgba(0,150,255,.7);
-    font-weight:bold;
-    cursor:pointer;
-}
 
 /* CHAT SCREEN */
 .chat-screen{
