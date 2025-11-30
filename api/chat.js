@@ -33,7 +33,7 @@ export default async function handler(req) {
             }), { status: 200 });
         }
 
-        // 2) CHAT RESPONSE
+        // 2) GPT COMPLETION
         const chat = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
