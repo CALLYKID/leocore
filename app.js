@@ -30,8 +30,7 @@ async function startRecording() {
         };
 
         mediaRecorder.onstop = async () => {
-            const blob = new Blob(audioChunks, { type: "audio/webm" });
-
+            const blob = new Blob(audioChunks, { type: "audio/webm; codecs=opus" });
             const reader = new FileReader();
             reader.onloadend = async () => {
                 const base64Audio = reader.result.split(",")[1];
