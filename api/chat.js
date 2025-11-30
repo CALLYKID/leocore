@@ -4,44 +4,51 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const { message } = typeof req.body === "string"
-            ? JSON.parse(req.body)
-            : req.body;
+        const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+        const { message } = body;
 
         if (!message || !message.trim()) {
             return res.status(200).json({ reply: "Say something..." });
         }
 
-        // 🔥 Groq request
-        const groq = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        // GROQ request
+        const groqResp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "X-Requested-With": "XMLHttpRequest",   // REQUIRED FOR STABILITY
                 Authorization: `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
                 model: "llama-3.1-70b-versatile",
                 messages: [
-                    { role: "system", content: "You are Leocore. Respond fast, friendly, and clear." },
+                    { role: "system", content: "You are Leocore. Respond fast, friendly, and clearly." },
                     { role: "user", content: message }
                 ]
-            }),
-            // Prevent Vercel timeout
-            timeout: 12000
+            })
         });
 
-        const data = await groq.json();
-
-        if (!data?.choices?.[0]?.message?.content) {
-            return res.status(200).json({ reply: "I couldn't understand. Try again." });
+        // If Groq died → prevent undefined errors
+        if (!groqResp.ok) {
+            return res.status(200).json({
+                reply: "Groq is slow right now. Try again."
+            });
         }
 
-        return res.status(200).json({
-            reply: data.choices[0].message.content
-        });
+        const data = await groqResp.json();
+
+        const reply = data?.choices?.[0]?.message?.content;
+        if (!reply) {
+            return res.status(200).json({
+                reply: "I'm not sure how to answer that."
+            });
+        }
+
+        return res.status(200).json({ reply });
 
     } catch (err) {
-        return res.status(200).json({ reply: "Server busy. Try again." });
+        console.error("SERVER ERROR:", err);
+        return res.status(200).json({
+            reply: "Server problem. Try again."
+        });
     }
 };
