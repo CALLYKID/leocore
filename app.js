@@ -1,8 +1,5 @@
 window.addEventListener("DOMContentLoaded", () => {
 
-    // =========================================================
-    // ELEMENTS
-    // =========================================================
     const chatScreen = document.getElementById("chatScreen");
     const openChat = document.getElementById("openChat");
     const closeChat = document.getElementById("closeChat");
@@ -11,10 +8,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const sendBtn = document.getElementById("sendBtn");
     const fakeInput = document.getElementById("fakeInput");
 
-
-    // =========================================================
-    // AUTO-TYPING PLACEHOLDER
-    // =========================================================
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -31,47 +24,34 @@ window.addEventListener("DOMContentLoaded", () => {
         const current = prompts[promptIndex];
 
         if (!deleting) {
-            // Typing forward
             fakeInput.innerText = current.substring(0, charIndex++);
             if (charIndex > current.length) {
                 deleting = true;
-                setTimeout(typeAnimation, 1300); // pause at full text
+                setTimeout(typeAnimation, 1300);
                 return;
             }
         } else {
-            // Backspacing
             fakeInput.innerText = current.substring(0, charIndex--);
             if (charIndex < 0) {
                 deleting = false;
                 promptIndex = (promptIndex + 1) % prompts.length;
             }
         }
-
         setTimeout(typeAnimation, deleting ? 55 : 80);
     }
 
     typeAnimation();
 
-
-    // =========================================================
-    // OPEN / CLOSE CHAT
-    // =========================================================
-    openChat.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-    });
-
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
     });
 
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
+    if (openChat) {
+        openChat.addEventListener("click", () => chatScreen.classList.add("active"));
+    }
 
+    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
-    // =========================================================
-    // ADD MESSAGE TO UI
-    // =========================================================
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -80,10 +60,6 @@ window.addEventListener("DOMContentLoaded", () => {
         messages.scrollTop = messages.scrollHeight;
     }
 
-
-    // =========================================================
-    // SEND MESSAGE TO BACKEND
-    // =========================================================
     async function sendToGroq(textMessage) {
         try {
             const res = await fetch("/api/chat", {
@@ -93,22 +69,13 @@ window.addEventListener("DOMContentLoaded", () => {
             });
 
             const raw = await res.text();
-
-            try {
-                return JSON.parse(raw);
-            } catch {
-                return { reply: "Backend returned invalid JSON.", audio: null };
-            }
+            return JSON.parse(raw);
 
         } catch (err) {
             return { reply: "Network error.", audio: null };
         }
     }
 
-
-    // =========================================================
-    // SEND BUTTON
-    // =========================================================
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
@@ -120,14 +87,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const data = await sendToGroq(text);
 
-        // remove loading
         messages.lastChild.remove();
-
         addMessage(data.reply, "ai");
 
         if (data.audio) {
-            const audio = new Audio("data:audio/mp3;base64," + data.audio);
-            audio.play().catch(() => {});
+            new Audio("data:audio/mp3;base64," + data.audio).play();
         }
     });
 
