@@ -1,19 +1,23 @@
-export const config = { runtime: "nodejs" };
+// Force Node runtime
+module.exports.config = { runtime: "nodejs20.x" };
 
-// Node 18+ has fetch, File, FormData built-in, no imports needed
+// Import built-in Node globals for File, FormData, fetch (Node 18+)
+const { File, FormData } = global;
 
-export default async function handler(req, res) {
+// MAIN HANDLER
+module.exports = async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
     }
 
     try {
+        // Parse body
         const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
         const { message, audio } = body;
 
         let finalText = message;
 
-        // 1) TRANSCRIBE AUDIO → WHISPER
+        // 1) Audio → Whisper
         if (!message && audio) {
             const audioBuffer = Buffer.from(audio, "base64");
             const audioFile = new File([audioBuffer], "audio.webm", {
@@ -24,16 +28,11 @@ export default async function handler(req, res) {
             form.append("file", audioFile);
             form.append("model", "whisper-1");
 
-            const whisperResp = await fetch(
-                "https://api.openai.com/v1/audio/transcriptions",
-                {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-                    },
-                    body: form
-                }
-            );
+            const whisperResp = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+                method: "POST",
+                headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+                body: form
+            });
 
             const whisperData = await whisperResp.json();
             finalText = whisperData.text || "";
@@ -46,7 +45,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // 2) GPT RESPONSE
+        // 2) Chat Completion
         const chatResp = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -93,4 +92,4 @@ export default async function handler(req, res) {
             details: err.message
         });
     }
-}
+};
