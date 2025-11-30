@@ -1,5 +1,9 @@
 export const config = { runtime: "nodejs" };
 
+// Polyfills for Blob + FormData (required on Vercel)
+import { Blob } from "buffer";
+import FormData from "form-data";
+
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ error: "Method not allowed" });
@@ -28,7 +32,7 @@ export default async function handler(req, res) {
             );
 
             const whisperData = await whisperResponse.json();
-            console.log("WHISPER:", whisperData);
+            console.log("WHISPER RESULT:", whisperData);
 
             finalText = whisperData.text || "";
         }
@@ -56,8 +60,7 @@ export default async function handler(req, res) {
                     messages: [
                         {
                             role: "system",
-                            content:
-                                "You are Leocore — calm, smart, modern, and friendly. Keep replies short and natural."
+                            content: "You are Leocore — calm, modern, and natural. Keep responses short."
                         },
                         { role: "user", content: finalText }
                     ]
@@ -106,12 +109,10 @@ export default async function handler(req, res) {
 }
 
 // =====================================================
-// HELPER — Creates Whisper FormData with BINARY audio
+// HELPER — Creates Whisper FormData with BLOB audio
 // =====================================================
 function createWhisperForm(base64Audio) {
     const buffer = Buffer.from(base64Audio, "base64");
-
-    // Convert to Blob (Vercel requires Blob)
     const blob = new Blob([buffer], { type: "audio/webm" });
 
     const form = new FormData();
