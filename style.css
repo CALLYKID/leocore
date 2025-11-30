@@ -29,7 +29,7 @@ body{
     z-index:-5;
 }
 
-/* CENTER TITLE */
+/* CENTER TITLE + PORTAL */
 .center-wrapper{
     position:absolute;
     top:47%;
@@ -39,7 +39,6 @@ body{
     color:white;
 }
 
-/* PORTAL CONTAINER */
 .portal{
     position:relative;
     width:260px;
@@ -112,27 +111,29 @@ body{
     100%{ transform:translateY(0); }
 }
 
-/* MAIN CHAT BUTTON (inside portal) */
-.chat-main-btn{
+/* ✨ NEW TEXT-STYLE CHAT BUTTON INSIDE PORTAL */
+.chat-entry{
     position:relative;
     z-index:10;
-    padding:18px 40px;
+    padding:14px 30px;
     border:none;
-    border-radius:30px;
-    font-size:22px;
-    font-weight:bold;
-    background:linear-gradient(135deg,#00d0ff,#ff00ea);
+    background:rgba(255,255,255,0.12);
+    backdrop-filter:blur(12px);
+    border-radius:12px;
+    font-size:20px;
+    letter-spacing:1px;
     color:white;
-    box-shadow:0 0 22px rgba(0,150,255,0.8);
     cursor:pointer;
-    transition:0.2s;
+    transition:0.2s ease;
+    box-shadow:0 0 18px rgba(0,200,255,0.6);
 }
 
-.chat-main-btn:hover{
-    transform:scale(1.06);
-    box-shadow:0 0 30px rgba(0,150,255,1);
+.chat-entry:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 28px rgba(0,200,255,1);
 }
 
+/* TITLE + SUBTITLE */
 .title{
     font-size:48px;
     font-weight:800;
@@ -145,24 +146,6 @@ body{
     font-size:20px;
     opacity:0.8;
     letter-spacing:3px;
-}
-
-/* CHAT BUTTON */
-.chat-btn{
-    position:absolute;
-    bottom:50px;
-    left:50%;
-    transform:translateX(-50%);
-    padding:20px 60px;
-    font-size:26px;
-    border-radius:40px;
-    border:none;
-    color:#fff;
-    background:linear-gradient(90deg,#00d0ff,#ff00ea);
-    box-shadow:0 0 25px rgba(0,150,255,.7);
-    font-weight:bold;
-    cursor:pointer;
-    z-index:10;
 }
 
 /* CHAT SCREEN */
