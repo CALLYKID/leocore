@@ -21,50 +21,56 @@ orb.addEventListener("click", () => {
 
 
 // ===============================================================
-// START RECORDING — NEW ANDROID FIX
+// START RECORDING — ANDROID + WHISPER STABLE VERSION
 // ===============================================================
 async function startRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
-                channelCount: 1,
+                sampleRate: 48000,       // 🔥 Whisper’s native sample rate
+                channelCount: 1,         // 🔥 mono = safer for Android
                 noiseSuppression: false,
                 echoCancellation: false,
                 autoGainControl: false
             }
         });
 
+        // Whisper reads OPUS best
         const mime = "audio/webm;codecs=opus";
 
         mediaRecorder = new MediaRecorder(stream, {
             mimeType: mime,
-            bitsPerSecond: 192000
+            audioBitsPerSecond: 128000 // 🔥 sweet spot bitrate
         });
 
         audioChunks = [];
 
         mediaRecorder.ondataavailable = e => {
-            if (e.data && e.data.size > 0) audioChunks.push(e.data);
+            if (e.data && e.data.size > 0) {
+                audioChunks.push(e.data);
+            }
         };
 
         mediaRecorder.onstop = async () => {
             const blob = new Blob(audioChunks, { type: mime });
 
+            // Debug — keep this for now
             addMessage("DEBUG SIZE: " + blob.size, "ai");
 
-            if (blob.size < 3000) {
+            // Whisper-safe minimum blob size
+            if (blob.size < 5000) {
                 addMessage("🎤 I didn't catch that, try speaking louder.", "ai");
                 return;
             }
 
             const reader = new FileReader();
-
             reader.onloadend = async () => {
-                let base64Audio = reader.result.split(",")[1];
+                const base64Audio = reader.result.split(",")[1];
 
                 addMessage("🎤 Listening ended…", "user");
 
                 const data = await sendToGroq(null, base64Audio);
+
                 addMessage(data.reply, "ai");
 
                 if (data.audio) {
@@ -76,7 +82,8 @@ async function startRecording() {
             reader.readAsDataURL(blob);
         };
 
-        mediaRecorder.start(200);
+        // 🔥 shorter chunks = more accurate timestamps
+        mediaRecorder.start(100);
 
         isRecording = true;
         orb.classList.add("listening");
