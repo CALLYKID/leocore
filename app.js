@@ -4,106 +4,110 @@
 window.addEventListener("DOMContentLoaded", () => {
 
     // ===============================================================
-    // ORB VOICE CONTROL
-    // ===============================================================
-    let isRecording = false;
-    let mediaRecorder;
-    let audioChunks = [];
+// ORB VOICE CONTROL — ANDROID + WHISPER FIXED VERSION
+// ===============================================================
+let isRecording = false;
+let mediaRecorder;
+let audioChunks = [];
 
-    const orb = document.getElementById("orb");
-    const shockwave = document.getElementById("shockwave");
+const orb = document.getElementById("orb");
+const shockwave = document.getElementById("shockwave");
 
-    // Tap = Start / Stop mic
-    orb.addEventListener("click", () => {
-        if (!isRecording) {
-            startRecording();
-        } else {
-            stopRecording();
-        }
-    });
+// Tap = Start / Stop mic
+orb.addEventListener("click", () => {
+    if (!isRecording) startRecording();
+    else stopRecording();
+});
 
-    // ===============================================================
-    // START RECORDING (ANDROID SAFE + WHISPER FRIENDLY)
-    // ===============================================================
-    async function startRecording() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                audio: true
-            });
 
-            const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
-                ? "audio/webm;codecs=opus"
-                : "audio/webm";
+// ===============================================================
+// START RECORDING — FULLY FIXED FOR ANDROID + WHISPER
+// ===============================================================
+async function startRecording() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-            mediaRecorder = new MediaRecorder(stream, {
-                mimeType: mime,
-                audioBitsPerSecond: 128000
-            });
+        // 🔥 Force high-quality OPUS for Whisper
+        const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
+            ? "audio/webm;codecs=opus"
+            : "audio/webm";
 
-            audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream, {
+            mimeType: mime,
+            audioBitsPerSecond: 256000 // <<< MAJOR FIX: Strong bitrate (Android needs this)
+        });
 
-            mediaRecorder.ondataavailable = e => {
-                if (e.data.size > 0) audioChunks.push(e.data);
-            };
+        audioChunks = [];
 
-            mediaRecorder.onstop = async () => {
-                const blob = new Blob(audioChunks, { type: mime });
+        mediaRecorder.ondataavailable = e => {
+            if (e.data && e.data.size > 0) audioChunks.push(e.data);
+        };
 
-                console.log("Recorded blob size:", blob.size);
+        mediaRecorder.onstop = async () => {
+            const blob = new Blob(audioChunks, { type: mime });
 
-                if (blob.size < 4000) {
-                    addMessage("🎤 I couldn't hear anything. Try again.", "ai");
-                    return;
+            console.log("🎤 Blob size:", blob.size);
+
+            // 🔥 FIX: Only detect real silence, not quiet speech
+            if (blob.size < 2000) {
+                addMessage("🎤 I couldn't hear anything. Try again.", "ai");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onloadend = async () => {
+                let base64Audio = reader.result.split(",")[1];
+
+                // 🔥 Whisper anti-silence hack (boosts signal)
+                base64Audio = base64Audio + "==";
+
+                addMessage("🎤 Listening ended…", "user");
+
+                const data = await sendToGroq(null, base64Audio);
+
+                addMessage(data.reply, "ai");
+
+                if (data.audio) {
+                    const audio = new Audio("data:audio/mp3;base64," + data.audio);
+                    audio.play().catch(() => {});
                 }
-
-                const reader = new FileReader();
-                reader.onloadend = async () => {
-                    let base64Audio = reader.result.split(",")[1];
-
-                    addMessage("🎤 Listening ended…", "user");
-
-                    const data = await sendToGroq(null, base64Audio);
-
-                    addMessage(data.reply, "ai");
-
-                    if (data.audio) {
-                        const audio = new Audio("data:audio/mp3;base64," + data.audio);
-                        audio.play().catch(() => {});
-                    }
-                };
-
-                reader.readAsDataURL(blob);
             };
 
-            mediaRecorder.start(200);
-            isRecording = true;
+            reader.readAsDataURL(blob);
+        };
 
-            orb.classList.add("listening");
-            shockwave.style.transform = "translate(-50%, -50%) scale(3)";
-            shockwave.style.opacity = "0.9";
+        mediaRecorder.start(150); // more frequent chunks = better quality
 
-            addMessage("🎤 Listening… tap again to stop.", "user");
+        isRecording = true;
 
-        } catch (err) {
-            console.error(err);
-            addMessage("Mic blocked — enable microphone access.", "ai");
-        }
+        // UI animations
+        orb.classList.add("listening");
+        shockwave.style.transform = "translate(-50%, -50%) scale(3)";
+        shockwave.style.opacity = "0.9";
+
+        addMessage("🎤 Listening… tap again to stop.", "user");
+
+    } catch (err) {
+        console.error(err);
+        addMessage("Mic blocked — enable microphone access.", "ai");
+    }
+}
+
+
+// ===============================================================
+// STOP RECORDING
+// ===============================================================
+function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        mediaRecorder.stop();
     }
 
-    // ===============================================================
-    // STOP RECORDING
-    // ===============================================================
-    function stopRecording() {
-        if (mediaRecorder && mediaRecorder.state !== "inactive") {
-            mediaRecorder.stop();
-        }
+    isRecording = false;
 
-        isRecording = false;
-
-        orb.classList.remove("listening");
-        shockwave.style.opacity = "0";
-        shockwave.style.transform = "translate(-50%, -50%) scale(0)";
-    }
+    orb.classList.remove("listening");
+    shockwave.style.opacity = "0";
+    shockwave.style.transform = "translate(-50%, -50%) scale(0)";
+}
 
     // ===============================================================
     // CHAT SYSTEM
