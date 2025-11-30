@@ -1,74 +1,54 @@
-export const config = {
-    runtime: "edge"
-};
+module.exports.config = { runtime: "nodejs20.x" };
 
-export default async function handler(req) {
+module.exports = async function handler(req, res) {
     if (req.method !== "POST") {
-        return new Response(JSON.stringify({ error: "Method not allowed" }), {
-            status: 405
-        });
+        return res.status(405).json({ error: "Method not allowed" });
     }
 
     try {
-        const body = await req.json();
+        const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
         const { message } = body;
 
         if (!message || !message.trim()) {
-            return new Response(JSON.stringify({
-                reply: "Say something first 😭",
+            return res.status(200).json({
+                reply: "Say something and I’ll reply instantly.",
                 audio: null
-            }), { status: 200 });
+            });
         }
 
-        // ⚡ ULTRA FAST GROQ API (LLama-3.3)
-        const chatResp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        // ============================
+        // 🚀 GROQ TEXT-GENERATION
+        // ============================
+        const groqResp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 Authorization: `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
+                model: "llama-3.1-70b-versatile",
                 messages: [
-                    { role: "system", content: "You are Leocore, friendly, fast, smart." },
+                    { role: "system", content: "You are Leocore, a fast, helpful AI with a friendly vibe." },
                     { role: "user", content: message }
                 ]
             })
         });
 
-        const data = await chatResp.json();
-        const reply =
-            data?.choices?.[0]?.message?.content ||
-            "Something went wrong 😭";
+        const data = await groqResp.json();
+        console.log("GROQ RESPONSE:", data);
 
-        // ⚡ TTS FAST MODE (Groq)
-        const ttsResp = await fetch("https://api.groq.com/openai/v1/audio/speech", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.GROQ_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini-tts",
-                voice: "alloy",
-                input: reply
-            })
-        });
+        const reply = data?.choices?.[0]?.message?.content || "Error talking to Groq.";
 
-        const audioBuffer = await ttsResp.arrayBuffer();
-        const audioBase64 = Buffer.from(audioBuffer).toString("base64");
-
-        return new Response(JSON.stringify({
+        return res.status(200).json({
             reply,
-            audio: audioBase64
-        }), {
-            status: 200
+            audio: null
         });
 
     } catch (err) {
-        return new Response(JSON.stringify({
-            error: "Server error",
-            details: err.message
-        }), { status: 500 });
+        console.error("SERVER ERROR:", err);
+        return res.status(500).json({
+            reply: "Server issue. Try again.",
+            audio: null
+        });
     }
-}
+};
