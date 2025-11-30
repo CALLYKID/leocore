@@ -10,7 +10,6 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        // Parse body safely
         const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
         const { message, audio } = body;
 
@@ -30,9 +29,7 @@ module.exports = async function handler(req, res) {
 
             const whisperResp = await fetch("https://api.openai.com/v1/audio/transcriptions", {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-                },
+                headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
                 body: form
             });
 
@@ -40,7 +37,6 @@ module.exports = async function handler(req, res) {
             finalText = whisperData.text || "";
         }
 
-        // No text? Return fallback
         if (!finalText || !finalText.trim()) {
             return res.status(200).json({
                 reply: "I didn’t catch that, try again.",
