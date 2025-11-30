@@ -1,37 +1,40 @@
-// ORB EFFECTS — FINAL FIXED VERSION
-const orb = document.getElementById("orb");
-const shock = document.getElementById("shockwave");
+// ===============================
+// ORB EFFECTS + VOICE INPUT
+// ===============================
 
+const orb = document.getElementById("orb");
+const centerWrapper = document.querySelector(".center-wrapper");
+
+// ORB CLICK → animation + start voice input
 orb.addEventListener("click", () => {
     // Pop animation
-    orb.style.transition = "0.25s ease";
     orb.style.transform = "scale(1.12)";
-    setTimeout(() => orb.style.transform = "scale(1)", 250);
+    setTimeout(() => orb.style.transform = "", 250);
 
-    // Reset shockwave instantly
+    // Shockwave
+    const shock = document.getElementById("shockwave");
     shock.style.transition = "none";
     shock.style.transform = "translate(-50%, -50%) scale(0)";
     shock.style.opacity = "0";
 
-    // Animate shockwave outward
     requestAnimationFrame(() => {
-        shock.style.transition = "0.45s ease-out";
+        shock.style.transition = "0.35s ease-out";
         shock.style.transform = "translate(-50%, -50%) scale(5)";
-        shock.style.opacity = "0.7";
+        shock.style.opacity = "0.8";
     });
 
-    // Fade out
     setTimeout(() => {
         shock.style.opacity = "0";
     }, 350);
 
-    console.log("ORB CLICKED ✔️");
+    // Start recording
+    startVoiceInput();
 });
 
-
-// ------------------------------------------------------
+// ===============================
 // CHAT SYSTEM
-// ------------------------------------------------------
+// ===============================
+
 const chatScreen = document.getElementById("chatScreen");
 const openChat = document.getElementById("openChat");
 const closeChat = document.getElementById("closeChat");
@@ -39,16 +42,15 @@ const messages = document.getElementById("messages");
 const input = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
 
+// open / close chat
 openChat.addEventListener("click", () => {
     chatScreen.classList.add("active");
 });
-
 closeChat.addEventListener("click", () => {
     chatScreen.classList.remove("active");
 });
 
-
-// Add message bubble
+// add text bubble
 function addMessage(text, sender) {
     const div = document.createElement("div");
     div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -57,16 +59,16 @@ function addMessage(text, sender) {
     messages.scrollTop = messages.scrollHeight;
 }
 
+// ===============================
+// SEND TO AI (TEXT OR AUDIO)
+// ===============================
 
-// ------------------------------------------------------
-// SEND FUNCTION TO BACKEND (TEXT + AUDIO)
-// ------------------------------------------------------
-async function sendToGroq(prompt) {
+async function sendToAI(bodyData) {
     try {
         const res = await fetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: prompt })
+            body: JSON.stringify(bodyData)
         });
 
         return await res.json();
@@ -75,10 +77,10 @@ async function sendToGroq(prompt) {
     }
 }
 
+// ===============================
+// TEXT SEND BUTTON
+// ===============================
 
-// ------------------------------------------------------
-// SEND MESSAGE
-// ------------------------------------------------------
 sendBtn.addEventListener("click", async () => {
     const text = input.value.trim();
     if (!text) return;
@@ -86,16 +88,67 @@ sendBtn.addEventListener("click", async () => {
     addMessage(text, "user");
     input.value = "";
 
-    addMessage("Processing...", "ai");
+    addMessage("Processing…", "ai");
 
-    const data = await sendToGroq(text);
+    const data = await sendToAI({ message: text });
 
     messages.lastChild.remove();
     addMessage(data.reply, "ai");
 
-    // AUDIO 🔊
     if (data.audio) {
-        const audio = new Audio("data:audio/mp3;base64," + data.audio);
-        audio.play().catch(() => console.log("Audio failed to play."));
+        new Audio("data:audio/mp3;base64," + data.audio).play();
     }
 });
+
+// ===============================
+// VOICE INPUT SYSTEM
+// ===============================
+
+// Convert Blob → Base64
+function blobToBase64(blob) {
+    return new Promise(res => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64 = reader.result.split(',')[1];
+            res(base64);
+        };
+        reader.readAsDataURL(blob);
+    });
+}
+
+// Start recording
+async function startVoiceInput() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+        const recorder = new MediaRecorder(stream);
+        let chunks = [];
+
+        recorder.ondataavailable = e => chunks.push(e.data);
+
+        recorder.onstop = async () => {
+            const blob = new Blob(chunks, { type: "audio/webm" });
+            const base64 = await blobToBase64(blob);
+
+            addMessage("🎤 Listening…", "user");
+
+            const data = await sendToAI({ audio: base64 });
+
+            // Replace placeholder
+            messages.lastChild.remove();
+            addMessage(data.reply, "ai");
+
+            if (data.audio) {
+                new Audio("data:audio/mp3;base64," + data.audio).play();
+            }
+        };
+
+        recorder.start();
+
+        // Record 3 seconds
+        setTimeout(() => recorder.stop(), 3000);
+
+    } catch (err) {
+        addMessage("Mic error: " + err.message, "ai");
+    }
+}
