@@ -176,3 +176,29 @@ body{
     color:white;
     cursor:pointer;
 }
+
+/* Fade + Slide Animation */
+.fade-in {
+    opacity: 0;
+    transform: translateY(18px);
+    animation: fadeSlide 1s ease forwards;
+}
+
+.fade-in.delay-1 {
+    animation-delay: 0.25s;
+}
+
+.fade-in.delay-2 {
+    animation-delay: 0.45s;
+}
+
+@keyframes fadeSlide {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
