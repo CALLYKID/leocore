@@ -1,15 +1,17 @@
 window.addEventListener("DOMContentLoaded", () => {
 
     const chatScreen = document.getElementById("chatScreen");
-    const openChat = document.getElementById("openChat");
     const closeChat = document.getElementById("closeChat");
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
 
     const fakeInput = document.getElementById("fakeInput");
-    const fakeText = document.getElementById("fakeText"); // ✅ REAL TEXT TARGET
+    const fakeText = document.getElementById("fakeText");
 
+    /* ======================================================
+       AUTO–TYPING PLACEHOLDER
+    ====================================================== */
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -23,17 +25,17 @@ window.addEventListener("DOMContentLoaded", () => {
     let deleting = false;
 
     function typeAnimation() {
-        const current = prompts[promptIndex];
+        const cur = prompts[promptIndex];
 
         if (!deleting) {
-            fakeText.innerText = current.substring(0, charIndex++); // ✅ FIXED
-            if (charIndex > current.length) {
+            fakeText.innerText = cur.substring(0, charIndex++);
+            if (charIndex > cur.length) {
                 deleting = true;
                 setTimeout(typeAnimation, 1200);
                 return;
             }
         } else {
-            fakeText.innerText = current.substring(0, charIndex--); // ✅ FIXED
+            fakeText.innerText = cur.substring(0, charIndex--);
             if (charIndex < 0) {
                 deleting = false;
                 promptIndex = (promptIndex + 1) % prompts.length;
@@ -44,24 +46,50 @@ window.addEventListener("DOMContentLoaded", () => {
 
     typeAnimation();
 
+    /* ======================================================
+       OPEN CHAT WHEN CLICKING FAKE BAR
+    ====================================================== */
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
     });
 
-    if (openChat) {
-        openChat.addEventListener("click", () => chatScreen.classList.add("active"));
-    }
+    closeChat.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+    });
 
-    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
-
+    /* ======================================================
+       ADD MESSAGE (USER OR AI)
+    ====================================================== */
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
         div.innerText = text;
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
+        return div;
     }
 
+    /* ======================================================
+       ADD TYPING LOADER BUBBLE
+    ====================================================== */
+    function addTypingBubble() {
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg typing-bubble";
+
+        wrap.innerHTML = `
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+        `;
+
+        messages.appendChild(wrap);
+        messages.scrollTop = messages.scrollHeight;
+        return wrap;
+    }
+
+    /* ======================================================
+       SEND MESSAGE TO GROQ API
+    ====================================================== */
     async function sendToGroq(textMessage) {
         try {
             const res = await fetch("/api/chat", {
@@ -70,31 +98,34 @@ window.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({ message: textMessage })
             });
 
-            const raw = await res.text();
-            return JSON.parse(raw);
-
+            return await res.json();
         } catch (err) {
             return { reply: "Network error.", audio: null };
         }
     }
 
+    /* ======================================================
+       HANDLE SEND BUTTON
+    ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
 
+        // User bubble
         addMessage(text, "user");
         input.value = "";
 
-        addMessage("Processing…", "ai");
+        // Typing bubble
+        const loader = addTypingBubble();
 
+        // API response
         const data = await sendToGroq(text);
 
-        messages.lastChild.remove();
-        addMessage(data.reply, "ai");
+        // remove loader
+        loader.remove();
 
-        if (data.audio) {
-            new Audio("data:audio/mp3;base64," + data.audio).play();
-        }
+        // final reply
+        addMessage(data.reply, "ai");
     });
 
 });
