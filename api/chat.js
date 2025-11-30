@@ -1,25 +1,23 @@
 module.exports = async function handler(req, res) {
-    try {
-        if (req.method !== "POST") {
-            return res.status(405).json({ error: "Method not allowed" });
-        }
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" });
+    }
 
-        // Parse JSON body safely
+    try {
+        // Parse body safely
         const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
         const { message, audio } = body;
 
         let finalText = message;
 
-        // -----------------------------
-        // 1) AUDIO → WHISPER
-        // -----------------------------
+        // ========================================
+        // 1) WHISPER TRANSCRIPTION (NO UNDICI)
+        // ========================================
         if (!message && audio) {
             const audioBuffer = Buffer.from(audio, "base64");
 
-            // File + FormData already exist on Node 18+
-            const audioFile = new File([audioBuffer], "audio.webm", {
-                type: "audio/webm"
-            });
+            // File + FormData are built-in on Vercel's Node runtime
+            const audioFile = new File([audioBuffer], "audio.webm", { type: "audio/webm" });
 
             const form = new FormData();
             form.append("file", audioFile);
@@ -27,9 +25,7 @@ module.exports = async function handler(req, res) {
 
             const whisperResp = await fetch("https://api.openai.com/v1/audio/transcriptions", {
                 method: "POST",
-                headers: {
-                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-                },
+                headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
                 body: form
             });
 
@@ -44,9 +40,9 @@ module.exports = async function handler(req, res) {
             });
         }
 
-        // -----------------------------
-        // 2) GPT CHAT
-        // -----------------------------
+        // ========================================
+        // 2) GPT TEXT RESPONSE
+        // ========================================
         const chatResp = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -65,9 +61,9 @@ module.exports = async function handler(req, res) {
         const chatData = await chatResp.json();
         const reply = chatData?.choices?.[0]?.message?.content || "Error.";
 
-        // -----------------------------
-        // 3) TTS
-        // -----------------------------
+        // ========================================
+        // 3) TTS SPEECH RESPONSE
+        // ========================================
         const ttsResp = await fetch("https://api.openai.com/v1/audio/speech", {
             method: "POST",
             headers: {
@@ -81,10 +77,16 @@ module.exports = async function handler(req, res) {
             })
         });
 
-        const arrBuf = await ttsResp.arrayBuffer();
-        const audioBase64 = Buffer.from(arrBuf).toString("base64");
+        const audioArr = await ttsResp.arrayBuffer();
+        const audioBase64 = Buffer.from(audioArr).toString("base64");
 
-        return res.status(200).json({ reply, audio: audioBase64 });
+        // ========================================
+        // RETURN RESULT
+        // ========================================
+        return res.status(200).json({
+            reply,
+            audio: audioBase64
+        });
 
     } catch (err) {
         return res.status(500).json({
