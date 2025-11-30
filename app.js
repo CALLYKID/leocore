@@ -1,36 +1,77 @@
-// ===============================================================
-// LEOCORE — CLEAN CHAT SYSTEM
-// ===============================================================
-
 window.addEventListener("DOMContentLoaded", () => {
 
+    // =========================================================
     // ELEMENTS
+    // =========================================================
     const chatScreen = document.getElementById("chatScreen");
-    const openChat = document.getElementById("openChat");   // main homepage chat opener
-    const fakeInput = document.getElementById("fakeInput"); // fake bar that opens chat
+    const openChat = document.getElementById("openChat");
     const closeChat = document.getElementById("closeChat");
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
+    const fakeInput = document.getElementById("fakeInput");
 
-    // OPEN CHAT — homepage chat button
-    if (openChat) {
-        openChat.addEventListener("click", () => {
-            chatScreen.classList.add("active");
-        });
+
+    // =========================================================
+    // AUTO-TYPING PLACEHOLDER
+    // =========================================================
+    const prompts = [
+        "Message Leocore…",
+        "Give me a summer plan.",
+        "Create a menu for me.",
+        "Give me a funny quote.",
+        "Help me with homework."
+    ];
+
+    let promptIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
+
+    function typeAnimation() {
+        const current = prompts[promptIndex];
+
+        if (!deleting) {
+            // Typing forward
+            fakeInput.innerText = current.substring(0, charIndex++);
+            if (charIndex > current.length) {
+                deleting = true;
+                setTimeout(typeAnimation, 1300); // pause at full text
+                return;
+            }
+        } else {
+            // Backspacing
+            fakeInput.innerText = current.substring(0, charIndex--);
+            if (charIndex < 0) {
+                deleting = false;
+                promptIndex = (promptIndex + 1) % prompts.length;
+            }
+        }
+
+        setTimeout(typeAnimation, deleting ? 55 : 80);
     }
 
-    // OPEN CHAT — clicking fake input bar
+    typeAnimation();
+
+
+    // =========================================================
+    // OPEN / CLOSE CHAT
+    // =========================================================
+    openChat.addEventListener("click", () => {
+        chatScreen.classList.add("active");
+    });
+
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
     });
 
-    // CLOSE CHAT
     closeChat.addEventListener("click", () => {
         chatScreen.classList.remove("active");
     });
 
-    // ADD MESSAGE TO CHAT
+
+    // =========================================================
+    // ADD MESSAGE TO UI
+    // =========================================================
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -39,7 +80,10 @@ window.addEventListener("DOMContentLoaded", () => {
         messages.scrollTop = messages.scrollHeight;
     }
 
+
+    // =========================================================
     // SEND MESSAGE TO BACKEND
+    // =========================================================
     async function sendToGroq(textMessage) {
         try {
             const res = await fetch("/api/chat", {
@@ -49,14 +93,22 @@ window.addEventListener("DOMContentLoaded", () => {
             });
 
             const raw = await res.text();
-            return JSON.parse(raw);
+
+            try {
+                return JSON.parse(raw);
+            } catch {
+                return { reply: "Backend returned invalid JSON.", audio: null };
+            }
 
         } catch (err) {
-            return { reply: "Network error occurred.", audio: null };
+            return { reply: "Network error.", audio: null };
         }
     }
 
-    // USER SENDS MESSAGE
+
+    // =========================================================
+    // SEND BUTTON
+    // =========================================================
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
@@ -68,7 +120,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const data = await sendToGroq(text);
 
-        messages.lastChild.remove(); 
+        // remove loading
+        messages.lastChild.remove();
+
         addMessage(data.reply, "ai");
 
         if (data.audio) {
