@@ -21,8 +21,7 @@ module.exports = async function handler(req, res) {
 
             const form = new FormData();
             form.append("file", audioFile);
-            form.append("model", "whisper-1");
-
+            form.append("model", "gpt-4o-mini-transcribe");
             const whisperResp = await fetch("https://api.openai.com/v1/audio/transcriptions", {
                 method: "POST",
                 headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
