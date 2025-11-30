@@ -39,6 +39,100 @@ body{
     color:white;
 }
 
+/* PORTAL CONTAINER */
+.portal{
+    position:relative;
+    width:260px;
+    height:260px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:25px;
+}
+
+/* GLOWING RING */
+.ring{
+    position:absolute;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    border:4px solid rgba(0,200,255,0.9);
+    box-shadow:
+        0 0 25px #00d0ff,
+        0 0 45px #ff00ea inset;
+    animation:spinRing 7s linear infinite;
+    opacity:0.85;
+}
+
+@keyframes spinRing{
+    from{ transform:rotate(0deg); }
+    to{ transform:rotate(360deg); }
+}
+
+/* FLOATING PARTICLES */
+.particle{
+    position:absolute;
+    width:12px;
+    height:12px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.9);
+    box-shadow:0 0 10px white;
+    top:30%;
+    left:48%;
+    animation:float1 3.5s ease-in-out infinite;
+}
+
+.p2{
+    top:60%;
+    left:70%;
+    animation:float2 4s ease-in-out infinite;
+}
+
+.p3{
+    top:40%;
+    left:20%;
+    animation:float3 5s ease-in-out infinite;
+}
+
+@keyframes float1{
+    0%{ transform:translateY(0); opacity:0.7; }
+    50%{ transform:translateY(-15px); opacity:1; }
+    100%{ transform:translateY(0); opacity:0.7; }
+}
+
+@keyframes float2{
+    0%{ transform:translateY(0); }
+    50%{ transform:translateY(12px); }
+    100%{ transform:translateY(0); }
+}
+
+@keyframes float3{
+    0%{ transform:translateY(0); }
+    50%{ transform:translateY(-20px); }
+    100%{ transform:translateY(0); }
+}
+
+/* MAIN CHAT BUTTON (inside portal) */
+.chat-main-btn{
+    position:relative;
+    z-index:10;
+    padding:18px 40px;
+    border:none;
+    border-radius:30px;
+    font-size:22px;
+    font-weight:bold;
+    background:linear-gradient(135deg,#00d0ff,#ff00ea);
+    color:white;
+    box-shadow:0 0 22px rgba(0,150,255,0.8);
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.chat-main-btn:hover{
+    transform:scale(1.06);
+    box-shadow:0 0 30px rgba(0,150,255,1);
+}
+
 .title{
     font-size:48px;
     font-weight:800;
