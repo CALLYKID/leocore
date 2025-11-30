@@ -4,10 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEOCORE</title>
-
-    <!-- Premium Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;600;800&display=swap" rel="stylesheet">
-
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -22,20 +18,22 @@
     <!-- CENTER CONTENT -->
     <div class="center-wrapper">
 
-        <!-- HOLOGRAM -->
-        <div class="holo-wrapper" id="openChat">
-            <div class="holo-ring"></div>
+        <!-- Fake input (animated placeholder) -->
+        <input 
+            id="fakeInput"
+            type="text"
+            placeholder="Message Leocore..."
+            class="fake-input"
+            readonly
+        >
 
-            <div class="fake-input">
-                <span>Message Leocore…</span>
-            </div>
-        </div>
-
-        <!-- TITLE -->
         <div class="title">LEOCORE</div>
         <div class="subtitle">Your AI. Your Vibe.</div>
 
     </div>
+
+    <!-- CHAT BUTTON -->
+    <button class="chat-btn" id="openChat">💬 CHAT</button>
 
     <!-- CHAT SCREEN -->
     <div class="chat-screen" id="chatScreen">
