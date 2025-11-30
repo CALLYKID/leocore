@@ -1,75 +1,52 @@
-module.exports.config = { runtime: "nodejs20.x" };
+export const config = {
+    runtime: "edge"
+};
 
-module.exports = async function handler(req, res) {
+export default async function handler(req) {
     if (req.method !== "POST") {
-        return res.status(405).json({ error: "Method not allowed" });
+        return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405
+        });
     }
 
     try {
-        // Parse body safely
-        const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-        const { message, audio } = body;
+        const body = await req.json();
+        const { message } = body;
 
-        let finalText = message;
-
-        // ========================================
-        // 1) WHISPER TRANSCRIPTION (NO UNDICI)
-        // ========================================
-        if (!message && audio) {
-            const audioBuffer = Buffer.from(audio, "base64");
-
-            // File + FormData are built-in on Vercel's Node runtime
-            const audioFile = new File([audioBuffer], "audio.webm", { type: "audio/webm" });
-
-            const form = new FormData();
-            form.append("file", audioFile);
-            form.append("model", "whisper-1");
-            const whisperResp = await fetch("https://api.openai.com/v1/audio/transcriptions", {
-                method: "POST",
-                headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
-                body: form
-            });
-
-            const whisperData = await whisperResp.json();
-            finalText = whisperData.text || "";
-        }
-
-        if (!finalText || !finalText.trim()) {
-            return res.status(200).json({
-                reply: "I didn’t catch that, try speaking louder.",
+        if (!message || !message.trim()) {
+            return new Response(JSON.stringify({
+                reply: "Say something first 😭",
                 audio: null
-            });
+            }), { status: 200 });
         }
 
-        // ========================================
-        // 2) GPT TEXT RESPONSE
-        // ========================================
-        const chatResp = await fetch("https://api.openai.com/v1/chat/completions", {
+        // ⚡ ULTRA FAST GROQ API (LLama-3.3)
+        const chatResp = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+                Authorization: `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
-                model: "gpt-4o-mini",
+                model: "llama-3.3-70b-versatile",
                 messages: [
-                    { role: "system", content: "You are Leocore." },
-                    { role: "user", content: finalText }
+                    { role: "system", content: "You are Leocore, friendly, fast, smart." },
+                    { role: "user", content: message }
                 ]
             })
         });
 
-        const chatData = await chatResp.json();
-        const reply = chatData?.choices?.[0]?.message?.content || "Error.";
+        const data = await chatResp.json();
+        const reply =
+            data?.choices?.[0]?.message?.content ||
+            "Something went wrong 😭";
 
-        // ========================================
-        // 3) TTS SPEECH RESPONSE
-        // ========================================
-        const ttsResp = await fetch("https://api.openai.com/v1/audio/speech", {
+        // ⚡ TTS FAST MODE (Groq)
+        const ttsResp = await fetch("https://api.groq.com/openai/v1/audio/speech", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+                Authorization: `Bearer ${process.env.GROQ_API_KEY}`
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini-tts",
@@ -78,21 +55,20 @@ module.exports = async function handler(req, res) {
             })
         });
 
-        const audioArr = await ttsResp.arrayBuffer();
-        const audioBase64 = Buffer.from(audioArr).toString("base64");
+        const audioBuffer = await ttsResp.arrayBuffer();
+        const audioBase64 = Buffer.from(audioBuffer).toString("base64");
 
-        // ========================================
-        // RETURN RESULT
-        // ========================================
-        return res.status(200).json({
+        return new Response(JSON.stringify({
             reply,
             audio: audioBase64
+        }), {
+            status: 200
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return new Response(JSON.stringify({
             error: "Server error",
             details: err.message
-        });
+        }), { status: 500 });
     }
-};
+}
