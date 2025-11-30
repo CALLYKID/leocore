@@ -54,4 +54,52 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+
+
+    // =========================================================
+    // 🔥 ANIMATED PLACEHOLDER (HOMEPAGE FAKE INPUT)
+    // =========================================================
+
+    const fake = document.getElementById("fakeInput");
+
+    // If homepage exists (not chat page)
+    if (fake) {
+
+        const phrases = [
+            "Message Leocore...",
+            "Give me a summer plan.",
+            "Create a menu for me.",
+            "Give me a funny quote."
+        ];
+
+        let current = 0;
+        let index = 0;
+        let forward = true;
+
+        function animatePlaceholder() {
+            const text = phrases[current];
+
+            if (forward) {
+                index++;
+                if (index === text.length) {
+                    forward = false;
+                    setTimeout(animatePlaceholder, 1300);
+                    return;
+                }
+            } else {
+                index--;
+                if (index === 0) {
+                    forward = true;
+                    current = (current + 1) % phrases.length;
+                }
+            }
+
+            fake.placeholder = text.slice(0, index);
+
+            setTimeout(animatePlaceholder, 70); // typing speed
+        }
+
+        animatePlaceholder();
+    }
+
 });
