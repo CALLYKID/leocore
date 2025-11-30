@@ -1,6 +1,6 @@
 export const config = { runtime: "nodejs" };
 
-// No imports needed – Node 18+ has File, FormData, fetch, Blob built-in
+// Node 18+ has fetch, File, FormData built-in, no imports needed
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
@@ -13,9 +13,7 @@ export default async function handler(req, res) {
 
         let finalText = message;
 
-        // ================================
-        // 1) AUDIO → WHISPER TRANSCRIPTION
-        // ================================
+        // 1) TRANSCRIBE AUDIO → WHISPER
         if (!message && audio) {
             const audioBuffer = Buffer.from(audio, "base64");
             const audioFile = new File([audioBuffer], "audio.webm", {
@@ -48,9 +46,7 @@ export default async function handler(req, res) {
             });
         }
 
-        // ================================
         // 2) GPT RESPONSE
-        // ================================
         const chatResp = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -69,9 +65,7 @@ export default async function handler(req, res) {
         const chatData = await chatResp.json();
         const reply = chatData?.choices?.[0]?.message?.content || "Error.";
 
-        // ================================
-        // 3) TTS — GPT-4o TTS
-        // ================================
+        // 3) TTS
         const ttsResp = await fetch("https://api.openai.com/v1/audio/speech", {
             method: "POST",
             headers: {
@@ -88,77 +82,6 @@ export default async function handler(req, res) {
         const audioArr = await ttsResp.arrayBuffer();
         const audioBase64 = Buffer.from(audioArr).toString("base64");
 
-        return res.status(200).json({
-            reply,
-            audio: audioBase64
-        });
-
-    } catch (err) {
-        return res.status(500).json({
-            error: "Server error",
-            details: err.message
-        });
-    }
-}                    },
-                    body: form
-                }
-            );
-
-            const whisperData = await whisperResp.json();
-            finalText = whisperData.text || "";
-        }
-
-        // If still no text
-        if (!finalText || !finalText.trim()) {
-            return res.status(200).json({
-                reply: "I didn’t catch that, try speaking louder.",
-                audio: null
-            });
-        }
-
-        // ===========================================
-        // 2) GPT RESPONSE
-        ===========================================
-        const chatResp = await fetch("https://api.openai.com/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini",
-                messages: [
-                    { role: "system", content: "You are Leocore." },
-                    { role: "user", content: finalText }
-                ]
-            })
-        });
-
-        const chatData = await chatResp.json();
-        const reply = chatData?.choices?.[0]?.message?.content || "Error.";
-
-        // ===========================================
-        // 3) TEXT → SPEECH (TTS)
-        ===========================================
-        const ttsResp = await fetch("https://api.openai.com/v1/audio/speech", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4o-mini-tts",
-                voice: "alloy",
-                input: reply
-            })
-        });
-
-        const audioBuffer = await ttsResp.arrayBuffer();
-        const audioBase64 = Buffer.from(audioBuffer).toString("base64");
-
-        // ===========================================
-        // RETURN JSON SAFELY
-        ===========================================
         return res.status(200).json({
             reply,
             audio: audioBase64
