@@ -6,8 +6,8 @@
 
 body{
     background:#000;
-    font-family:'Urbanist', sans-serif;
     overflow:hidden;
+    font-family:'Segoe UI',sans-serif;
 }
 
 /* BG VIDEO */
@@ -18,98 +18,93 @@ body{
     height:100%;
     object-fit:cover;
     z-index:-10;
+    pointer-events:none;
 }
 
 /* Overlay tint */
 .overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,30,0.45);
-    backdrop-filter: blur(2px);
+    background:rgba(0,0,40,0.35);
     z-index:-5;
 }
 
-/* CENTER LAYOUT */
+/* CENTER CONTENT */
 .center-wrapper{
     position:absolute;
-    top:46%;
+    top:42%;
     left:50%;
-    transform:translate(-50%,-50%);
+    transform:translate(-50%, -50%);
     text-align:center;
-    width:100%;
+    color:white;
+    width:90%;
 }
 
-/* HOLOGRAM WRAPPER */
-.holo-wrapper{
-    position:relative;
-    width:330px;
-    margin:0 auto 40px;
-    cursor:pointer;
-}
-
-/* Thin neon ring */
-.holo-ring{
-    position:absolute;
-    inset:-40px;
-    border-radius:50%;
-    border:2px solid rgba(0,200,255,0.4);
-    filter:blur(3px);
-    opacity:0.7;
-    animation:holoPulse 8s ease-in-out infinite;
-}
-
-@keyframes holoPulse{
-    0%{ transform:scale(0.92); opacity:0.6; }
-    50%{ transform:scale(1); opacity:0.9; }
-    100%{ transform:scale(0.92); opacity:0.6; }
-}
-
-/* FAKE CHAT INPUT */
+/* Fake Chat Input */
 .fake-input{
     width:100%;
-    padding:16px 24px;
-    border-radius:14px;
-    border:2px solid rgba(255,255,255,0.55);
-    backdrop-filter:blur(14px);
-    background:rgba(255,255,255,0.03);
-    text-align:left;
-    color:#fff;
-}
-
-.fake-input span{
-    opacity:0.6;
-    font-size:17px;
-    letter-spacing:0.5px;
-}
-
-/* TITLE + SUBTITLE */
-.title{
-    font-size:50px;
-    font-weight:800;
+    max-width:550px;
+    padding:18px 25px;
+    font-size:20px;
+    border-radius:18px;
+    border:2px solid rgba(150,220,255,0.4);
+    background:rgba(255,255,255,0.05);
     color:white;
-    letter-spacing:4px;
-    text-shadow:0 0 20px rgba(0,200,255,0.3);
+    outline:none;
+    margin-bottom:35px;
+    backdrop-filter:blur(8px);
+    box-shadow:0 0 18px rgba(0,200,255,0.3);
+}
+
+/* Titles */
+.title{
+    font-size:48px;
+    font-weight:800;
+    letter-spacing:5px;
+    text-shadow:0 0 25px #00d0ff;
 }
 
 .subtitle{
-    margin-top:12px;
+    margin-top:10px;
     font-size:20px;
-    letter-spacing:2px;
-    color:rgba(255,255,255,0.8);
+    opacity:0.8;
+    letter-spacing:3px;
+}
+
+/* CHAT BUTTON */
+.chat-btn{
+    position:absolute;
+    bottom:50px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:20px 60px;
+    font-size:26px;
+    border-radius:40px;
+    border:none;
+    color:#fff;
+    background:linear-gradient(90deg,#00d0ff,#ff00ea);
+    box-shadow:0 0 25px rgba(0,150,255,.7);
+    font-weight:bold;
+    cursor:pointer;
 }
 
 /* CHAT SCREEN */
 .chat-screen{
     position:fixed;
-    inset:0;
-    background:rgba(5,10,25,0.96);
-    backdrop-filter:blur(20px);
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
     display:none;
     flex-direction:column;
-    z-index:50;
+    background:rgba(5,10,30,0.92);
+    backdrop-filter:blur(10px);
+    z-index:20;
 }
 
-.chat-screen.active{ display:flex; }
+.chat-screen.active{
+    display:flex;
+}
 
 /* HEADER */
 .chat-header{
@@ -119,13 +114,14 @@ body{
     align-items:center;
     gap:15px;
     color:white;
+    background:rgba(20,20,40,0.4);
 }
 
 .back-btn{
     background:none;
     border:none;
     color:white;
-    font-size:32px;
+    font-size:30px;
     cursor:pointer;
 }
 
@@ -144,7 +140,7 @@ body{
     background:#008cff;
     color:white;
     padding:10px 14px;
-    border-radius:14px 14px 4px 14px;
+    border-radius:12px 12px 4px 12px;
     max-width:75%;
 }
 
@@ -153,16 +149,16 @@ body{
     background:#222b45;
     color:white;
     padding:10px 14px;
-    border-radius:14px 14px 14px 4px;
+    border-radius:12px 12px 12px 4px;
     max-width:75%;
 }
 
-/* INPUT BAR */
+/* INPUT */
 .chat-input-area{
     padding:12px;
     display:flex;
     gap:10px;
-    background:rgba(20,20,40,0.55);
+    background:rgba(20,20,40,0.5);
 }
 
 .chat-input-area input{
@@ -171,7 +167,6 @@ body{
     border-radius:10px;
     border:none;
     outline:none;
-    background:#fff;
 }
 
 #sendBtn{
