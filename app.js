@@ -21,26 +21,26 @@ orb.addEventListener("click", () => {
 
 
 // ===============================================================
-// START RECORDING — ANDROID + WHISPER STABLE VERSION
+// FINAL PERFECT ANDROID → WHISPER RECORDING FUNCTION
 // ===============================================================
 async function startRecording() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: {
-                sampleRate: 48000,       // 🔥 Whisper’s native sample rate
-                channelCount: 1,         // 🔥 mono = safer for Android
+                sampleRate: 48000,          // Whisper’s native rate
+                channelCount: 1,            // Mono → cleanest input
                 noiseSuppression: false,
                 echoCancellation: false,
                 autoGainControl: false
             }
         });
 
-        // Whisper reads OPUS best
+        // Force OPUS WebM — best for Whisper
         const mime = "audio/webm;codecs=opus";
 
         mediaRecorder = new MediaRecorder(stream, {
             mimeType: mime,
-            audioBitsPerSecond: 128000 // 🔥 sweet spot bitrate
+            audioBitsPerSecond: 96000      // 96kbps = perfect sweet spot
         });
 
         audioChunks = [];
@@ -54,35 +54,44 @@ async function startRecording() {
         mediaRecorder.onstop = async () => {
             const blob = new Blob(audioChunks, { type: mime });
 
-            // Debug — keep this for now
             addMessage("DEBUG SIZE: " + blob.size, "ai");
 
-            // Whisper-safe minimum blob size
-            if (blob.size < 5000) {
-                addMessage("🎤 I didn't catch that, try speaking louder.", "ai");
+            // Dynamic silence detection
+            // OPUS compresses differently depending on pitch
+            const tooSmall = blob.size < 6000;  // 6kb is reliable minimum
+            const tooShort = blob.size < 20000; // <20kb = likely too quiet
+
+            if (tooSmall) {
+                addMessage("🎤 I didn't hear anything.", "ai");
                 return;
             }
 
+            if (tooShort) {
+                addMessage("🎤 Try speaking a little closer.", "ai");
+                // still send to Whisper; just warn user
+            }
+
             const reader = new FileReader();
+
             reader.onloadend = async () => {
                 const base64Audio = reader.result.split(",")[1];
 
-                addMessage("🎤 Listening ended…", "user");
+                addMessage("🎤 Processing…", "user");
 
                 const data = await sendToGroq(null, base64Audio);
 
                 addMessage(data.reply, "ai");
 
                 if (data.audio) {
-                    const a = new Audio("data:audio/mp3;base64," + data.audio);
-                    a.play().catch(() => {});
+                    const audio = new Audio("data:audio/mp3;base64," + data.audio);
+                    audio.play().catch(() => {});
                 }
             };
 
             reader.readAsDataURL(blob);
         };
 
-        // 🔥 shorter chunks = more accurate timestamps
+        // Shorter intervals = more accurate timestamps for Whisper
         mediaRecorder.start(100);
 
         isRecording = true;
