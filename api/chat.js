@@ -4,11 +4,42 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { message } = req.body;
+        const body = req.body;
 
-        // --------------------------------------
-        // 1) TEXT RESPONSE (GPT-4o-mini)
-        // --------------------------------------
+        // -----------------------------
+        // 1) HANDLE TEXT OR AUDIO INPUT
+        // -----------------------------
+        let userMessage = "";
+
+        if (body.message) {
+            // TEXT MESSAGE
+            userMessage = body.message;
+
+        } else if (body.audio) {
+            // AUDIO MESSAGE → Whisper STT
+            const audioBuffer = Buffer.from(body.audio, "base64");
+
+            const sttResponse = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+                },
+                body: (() => {
+                    const form = new FormData();
+                    form.append("model", "gpt-4o-mini-tts");
+                    form.append("file", new Blob([audioBuffer], { type: "audio/webm" }), "audio.webm");
+                    return form;
+                })()
+            });
+
+            const sttData = await sttResponse.json();
+            userMessage = sttData.text || "I couldn't hear that clearly.";
+        }
+
+
+        // -----------------------------
+        // 2) GENERATE AI TEXT RESPONSE
+        // -----------------------------
         const textResponse = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -21,9 +52,9 @@ export default async function handler(req, res) {
                     {
                         role: "system",
                         content:
-                        "You are Leocore — smart, calm, modern, helpful. Sound natural and human-like. Keep replies short unless user asks for depth. No roleplay actions."
+                        "You are Leocore — smart, calm, modern, helpful. Sound human but not cringe. No roleplay actions."
                     },
-                    { role: "user", content: message }
+                    { role: "user", content: userMessage }
                 ]
             })
         });
@@ -32,13 +63,13 @@ export default async function handler(req, res) {
         const replyText = textData?.choices?.[0]?.message?.content || "Error generating response.";
 
 
-        // --------------------------------------
-        // 2) TEXT-TO-SPEECH (GPT-4o-mini-tts)
-        // --------------------------------------
+        // -----------------------------
+        // 3) GENERATE TTS AUDIO
+        // -----------------------------
         let audioBase64 = null;
 
         try {
-            const tts = await fetch("https://api.openai.com/v1/audio/speech", {
+            const ttsResponse = await fetch("https://api.openai.com/v1/audio/speech", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -46,28 +77,30 @@ export default async function handler(req, res) {
                 },
                 body: JSON.stringify({
                     model: "gpt-4o-mini-tts",
-                    voice: "alloy",
-                    input: replyText
+                    input: replyText,
+                    voice: "alloy"
                 })
             });
 
-            const buffer = await tts.arrayBuffer();
-            audioBase64 = Buffer.from(buffer).toString("base64");
+            const audioArrayBuf = await ttsResponse.arrayBuffer();
+            audioBase64 = Buffer.from(audioArrayBuf).toString("base64");
 
         } catch (err) {
             console.log("TTS ERROR:", err.message);
         }
 
 
-        // --------------------------------------
-        // 3) SEND TEXT + AUDIO BACK
-        // --------------------------------------
+        // -----------------------------
+        // 4) SEND EVERYTHING BACK
+        // -----------------------------
         return res.status(200).json({
             reply: replyText,
             audio: audioBase64
         });
 
     } catch (err) {
-        return res.status(500).json({ reply: "Server error: " + err.message });
+        return res.status(500).json({
+            reply: "Server error: " + err.message
+        });
     }
 }
