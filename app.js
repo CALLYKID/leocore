@@ -9,6 +9,9 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
+    /* ======================================================
+       AUTO–TYPING PLACEHOLDER
+    ====================================================== */
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -17,9 +20,7 @@ window.addEventListener("DOMContentLoaded", () => {
         "Help me with homework."
     ];
 
-    let promptIndex = 0;
-    let charIndex = 0;
-    let deleting = false;
+    let promptIndex = 0, charIndex = 0, deleting = false;
 
     function typeAnimation() {
         const cur = prompts[promptIndex];
@@ -40,17 +41,17 @@ window.addEventListener("DOMContentLoaded", () => {
         }
         setTimeout(typeAnimation, deleting ? 55 : 80);
     }
-
     typeAnimation();
 
-    fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-    });
+    /* ======================================================
+       NAVIGATION
+    ====================================================== */
+    fakeInput.addEventListener("click", () => chatScreen.classList.add("active"));
+    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
-
+    /* ======================================================
+       DOM MESSAGE HELPERS
+    ====================================================== */
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -73,7 +74,9 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-    // STREAMING RESPONSE
+    /* ======================================================
+       STREAM HANDLER — LIKE CHATGPT
+    ====================================================== */
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
@@ -92,12 +95,12 @@ window.addEventListener("DOMContentLoaded", () => {
                     const token = line.replace("data:", "").trim();
                     if (token === "END") continue;
 
-                    // Add token with smart spacing
-                    const last = aiBox.innerText.slice(-1);
-                    if (last && !last.match(/\s/) && !token.startsWith(" ")) {
-                        aiBox.innerText += " " + token;
+                    // Fix spacing like ChatGPT
+                    const lastChar = aiBox.textContent.slice(-1);
+                    if (lastChar && !lastChar.match(/\s/) && !token.startsWith(" ")) {
+                        aiBox.textContent += " " + token;
                     } else {
-                        aiBox.innerText += token;
+                        aiBox.textContent += token;
                     }
 
                     messages.scrollTop = messages.scrollHeight;
@@ -110,7 +113,9 @@ window.addEventListener("DOMContentLoaded", () => {
         readChunk();
     }
 
-    // HANDLE SEND
+    /* ======================================================
+       SEND MESSAGE — STREAMING MODE
+    ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
@@ -121,7 +126,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const loader = addTypingBubble();
 
         try {
-            const response = await fetch("/api/chat/stream", {
+            const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: text })
@@ -130,7 +135,6 @@ window.addEventListener("DOMContentLoaded", () => {
             loader.remove();
 
             const aiBox = addMessage("", "ai");
-
             streamResponse(aiBox, response.body);
 
         } catch (err) {
@@ -138,4 +142,5 @@ window.addEventListener("DOMContentLoaded", () => {
             addMessage("Network error.", "ai");
         }
     });
+
 });
