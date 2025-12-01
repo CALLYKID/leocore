@@ -1,28 +1,28 @@
 // =====================================================
-// LEOCORE — NON-STREAMING GROQ ENGINE (STABLE BACKUP)
+// LEOCORE — STREAMING GROQ ENGINE (FINAL VERSION)
 // =====================================================
 
+// Short-term memory
 global.history = global.history || [];
+
+// Long-term memory
 global.longTerm = global.longTerm || {
     name: null,
     preferences: [],
     facts: []
 };
 
+// Memory extraction
 function extractMemory(msg) {
     const lower = msg.toLowerCase();
 
     if (lower.includes("my name is")) {
-        const name = msg.split(/my name is/i)[1]
-            .trim()
-            .split(" ")[0]
-            .replace(/[^a-z]/gi, "");
-        if (name) global.longTerm.name = name;
+        global.longTerm.name = msg.split(/my name is/i)[1].trim().split(" ")[0];
     }
 
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
-        if (pref && !global.longTerm.preferences.includes(pref)) {
+        if (!global.longTerm.preferences.includes(pref)) {
             global.longTerm.preferences.push(pref);
         }
     }
@@ -56,22 +56,23 @@ export default async function handler(req, res) {
     try {
         const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
         const message = body?.message?.trim();
-
-        if (!message) {
-            return res.status(200).json({ reply: "Say something." });
-        }
+        if (!message) return res.status(400).json({ reply: "Empty message." });
 
         extractMemory(message);
 
         global.history.push({ role: "user", content: message });
         if (global.history.length > 10) global.history.shift();
 
+        // SSE stream setup
+        res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
+        res.setHeader("Cache-Control", "no-cache, no-transform");
+        res.setHeader("Connection", "keep-alive");
+
         const payload = {
             model: "llama-3.1-8b-instant",
-            max_tokens: 300,
-            temperature: 0.7,
+            stream: true,
             messages: [
-                { role: "system", content: "You are Leocore, a modern AI assistant." },
+                { role: "system", content: "You are Leocore, a modern, confident AI." },
                 { role: "system", content: "Memory:\n" + memoryBlock() },
                 ...global.history
             ]
@@ -86,17 +87,40 @@ export default async function handler(req, res) {
             body: JSON.stringify(payload)
         });
 
-        const raw = await groqRes.text();
-        const data = JSON.parse(raw);
+        const reader = groqRes.body.getReader();
+        const decoder = new TextDecoder();
 
-        const reply = data?.choices?.[0]?.message?.content || "Empty reply.";
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-        global.history.push({ role: "assistant", content: reply });
-        if (global.history.length > 10) global.history.shift();
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
 
-        return res.status(200).json({ reply });
+            for (let line of lines) {
+                line = line.trim();
+                if (!line.startsWith("data:")) continue;
 
+                const json = line.replace("data:", "").trim();
+
+                if (json === "[DONE]") {
+                    res.write("data: END\n\n");
+                    res.end();
+                    return;
+                }
+
+                try {
+                    const obj = JSON.parse(json);
+                    const token = obj?.choices?.[0]?.delta?.content;
+
+                    if (token) res.write(`data: ${token}\n\n`);
+                } catch {}
+            }
+        }
+
+        res.end();
     } catch (err) {
-        return res.status(200).json({ reply: "Server error." });
+        console.log("SERVER ERROR:", err);
+        res.end();
     }
 }
