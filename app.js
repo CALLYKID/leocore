@@ -43,14 +43,35 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
+
     /* ======================================================
-       NAVIGATION
+       CHAT NAVIGATION
     ====================================================== */
     fakeInput.addEventListener("click", () => chatScreen.classList.add("active"));
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
+
     /* ======================================================
-       DOM MESSAGE HELPERS
+       CLEAN SPACING LIKE CHATGPT
+    ====================================================== */
+    function cleanText(text) {
+        return text
+            .replace(/\s+([.,!?])/g, "$1")   // remove spaces before punctuation
+            .replace(/'\s+/g, "'")           // remove space after apostrophe
+            .replace(/\s+'/g, "'")           // remove space before apostrophe
+            .replace(/\s{2,}/g, " ")         // collapse double spaces
+            .replace(/(\w)\s+n't/g, "$1n't") // do n't → don't
+            .replace(/(\w)\s+'re/g, "$1're")
+            .replace(/(\w)\s+'ll/g, "$1'll")
+            .replace(/(\w)\s+'ve/g, "$1've")
+            .replace(/(\w)\s+'m/g, "$1'm")
+            .replace(/(\w)\s+'d/g, "$1'd")
+            .trim();
+    }
+
+
+    /* ======================================================
+       DOM HELPERS
     ====================================================== */
     function addMessage(text, sender) {
         const div = document.createElement("div");
@@ -74,16 +95,21 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
+
     /* ======================================================
-       STREAM HANDLER — LIKE CHATGPT
+       STREAMING HANDLER — CLEANED
     ====================================================== */
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
+        let buffer = ""; // <-- store partial tokens here
 
         function readChunk() {
             reader.read().then(({ done, value }) => {
-                if (done) return;
+                if (done) {
+                    aiBox.textContent = cleanText(aiBox.textContent);
+                    return;
+                }
 
                 const chunk = decoder.decode(value);
                 const lines = chunk.split("\n");
@@ -92,16 +118,15 @@ window.addEventListener("DOMContentLoaded", () => {
                     line = line.trim();
                     if (!line.startsWith("data:")) continue;
 
-                    const token = line.replace("data:", "").trim();
+                    let token = line.replace("data:", "").trim();
+
                     if (token === "END") continue;
 
-                    // Fix spacing like ChatGPT
-                    const lastChar = aiBox.textContent.slice(-1);
-                    if (lastChar && !lastChar.match(/\s/) && !token.startsWith(" ")) {
-                        aiBox.textContent += " " + token;
-                    } else {
-                        aiBox.textContent += token;
-                    }
+                    // Add to buffer (raw streaming)
+                    buffer += token;
+
+                    // Clean spacing live
+                    aiBox.textContent = cleanText(buffer);
 
                     messages.scrollTop = messages.scrollHeight;
                 }
@@ -113,8 +138,9 @@ window.addEventListener("DOMContentLoaded", () => {
         readChunk();
     }
 
+
     /* ======================================================
-       SEND MESSAGE — STREAMING MODE
+       SEND MESSAGE — STREAM MODE
     ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
