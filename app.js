@@ -64,12 +64,12 @@ window.addEventListener("DOMContentLoaded", () => {
     ====================================================== */
     function cleanTextPro(text) {
         return text
-            .replace(/\s{2,}/g, " ")        // remove double spaces
-            .replace(/\s+([.,!?])/g, "$1")  // remove space before punctuation
-            .replace(/([.,!?])(?=\S)/g, "$1 ") // force space after punctuation
-            .replace(/\n{3,}/g, "\n\n")     // fix paragraph spacing
-            .replace(/\*\*(.*?)\*\*/g, "$1") // strip bold markup
-            .replace(/\*(.*?)\*/g, "$1")     // strip italic markup
+            .replace(/\s{2,}/g, " ")
+            .replace(/\s+([.,!?])/g, "$1")
+            .replace(/([.,!?])(?=\S)/g, "$1 ")
+            .replace(/\n{3,}/g, "\n\n")
+            .replace(/\*\*(.*?)\*\*/g, "$1")
+            .replace(/\*(.*?)\*/g, "$1")
             .trim();
     }
 
@@ -100,7 +100,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ======================================================
        STREAM RESPONSE — PERFECTED
-       (NO SPACING BUGS, NO CORRUPT TOKENS, NO MESS)
     ====================================================== */
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
@@ -125,7 +124,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     let token = line.replace("data:", "").trim();
                     if (token === "END") continue;
 
-                    buffer += token; // append EXACTLY as streamed
+                    buffer += token;
                     aiBox.textContent = buffer;
                     messages.scrollTop = messages.scrollHeight;
                 }
@@ -154,7 +153,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    userId: userId,   // ⭐ NEW: per-user isolation
+                    userId: userId,
                     message: text
                 })
             });
