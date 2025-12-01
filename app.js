@@ -50,13 +50,26 @@ window.addEventListener("DOMContentLoaded", () => {
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
     /* ======================================================
-       CLEANER (ONLY after full message)
+       cleanTextPro — FINAL SAFE FORMATTER
     ====================================================== */
-    function cleanText(text) {
+    function cleanTextPro(text) {
         return text
-            .replace(/\s+([.,!?])/g, "$1")
-            .replace(/([.,!?])(?=\S)/g, "$1 ")
+            // Fix multiple spaces
             .replace(/\s{2,}/g, " ")
+
+            // Fix spacing before punctuation
+            .replace(/\s+([.,!?])/g, "$1")
+
+            // Ensure space after punctuation if missing
+            .replace(/([.,!?])(?=\S)/g, "$1 ")
+
+            // Convert double newlines into paragraph breaks
+            .replace(/\n{3,}/g, "\n\n")
+
+            // Basic markdown (bold, italic)
+            .replace(/\*\*(.*?)\*\*/g, "$1") // you can later style bold if you want
+            .replace(/\*(.*?)\*/g, "$1")
+
             .trim();
     }
 
@@ -86,50 +99,47 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       STREAM RESPONSE (FIXED)
+       STREAM RESPONSE — PERFECTED (NO SPACING BUGS)
     ====================================================== */
     function streamResponse(aiBox, stream) {
-    const reader = stream.getReader();
-    const decoder = new TextDecoder();
+        const reader = stream.getReader();
+        const decoder = new TextDecoder();
 
-    let buffer = "";
+        let buffer = "";
 
-    function readChunk() {
-        reader.read().then(({ done, value }) => {
+        function readChunk() {
+            reader.read().then(({ done, value }) => {
 
-            if (done) {
-                aiBox.textContent = buffer.trim();
-                return;
-            }
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
-
-            for (let line of lines) {
-                line = line.trim();
-                if (!line.startsWith("data:")) continue;
-
-                let token = line.replace("data:", "").trim();
-                if (token === "END") continue;
-
-                // ⭐ FIX: auto-space logic for natural language
-                if (buffer.length > 0) {
-                    if (!token.startsWith(" ") && !",.!?".includes(token[0])) {
-                        buffer += " ";
-                    }
+                if (done) {
+                    aiBox.textContent = cleanTextPro(buffer);
+                    return;
                 }
 
-                buffer += token;
-                aiBox.textContent = buffer;
-                messages.scrollTop = messages.scrollHeight;
-            }
+                const chunk = decoder.decode(value);
+                const lines = chunk.split("\n");
 
-            readChunk();
-        });
+                for (let line of lines) {
+                    if (!line.startsWith("data:")) continue;
+
+                    let token = line.replace("data:", "").trim();
+                    if (token === "END") continue;
+
+                    // DO NOT auto-space.
+                    // DO NOT attempt formatting here.
+                    // Just append exactly as sent.
+                    buffer += token;
+
+                    aiBox.textContent = buffer;
+                    messages.scrollTop = messages.scrollHeight;
+                }
+
+                readChunk();
+            });
+        }
+
+        readChunk();
     }
 
-    readChunk();
-}
     /* ======================================================
        SEND MESSAGE
     ====================================================== */
