@@ -1,25 +1,23 @@
 // =====================================================
-// LEOCORE — ADVANCED MEMORY + SMART RETRY CHAT ENGINE
+// LEOCORE — DEBUG-ENABLED CHAT ENGINE (REAL ERRORS SHOWN)
 // =====================================================
 
-// Short-term conversation memory (last 10 messages)
+// Short-term memory (10 messages)
 global.history = global.history || [];
 
-// Long-term memory (persists across requests)
+// Long-term memory
 global.longTerm = global.longTerm || {
     name: null,
     preferences: [],
     facts: []
 };
 
-// =====================================================
-// MEMORY EXTRACTOR (detects and stores info)
-// =====================================================
-function extractMemory(message) {
-    const lower = message.toLowerCase();
+// Extract memory
+function extractMemory(msg) {
+    const lower = msg.toLowerCase();
 
     if (lower.includes("my name is")) {
-        const name = message.split(/my name is/i)[1]
+        const name = msg.split(/my name is/i)[1]
             .trim()
             .split(" ")[0]
             .replace(/[^a-z]/gi, "");
@@ -27,8 +25,8 @@ function extractMemory(message) {
     }
 
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
-        const pref = message.replace(/i like|i love/i, "").trim();
-        if (pref.length > 2 && !global.longTerm.preferences.includes(pref)) {
+        const pref = msg.replace(/i like|i love/i, "").trim();
+        if (!global.longTerm.preferences.includes(pref)) {
             global.longTerm.preferences.push(pref);
         }
     }
@@ -40,70 +38,30 @@ function extractMemory(message) {
         lower.includes("i study") ||
         lower.includes("i want to become")
     ) {
-        if (!global.longTerm.facts.includes(message)) {
-            global.longTerm.facts.push(message);
+        if (!global.longTerm.facts.includes(msg)) {
+            global.longTerm.facts.push(msg);
         }
-    }
-
-    if (lower.startsWith("forget everything")) {
-        global.longTerm = { name: null, preferences: [], facts: [] };
     }
 }
 
-// =====================================================
-// FORMAT MEMORY FOR MODEL
-// =====================================================
 function memoryBlock() {
     return `
-User name: ${global.longTerm.name || "unknown"}
+User: ${global.longTerm.name || "unknown"}
 Likes: ${global.longTerm.preferences.join(", ") || "none"}
 Facts: ${global.longTerm.facts.join(" | ") || "none"}
 `;
 }
 
 // =====================================================
-// SAFE FETCH — retries if Groq returns empty response
-// =====================================================
-async function groqRequest(payload) {
-    const url = "https://api.groq.com/openai/v1/chat/completions";
-
-    for (let attempt = 1; attempt <= 3; attempt++) {
-        try {
-            const res = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${process.env.GROQ_API_KEY}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await res.json();
-
-            // VALID RESPONSE?
-            if (data?.choices?.[0]?.message?.content) {
-                return data.choices[0].message.content;
-            }
-
-            // If empty → retry with safer model
-            payload.model = "llama-3.3-70b-specdec";
-
-        } catch (e) {
-            // Try again
-        }
-    }
-
-    return "My brain is tired 😭 try again in a moment.";
-}
-
-// =====================================================
-// MAIN HANDLER
+// MAIN HANDLER — NOW WITH FULL DEBUG LOGS
 // =====================================================
 export default async function handler(req, res) {
     res.setHeader("Content-Type", "application/json");
 
+    // Only allow POST
     if (req.method !== "POST") {
-        return res.status(200).json({ reply: "POST only." });
+        console.log("❌ Received NON-POST request:", req.method);
+        return res.status(405).json({ reply: "POST only." });
     }
 
     try {
@@ -111,6 +69,7 @@ export default async function handler(req, res) {
         const message = body?.message?.trim();
 
         if (!message) {
+            console.log("❌ No message provided");
             return res.status(200).json({ reply: "Say something." });
         }
 
@@ -124,33 +83,57 @@ export default async function handler(req, res) {
         // Build payload
         const payload = {
             model: "llama-3.1-70b-versatile",
-            max_tokens: 400,
+            max_tokens: 300,
             temperature: 0.7,
             messages: [
                 {
                     role: "system",
-                    content: "You are Leocore, a fast, modern AI assistant. Speak clean, helpful, confident."
+                    content: "You are Leocore, a fast, confident AI with modern tone."
                 },
                 {
                     role: "system",
-                    content: "User memory:\n" + memoryBlock()
+                    content: "Memory:\n" + memoryBlock()
                 },
                 ...global.history
             ]
         };
 
-        // Send request (with auto-retry)
-        const reply = await groqRequest(payload);
+        console.log("🔥 Sending to Groq...");
+        console.log("🔑 API KEY exists?", !!process.env.GROQ_API_KEY);
 
-        // Store AI reply in history
+        // Make request
+        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${process.env.GROQ_API_KEY}`
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const rawText = await groqRes.text();
+        console.log("📥 Raw Groq Response:", rawText);
+
+        const data = JSON.parse(rawText);
+
+        const reply = data?.choices?.[0]?.message?.content;
+        if (!reply) {
+            console.log("❌ Groq returned NO reply");
+            return res.status(200).json({
+                reply: "Groq gave an empty response. Check logs."
+            });
+        }
+
+        // Add AI response
         global.history.push({ role: "assistant", content: reply });
         if (global.history.length > 10) global.history.shift();
 
         return res.status(200).json({ reply });
 
-    } catch (err) {
+    } catch (error) {
+        console.log("❌ SERVER CRASH:", error);
         return res.status(200).json({
-            reply: "Server is cooling down 🔥 try again."
+            reply: "Server error — check Vercel logs!"
         });
     }
 }
