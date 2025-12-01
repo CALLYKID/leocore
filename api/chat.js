@@ -1,5 +1,5 @@
 // =====================================================
-// LEOCORE — STABLE GROQ CHAT ENGINE (NO MORE EMPTY BUGS)
+// LEOCORE — STABLE GROQ CHAT ENGINE (UPDATED MODEL)
 // =====================================================
 
 // Short-term memory (keeps last 10 messages)
@@ -81,9 +81,11 @@ export default async function handler(req, res) {
         global.history.push({ role: "user", content: message });
         if (global.history.length > 10) global.history.shift();
 
-        // Build payload
+        // =====================================================
+        // UPDATED PAYLOAD — NEW WORKING MODEL
+        // =====================================================
         const payload = {
-            model: "llama3-8b-8192",       // ✅ STABLE MODEL
+            model: "llama-3.1-8b-instant",     // 🚀 NEW STABLE MODEL
             max_tokens: 400,
             temperature: 0.7,
             messages: [
