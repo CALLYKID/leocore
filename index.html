@@ -1,49 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEOCORE</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+<div class="center-wrapper">
 
-<body>
+    <!-- FUTURISTIC LEOCORE LOGO -->
+    <div class="logo fade-in">
+        <!-- Hologram Wordmark SVG -->
+        <svg width="600" height="180" viewBox="0 0 600 180" xmlns="http://www.w3.org/2000/svg">
 
-    <!-- BACKGROUND VIDEO -->
-    <video id="bgVideo" autoplay muted loop playsinline>
-        <source src="waves.mp4" type="video/mp4">
-    </video>
-    <div class="overlay"></div>
+          <defs>
+            <linearGradient id="neo" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00eaff"/>
+              <stop offset="40%" stop-color="#00c8ff"/>
+              <stop offset="70%" stop-color="#6a00ff"/>
+              <stop offset="100%" stop-color="#9a00ff"/>
+            </linearGradient>
 
-    <!-- HOME SCREEN -->
-    <div class="center-wrapper">
+            <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="6" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
 
-        <div class="fake-input fade-in" id="fakeInput">
-            <span class="fake-text" id="fakeText"></span>
-        </div>
+            <linearGradient id="scanline" x1="0" y1="0" x2="0" y2="100%">
+              <stop offset="0%" stop-color="#00eaff22"/>
+              <stop offset="100%" stop-color="#00eaff00"/>
+            </linearGradient>
+          </defs>
 
-        <div class="title fade-in delay-1">LEOCORE</div>
-        <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
+          <rect x="6" y="6" width="588" height="168" rx="10"
+                fill="none" stroke="url(#scanline)" stroke-width="3"
+                filter="url(#glow)"/>
 
-    </div>
+          <rect x="20" y="20" width="560" height="140" rx="8"
+                fill="none" stroke="#00eaff15" stroke-width="2"/>
 
-    <!-- CHAT SCREEN (HIDDEN UNTIL OPENED) -->
-    <div class="chat-screen" id="chatScreen">
-
-        <div class="chat-header">
-            <button class="back-btn" id="closeChat">←</button>
+          <text x="50%" y="60%" text-anchor="middle"
+                font-family="Segoe UI" font-weight="900"
+                font-size="82"
+                fill="url(#neo)"
+                stroke="#00eaff" stroke-width="2"
+                filter="url(#glow)">
             LEOCORE
-        </div>
+          </text>
 
-        <div class="chat-messages" id="messages"></div>
+          <line x1="130" y1="125" x2="470" y2="125" stroke="#00eaff55" stroke-width="4"/>
+          <line x1="180" y1="140" x2="420" y2="140" stroke="#7a00ff55" stroke-width="3"/>
 
-        <div class="chat-input-area">
-            <input type="text" id="userInput" placeholder="Say something...">
-            <button id="sendBtn">➤</button>
-        </div>
+          <rect x="80" y="40" width="40" height="4" fill="#00d0ff55"/>
+          <rect x="480" y="40" width="40" height="4" fill="#7a00ff55"/>
 
+        </svg>
     </div>
 
-    <script src="app.js"></script>
-</body>
-</html>
+    <!-- Existing fake chat bar -->
+    <div class="fake-input fade-in delay-1" id="fakeInput">
+        <span class="fake-text" id="fakeText"></span>
+    </div>
+
+    <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
+
+</div>
