@@ -3,10 +3,10 @@
 // =====================================================
 
 // 🔥 Conversation memory (short-term)
-let history = [];  // stores last 10 messages
+global.history = global.history || [];  // stores last 10 messages
 
 // 🔥 Long-term memory (like ChatGPT "Memory")
-let longTerm = {
+global.longTerm = global.longTerm || {
     name: null,
     preferences: [],
     facts: []
@@ -25,14 +25,14 @@ function extractMemory(message) {
             .split(" ")[0]
             .replace(/[^a-z]/gi, "");
 
-        if (name.length > 1) longTerm.name = name;
+        if (name.length > 1) global.longTerm.name = name;
     }
 
     // PREFERENCES
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = message.replace(/i like|i love/i, "").trim();
-        if (pref.length > 2 && !longTerm.preferences.includes(pref)) {
-            longTerm.preferences.push(pref);
+        if (pref.length > 2 && !global.longTerm.preferences.includes(pref)) {
+            global.longTerm.preferences.push(pref);
         }
     }
 
@@ -44,14 +44,14 @@ function extractMemory(message) {
         lower.includes("i study") ||
         lower.includes("i want to become")
     ) {
-        if (!longTerm.facts.includes(message)) {
-            longTerm.facts.push(message);
+        if (!global.longTerm.facts.includes(message)) {
+            global.longTerm.facts.push(message);
         }
     }
 
     // FORGET COMMAND
     if (lower.startsWith("forget everything")) {
-        longTerm = { name: null, preferences: [], facts: [] };
+        global.longTerm = { name: null, preferences: [], facts: [] };
     }
 }
 
@@ -60,16 +60,16 @@ function extractMemory(message) {
 // =====================================================
 function buildMemoryPrompt() {
     return `
-User name: ${longTerm.name || "unknown"}
-Preferences: ${longTerm.preferences.join(", ") || "none"}
-Facts: ${longTerm.facts.join(" | ") || "none"}
+User name: ${global.longTerm.name || "unknown"}
+Preferences: ${global.longTerm.preferences.join(", ") || "none"}
+Facts: ${global.longTerm.facts.join(" | ") || "none"}
 `;
 }
 
 // =====================================================
-// MAIN HANDLER
+// MAIN HANDLER (ESM VERSION FOR VERCEL)
 // =====================================================
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
     res.setHeader("Content-Type", "application/json");
 
     if (req.method !== "POST") {
@@ -84,14 +84,14 @@ module.exports = async (req, res) => {
             return res.status(200).json({ reply: "Say something." });
         }
 
-        // 🧠 1) Extract memory from user message
+        // 🧠 1) Extract memory
         extractMemory(message);
 
-        // 💬 2) Add user message to history  
-        history.push({ role: "user", content: message });
-        if (history.length > 10) history.shift(); // keep last 10 only
+        // 💬 2) Add user message to history
+        global.history.push({ role: "user", content: message });
+        if (global.history.length > 10) global.history.shift();
 
-        // 📦 3) Build payload for Groq
+        // 📦 3) Build payload
         const payload = {
             model: "llama-3.1-70b-versatile",
             max_tokens: 400,
@@ -101,14 +101,13 @@ module.exports = async (req, res) => {
                     role: "system",
                     content:
                         "You are Leocore, a fast, smart assistant. " +
-                        "Use memory naturally, but don't act creepy or overly attached. " +
-                        "Speak like a modern AI, clean and clear."
+                        "Use memory naturally, not creepily. Speak clean."
                 },
                 {
                     role: "system",
                     content: "Long-term memory:\n" + buildMemoryPrompt()
                 },
-                ...history // include conversation context
+                ...global.history
             ]
         };
 
@@ -122,22 +121,18 @@ module.exports = async (req, res) => {
             body: JSON.stringify(payload)
         });
 
-        let data;
-        try {
-            data = await groqRes.json();
-        } catch {
-            return res.status(200).json({ reply: "Try again — I'm reloading." });
-        }
-
-        const reply = data?.choices?.[0]?.message?.content || "I lagged — repeat that?";
+        const data = await groqRes.json();
+        const reply =
+            data?.choices?.[0]?.message?.content ||
+            "I lagged — say that again?";
 
         // 🧠 5) Add AI reply to history
-        history.push({ role: "assistant", content: reply });
-        if (history.length > 10) history.shift();
+        global.history.push({ role: "assistant", content: reply });
+        if (global.history.length > 10) global.history.shift();
 
         return res.status(200).json({ reply });
 
     } catch (err) {
         return res.status(200).json({ reply: "Server busy — try again." });
     }
-};
+}
