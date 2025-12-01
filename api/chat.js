@@ -1,18 +1,20 @@
 // =====================================================
-// LEOCORE — DEBUG-ENABLED CHAT ENGINE (REAL ERRORS SHOWN)
+// LEOCORE — STABLE GROQ CHAT ENGINE (NO MORE EMPTY BUGS)
 // =====================================================
 
-// Short-term memory (10 messages)
+// Short-term memory (keeps last 10 messages)
 global.history = global.history || [];
 
-// Long-term memory
+// Long-term memory (persists on server)
 global.longTerm = global.longTerm || {
     name: null,
     preferences: [],
     facts: []
 };
 
-// Extract memory
+// =====================================================
+// MEMORY EXTRACTION
+// =====================================================
 function extractMemory(msg) {
     const lower = msg.toLowerCase();
 
@@ -26,7 +28,7 @@ function extractMemory(msg) {
 
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
-        if (!global.longTerm.preferences.includes(pref)) {
+        if (pref && !global.longTerm.preferences.includes(pref)) {
             global.longTerm.preferences.push(pref);
         }
     }
@@ -44,6 +46,7 @@ function extractMemory(msg) {
     }
 }
 
+// Format memory block
 function memoryBlock() {
     return `
 User: ${global.longTerm.name || "unknown"}
@@ -53,14 +56,13 @@ Facts: ${global.longTerm.facts.join(" | ") || "none"}
 }
 
 // =====================================================
-// MAIN HANDLER — NOW WITH FULL DEBUG LOGS
+// MAIN HANDLER
 // =====================================================
 export default async function handler(req, res) {
     res.setHeader("Content-Type", "application/json");
 
-    // Only allow POST
     if (req.method !== "POST") {
-        console.log("❌ Received NON-POST request:", req.method);
+        console.log("❌ NON-POST request:", req.method);
         return res.status(405).json({ reply: "POST only." });
     }
 
@@ -69,26 +71,26 @@ export default async function handler(req, res) {
         const message = body?.message?.trim();
 
         if (!message) {
-            console.log("❌ No message provided");
+            console.log("❌ No message sent");
             return res.status(200).json({ reply: "Say something." });
         }
 
-        // Update memory
         extractMemory(message);
 
-        // Add to history
+        // Add user message to history
         global.history.push({ role: "user", content: message });
         if (global.history.length > 10) global.history.shift();
 
         // Build payload
         const payload = {
-            model: "llama-3.1-70b-versatile",
-            max_tokens: 300,
+            model: "llama3-8b-8192",       // ✅ STABLE MODEL
+            max_tokens: 400,
             temperature: 0.7,
             messages: [
                 {
                     role: "system",
-                    content: "You are Leocore, a fast, confident AI with modern tone."
+                    content:
+                        "You are Leocore, a modern, confident AI companion. Keep responses clean and clear."
                 },
                 {
                     role: "system",
@@ -98,8 +100,8 @@ export default async function handler(req, res) {
             ]
         };
 
-        console.log("🔥 Sending to Groq...");
-        console.log("🔑 API KEY exists?", !!process.env.GROQ_API_KEY);
+        console.log("🔥 Sending request to Groq...");
+        console.log("🔑 API key exists?", !!process.env.GROQ_API_KEY);
 
         // Make request
         const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -111,29 +113,37 @@ export default async function handler(req, res) {
             body: JSON.stringify(payload)
         });
 
-        const rawText = await groqRes.text();
-        console.log("📥 Raw Groq Response:", rawText);
+        const raw = await groqRes.text();
+        console.log("📥 RAW GROQ RESPONSE:", raw);
 
-        const data = JSON.parse(rawText);
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (e) {
+            console.log("❌ JSON PARSE ERROR:", e);
+            return res.status(200).json({
+                reply: "Groq sent invalid JSON. Try again soon."
+            });
+        }
 
         const reply = data?.choices?.[0]?.message?.content;
+
         if (!reply) {
-            console.log("❌ Groq returned NO reply");
+            console.log("❌ Empty Groq reply");
             return res.status(200).json({
                 reply: "Groq gave an empty response. Check logs."
             });
         }
 
-        // Add AI response
         global.history.push({ role: "assistant", content: reply });
         if (global.history.length > 10) global.history.shift();
 
         return res.status(200).json({ reply });
 
-    } catch (error) {
-        console.log("❌ SERVER CRASH:", error);
+    } catch (err) {
+        console.log("❌ SERVER CRASH:", err);
         return res.status(200).json({
-            reply: "Server error — check Vercel logs!"
+            reply: "Server error — check logs!"
         });
     }
 }
