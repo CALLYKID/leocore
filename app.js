@@ -137,7 +137,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       SEND MESSAGE — NOW SENDS userId TO BACKEND
+       SEND MESSAGE — FIXED ✔ RELATIVE PATH
     ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
@@ -149,14 +149,14 @@ window.addEventListener("DOMContentLoaded", () => {
         const loader = addTypingBubble();
 
         try {
-            const response = await fetch("https://leocore.vercel.app/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        userId: userId,
-        message: text
-    })
-});
+            const response = await fetch("/api/chat", {   // ⭐⭐⭐ FIXED LINE ⭐⭐⭐
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: userId,
+                    message: text
+                })
+            });
 
             loader.remove();
 
@@ -165,6 +165,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             loader.remove();
+            addMessage("Network error.", "ai");
+        }
+    });
+
+});            loader.remove();
             addMessage("Network error.", "ai");
         }
     });
