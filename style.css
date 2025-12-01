@@ -266,3 +266,29 @@ body{
     overflow-wrap: break-word;
     word-wrap: break-word;  /* legacy but widely supported */
 }
+
+/* Top Logo */
+.top-logo {
+    position: fixed;
+    top: 18px;
+    left: 20px;
+    z-index: 20;
+}
+
+.top-logo svg {
+    width: 110px;
+    height: auto;
+}
+
+/* Home container layout */
+.home-container {
+    position: fixed;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
