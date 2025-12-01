@@ -266,3 +266,16 @@ body{
     overflow-wrap: break-word;
     word-wrap: break-word;  /* legacy but widely supported */
 }
+
+.logo {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.logo svg {
+    width: 85%;
+    max-width: 360px;
+    height: auto;
+}
