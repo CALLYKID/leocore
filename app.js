@@ -89,42 +89,47 @@ window.addEventListener("DOMContentLoaded", () => {
        STREAM RESPONSE (FIXED)
     ====================================================== */
     function streamResponse(aiBox, stream) {
-        const reader = stream.getReader();
-        const decoder = new TextDecoder();
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
 
-        let buffer = "";
+    let buffer = "";
 
-        function readChunk() {
-            reader.read().then(({ done, value }) => {
+    function readChunk() {
+        reader.read().then(({ done, value }) => {
 
-                if (done) {
-                    // CLEAN ONLY AFTER COMPLETE
-                    aiBox.textContent = cleanText(buffer);
-                    return;
+            if (done) {
+                aiBox.textContent = buffer.trim();
+                return;
+            }
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            for (let line of lines) {
+                line = line.trim();
+                if (!line.startsWith("data:")) continue;
+
+                let token = line.replace("data:", "").trim();
+                if (token === "END") continue;
+
+                // ⭐ FIX: auto-space logic for natural language
+                if (buffer.length > 0) {
+                    if (!token.startsWith(" ") && !",.!?".includes(token[0])) {
+                        buffer += " ";
+                    }
                 }
 
-                const chunk = decoder.decode(value);
-                const lines = chunk.split("\n");
+                buffer += token;
+                aiBox.textContent = buffer;
+                messages.scrollTop = messages.scrollHeight;
+            }
 
-                for (let line of lines) {
-                    line = line.trim();
-                    if (!line.startsWith("data:")) continue;
-
-                    let token = line.replace("data:", "").trim();
-                    if (token === "END") continue;
-
-                    buffer += token;
-                    aiBox.textContent = buffer; // NO CLEANING DURING STREAM
-                    messages.scrollTop = messages.scrollHeight;
-                }
-
-                readChunk();
-            });
-        }
-
-        readChunk();
+            readChunk();
+        });
     }
 
+    readChunk();
+}
     /* ======================================================
        SEND MESSAGE
     ====================================================== */
