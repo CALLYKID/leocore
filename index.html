@@ -15,19 +15,36 @@
     </video>
     <div class="overlay"></div>
 
-    <!-- HOME SCREEN -->
-    <div class="center-wrapper">
+    <!-- TOP LEFT LOGO -->
+    <div class="top-logo">
+        <svg viewBox="0 0 600 180">
+          <defs>
+            <linearGradient id="neoSmall" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#00eaff"/>
+              <stop offset="50%" stop-color="#00c8ff"/>
+              <stop offset="100%" stop-color="#7a00ff"/>
+            </linearGradient>
+          </defs>
+
+          <text x="0" y="120" font-family="Segoe UI" font-size="120" font-weight="900"
+                fill="url(#neoSmall)">
+            LEOCORE
+          </text>
+        </svg>
+    </div>
+
+    <!-- MAIN CENTER CONTENT -->
+    <div class="home-container">
 
         <div class="fake-input fade-in" id="fakeInput">
             <span class="fake-text" id="fakeText"></span>
         </div>
 
-        <div class="title fade-in delay-1">LEOCORE</div>
         <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
 
     </div>
 
-    <!-- CHAT SCREEN (HIDDEN UNTIL OPENED) -->
+    <!-- CHAT SCREEN -->
     <div class="chat-screen" id="chatScreen">
 
         <div class="chat-header">
@@ -47,4 +64,3 @@
     <script src="app.js"></script>
 </body>
 </html>
-
