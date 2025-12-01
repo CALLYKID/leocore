@@ -44,33 +44,48 @@ window.addEventListener("DOMContentLoaded", () => {
     typeAnimation();
 
     /* ======================================================
-       CHAT NAVIGATION
+       NAVIGATION
     ====================================================== */
     fakeInput.addEventListener("click", () => chatScreen.classList.add("active"));
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
-
     /* ======================================================
-       ULTRA CLEAN TEXT SPACING (FINAL FIX)
+       TEXT CLEANER — FIXES SPACING
     ====================================================== */
     function cleanText(text) {
         return text
-            .replace(/\s+([.,!?])/g, "$1")     // remove spaces before punctuation
-            .replace(/'\s+/g, "'")             // remove space after apostrophe
-            .replace(/\s+'/g, "'")             // remove space before apostrophe
-            .replace(/\s{2,}/g, " ")           // collapse multiple spaces
-            .replace(/(\w)\s+n't/g, "$1n't")   // do n't → don't
+
+            // Separate smashed words: "Notmuch" → "Not much"
+            .replace(/([a-zA-Z])([A-Z])/g, "$1 $2")
+
+            // Letter + number stuck: "bro5t" → "bro 5t"
+            .replace(/([a-zA-Z])([0-9])/g, "$1 $2")
+            .replace(/([0-9])([a-zA-Z])/g, "$1 $2")
+
+            // Fix punctuation spacing
+            .replace(/\s+([.,!?])/g, "$1")
+            .replace(/([.,!?])([^\s])/g, "$1 $2")
+
+            // Apostrophe spacing fixes
+            .replace(/'\s+/g, "'")
+            .replace(/\s+'/g, "'")
+
+            // Contractions
+            .replace(/(\w)\s+n't/g, "$1n't")
             .replace(/(\w)\s+'re/g, "$1're")
             .replace(/(\w)\s+'ll/g, "$1'll")
             .replace(/(\w)\s+'ve/g, "$1've")
             .replace(/(\w)\s+'m/g, "$1'm")
             .replace(/(\w)\s+'d/g, "$1'd")
+
+            // Remove multiple spaces
+            .replace(/\s{2,}/g, " ")
+
             .trim();
     }
 
-
     /* ======================================================
-       DOM MESSAGE HELPERS
+       DOM HELPERS
     ====================================================== */
     function addMessage(text, sender) {
         const div = document.createElement("div");
@@ -94,14 +109,14 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-
     /* ======================================================
-       STREAMING HANDLER — CHATGPT STYLE
+       STREAM RESPONSE — LIVE FIXING
     ====================================================== */
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
-        let buffer = ""; // holds whole text as it streams
+
+        let buffer = "";
 
         function readChunk() {
             reader.read().then(({ done, value }) => {
@@ -120,12 +135,9 @@ window.addEventListener("DOMContentLoaded", () => {
                     let token = line.replace("data:", "").trim();
                     if (token === "END") continue;
 
-                    // Build up text
                     buffer += token;
 
-                    // Live-clean spacing (smooth like ChatGPT)
                     aiBox.textContent = cleanText(buffer);
-
                     messages.scrollTop = messages.scrollHeight;
                 }
 
@@ -136,9 +148,8 @@ window.addEventListener("DOMContentLoaded", () => {
         readChunk();
     }
 
-
     /* ======================================================
-       SEND — STREAMING MODE
+       SEND MESSAGE — STREAMING MODE
     ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
