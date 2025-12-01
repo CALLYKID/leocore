@@ -141,6 +141,11 @@ body{
     padding:10px 14px;
     border-radius:12px 12px 4px 12px;
     max-width:75%;
+
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 1.45;
 }
 
 .ai-msg{
@@ -150,6 +155,11 @@ body{
     padding:10px 14px;
     border-radius:12px 12px 12px 4px;
     max-width:75%;
+
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    line-height: 1.45;
 }
 
 .chat-input-area{
