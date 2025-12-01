@@ -1,3 +1,51 @@
+/* ====== LAYER FIX — ENSURES UI IS CLICKABLE ====== */
+
+#bgVideo, .overlay {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2; /* background stays LOWEST */
+}
+
+/* dark filter overlay */
+.overlay {
+    background: rgba(0, 0, 0, 0.35);
+    z-index: -1;
+}
+
+/* ensure all main UI sits ABOVE background */
+.top-logo,
+.home-container,
+.fake-input,
+.subtitle,
+.chat-screen {
+    position: relative;
+    z-index: 10;
+}
+
+/* clickable fake input */
+#fakeInput {
+    cursor: pointer;
+    z-index: 15;
+}
+
+/* chat screen should cover entire page */
+.chat-screen {
+    position: fixed;
+    inset: 0;
+    background: rgba(3, 7, 20, 0.92);
+    backdrop-filter: blur(6px);
+    z-index: 20;
+    display: none;
+}
+
+/* when JS adds .active, show it */
+.chat-screen.active {
+    display: flex;
+    flex-direction: column;
+}
 *{
     margin:0;
     padding:0;
