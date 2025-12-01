@@ -1,21 +1,44 @@
-/* ====== LAYER FIX — ENSURES UI IS CLICKABLE ====== */
+/* ============================================================
+   BASE + RESET
+============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-#bgVideo, .overlay {
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #000;
+    overflow: hidden;
+}
+
+/* ============================================================
+   BACKGROUND VIDEO + OVERLAY (correct z-index)
+============================================================ */
+#bgVideo,
+.overlay {
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -2; /* background stays LOWEST */
 }
 
-/* dark filter overlay */
+/* Lowest layer */
+#bgVideo {
+    z-index: -2;
+    pointer-events: none;
+}
+
 .overlay {
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0,0,40,0.35);
     z-index: -1;
 }
 
-/* ensure all main UI sits ABOVE background */
+/* ============================================================
+   UI LAYERS — everything above background
+============================================================ */
 .top-logo,
 .home-container,
 .fake-input,
@@ -25,249 +48,190 @@
     z-index: 10;
 }
 
-/* clickable fake input */
-#fakeInput {
-    cursor: pointer;
-    z-index: 15;
-}
-
-/* chat screen should cover entire page */
-.chat-screen {
+/* ============================================================
+   TOP LOGO
+============================================================ */
+.top-logo {
     position: fixed;
-    inset: 0;
-    background: rgba(3, 7, 20, 0.92);
-    backdrop-filter: blur(6px);
+    top: 18px;
+    left: 20px;
     z-index: 20;
-    display: none;
 }
 
-/* when JS adds .active, show it */
-.chat-screen.active {
+.top-logo svg {
+    width: 110px;
+}
+
+/* ============================================================
+   HOME CENTER CONTENT
+============================================================ */
+.home-container {
+    position: fixed;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
     display: flex;
     flex-direction: column;
-}
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+    align-items: center;
+    gap: 20px;
 }
 
-body{
-    background:#000;
-    overflow:hidden;
-    font-family:'Segoe UI',sans-serif;
-}
-
-/* BG VIDEO */
-#bgVideo{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    z-index:-10;
-    pointer-events:none;
-}
-
-/* Overlay tint */
-.overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,40,0.35);
-    z-index:-5;
-}
-
-/* CENTER CONTENT */
-.center-wrapper{
-    position:absolute;
-    top:42%;
-    left:50%;
-    transform:translate(-50%, -50%);
-    text-align:center;
-    width:100%;
-}
-
-/* FAKE CHAT BAR */
+/* Fake chat bar */
 .fake-input {
     width: 85%;
     max-width: 600px;
     height: 62px;
-
-    margin: 0 auto 35px;
-
     background: rgba(255,255,255,0.12);
     border: 2px solid rgba(0,200,255,0.8);
     border-radius: 18px;
-
-    position: relative;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 25px rgba(0,180,255,0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-
-    backdrop-filter: blur(6px);
-    box-shadow: 0 0 25px rgba(0,180,255,0.4);
     cursor: pointer;
 }
 
-/* Typing text inside */
 .fake-text {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
     font-size: 20px;
     color: #dff9ff;
+    white-space: nowrap;
     pointer-events: none;
 }
 
-/* Titles */
-.title{
-    font-size:48px;
-    font-weight:800;
-    letter-spacing:5px;
-    text-shadow:0 0 25px #00d0ff;
-    color:white;
+.subtitle {
+    margin-top: 10px;
+    font-size: 20px;
+    opacity: 0.85;
+    letter-spacing: 3px;
+    color: white;
 }
 
-.subtitle{
-    margin-top:10px;
-    font-size:20px;
-    opacity:0.8;
-    letter-spacing:3px;
-    color:white;
-}
-
-/* CHAT SCREEN */
-.chat-screen{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    display:none;
-    flex-direction:column;
-    background:rgba(5,10,30,0.92);
-    backdrop-filter:blur(10px);
-    z-index:20;
-}
-
-.chat-screen.active{
-    display:flex;
-}
-
-.chat-header{
-    padding:20px;
-    font-size:22px;
-    display:flex;
-    align-items:center;
-    gap:15px;
-    color:white;
-}
-
-.back-btn{
-    background:none;
-    border:none;
-    color:white;
-    font-size:30px;
-    cursor:pointer;
-}
-
-.chat-messages{
-    flex:1;
-    padding:15px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
-
-.user-msg{
-    align-self:flex-end;
-    background:#008cff;
-    color:white;
-    padding:10px 14px;
-    border-radius:12px 12px 4px 12px;
-    max-width:75%;
-
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: pre-wrap;
-    line-height: 1.45;
-}
-
-.ai-msg{
-    align-self:flex-start;
-    background:#222b45;
-    color:white;
-    padding:10px 14px;
-    border-radius:12px 12px 12px 4px;
-    max-width:75%;
-
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    white-space: pre-wrap;
-    line-height: 1.45;
-}
-
-.chat-input-area{
-    padding:12px;
-    display:flex;
-    gap:10px;
-    background:rgba(20,20,40,0.5);
-}
-
-.chat-input-area input{
-    flex:1;
-    padding:14px;
-    border-radius:10px;
-    border:none;
-    outline:none;
-}
-
-#sendBtn{
-    padding:14px 18px;
-    font-size:22px;
-    border:none;
-    border-radius:10px;
-    background:#00c8ff;
-    color:white;
-    cursor:pointer;
-}
-
-/* Fade + Slide Animation */
+/* ============================================================
+   FADE-IN ANIMATION
+============================================================ */
 .fade-in {
     opacity: 0;
     transform: translateY(18px);
     animation: fadeSlide 1s ease forwards;
 }
 
-.fade-in.delay-1 {
-    animation-delay: 0.25s;
-}
-
-.fade-in.delay-2 {
-    animation-delay: 0.45s;
-}
+.fade-in.delay-1 { animation-delay: 0.25s; }
+.fade-in.delay-2 { animation-delay: 0.45s; }
 
 @keyframes fadeSlide {
-    from {
-        opacity: 0;
-        transform: translateY(18px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
-/* Typing indicator bubble */
+
+/* ============================================================
+   CHAT SCREEN
+============================================================ */
+.chat-screen {
+    position: fixed;
+    inset: 0;
+    background: rgba(5,10,30,0.92);
+    backdrop-filter: blur(10px);
+    display: none;
+    flex-direction: column;
+    z-index: 20;
+}
+
+.chat-screen.active {
+    display: flex;
+}
+
+/* Header */
+.chat-header {
+    padding: 20px;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: white;
+}
+
+.back-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+/* Messages */
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* User message */
+.user-msg {
+    align-self: flex-end;
+    background: #008cff;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 12px 12px 4px 12px;
+    max-width: 75%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* AI message */
+.ai-msg {
+    align-self: flex-start;
+    background: #222b45;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 12px 12px 12px 4px;
+    max-width: 75%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* ============================================================
+   INPUT BAR
+============================================================ */
+.chat-input-area {
+    padding: 12px;
+    display: flex;
+    gap: 10px;
+    background: rgba(20,20,40,0.5);
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 14px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+#sendBtn {
+    padding: 14px 18px;
+    font-size: 22px;
+    border: none;
+    border-radius: 10px;
+    background: #00c8ff;
+    color: white;
+    cursor: pointer;
+}
+
+/* ============================================================
+   TYPING BUBBLE
+============================================================ */
 .typing-bubble {
     background: #222b45;
     padding: 10px 14px;
     border-radius: 12px 12px 12px 4px;
     display: flex;
     gap: 6px;
-    width: fit-content;
 }
 
 .dot {
@@ -279,64 +243,12 @@ body{
     animation: bounce 1.3s infinite;
 }
 
-.d1 { animation-delay: 0s;   }
+.d1 { animation-delay: 0s; }
 .d2 { animation-delay: 0.2s; }
 .d3 { animation-delay: 0.4s; }
 
 @keyframes bounce {
-    0%   { transform: translateY(0); opacity: 0.3; }
-    35%  { transform: translateY(-6px); opacity: 1; }
-    70%  { transform: translateY(0); opacity: 0.3; }
-}
-.typing {
-    background: rgba(255, 255, 255, 0.08);
-    padding: 10px 15px;
-    border-radius: 10px;
-    margin: 6px 0;
-    font-size: 14px;
-    font-style: italic;
-    color: #ccc;
-}
-
-.assistant-message {
-    /* old rules... */
-    background: rgba(255,255,255,0.1);
-    padding: 12px 16px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    color: #fff;
-    line-height: 1.5;
-    width: fit-content;
-    max-width: 85%;
-
-    /* NEW wrapping rules below: */
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    word-wrap: break-word;  /* legacy but widely supported */
-}
-
-/* Top Logo */
-.top-logo {
-    position: fixed;
-    top: 18px;
-    left: 20px;
-    z-index: 20;
-}
-
-.top-logo svg {
-    width: 110px;
-    height: auto;
-}
-
-/* Home container layout */
-.home-container {
-    position: fixed;
-    top: 55%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    0% { transform: translateY(0); opacity: 0.3; }
+    35% { transform: translateY(-6px); opacity: 1; }
+    70% { transform: translateY(0); opacity: 0.3; }
 }
