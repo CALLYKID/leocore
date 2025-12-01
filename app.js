@@ -9,9 +9,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    /* ======================================================
-       AUTO–TYPING PLACEHOLDER
-    ====================================================== */
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -46,10 +43,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     typeAnimation();
 
-
-    /* ======================================================
-       OPEN CHAT WHEN CLICKING FAKE BAR
-    ====================================================== */
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
     });
@@ -58,10 +51,6 @@ window.addEventListener("DOMContentLoaded", () => {
         chatScreen.classList.remove("active");
     });
 
-
-    /* ======================================================
-       ADD MESSAGE BUBBLE
-    ====================================================== */
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -71,10 +60,6 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
-
-    /* ======================================================
-       TYPING DOTS LOADER
-    ====================================================== */
     function addTypingBubble() {
         const wrap = document.createElement("div");
         wrap.className = "typing-bubble";
@@ -88,10 +73,7 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-
-    /* ======================================================
-       STREAM TEXT WITH PROPER SPACING (FINAL VERSION)
-    ====================================================== */
+    // STREAMING RESPONSE
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
@@ -100,35 +82,25 @@ window.addEventListener("DOMContentLoaded", () => {
             reader.read().then(({ done, value }) => {
                 if (done) return;
 
-                const chunk = decoder.decode(value, { stream: true });
+                const chunk = decoder.decode(value);
                 const lines = chunk.split("\n");
 
                 for (let line of lines) {
                     line = line.trim();
-                    if (!line || !line.startsWith("data:")) continue;
+                    if (!line.startsWith("data:")) continue;
 
-                    const jsonString = line.replace("data:", "").trim();
-                    if (jsonString === "[DONE]") continue;
+                    const token = line.replace("data:", "").trim();
+                    if (token === "END") continue;
 
-                    try {
-                        const parsed = JSON.parse(jsonString);
-                        const token = parsed.choices?.[0]?.delta?.content;
-
-                        if (token) {
-                            const lastChar = aiBox.textContent.slice(-1);
-
-                            // spacing fix so words don’t glue together
-                            if (lastChar && !lastChar.match(/\s/) && !token.startsWith(" ")) {
-                                aiBox.textContent += " " + token;
-                            } else {
-                                aiBox.textContent += token;
-                            }
-
-                            messages.scrollTop = messages.scrollHeight;
-                        }
-                    } catch (err) {
-                        console.log("Stream JSON error:", err);
+                    // Add token with smart spacing
+                    const last = aiBox.innerText.slice(-1);
+                    if (last && !last.match(/\s/) && !token.startsWith(" ")) {
+                        aiBox.innerText += " " + token;
+                    } else {
+                        aiBox.innerText += token;
                     }
+
+                    messages.scrollTop = messages.scrollHeight;
                 }
 
                 readChunk();
@@ -138,19 +110,14 @@ window.addEventListener("DOMContentLoaded", () => {
         readChunk();
     }
 
-
-    /* ======================================================
-       HANDLE SEND BUTTON (STREAMING MODE)
-    ====================================================== */
+    // HANDLE SEND
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
 
-        // Show user message
         addMessage(text, "user");
         input.value = "";
 
-        // Show typing dots
         const loader = addTypingBubble();
 
         try {
@@ -162,10 +129,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
             loader.remove();
 
-            // Create empty AI bubble
             const aiBox = addMessage("", "ai");
 
-            // Stream tokens
             streamResponse(aiBox, response.body);
 
         } catch (err) {
@@ -173,5 +138,4 @@ window.addEventListener("DOMContentLoaded", () => {
             addMessage("Network error.", "ai");
         }
     });
-
 });
