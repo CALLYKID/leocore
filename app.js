@@ -50,25 +50,22 @@ window.addEventListener("DOMContentLoaded", () => {
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
     /* ======================================================
-       TEXT CLEANER — FIXES SPACING
+       SAFE + SMART SPACING FIXER
     ====================================================== */
     function cleanText(text) {
         return text
 
-            // Separate smashed words: "Notmuch" → "Not much"
-            .replace(/([a-zA-Z])([A-Z])/g, "$1 $2")
-
-            // Letter + number stuck: "bro5t" → "bro 5t"
+            // Fix “bro5t” → “bro 5t”
             .replace(/([a-zA-Z])([0-9])/g, "$1 $2")
             .replace(/([0-9])([a-zA-Z])/g, "$1 $2")
 
-            // Fix punctuation spacing
-            .replace(/\s+([.,!?])/g, "$1")
-            .replace(/([.,!?])([^\s])/g, "$1 $2")
+            // Fix punctuation spacing ONLY if needed
+            .replace(/\s+([.,!?])/g, "$1")  // no space before punctuation
+            .replace(/([.,!?])(?=\S)/g, "$1 ") // ensure space after punctuation
 
-            // Apostrophe spacing fixes
+            // Smart apostrophe fixes
+            .replace(/(\w)\s+'(\w)/g, "$1'$2") // don ' t → don't
             .replace(/'\s+/g, "'")
-            .replace(/\s+'/g, "'")
 
             // Contractions
             .replace(/(\w)\s+n't/g, "$1n't")
@@ -78,7 +75,10 @@ window.addEventListener("DOMContentLoaded", () => {
             .replace(/(\w)\s+'m/g, "$1'm")
             .replace(/(\w)\s+'d/g, "$1'd")
 
-            // Remove multiple spaces
+            // Avoid breaking normal words
+            .replace(/([a-z])([A-Z])/g, "$1 $2") // keep this but safe
+
+            // Remove extra spaces
             .replace(/\s{2,}/g, " ")
 
             .trim();
@@ -110,7 +110,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       STREAM RESPONSE — LIVE FIXING
+       STREAM RESPONSE
     ====================================================== */
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
@@ -136,7 +136,6 @@ window.addEventListener("DOMContentLoaded", () => {
                     if (token === "END") continue;
 
                     buffer += token;
-
                     aiBox.textContent = cleanText(buffer);
                     messages.scrollTop = messages.scrollHeight;
                 }
@@ -149,7 +148,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       SEND MESSAGE — STREAMING MODE
+       SEND MESSAGE
     ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
