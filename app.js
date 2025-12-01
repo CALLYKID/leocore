@@ -9,132 +9,169 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    // -------------------------------------------------------
-    // TYPEWRITER PLACEHOLDER
-    // -------------------------------------------------------
+    /* ======================================================
+       AUTO–TYPING PLACEHOLDER
+    ====================================================== */
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
-        "Create a custom meal plan.",
-        "Tell me something funny.",
+        "Create a menu for me.",
+        "Give me a funny quote.",
         "Help me with homework."
     ];
 
-    let i = 0, j = 0, del = false;
-    function animate() {
-        let cur = prompts[i];
-        fakeText.textContent = cur.substring(0, j);
+    let promptIndex = 0;
+    let charIndex = 0;
+    let deleting = false;
 
-        if (!del) {
-            j++;
-            if (j > cur.length) {
-                del = true;
-                setTimeout(animate, 1200);
+    function typeAnimation() {
+        const cur = prompts[promptIndex];
+
+        if (!deleting) {
+            fakeText.innerText = cur.substring(0, charIndex++);
+            if (charIndex > cur.length) {
+                deleting = true;
+                setTimeout(typeAnimation, 1200);
                 return;
             }
         } else {
-            j--;
-            if (j < 0) {
-                del = false;
-                i = (i + 1) % prompts.length;
+            fakeText.innerText = cur.substring(0, charIndex--);
+            if (charIndex < 0) {
+                deleting = false;
+                promptIndex = (promptIndex + 1) % prompts.length;
             }
         }
-        setTimeout(animate, del ? 60 : 90);
-    }
-    animate();
-
-    // -------------------------------------------------------
-    // OPEN/CLOSE CHAT
-    // -------------------------------------------------------
-    fakeInput.addEventListener("click", () => chatScreen.classList.add("active"));
-    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
-
-    // -------------------------------------------------------
-    // MESSAGE HELPERS
-    // -------------------------------------------------------
-    function addUserMessage(text) {
-        const div = document.createElement("div");
-        div.className = "user-msg";
-        div.textContent = text;
-        messages.appendChild(div);
-        messages.scrollTop = messages.scrollHeight;
+        setTimeout(typeAnimation, deleting ? 55 : 80);
     }
 
-    function createAIMessageBox() {
+    typeAnimation();
+
+
+    /* ======================================================
+       OPEN CHAT WHEN CLICKING FAKE BAR
+    ====================================================== */
+    fakeInput.addEventListener("click", () => {
+        chatScreen.classList.add("active");
+    });
+
+    closeChat.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+    });
+
+
+    /* ======================================================
+       ADD MESSAGE BUBBLE
+    ====================================================== */
+    function addMessage(text, sender) {
         const div = document.createElement("div");
-        div.className = "ai-msg";
-        div.textContent = "";
+        div.className = sender === "user" ? "user-msg" : "ai-msg";
+        div.innerText = text;
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
         return div;
     }
 
+
+    /* ======================================================
+       TYPING DOTS LOADER
+    ====================================================== */
     function addTypingBubble() {
-        const div = document.createElement("div");
-        div.className = "typing-bubble";
-        div.innerHTML = `
+        const wrap = document.createElement("div");
+        wrap.className = "typing-bubble";
+        wrap.innerHTML = `
             <span class="dot d1"></span>
             <span class="dot d2"></span>
             <span class="dot d3"></span>
         `;
-        messages.appendChild(div);
+        messages.appendChild(wrap);
         messages.scrollTop = messages.scrollHeight;
-        return div;
+        return wrap;
     }
 
-    // -------------------------------------------------------
-    // STREAM AI RESPONSE
-    // -------------------------------------------------------
-    async function streamResponse(text, aiBox, loader) {
-        const res = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: text })
-        });
 
-        loader.remove();
-
-        if (!res.body) {
-            aiBox.textContent = "Streaming error.";
-            return;
-        }
-
-        const reader = res.body.getReader();
+    /* ======================================================
+       STREAM TEXT WITH PROPER SPACING (FINAL VERSION)
+    ====================================================== */
+    function streamResponse(aiBox, stream) {
+        const reader = stream.getReader();
         const decoder = new TextDecoder();
 
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        function readChunk() {
+            reader.read().then(({ done, value }) => {
+                if (done) return;
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split("\n");
 
-            lines.forEach(line => {
-                line = line.trim();
-                if (!line.startsWith("data:")) return;
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line || !line.startsWith("data:")) continue;
 
-                const token = line.replace("data:", "").trim();
-                if (token && token !== "END") {
-                    aiBox.textContent += token;
-                    messages.scrollTop = messages.scrollHeight;
+                    const jsonString = line.replace("data:", "").trim();
+                    if (jsonString === "[DONE]") continue;
+
+                    try {
+                        const parsed = JSON.parse(jsonString);
+                        const token = parsed.choices?.[0]?.delta?.content;
+
+                        if (token) {
+                            const lastChar = aiBox.textContent.slice(-1);
+
+                            // spacing fix so words don’t glue together
+                            if (lastChar && !lastChar.match(/\s/) && !token.startsWith(" ")) {
+                                aiBox.textContent += " " + token;
+                            } else {
+                                aiBox.textContent += token;
+                            }
+
+                            messages.scrollTop = messages.scrollHeight;
+                        }
+                    } catch (err) {
+                        console.log("Stream JSON error:", err);
+                    }
                 }
+
+                readChunk();
             });
         }
+
+        readChunk();
     }
 
-    // -------------------------------------------------------
-    // SEND MESSAGE
-    // -------------------------------------------------------
+
+    /* ======================================================
+       HANDLE SEND BUTTON (STREAMING MODE)
+    ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
 
-        addUserMessage(text);
+        // Show user message
+        addMessage(text, "user");
         input.value = "";
 
+        // Show typing dots
         const loader = addTypingBubble();
-        const aiBox = createAIMessageBox();
 
-        await streamResponse(text, aiBox, loader);
+        try {
+            const response = await fetch("/api/chat/stream", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
+
+            loader.remove();
+
+            // Create empty AI bubble
+            const aiBox = addMessage("", "ai");
+
+            // Stream tokens
+            streamResponse(aiBox, response.body);
+
+        } catch (err) {
+            loader.remove();
+            addMessage("Network error.", "ai");
+        }
     });
+
 });
