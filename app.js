@@ -10,6 +10,16 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeText = document.getElementById("fakeText");
 
     /* ======================================================
+       USER ID — PER-USER ISOLATION FOR 1000+ USERS
+    ====================================================== */
+    let userId = localStorage.getItem("leocore_user");
+
+    if (!userId) {
+        userId = crypto.randomUUID();
+        localStorage.setItem("leocore_user", userId);
+    }
+
+    /* ======================================================
        AUTO–TYPING PLACEHOLDER
     ====================================================== */
     const prompts = [
@@ -54,22 +64,12 @@ window.addEventListener("DOMContentLoaded", () => {
     ====================================================== */
     function cleanTextPro(text) {
         return text
-            // Fix multiple spaces
-            .replace(/\s{2,}/g, " ")
-
-            // Fix spacing before punctuation
-            .replace(/\s+([.,!?])/g, "$1")
-
-            // Ensure space after punctuation if missing
-            .replace(/([.,!?])(?=\S)/g, "$1 ")
-
-            // Convert double newlines into paragraph breaks
-            .replace(/\n{3,}/g, "\n\n")
-
-            // Basic markdown (bold, italic)
-            .replace(/\*\*(.*?)\*\*/g, "$1") // you can later style bold if you want
-            .replace(/\*(.*?)\*/g, "$1")
-
+            .replace(/\s{2,}/g, " ")        // remove double spaces
+            .replace(/\s+([.,!?])/g, "$1")  // remove space before punctuation
+            .replace(/([.,!?])(?=\S)/g, "$1 ") // force space after punctuation
+            .replace(/\n{3,}/g, "\n\n")     // fix paragraph spacing
+            .replace(/\*\*(.*?)\*\*/g, "$1") // strip bold markup
+            .replace(/\*(.*?)\*/g, "$1")     // strip italic markup
             .trim();
     }
 
@@ -99,7 +99,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       STREAM RESPONSE — PERFECTED (NO SPACING BUGS)
+       STREAM RESPONSE — PERFECTED
+       (NO SPACING BUGS, NO CORRUPT TOKENS, NO MESS)
     ====================================================== */
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
@@ -124,11 +125,7 @@ window.addEventListener("DOMContentLoaded", () => {
                     let token = line.replace("data:", "").trim();
                     if (token === "END") continue;
 
-                    // DO NOT auto-space.
-                    // DO NOT attempt formatting here.
-                    // Just append exactly as sent.
-                    buffer += token;
-
+                    buffer += token; // append EXACTLY as streamed
                     aiBox.textContent = buffer;
                     messages.scrollTop = messages.scrollHeight;
                 }
@@ -141,7 +138,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ======================================================
-       SEND MESSAGE
+       SEND MESSAGE — NOW SENDS userId TO BACKEND
     ====================================================== */
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
@@ -156,7 +153,10 @@ window.addEventListener("DOMContentLoaded", () => {
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({
+                    userId: userId,   // ⭐ NEW: per-user isolation
+                    message: text
+                })
             });
 
             loader.remove();
