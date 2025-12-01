@@ -9,159 +9,132 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    /* ======================================================
-       AUTO–TYPING PLACEHOLDER
-    ====================================================== */
+    // -------------------------------------------------------
+    // TYPEWRITER PLACEHOLDER
+    // -------------------------------------------------------
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
-        "Create a menu for me.",
-        "Give me a funny quote.",
+        "Create a custom meal plan.",
+        "Tell me something funny.",
         "Help me with homework."
     ];
 
-    let promptIndex = 0;
-    let charIndex = 0;
-    let deleting = false;
+    let i = 0, j = 0, del = false;
+    function animate() {
+        let cur = prompts[i];
+        fakeText.textContent = cur.substring(0, j);
 
-    function typeAnimation() {
-        const cur = prompts[promptIndex];
-
-        if (!deleting) {
-            fakeText.innerText = cur.substring(0, charIndex++);
-            if (charIndex > cur.length) {
-                deleting = true;
-                setTimeout(typeAnimation, 1200);
+        if (!del) {
+            j++;
+            if (j > cur.length) {
+                del = true;
+                setTimeout(animate, 1200);
                 return;
             }
         } else {
-            fakeText.innerText = cur.substring(0, charIndex--);
-            if (charIndex < 0) {
-                deleting = false;
-                promptIndex = (promptIndex + 1) % prompts.length;
+            j--;
+            if (j < 0) {
+                del = false;
+                i = (i + 1) % prompts.length;
             }
         }
-        setTimeout(typeAnimation, deleting ? 55 : 80);
+        setTimeout(animate, del ? 60 : 90);
     }
+    animate();
 
-    typeAnimation();
+    // -------------------------------------------------------
+    // OPEN/CLOSE CHAT
+    // -------------------------------------------------------
+    fakeInput.addEventListener("click", () => chatScreen.classList.add("active"));
+    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
-
-    /* ======================================================
-       OPEN CHAT WHEN CLICKING FAKE BAR
-    ====================================================== */
-    fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-    });
-
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
-
-
-    /* ======================================================
-       TYPED AI MESSAGE (LETTER BY LETTER)
-    ====================================================== */
-    function typeMessage(text, element, speed = 15) {
-        let i = 0;
-        function typing() {
-            if (i < text.length) {
-                element.textContent += text.charAt(i);
-                i++;
-                setTimeout(typing, speed);
-            }
-        }
-        typing();
-    }
-
-
-    /* ======================================================
-       ADD USER MESSAGE / AI MESSAGE
-    ====================================================== */
-    function addMessage(text, sender, skipTyping = false) {
+    // -------------------------------------------------------
+    // MESSAGE HELPERS
+    // -------------------------------------------------------
+    function addUserMessage(text) {
         const div = document.createElement("div");
-        div.className = sender === "user" ? "user-msg" : "ai-msg";
+        div.className = "user-msg";
+        div.textContent = text;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
 
-        if (sender === "ai" && !skipTyping) {
-            // Start empty and animate
-            messages.appendChild(div);
-            typeMessage(text, div);
-        } else {
-            div.innerText = text;
-            messages.appendChild(div);
-        }
-
+    function createAIMessageBox() {
+        const div = document.createElement("div");
+        div.className = "ai-msg";
+        div.textContent = "";
+        messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
         return div;
     }
 
-
-    /* ======================================================
-       ADD TYPING LOADER (...)
-    ====================================================== */
     function addTypingBubble() {
-        const wrap = document.createElement("div");
-        wrap.className = "typing-bubble";
-
-        wrap.innerHTML = `
+        const div = document.createElement("div");
+        div.className = "typing-bubble";
+        div.innerHTML = `
             <span class="dot d1"></span>
             <span class="dot d2"></span>
             <span class="dot d3"></span>
         `;
-
-        messages.appendChild(wrap);
+        messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
-        return wrap;
+        return div;
     }
 
+    // -------------------------------------------------------
+    // STREAM AI RESPONSE
+    // -------------------------------------------------------
+    async function streamResponse(text, aiBox, loader) {
+        const res = await fetch("/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text })
+        });
 
-    /* ======================================================
-       SEND TO GROQ API
-    ====================================================== */
-    async function sendToGroq(textMessage) {
-        try {
-            const res = await fetch("/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: textMessage })
+        loader.remove();
+
+        if (!res.body) {
+            aiBox.textContent = "Streaming error.";
+            return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (!line.startsWith("data:")) return;
+
+                const token = line.replace("data:", "").trim();
+                if (token && token !== "END") {
+                    aiBox.textContent += token;
+                    messages.scrollTop = messages.scrollHeight;
+                }
             });
-
-            const data = await res.json();
-
-            if (!data.reply || data.reply === "Error." || data.reply.startsWith("Error")) {
-                return { reply: "I didn’t quite catch that. Try asking again in a different way!" };
-            }
-
-            return data;
-
-        } catch (err) {
-            return { reply: "Network error." };
         }
     }
 
-
-    /* ======================================================
-       HANDLE SEND MESSAGE
-    ====================================================== */
+    // -------------------------------------------------------
+    // SEND MESSAGE
+    // -------------------------------------------------------
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
 
-        // User bubble
-        addMessage(text, "user", true);
+        addUserMessage(text);
         input.value = "";
 
-        // Typing bubble
         const loader = addTypingBubble();
+        const aiBox = createAIMessageBox();
 
-        // Wait for Groq
-        const data = await sendToGroq(text);
-
-        // Remove typing bubble
-        loader.remove();
-
-        // AI animated response
-        addMessage(data.reply, "ai");
+        await streamResponse(text, aiBox, loader);
     });
-
 });
