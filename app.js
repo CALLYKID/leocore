@@ -9,19 +9,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    /* ======================================================
-       USER ID — PER-USER ISOLATION FOR 1000+ USERS
-    ====================================================== */
-    let userId = localStorage.getItem("leocore_user");
-
-    if (!userId) {
-        userId = crypto.randomUUID();
-        localStorage.setItem("leocore_user", userId);
-    }
-
-    /* ======================================================
-       AUTO–TYPING PLACEHOLDER
-    ====================================================== */
+    // AUTO TEXT
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -39,7 +27,7 @@ window.addEventListener("DOMContentLoaded", () => {
             fakeText.innerText = cur.substring(0, charIndex++);
             if (charIndex > cur.length) {
                 deleting = true;
-                setTimeout(typeAnimation, 1200);
+                setTimeout(typeAnimation, 1000);
                 return;
             }
         } else {
@@ -49,33 +37,15 @@ window.addEventListener("DOMContentLoaded", () => {
                 promptIndex = (promptIndex + 1) % prompts.length;
             }
         }
-        setTimeout(typeAnimation, deleting ? 55 : 80);
+        setTimeout(typeAnimation, deleting ? 50 : 80);
     }
     typeAnimation();
 
-    /* ======================================================
-       NAVIGATION
-    ====================================================== */
+    // OPEN CHAT
     fakeInput.addEventListener("click", () => chatScreen.classList.add("active"));
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
-    /* ======================================================
-       cleanTextPro — FINAL SAFE FORMATTER
-    ====================================================== */
-    function cleanTextPro(text) {
-        return text
-            .replace(/\s{2,}/g, " ")
-            .replace(/\s+([.,!?])/g, "$1")
-            .replace(/([.,!?])(?=\S)/g, "$1 ")
-            .replace(/\n{3,}/g, "\n\n")
-            .replace(/\*\*(.*?)\*\*/g, "$1")
-            .replace(/\*(.*?)\*/g, "$1")
-            .trim();
-    }
-
-    /* ======================================================
-       DOM HELPERS
-    ====================================================== */
+    // ADD MESSAGES
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -85,33 +55,25 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
+    // TYPING BUBBLE
     function addTypingBubble() {
         const wrap = document.createElement("div");
         wrap.className = "typing-bubble";
-        wrap.innerHTML = `
-            <span class="dot d1"></span>
-            <span class="dot d2"></span>
-            <span class="dot d3"></span>
-        `;
+        wrap.innerHTML = "<span class='dot d1'></span><span class='dot d2'></span><span class='dot d3'></span>";
         messages.appendChild(wrap);
-        messages.scrollTop = messages.scrollHeight;
         return wrap;
     }
 
-    /* ======================================================
-       STREAM RESPONSE — PERFECTED
-    ====================================================== */
+    // STREAM RESPONSE
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
-
         let buffer = "";
 
-        function readChunk() {
+        function read() {
             reader.read().then(({ done, value }) => {
-
                 if (done) {
-                    aiBox.textContent = cleanTextPro(buffer);
+                    aiBox.textContent = buffer;
                     return;
                 }
 
@@ -120,25 +82,20 @@ window.addEventListener("DOMContentLoaded", () => {
 
                 for (let line of lines) {
                     if (!line.startsWith("data:")) continue;
-
                     let token = line.replace("data:", "").trim();
                     if (token === "END") continue;
-
                     buffer += token;
                     aiBox.textContent = buffer;
-                    messages.scrollTop = messages.scrollHeight;
                 }
 
-                readChunk();
+                read();
             });
         }
 
-        readChunk();
+        read();
     }
 
-    /* ======================================================
-       SEND MESSAGE — FIXED ✔ RELATIVE PATH
-    ====================================================== */
+    // SEND
     sendBtn.addEventListener("click", async () => {
         const text = input.value.trim();
         if (!text) return;
@@ -149,13 +106,10 @@ window.addEventListener("DOMContentLoaded", () => {
         const loader = addTypingBubble();
 
         try {
-            const response = await fetch("/api/chat", {   // ⭐⭐⭐ FIXED LINE ⭐⭐⭐
+            const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: userId,
-                    message: text
-                })
+                body: JSON.stringify({ message: text })
             });
 
             loader.remove();
@@ -163,15 +117,9 @@ window.addEventListener("DOMContentLoaded", () => {
             const aiBox = addMessage("", "ai");
             streamResponse(aiBox, response.body);
 
-        } catch (err) {
+        } catch {
             loader.remove();
             addMessage("Network error.", "ai");
         }
     });
-
-});            loader.remove();
-            addMessage("Network error.", "ai");
-        }
-    });
-
 });
