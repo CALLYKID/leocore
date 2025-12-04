@@ -166,3 +166,12 @@ body{
     color:white;
     cursor:pointer;
 }
+.main-title {
+    font-size: 48px;
+    font-weight: 700;
+    text-align: center;
+    margin-top: 25px;
+    color: #ffffff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
