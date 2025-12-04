@@ -132,7 +132,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const loader = addTypingBubble();
 
         try {
-            const response = await fetch("https://leocore-git-main-leonards-projects-f347db8c.vercel.app/api/chat", {
+            const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
