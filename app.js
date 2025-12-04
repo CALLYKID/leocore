@@ -9,7 +9,18 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    // AUTO TEXT
+    // ==========================================
+    // USER ID (persists across sessions)
+    // ==========================================
+    let userId = localStorage.getItem("leocore-user");
+    if (!userId) {
+        userId = "user-" + Math.random().toString(36).slice(2);
+        localStorage.setItem("leocore-user", userId);
+    }
+
+    // ==========================================
+    // AUTO-TYPING PLACEHOLDER
+    // ==========================================
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -27,7 +38,7 @@ window.addEventListener("DOMContentLoaded", () => {
             fakeText.innerText = cur.substring(0, charIndex++);
             if (charIndex > cur.length) {
                 deleting = true;
-                setTimeout(typeAnimation, 1000);
+                setTimeout(typeAnimation, 900);
                 return;
             }
         } else {
@@ -37,15 +48,19 @@ window.addEventListener("DOMContentLoaded", () => {
                 promptIndex = (promptIndex + 1) % prompts.length;
             }
         }
-        setTimeout(typeAnimation, deleting ? 50 : 80);
+        setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
 
+    // ==========================================
     // OPEN CHAT
+    // ==========================================
     fakeInput.addEventListener("click", () => chatScreen.classList.add("active"));
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
-    // ADD MESSAGES
+    // ==========================================
+    // MESSAGE UI
+    // ==========================================
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -55,25 +70,31 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
-    // TYPING BUBBLE
     function addTypingBubble() {
         const wrap = document.createElement("div");
         wrap.className = "typing-bubble";
-        wrap.innerHTML = "<span class='dot d1'></span><span class='dot d2'></span><span class='dot d3'></span>";
+        wrap.innerHTML = `
+            <span class='dot d1'></span>
+            <span class='dot d2'></span>
+            <span class='dot d3'></span>
+        `;
         messages.appendChild(wrap);
+        messages.scrollTop = messages.scrollHeight;
         return wrap;
     }
 
-    // STREAM RESPONSE
+    // ==========================================
+    // STREAM PARSER (GROQ SSE)
+    // ==========================================
     function streamResponse(aiBox, stream) {
         const reader = stream.getReader();
         const decoder = new TextDecoder();
-        let buffer = "";
+        let finalText = "";
 
-        function read() {
+        function pump() {
             reader.read().then(({ done, value }) => {
                 if (done) {
-                    aiBox.textContent = buffer;
+                    aiBox.textContent = finalText;
                     return;
                 }
 
@@ -82,21 +103,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
                 for (let line of lines) {
                     if (!line.startsWith("data:")) continue;
-                    let token = line.replace("data:", "").trim();
+
+                    const token = line.replace("data:", "").trim();
                     if (token === "END") continue;
-                    buffer += token;
-                    aiBox.textContent = buffer;
+
+                    finalText += token;
+                    aiBox.textContent = finalText;
+                    messages.scrollTop = messages.scrollHeight;
                 }
 
-                read();
+                pump();
             });
         }
 
-        read();
+        pump();
     }
 
-    // SEND
-    sendBtn.addEventListener("click", async () => {
+    // ==========================================
+    // SEND MESSAGE
+    // ==========================================
+    async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
 
@@ -106,10 +132,13 @@ window.addEventListener("DOMContentLoaded", () => {
         const loader = addTypingBubble();
 
         try {
-            const response = await fetch("/api/chat", {
+            const response = await fetch("https://leocore.vercel.app/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text })
+                body: JSON.stringify({
+                    message: text,
+                    userId: userId
+                })
             });
 
             loader.remove();
@@ -117,9 +146,14 @@ window.addEventListener("DOMContentLoaded", () => {
             const aiBox = addMessage("", "ai");
             streamResponse(aiBox, response.body);
 
-        } catch {
+        } catch (err) {
             loader.remove();
             addMessage("Network error.", "ai");
         }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") sendMessage();
     });
 });
