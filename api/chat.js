@@ -2,18 +2,25 @@
 // LEOCORE — PRODUCTION AI ENGINE (FIRESTORE + GROQ)
 // =====================================================
 
-// 1) FIREBASE ADMIN INIT
 import admin from "firebase-admin";
 
+// Enable Node fetch explicitly
+import fetch from "node-fetch";
+
+// Prevent double-initialisation
 if (!admin.apps.length) {
     admin.initializeApp({
-        credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_ADMIN_KEY)),
+        credential: admin.credential.cert(
+            JSON.parse(process.env.FIREBASE_ADMIN_KEY)
+        )
     });
 }
 
 const db = admin.firestore();
 
-// 2) Rate limit: 1 request per user every 800ms
+// =====================================================
+// RATE LIMIT — 1 request per user every 800ms
+// =====================================================
 async function rateLimit(userRef) {
     const snap = await userRef.get();
     const data = snap.data() || {};
@@ -21,25 +28,29 @@ async function rateLimit(userRef) {
     const now = Date.now();
     const last = data.lastRequest || 0;
 
-    if (now - last < 800) {
-        return false;
-    }
+    if (now - last < 800) return false;
 
     await userRef.set({ lastRequest: now }, { merge: true });
     return true;
 }
 
-// 3) Safe memory extractor
+// =====================================================
+// MEMORY EXTRACTOR
+// =====================================================
 function extractMemory(msg, memory) {
+    msg = msg.trim();
     const lower = msg.toLowerCase();
 
+    if (!memory.preferences) memory.preferences = [];
+    if (!memory.facts) memory.facts = [];
+
     if (lower.includes("my name is")) {
-        memory.name = msg.split(/my name is/i)[1].trim().split(" ")[0];
+        memory.name = msg.split(/my name is/i)[1]?.trim().split(" ")[0] || null;
     }
 
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
-        if (!memory.preferences.includes(pref)) {
+        if (pref && !memory.preferences.includes(pref)) {
             memory.preferences.push(pref);
         }
     }
@@ -57,7 +68,9 @@ function extractMemory(msg, memory) {
     return memory;
 }
 
-// 4) Build memory block for AI
+// =====================================================
+// MEMORY BLOCK SENT TO AI
+// =====================================================
 function memoryBlock(memory) {
     return `
 User: ${memory.name || "unknown"}
@@ -75,7 +88,8 @@ export default async function handler(req, res) {
             return res.status(405).json({ reply: "POST only." });
         }
 
-        const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+        const body =
+            typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
         if (!body?.message) {
             return res.status(400).json({ reply: "Empty message." });
@@ -88,26 +102,27 @@ export default async function handler(req, res) {
         const message = body.message.trim();
         const userRef = db.collection("users").doc(body.userId);
 
-        // Check rate limit
+        // Rate limit
         const allowed = await rateLimit(userRef);
         if (!allowed) {
             return res.status(429).json({ reply: "Slow down bruv 💀" });
         }
 
-        // Load user memory/history
-        let userData = (await userRef.get()).data() || {
-            history: [],
-            memory: { name: null, preferences: [], facts: [] }
-        };
+        // Load data
+        let userData =
+            (await userRef.get()).data() || {
+                history: [],
+                memory: { name: null, preferences: [], facts: [] }
+            };
 
-        // Update long-term memory
+        // Update memory
         userData.memory = extractMemory(message, userData.memory);
 
-        // Update chat history
+        // Update history
         userData.history.push({ role: "user", content: message });
         if (userData.history.length > 12) userData.history.shift();
 
-        // Prepare GROQ payload
+        // GROQ payload
         const payload = {
             model: "llama-3.1-8b-instant",
             stream: true,
@@ -116,8 +131,8 @@ export default async function handler(req, res) {
                     role: "system",
                     content: `
 You are Leocore — a chill, Gen Z–styled AI created for Leo.
-Keep messages natural, clean, spaced properly.
-Never break words. Never glitch punctuation.
+Keep messages natural and spaced nicely.
+Avoid glitchy punctuation or broken words.
 `
                 },
                 {
@@ -128,27 +143,39 @@ Never break words. Never glitch punctuation.
             ]
         };
 
-        // Send headers for streaming
-        res.setHeader("Content-Type", "text/event-stream; charset=utf-8");
-        res.setHeader("Cache-Control", "no-cache, no-transform");
-        res.setHeader("Connection", "keep-alive");
-
-        // Groq request
-        const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.GROQ_API_KEY}`
-            },
-            body: JSON.stringify(payload)
+        // =====================================================
+        // STREAMING HEADERS
+        // =====================================================
+        res.writeHead(200, {
+            "Content-Type": "text/event-stream; charset=utf-8",
+            "Cache-Control": "no-cache, no-transform",
+            Connection: "keep-alive",
+            "X-Accel-Buffering": "no" // Disable buffering on some proxies
         });
+
+        // =====================================================
+        // GROQ REQUEST
+        // =====================================================
+        const groqRes = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env.GROQ_API_KEY}`
+                },
+                body: JSON.stringify(payload)
+            }
+        );
 
         const reader = groqRes.body.getReader();
         const decoder = new TextDecoder();
 
         let finalText = "";
 
-        // Streaming loop
+        // =====================================================
+        // STREAMING LOOP
+        // =====================================================
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
@@ -163,33 +190,39 @@ Never break words. Never glitch punctuation.
 
                 if (json === "[DONE]") {
                     res.write("data: END\n\n");
+                    res.flush?.();
                     break;
                 }
 
                 try {
                     const obj = JSON.parse(json);
-                    const token = obj?.choices?.[0]?.delta?.content;
+                    const token =
+                        obj?.choices?.[0]?.delta?.content || "";
 
                     if (token) {
                         finalText += token;
                         res.write(`data: ${token}\n\n`);
+                        res.flush?.();
                     }
                 } catch {
-                    /* ignore malformed packets */
+                    // ignore malformed chunks
                 }
             }
         }
 
-        // Save AI reply into history
-        userData.history.push({ role: "assistant", content: finalText });
+        // Save assistant reply
+        userData.history.push({
+            role: "assistant",
+            content: finalText
+        });
+
         if (userData.history.length > 12) userData.history.shift();
 
-        // Save updated user data
         await userRef.set(userData, { merge: true });
 
         res.end();
     } catch (err) {
         console.error("SERVER ERROR:", err);
-        return res.end();
+        res.end();
     }
 }
