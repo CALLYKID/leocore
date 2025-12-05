@@ -1,9 +1,9 @@
-
 window.onerror = function(msg, src, line, col, err) {
     document.body.innerHTML += 
         "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" 
         + msg + "<br>Line: " + line + "</div>";
 };
+
 window.addEventListener("DOMContentLoaded", () => {
 
     const chatScreen = document.getElementById("chatScreen");
@@ -65,7 +65,7 @@ window.addEventListener("DOMContentLoaded", () => {
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
     // ==========================================
-    // MESSAGE UI
+    // MESSAGE UI HELPERS
     // ==========================================
     function addMessage(text, sender) {
         const div = document.createElement("div");
@@ -90,49 +90,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // STREAM PARSER (GROQ SSE)
-    // ==========================================
-    function streamResponse(aiBox, stream) {
-    // If browser blocked streaming or Vercel returned non-stream
-    if (!stream || !stream.getReader) {
-        aiBox.textContent = "⚠️ Streaming not available.";
-        return;
-    }
-
-    const reader = stream.getReader();
-    const decoder = new TextDecoder();
-    let finalText = "";
-
-    function pump() {
-        reader.read().then(({ done, value }) => {
-            if (done) {
-                aiBox.textContent = finalText;
-                return;
-            }
-
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
-
-            for (let line of lines) {
-                if (!line.startsWith("data:")) continue;
-
-                const data = line.replace("data:", "").trim();
-                if (data === "END") continue;
-
-                finalText += data;
-                aiBox.textContent = finalText;
-                messages.scrollTop = messages.scrollHeight;
-            }
-
-            pump();
-        });
-    }
-
-    pump();
-}
-
-    // ==========================================
-    // SEND MESSAGE
+    // SEND MESSAGE — NON STREAMING VERSION (Render compatible)
     // ==========================================
     async function sendMessage() {
         const text = input.value.trim();
@@ -145,18 +103,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
         try {
             const response = await fetch("https://leocore.onrender.com/api/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-        message: text,
-        userId: userId
-    })
-});
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: text,
+                    userId: userId
+                })
+            });
 
             loader.remove();
 
             const aiBox = addMessage("", "ai");
-            streamResponse(aiBox, response.body);
+
+            // NON-STREAMING FIX — THIS WORKS 100% ON RENDER
+            const data = await response.json();
+            aiBox.textContent = data.reply || "No response received.";
 
         } catch (err) {
             loader.remove();
@@ -164,6 +125,9 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // ==========================================
+    // INPUT EVENTS
+    // ==========================================
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
