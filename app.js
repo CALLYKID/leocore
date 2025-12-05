@@ -144,7 +144,7 @@ window.addEventListener("DOMContentLoaded", () => {
         const loader = addTypingBubble();
 
         try {
-            const response = await fetch("https://leocore.vercel.app/api/chat", {
+            const response = await fetch("https://leocore.onrender.com/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
