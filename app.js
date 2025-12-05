@@ -1,3 +1,9 @@
+
+window.onerror = function(msg, src, line, col, err) {
+    document.body.innerHTML += 
+        "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" 
+        + msg + "<br>Line: " + line + "</div>";
+};
 window.addEventListener("DOMContentLoaded", () => {
 
     const chatScreen = document.getElementById("chatScreen");
