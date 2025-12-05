@@ -1,26 +1,25 @@
 // =====================================================
-// LEOCORE — PRODUCTION AI ENGINE (FIRESTORE + GROQ)
+// LEOCORE — AI ENGINE (GROQ + FIREBASE ADMIN)
 // =====================================================
 
 import admin from "firebase-admin";
-
-// Enable Node fetch explicitly
 import fetch from "node-fetch";
 
-// Prevent double-initialisation
+// -----------------------------------------------------
+// FIREBASE INIT
+// -----------------------------------------------------
 if (!admin.apps.length) {
+    const key = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
     admin.initializeApp({
-        credential: admin.credential.cert(
-            JSON.parse(process.env.FIREBASE_ADMIN_KEY)
-        )
+        credential: admin.credential.cert(key)
     });
 }
 
 const db = admin.firestore();
 
-// =====================================================
-// RATE LIMIT — 1 request per user every 800ms
-// =====================================================
+// -----------------------------------------------------
+// RATE LIMIT: 1 request per 800ms
+// -----------------------------------------------------
 async function rateLimit(userRef) {
     const snap = await userRef.get();
     const data = snap.data() || {};
@@ -34,9 +33,9 @@ async function rateLimit(userRef) {
     return true;
 }
 
-// =====================================================
-// MEMORY EXTRACTOR
-// =====================================================
+// -----------------------------------------------------
+// MEMORY FUNCTIONS
+// -----------------------------------------------------
 function extractMemory(msg, memory) {
     msg = msg.trim();
     const lower = msg.toLowerCase();
@@ -68,9 +67,6 @@ function extractMemory(msg, memory) {
     return memory;
 }
 
-// =====================================================
-// MEMORY BLOCK SENT TO AI
-// =====================================================
 function memoryBlock(memory) {
     return `
 User: ${memory.name || "unknown"}
@@ -79,17 +75,16 @@ Facts: ${memory.facts.join(" | ") || "none"}
 `;
 }
 
-// =====================================================
-// MAIN HANDLER
-// =====================================================
-export default async function handler(req, res) {
+// -----------------------------------------------------
+// MAIN CHAT HANDLER
+// -----------------------------------------------------
+export default async function chatHandler(req, res) {
     try {
         if (req.method !== "POST") {
             return res.status(405).json({ reply: "POST only." });
         }
 
-        const body =
-            typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+        const body = req.body;
 
         if (!body?.message) {
             return res.status(400).json({ reply: "Empty message." });
@@ -102,27 +97,27 @@ export default async function handler(req, res) {
         const message = body.message.trim();
         const userRef = db.collection("users").doc(body.userId);
 
-        // Rate limit
+        // RATE LIMIT
         const allowed = await rateLimit(userRef);
         if (!allowed) {
-            return res.status(429).json({ reply: "Slow down bruv 💀" });
+            return res.status(429).json({ reply: "Slow down fam 💀" });
         }
 
-        // Load data
+        // LOAD DATA
         let userData =
             (await userRef.get()).data() || {
                 history: [],
                 memory: { name: null, preferences: [], facts: [] }
             };
 
-        // Update memory
+        // UPDATE MEMORY + HISTORY
         userData.memory = extractMemory(message, userData.memory);
-
-        // Update history
         userData.history.push({ role: "user", content: message });
         if (userData.history.length > 12) userData.history.shift();
 
-        // GROQ payload
+        // -----------------------------------------------------
+        // GROQ PAYLOAD
+        // -----------------------------------------------------
         const payload = {
             model: "llama-3.1-8b-instant",
             stream: true,
@@ -130,9 +125,8 @@ export default async function handler(req, res) {
                 {
                     role: "system",
                     content: `
-You are Leocore — a chill, Gen Z–styled AI created for Leo.
-Keep messages natural and spaced nicely.
-Avoid glitchy punctuation or broken words.
+You are Leocore — a chill, Gen Z AI made for Leo.
+Keep replies smooth, clean, and natural.
 `
                 },
                 {
@@ -143,19 +137,18 @@ Avoid glitchy punctuation or broken words.
             ]
         };
 
-        // =====================================================
-        // STREAMING HEADERS
-        // =====================================================
+        // -----------------------------------------------------
+        // STREAM HEADERS
+        // -----------------------------------------------------
         res.writeHead(200, {
-            "Content-Type": "text/event-stream; charset=utf-8",
-            "Cache-Control": "no-cache, no-transform",
-            Connection: "keep-alive",
-            "X-Accel-Buffering": "no" // Disable buffering on some proxies
+            "Content-Type": "text/event-stream",
+            "Cache-Control": "no-cache",
+            Connection: "keep-alive"
         });
 
-        // =====================================================
+        // -----------------------------------------------------
         // GROQ REQUEST
-        // =====================================================
+        // -----------------------------------------------------
         const groqRes = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -171,11 +164,11 @@ Avoid glitchy punctuation or broken words.
         const reader = groqRes.body.getReader();
         const decoder = new TextDecoder();
 
-        let finalText = "";
+        let final = "";
 
-        // =====================================================
-        // STREAMING LOOP
-        // =====================================================
+        // -----------------------------------------------------
+        // STREAM LOOP
+        // -----------------------------------------------------
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
@@ -183,39 +176,32 @@ Avoid glitchy punctuation or broken words.
             const chunk = decoder.decode(value);
             const lines = chunk.split("\n");
 
-            for (let line of lines) {
+            for (const line of lines) {
                 if (!line.startsWith("data:")) continue;
 
-                const json = line.replace("data:", "").trim();
+                const json = line.slice(5).trim();
 
                 if (json === "[DONE]") {
                     res.write("data: END\n\n");
-                    res.flush?.();
                     break;
                 }
 
                 try {
                     const obj = JSON.parse(json);
-                    const token =
-                        obj?.choices?.[0]?.delta?.content || "";
+                    const token = obj?.choices?.[0]?.delta?.content || "";
 
                     if (token) {
-                        finalText += token;
+                        final += token;
                         res.write(`data: ${token}\n\n`);
-                        res.flush?.();
                     }
                 } catch {
-                    // ignore malformed chunks
+                    // ignore
                 }
             }
         }
 
-        // Save assistant reply
-        userData.history.push({
-            role: "assistant",
-            content: finalText
-        });
-
+        // SAVE ASSISTANT REPLY
+        userData.history.push({ role: "assistant", content: final });
         if (userData.history.length > 12) userData.history.shift();
 
         await userRef.set(userData, { merge: true });
