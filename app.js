@@ -93,37 +93,43 @@ window.addEventListener("DOMContentLoaded", () => {
     // STREAM PARSER (GROQ SSE)
     // ==========================================
     function streamResponse(aiBox, stream) {
-        const reader = stream.getReader();
-        const decoder = new TextDecoder();
-        let finalText = "";
-
-        function pump() {
-            reader.read().then(({ done, value }) => {
-                if (done) {
-                    aiBox.textContent = finalText;
-                    return;
-                }
-
-                const chunk = decoder.decode(value);
-                const lines = chunk.split("\n");
-
-                for (let line of lines) {
-                    if (!line.startsWith("data:")) continue;
-
-                    const token = line.replace("data:", "").trim();
-                    if (token === "END") continue;
-
-                    finalText += token;
-                    aiBox.textContent = finalText;
-                    messages.scrollTop = messages.scrollHeight;
-                }
-
-                pump();
-            });
-        }
-
-        pump();
+    // If browser blocked streaming or Vercel returned non-stream
+    if (!stream || !stream.getReader) {
+        aiBox.textContent = "⚠️ Streaming not available.";
+        return;
     }
+
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let finalText = "";
+
+    function pump() {
+        reader.read().then(({ done, value }) => {
+            if (done) {
+                aiBox.textContent = finalText;
+                return;
+            }
+
+            const chunk = decoder.decode(value);
+            const lines = chunk.split("\n");
+
+            for (let line of lines) {
+                if (!line.startsWith("data:")) continue;
+
+                const data = line.replace("data:", "").trim();
+                if (data === "END") continue;
+
+                finalText += data;
+                aiBox.textContent = finalText;
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            pump();
+        });
+    }
+
+    pump();
+}
 
     // ==========================================
     // SEND MESSAGE
