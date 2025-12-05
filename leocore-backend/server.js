@@ -4,8 +4,17 @@ import chatHandler from "./api/chat.js";
 
 const app = express();
 
-// Allow your frontend to make requests
-app.use(cors());
+// ==============================
+// FIXED CORS (REQUIRED FOR RENDER + VERCEL)
+// ==============================
+app.use(cors({
+    origin: [
+        "https://leocore.vercel.app",
+        "https://leocore.onrender.com"
+    ],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type"]
+}));
 
 // Allow JSON bodies
 app.use(express.json({ limit: "1mb" }));
@@ -13,7 +22,7 @@ app.use(express.json({ limit: "1mb" }));
 // AI Route
 app.post("/api/chat", chatHandler);
 
-// Home test route
+// Home route
 app.get("/", (req, res) => {
     res.send("Leocore Backend is running 😎");
 });
