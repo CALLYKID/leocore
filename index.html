@@ -4,16 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEOCORE</title>
-
     <link rel="stylesheet" href="style.css">
 
-    <!-- Firebase Core -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-
-    <!-- ⭐ Firebase Analytics -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics-compat.js"></script>
+    <!-- GOOGLE ANALYTICS -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HJQL69N043"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-HJQL69N043');
+</script>
 </head>
 
 <body>
@@ -26,18 +26,12 @@
 
     <!-- CENTER CONTENT -->
     <div class="center-wrapper">
-
-        <!-- FAKE INPUT (Fade first) -->
         <div class="fake-input fade-in" id="fakeInput">
             <span class="fake-text" id="fakeText"></span>
         </div>
 
-        <!-- TITLE (Fade second) -->
         <h1 class="main-title fade-in delay-1">LEOCORE</h1>
-
-        <!-- SUBTITLE (Fade third) -->
         <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
-
     </div>
 
     <!-- CHAT SCREEN -->
@@ -57,8 +51,6 @@
 
     </div>
 
-    <!-- MAIN SCRIPT -->
     <script src="app.js?v=5000"></script>
-
 </body>
 </html>
