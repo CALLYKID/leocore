@@ -5,29 +5,22 @@ import chatHandler from "./api/chat.js";
 const app = express();
 
 // ==============================
-// CORS CONFIG FOR RENDER + VERCEL
+// CORS CONFIG FOR VERCEL + RENDER
 // ==============================
 app.use(cors({
     origin: [
         "https://leocore.vercel.app",
         "https://leocore.onrender.com"
     ],
-    methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type"],
-    credentials: false
+    methods: ["POST"],
+    allowedHeaders: ["Content-Type"]
 }));
 
 // Parse JSON
 app.use(express.json({ limit: "1mb" }));
 
 // ==============================
-// NOTICE:
-// We REMOVED the SSE middleware!
-// chat.js now handles all headers.
-// ==============================
-
-// ==============================
-// AI ROUTE
+// AI CHAT ROUTE
 // ==============================
 app.post("/api/chat", chatHandler);
 
