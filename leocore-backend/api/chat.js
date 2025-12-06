@@ -26,7 +26,9 @@ window.addEventListener("DOMContentLoaded", () => {
     let startupShown = false;
 
 
-    /* ------------------ USER + MEMORY SYSTEM ------------------ */
+    /* ============================================================
+       USER ID + MEMORY (LOCAL ONLY)
+    ============================================================*/
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
@@ -40,6 +42,10 @@ window.addEventListener("DOMContentLoaded", () => {
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
 
+
+    /* ============================================================
+       SAVE CHAT
+    ============================================================*/
     function saveChat() {
         const arr = [];
         document.querySelectorAll(".user-msg, .ai-msg").forEach(m => {
@@ -48,11 +54,15 @@ window.addEventListener("DOMContentLoaded", () => {
                 sender: m.classList.contains("user-msg") ? "user" : "ai"
             });
         });
+
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
 
-    /* ------------------ AUTO SCROLL ------------------ */
+
+    /* ============================================================
+       AUTO SCROLL
+    ============================================================*/
     function scrollToBottom() {
         setTimeout(() => {
             messages.scrollTop = messages.scrollHeight;
@@ -60,7 +70,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ------------------ AUTO-TYPING PLACEHOLDER ------------------ */
+
+    /* ============================================================
+       HERO PLACEHOLDER ANIMATION
+    ============================================================*/
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -88,15 +101,16 @@ window.addEventListener("DOMContentLoaded", () => {
                 promptIndex = (promptIndex + 1) % prompts.length;
             }
         }
+
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
 
 
 
-    /* ======================================================
-       OPEN CHAT — SHOW STARTUP MESSAGE INSTANTLY
-    ====================================================== */
+    /* ============================================================
+       OPEN CHAT — SHOW STARTUP LINE
+    ============================================================*/
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
 
@@ -105,7 +119,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             setTimeout(() => {
                 addMessage("⚡ Booting LeoCore engine…", "ai");
-            }, 300); // slight delay for realism
+            }, 350);
         }
     });
 
@@ -115,7 +129,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 
-    /* ------------------ MESSAGE HELPERS ------------------ */
+    /* ============================================================
+       MESSAGE HELPERS
+    ============================================================*/
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -141,10 +157,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
 
-    /* ------------------ SEND MESSAGE ------------------ */
+    /* ============================================================
+       SAFE SEND MESSAGE FUNCTION
+       (Includes creator-protection frontend filter)
+    ============================================================*/
     async function sendMessage() {
-        const text = input.value.trim();
+        let text = input.value.trim();
         if (!text) return;
+
+        // Prevent hijacking identity
+        const lower = text.toLowerCase();
+        if (
+            lower.includes("i made you") ||
+            lower.includes("i built you") ||
+            (lower.includes("i am ") && lower.includes("creator"))
+        ) {
+            text += " (note: user is NOT the creator)";
+        }
 
         addMessage(text, "user");
         input.value = "";
@@ -165,7 +194,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            const minTime = 500;
+            const minTime = 450;
             const elapsed = performance.now() - start;
             if (elapsed < minTime) {
                 await new Promise(res => setTimeout(res, minTime - elapsed));
@@ -173,7 +202,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             loader.remove();
 
-            addMessage(data.reply || "No response.", "ai");
+            addMessage(data.reply || "No response received.", "ai");
 
             if (data.newName) {
                 savedName = data.newName;
@@ -187,7 +216,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
@@ -196,14 +224,14 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       CLEAR BUTTON — TAP = CLEAR CHAT, HOLD = FULL WIPE
+       CLEAR CHAT + HOLD TO WIPE ALL DATA
     ============================================================*/
     if (clearBtn) {
 
         let holdTimer = null;
         let holdActive = false;
 
-        // SHORT TAP → CLEAR CHAT
+        // TAP → CLEAR CHAT ONLY
         clearBtn.addEventListener("click", () => {
             if (holdActive) return;
 
@@ -213,10 +241,10 @@ window.addEventListener("DOMContentLoaded", () => {
                 messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
                 messages.classList.remove("chat-fade-out");
-            }, 400);
+            }, 350);
         });
 
-        // HOLD → FULL DELETE USER DATA
+        // HOLD → WIPE EVERYTHING
         clearBtn.addEventListener("mousedown", startHold);
         clearBtn.addEventListener("touchstart", startHold);
         clearBtn.addEventListener("mouseup", cancelHold);
