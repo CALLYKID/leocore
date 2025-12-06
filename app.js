@@ -178,66 +178,67 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
-    ============================================================*/
-    if (clearBtn) {
+   CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
+============================================================ */
+if (clearBtn) {
 
-        let holdTimer = null;
-        let holdActive = false;
+    let holdTimer = null;
+    let holdActive = false;
+    let holdTriggered = false;
 
-        /* ----- TAP to clear chat (fade out) ----- */
-        clearBtn.addEventListener("click", () => {
-            if (holdActive) return;
+    /* ----- TAP to clear chat (fade out) ----- */
+    clearBtn.addEventListener("click", () => {
+        if (holdTriggered) return; // ignore if long hold happened
 
-            messages.classList.add("chat-fade-out");
+        messages.classList.add("chat-fade-out");
+
+        setTimeout(() => {
+            messages.innerHTML = "";
+            localStorage.removeItem("leocore-chat");
+            messages.classList.remove("chat-fade-out");
+        }, 400);
+    });
+
+    /* ----- HOLD start (NO preventDefault here) ----- */
+    clearBtn.addEventListener("mousedown", startHold);
+    clearBtn.addEventListener("touchstart", startHold);
+
+    /* ----- HOLD cancel ----- */
+    clearBtn.addEventListener("mouseup", cancelHold);
+    clearBtn.addEventListener("mouseleave", cancelHold);
+    clearBtn.addEventListener("touchend", cancelHold);
+    clearBtn.addEventListener("touchcancel", cancelHold);
+
+
+    function startHold(e) {
+        holdTriggered = false;
+
+        holdTimer = setTimeout(() => {
+            holdTriggered = true;
+
+            // NOW block click
+            e.preventDefault();
+
+            const flash = document.createElement("div");
+            flash.className = "full-wipe-flash";
+            document.body.appendChild(flash);
 
             setTimeout(() => {
-                messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
-                messages.classList.remove("chat-fade-out");
-            }, 400);
-        });
+                localStorage.removeItem("leocore-name");
+                localStorage.removeItem("leocore-user");
+                location.reload();
+            }, 350);
 
-        /* ----- HOLD start ----- */
-        clearBtn.addEventListener("mousedown", startHold);
-        clearBtn.addEventListener("touchstart", startHold);
+        }, 3000); // 3 sec hold
+    }
 
-        /* ----- HOLD cancel ----- */
-        clearBtn.addEventListener("mouseup", cancelHold);
-        clearBtn.addEventListener("mouseleave", cancelHold);
-        clearBtn.addEventListener("touchend", cancelHold);
-        clearBtn.addEventListener("touchcancel", cancelHold);
-
-
-        function startHold(e) {
-            e.preventDefault();
-            holdActive = false;
-
-            holdTimer = setTimeout(() => {
-                holdActive = true;
-
-                const flash = document.createElement("div");
-                flash.className = "full-wipe-flash";
-                document.body.appendChild(flash);
-
-                setTimeout(() => {
-                    localStorage.removeItem("leocore-chat");
-                    localStorage.removeItem("leocore-name");
-                    localStorage.removeItem("leocore-user");
-                    location.reload();
-                }, 350);
-
-            }, 3000); // 3 sec hold
-        }
-
-        function cancelHold(e) {
-            e.preventDefault();
-
-            if (holdTimer) {
-                clearTimeout(holdTimer);
-                holdTimer = null;
-            }
+    function cancelHold() {
+        if (holdTimer) {
+            clearTimeout(holdTimer);
+            holdTimer = null;
         }
     }
+}
 
 });
