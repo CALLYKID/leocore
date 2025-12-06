@@ -18,12 +18,11 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 
 // -----------------------------------------------------
-// RATE LIMIT: 1 request per 800ms
+// RATE LIMIT
 // -----------------------------------------------------
 async function rateLimit(userRef) {
     const snap = await userRef.get();
     const data = snap.data() || {};
-
     const now = Date.now();
     const last = data.lastRequest || 0;
 
@@ -40,18 +39,14 @@ function extractMemory(msg, memory = {}) {
     msg = msg.trim();
     const lower = msg.toLowerCase();
 
-    // Always ensure structure exists
-    if (!memory) memory = {};
     if (!memory.preferences) memory.preferences = [];
     if (!memory.facts) memory.facts = [];
     if (!memory.name) memory.name = null;
 
-    // Name detection
     if (lower.includes("my name is")) {
         memory.name = msg.split(/my name is/i)[1]?.trim().split(" ")[0] || null;
     }
 
-    // Preferences
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
         if (pref && !memory.preferences.includes(pref)) {
@@ -59,7 +54,6 @@ function extractMemory(msg, memory = {}) {
         }
     }
 
-    // Facts
     if (
         lower.includes("i live in") ||
         lower.includes("i am from") ||
@@ -82,7 +76,7 @@ Facts: ${memory.facts.join(" | ") || "none"}
 }
 
 // -----------------------------------------------------
-// MAIN CHAT HANDLER
+// MAIN HANDLER
 // -----------------------------------------------------
 export default async function chatHandler(req, res) {
     try {
@@ -90,43 +84,29 @@ export default async function chatHandler(req, res) {
             return res.status(405).json({ reply: "POST only." });
         }
 
-        const body = req.body;
+        const { message, userId } = req.body;
 
-        if (!body?.message) {
-            return res.status(400).json({ reply: "Empty message." });
-        }
+        if (!message) return res.status(400).json({ reply: "Empty message." });
+        if (!userId) return res.status(400).json({ reply: "Missing userId." });
 
-        if (!body?.userId) {
-            return res.status(400).json({ reply: "Missing userId." });
-        }
-
-        const message = body.message.trim();
-        const userRef = db.collection("users").doc(body.userId);
+        const userRef = db.collection("users").doc(userId);
 
         // RATE LIMIT
         const allowed = await rateLimit(userRef);
-        if (!allowed) {
-            return res.status(429).json({ reply: "Slow down fam 💀" });
-        }
+        if (!allowed) return res.status(429).json({ reply: "Slow down fam 💀" });
 
-        // LOAD DATA
-let userData = (await userRef.get()).data() || {};
+        // LOAD DATA + SAFETY STRUCTURE
+        let userData = (await userRef.get()).data() || {};
+        if (!userData.history) userData.history = [];
+        if (!userData.memory) userData.memory = { name: null, preferences: [], facts: [] };
 
-// Always ensure structure exists
-if (!userData.history) userData.history = [];
-if (!userData.memory) userData.memory = {};
-if (!userData.memory.name) userData.memory.name = null;
-if (!userData.memory.preferences) userData.memory.preferences = [];
-if (!userData.memory.facts) userData.memory.facts = [];
+        // UPDATE MEMORY + HISTORY
+        userData.memory = extractMemory(message, userData.memory);
 
-// UPDATE MEMORY + HISTORY
-userData.memory = extractMemory(message, userData.memory);
+        userData.history.push({ role: "user", content: message });
+        if (userData.history.length > 12) userData.history.shift();
 
-userData.history.push({ role: "user", content: message });
-if (userData.history.length > 12) userData.history.shift();
-        // -----------------------------------------------------
-        // GROQ PAYLOAD
-        // -----------------------------------------------------
+        // PREPARE REQUEST
         const payload = {
             model: "llama-3.1-8b-instant",
             stream: true,
@@ -135,29 +115,22 @@ if (userData.history.length > 12) userData.history.shift();
                     role: "system",
                     content: `
 You are Leocore — a chill, Gen Z AI made for Leo.
-Keep replies natural, clean, spaced well.
+Keep replies natural and spaced clean.
 `
                 },
-                {
-                    role: "system",
-                    content: "User memory:\n" + memoryBlock(userData.memory)
-                },
+                { role: "system", content: "User memory:\n" + memoryBlock(userData.memory) },
                 ...userData.history
             ]
         };
 
-        // -----------------------------------------------------
         // STREAM HEADERS
-        // -----------------------------------------------------
         res.writeHead(200, {
             "Content-Type": "text/event-stream",
             "Cache-Control": "no-cache",
-            Connection: "keep-alive"
+            "Connection": "keep-alive"
         });
 
-        // -----------------------------------------------------
-        // GROQ REQUEST
-        // -----------------------------------------------------
+        // SEND REQUEST
         const groqRes = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -170,61 +143,55 @@ Keep replies natural, clean, spaced well.
             }
         );
 
-        // Handle API key errors, rate limits, etc.
         if (!groqRes.ok) {
-            const errText = await groqRes.text();
-            console.error("🔥 GROQ ERROR:", errText);
-
-            res.write(`data: ${"⚠️ AI error: " + errText}\n\n`);
+            const err = await groqRes.text();
+            res.write(`data: ${"⚠️ AI error: " + err}\n\n`);
             return res.end();
         }
-
-        const reader = groqRes.body.getReader();
-        const decoder = new TextDecoder();
 
         let final = "";
 
         // -----------------------------------------------------
-        // STREAM LOOP (updated)
-// -----------------------------------------------------
-while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
+        // ⭐ NODE STREAM LOOP (THE FIX!!)
+        // -----------------------------------------------------
+        groqRes.body.on("data", (chunk) => {
+            const text = chunk.toString();
+            const lines = text.split("\n");
 
-    const chunk = decoder.decode(value);
-    const lines = chunk.split("\n");
+            for (const line of lines) {
+                if (!line.startsWith("data:")) continue;
 
-    for (const line of lines) {
-        if (!line.trim().startsWith("data:")) continue;
+                const json = line.replace("data:", "").trim();
 
-        const json = line.replace("data:", "").trim();
+                if (json === "[DONE]") {
+                    res.write("data: END\n\n");
+                    return;
+                }
 
-        if (json === "[DONE]") {
-            res.write("data: END\n\n");
-            continue;
-        }
+                try {
+                    const obj = JSON.parse(json);
+                    const token = obj?.choices?.[0]?.delta?.content || "";
 
-        try {
-            const obj = JSON.parse(json);
-            const token = obj?.choices?.[0]?.delta?.content || "";
-
-            if (token) {
-                final += token;
-                res.write(`data: ${token}\n\n`);
+                    if (token) {
+                        final += token;
+                        res.write(`data: ${token}\n\n`);
+                    }
+                } catch {
+                    // ignore malformed lines
+                }
             }
-        } catch (e) {
-            console.error("JSON PARSE ERROR:", e);
-        }
-    }
-}
+        });
 
-        // Save assistant reply
-        userData.history.push({ role: "assistant", content: final });
-        if (userData.history.length > 12) userData.history.shift();
+        groqRes.body.on("end", async () => {
+            // Save assistant reply
+            userData.history.push({ role: "assistant", content: final });
+            if (userData.history.length > 12) userData.history.shift();
 
-        await userRef.set(userData, { merge: true });
+            await userRef.set(userData, { merge: true });
 
-        res.end();
+            res.end();
+        });
+
     } catch (err) {
         console.error("SERVER ERROR:", err);
         res.end();
