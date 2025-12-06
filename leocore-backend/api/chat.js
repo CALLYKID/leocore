@@ -27,7 +27,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       USER ID + MEMORY (LOCAL ONLY)
+       USER ID + LOCAL MEMORY
     ============================================================*/
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
@@ -37,7 +37,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let savedName = localStorage.getItem("leocore-name") || null;
 
-    // RESTORE CHAT
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
@@ -54,7 +53,6 @@ window.addEventListener("DOMContentLoaded", () => {
                 sender: m.classList.contains("user-msg") ? "user" : "ai"
             });
         });
-
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
@@ -159,18 +157,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        SAFE SEND MESSAGE FUNCTION
-       (Includes creator-protection frontend filter)
+       (Prevents creator hijack attempts)
     ============================================================*/
     async function sendMessage() {
         let text = input.value.trim();
         if (!text) return;
 
-        // Prevent hijacking identity
         const lower = text.toLowerCase();
+
+        // Block people trying to pretend they are "Leo"
         if (
             lower.includes("i made you") ||
             lower.includes("i built you") ||
-            (lower.includes("i am ") && lower.includes("creator"))
+            lower.includes("i created you") ||
+            (lower.includes("my name is leo")) ||
+            (lower.includes("i am leo") && !lower.includes("not"))
         ) {
             text += " (note: user is NOT the creator)";
         }
@@ -194,6 +195,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
+            // Minimum response delay (smooth UX)
             const minTime = 450;
             const elapsed = performance.now() - start;
             if (elapsed < minTime) {
@@ -201,7 +203,6 @@ window.addEventListener("DOMContentLoaded", () => {
             }
 
             loader.remove();
-
             addMessage(data.reply || "No response received.", "ai");
 
             if (data.newName) {
@@ -245,14 +246,6 @@ window.addEventListener("DOMContentLoaded", () => {
         });
 
         // HOLD → WIPE EVERYTHING
-        clearBtn.addEventListener("mousedown", startHold);
-        clearBtn.addEventListener("touchstart", startHold);
-        clearBtn.addEventListener("mouseup", cancelHold);
-        clearBtn.addEventListener("mouseleave", cancelHold);
-        clearBtn.addEventListener("touchend", cancelHold);
-        clearBtn.addEventListener("touchcancel", cancelHold);
-
-
         function startHold(e) {
             e.preventDefault();
             holdActive = false;
@@ -281,6 +274,13 @@ window.addEventListener("DOMContentLoaded", () => {
                 holdTimer = null;
             }
         }
+
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("touchcancel", cancelHold);
     }
 
 });
