@@ -237,3 +237,9 @@ body{
     background: red;
     transition: 0.3s;
 }
+
+.clear-btn {
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    user-select: none;
+}
