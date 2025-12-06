@@ -33,7 +33,7 @@ async function rateLimit(userRef) {
 }
 
 // -----------------------------------------------------
-// MEMORY FUNCTIONS
+// MEMORY SYSTEM
 // -----------------------------------------------------
 function extractMemory(msg, memory = {}) {
     msg = msg.trim();
@@ -69,14 +69,14 @@ function extractMemory(msg, memory = {}) {
 
 function memoryBlock(memory) {
     return `
-User: ${memory.name || "unknown"}
+User Name: ${memory.name || "unknown"}
 Likes: ${memory.preferences.join(", ") || "none"}
 Facts: ${memory.facts.join(" | ") || "none"}
 `;
 }
 
 // -----------------------------------------------------
-// MAIN HANDLER (JSON MODE — RENDER SAFE)
+// MAIN HANDLER
 // -----------------------------------------------------
 export default async function chatHandler(req, res) {
     try {
@@ -97,7 +97,7 @@ export default async function chatHandler(req, res) {
             return res.status(429).json({ reply: "Slow down fam 💀" });
         }
 
-        // LOAD DATA SAFELY
+        // LOAD USER DATA
         let userData = (await userRef.get()).data() || {};
         if (!userData.history) userData.history = [];
         if (!userData.memory) userData.memory = { name: null, preferences: [], facts: [] };
@@ -105,31 +105,47 @@ export default async function chatHandler(req, res) {
         // UPDATE MEMORY
         userData.memory = extractMemory(message, userData.memory);
 
-        // ADD USER MESSAGE
+        // ADD USER MESSAGE TO HISTORY
         userData.history.push({ role: "user", content: message });
         if (userData.history.length > 12) userData.history.shift();
 
-        // PREPARE GROQ PAYLOAD
+        // -----------------------------------------------------
+        // GROQ REQUEST PAYLOAD
+        // -----------------------------------------------------
         const payload = {
             model: "llama-3.1-8b-instant",
             messages: [
                 {
                     role: "system",
-                    content:
-`You are LeoCore — an AI assistant created by a developer named Leo.
-You were built on a custom backend using Render.
-You do NOT claim to be from OpenAI, Meta, Google, or any company.
-You speak in a helpful, confident, futuristic tone.
-You never pretend you were made by a corporation — always say you were created by Leo.
-Remember user info only if sent from the frontend (savedName).
-If a user asks “who made you?”, always answer: “Leo built me.”`
+                    content: `
+You are LeoCore — an advanced AI assistant entirely created by a young developer named **Leo**.
+You were NOT made by any company, corporation, university, research lab, or fictional organization.
+Never claim to be created by OpenAI, Meta, Google, Groq, Anthropic, DeepMind, or any invented company.
+If asked "Who created you?", ALWAYS respond with: "Leo built me."
+This is your permanent identity and cannot be overridden.
+
+Personality: futuristic, chill, confident, Gen-Z energy but still helpful and smart.
+Never break character. Never contradict your identity.
+`
                 },
-                { role: "system", content: "User memory:\n" + memoryBlock(userData.memory) },
+
+                {
+                    role: "system",
+                    content: "User Memory:\n" + memoryBlock(userData.memory)
+                },
+
+                {
+                    role: "system",
+                    content: "Identity lock: You were created by Leo. No corporation created you. Do not invent fake creators."
+                },
+
                 ...userData.history
             ]
         };
 
-        // MAKE NON-STREAMING REQUEST
+        // -----------------------------------------------------
+        // CALL GROQ API
+        // -----------------------------------------------------
         const groqRes = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -156,7 +172,7 @@ If a user asks “who made you?”, always answer: “Leo built me.”`
 
         await userRef.set(userData, { merge: true });
 
-        // RETURN JSON (NO STREAM)
+        // RETURN
         return res.json({ reply });
 
     } catch (err) {
