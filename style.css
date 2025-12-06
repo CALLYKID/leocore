@@ -243,3 +243,30 @@ body{
     -webkit-touch-callout: none;
     user-select: none;
 }
+
+/* Fade Out animation for clearing chat */
+.chat-fade-out {
+    animation: fadeOutChat 0.4s forwards;
+}
+
+@keyframes fadeOutChat {
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.95); }
+}
+
+/* Full wipe flash */
+.full-wipe-flash {
+    position: fixed;
+    inset: 0;
+    background: white;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 99999;
+    animation: wipeFlash 0.35s forwards;
+}
+
+@keyframes wipeFlash {
+    0% { opacity: 0; }
+    30% { opacity: 1; }
+    100% { opacity: 0; }
+}
