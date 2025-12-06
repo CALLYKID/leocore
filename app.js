@@ -25,6 +25,15 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
+    // AUTO SCROLL
+    // ==========================================
+    function scrollToBottom() {
+        setTimeout(() => {
+            messages.scrollTop = messages.scrollHeight;
+        }, 20);
+    }
+
+    // ==========================================
     // AUTO-TYPING PLACEHOLDER
     // ==========================================
     const prompts = [
@@ -72,7 +81,7 @@ window.addEventListener("DOMContentLoaded", () => {
         div.className = sender === "user" ? "user-msg" : "ai-msg";
         div.innerText = text;
         messages.appendChild(div);
-        messages.scrollTop = messages.scrollHeight;
+        scrollToBottom();     // *** AUTO SCROLL ***
         return div;
     }
 
@@ -85,13 +94,12 @@ window.addEventListener("DOMContentLoaded", () => {
             <span class='dot d3'></span>
         `;
         messages.appendChild(wrap);
-        messages.scrollTop = messages.scrollHeight;
+        scrollToBottom();     // *** AUTO SCROLL ***
         return wrap;
     }
 
     // ==========================================
     // SEND MESSAGE — NON STREAMING VERSION
-    // (Render-compatible + fixed typing bubble)
     // ==========================================
     async function sendMessage() {
         const text = input.value.trim();
@@ -115,7 +123,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
-            // Guarantee bubble shows at least 600ms
+            // Guarantee typing bubble shows at least 600ms
             const minTime = 600;
             const elapsed = performance.now() - start;
 
@@ -127,6 +135,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const aiBox = addMessage("", "ai");
             aiBox.textContent = data.reply || "No response received.";
+            scrollToBottom();
 
         } catch (err) {
             loader.remove();
