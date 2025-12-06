@@ -36,17 +36,22 @@ async function rateLimit(userRef) {
 // -----------------------------------------------------
 // MEMORY FUNCTIONS
 // -----------------------------------------------------
-function extractMemory(msg, memory) {
+function extractMemory(msg, memory = {}) {
     msg = msg.trim();
     const lower = msg.toLowerCase();
 
+    // Always ensure structure exists
+    if (!memory) memory = {};
     if (!memory.preferences) memory.preferences = [];
     if (!memory.facts) memory.facts = [];
+    if (!memory.name) memory.name = null;
 
+    // Name detection
     if (lower.includes("my name is")) {
         memory.name = msg.split(/my name is/i)[1]?.trim().split(" ")[0] || null;
     }
 
+    // Preferences
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
         if (pref && !memory.preferences.includes(pref)) {
@@ -54,6 +59,7 @@ function extractMemory(msg, memory) {
         }
     }
 
+    // Facts
     if (
         lower.includes("i live in") ||
         lower.includes("i am from") ||
