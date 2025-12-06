@@ -1,5 +1,5 @@
 /* ============================================================
-   DEV ERROR OVERLAY
+   ERROR POPUP (DEV MODE)
 ============================================================ */
 window.onerror = function (msg, src, line, col, err) {
     document.body.innerHTML +=
@@ -9,117 +9,61 @@ window.onerror = function (msg, src, line, col, err) {
 
 
 /* ============================================================
-   MAIN
+   MAIN APP
 ============================================================ */
 window.addEventListener("DOMContentLoaded", () => {
 
-    /* -----------------------------------------------------
-       SELECTORS
-    ----------------------------------------------------- */
     const chatScreen = document.getElementById("chatScreen");
     const closeChat = document.getElementById("closeChat");
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-    const fakeInput = document.getElementById("fakeInput");
-    const fakeText = document.getElementById("fakeText");
     const clearBtn = document.getElementById("clearChat");
 
-    /* -----------------------------------------------------
-       USER ID (persistent)
-    ----------------------------------------------------- */
+    const fakeInput = document.getElementById("fakeInput");
+    const fakeText = document.getElementById("fakeText");
+
+
+    /* ============================================================
+       USER + MEMORY SYSTEM
+    ============================================================*/
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
         localStorage.setItem("leocore-user", userId);
     }
 
-    /* -----------------------------------------------------
-       NAME MEMORY (persistent)
-    ----------------------------------------------------- */
     let savedName = localStorage.getItem("leocore-name") || null;
 
-    /* -----------------------------------------------------
-       RESTORE CHAT HISTORY
-    ----------------------------------------------------- */
-    let savedChat = JSON.parse(localStorage.getItem("leocore-chat"));
-    if (savedChat) {
-        savedChat.forEach(msg => addMessage(msg.text, msg.sender, false));
-        scrollToBottom();
-    }
+    let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
+    savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
-    /* -----------------------------------------------------
-       SAVE CHAT
-    ----------------------------------------------------- */
+
     function saveChat() {
-        const allMessages = [...document.querySelectorAll("#messages div")].map(x => ({
-            text: x.innerText,
-            sender: x.classList.contains("user-msg") ? "user" : "ai"
-        }));
-        localStorage.setItem("leocore-chat", JSON.stringify(allMessages));
-    }
-
-    /* -----------------------------------------------------
-       CLEAR BUTTON: TAP = clear chat, HOLD = wipe all memory
-    ----------------------------------------------------- */
-    if (clearBtn) {
-
-        let holdTimer = null;
-
-        // TAP = clear chat only
-        clearBtn.addEventListener("click", () => {
-            if (clearBtn.classList.contains("holding")) return;
-
-            messages.innerHTML = "";
-            localStorage.removeItem("leocore-chat");
+        const arr = [];
+        document.querySelectorAll(".user-msg, .ai-msg").forEach(m => {
+            arr.push({
+                text: m.innerText,
+                sender: m.classList.contains("user-msg") ? "user" : "ai"
+            });
         });
-
-        // Start holding for wipe
-        clearBtn.addEventListener("mousedown", startHold);
-        clearBtn.addEventListener("touchstart", startHold);
-
-        // Cancel hold
-        clearBtn.addEventListener("mouseup", cancelHold);
-        clearBtn.addEventListener("mouseleave", cancelHold);
-        clearBtn.addEventListener("touchend", cancelHold);
-        clearBtn.addEventListener("touchcancel", cancelHold);
-
-        function startHold() {
-            clearBtn.classList.add("holding");
-
-            holdTimer = setTimeout(() => {
-                // FULL RESET
-                localStorage.removeItem("leocore-chat");
-                localStorage.removeItem("leocore-name");
-                localStorage.removeItem("leocore-user");
-
-                location.reload();
-            }, 3000); // hold 3 seconds
-        }
-
-        function cancelHold() {
-            clearBtn.classList.remove("holding");
-
-            if (holdTimer) {
-                clearTimeout(holdTimer);
-                holdTimer = null;
-            }
-        }
+        localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
 
-    /* -----------------------------------------------------
+    /* ============================================================
        AUTO SCROLL
-    ----------------------------------------------------- */
+    ============================================================*/
     function scrollToBottom() {
         setTimeout(() => {
             messages.scrollTop = messages.scrollHeight;
         }, 20);
     }
 
-    /* -----------------------------------------------------
+
+    /* ============================================================
        AUTO-TYPING PLACEHOLDER
-    ----------------------------------------------------- */
+    ============================================================*/
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -151,33 +95,29 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
-    /* -----------------------------------------------------
-       OPEN CHAT
-    ----------------------------------------------------- */
+
+    /* ============================================================
+       OPEN / CLOSE CHAT
+    ============================================================*/
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
-
-        gtag('event', 'user_opened_chat', {
-            userId,
-            timestamp: Date.now()
-        });
     });
 
-    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
+    closeChat.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+    });
 
 
-    /* -----------------------------------------------------
-       MESSAGE HELPERS
-    ----------------------------------------------------- */
-    function addMessage(text, sender, save = true) {
+    /* ============================================================
+       ADD MESSAGE HELPERS
+    ============================================================*/
+    function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
         div.innerText = text;
         messages.appendChild(div);
-
-        if (save) saveChat();
         scrollToBottom();
-
+        saveChat();
         return div;
     }
 
@@ -194,9 +134,10 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-    /* -----------------------------------------------------
+
+    /* ============================================================
        SEND MESSAGE
-    ----------------------------------------------------- */
+    ============================================================*/
     async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
@@ -204,34 +145,21 @@ window.addEventListener("DOMContentLoaded", () => {
         addMessage(text, "user");
         input.value = "";
 
-        // Detect name
-        const nameMatch = text.match(/(i'?m|i am|my name is)\s+([a-zA-Z]+)/i);
-        if (nameMatch) {
-            savedName = nameMatch[2];
-            localStorage.setItem("leocore-name", savedName);
-        }
-
-        gtag('event', 'message_sent', {
-            userId,
-            message: text,
-            timestamp: Date.now()
-        });
-
         const loader = addTypingBubble();
         const start = performance.now();
 
         try {
-            const response = await fetch("https://leocore.onrender.com/api/chat", {
+            const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: text,
-                    userId,
-                    userName: savedName
+                    userId: userId,
+                    name: savedName
                 })
             });
 
-            const data = await response.json();
+            const data = await res.json();
 
             const minTime = 600;
             const elapsed = performance.now() - start;
@@ -241,13 +169,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
             loader.remove();
 
-            addMessage(data.reply || "No response received.", "ai");
+            const aiBox = addMessage(data.reply || "No response received.", "ai");
+            scrollToBottom();
 
-            gtag('event', 'message_received', {
-                userId,
-                response: data.reply || "",
-                timestamp: Date.now()
-            });
+            if (data.newName) {
+                savedName = data.newName;
+                localStorage.setItem("leocore-name", savedName);
+            }
 
         } catch (err) {
             loader.remove();
@@ -255,13 +183,73 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    /* -----------------------------------------------------
-       INPUT EVENTS
-    ----------------------------------------------------- */
-    sendBtn.addEventListener("click", sendMessage);
 
+    sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
 
+
+    /* ============================================================
+       CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
+    ============================================================*/
+    if (clearBtn) {
+
+        let holdTimer = null;
+
+        // SHORT TAP — clear chat only (fade animation)
+        clearBtn.addEventListener("click", () => {
+
+            if (clearBtn.classList.contains("holding")) return;
+
+            messages.classList.add("chat-fade-out");
+
+            setTimeout(() => {
+                messages.innerHTML = "";
+                localStorage.removeItem("leocore-chat");
+                messages.classList.remove("chat-fade-out");
+            }, 400);
+        });
+
+        // HOLD START
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
+
+        // HOLD CANCEL
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("touchcancel", cancelHold);
+
+        function startHold(e) {
+            e.preventDefault();
+            clearBtn.classList.add("holding");
+
+            holdTimer = setTimeout(() => {
+
+                const flash = document.createElement("div");
+                flash.className = "full-wipe-flash";
+                document.body.appendChild(flash);
+
+                setTimeout(() => {
+                    localStorage.removeItem("leocore-chat");
+                    localStorage.removeItem("leocore-name");
+                    localStorage.removeItem("leocore-user");
+
+                    location.reload();
+                }, 350);
+
+            }, 3000);
+        }
+
+        function cancelHold(e) {
+            e.preventDefault();
+            clearBtn.classList.remove("holding");
+
+            if (holdTimer) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
+        }
+    }
 });
