@@ -232,3 +232,8 @@ body{
 .clear-btn:hover {
     background: rgba(255, 255, 255, 0.2);
 }
+
+.clear-btn.holding {
+    background: red;
+    transition: 0.3s;
+}
