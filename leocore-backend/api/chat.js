@@ -130,7 +130,6 @@ Keep replies natural and spaced clean.
             "Connection": "keep-alive"
         });
 
-        // SEND REQUEST
         const groqRes = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -151,9 +150,9 @@ Keep replies natural and spaced clean.
 
         let final = "";
 
-        // -----------------------------------------------------
-        // ⭐ NODE STREAM LOOP (THE FIX!!)
-        // -----------------------------------------------------
+        // =====================================================
+        // ⭐ FIXED NODE STREAM LOOP — NO EARLY RETURN
+        // =====================================================
         groqRes.body.on("data", (chunk) => {
             const text = chunk.toString();
             const lines = text.split("\n");
@@ -165,7 +164,7 @@ Keep replies natural and spaced clean.
 
                 if (json === "[DONE]") {
                     res.write("data: END\n\n");
-                    return;
+                    continue; // <-- IMPORTANT FIX
                 }
 
                 try {
@@ -177,13 +176,12 @@ Keep replies natural and spaced clean.
                         res.write(`data: ${token}\n\n`);
                     }
                 } catch {
-                    // ignore malformed lines
+                    // Ignore malformed JSON chunks
                 }
             }
         });
 
         groqRes.body.on("end", async () => {
-            // Save assistant reply
             userData.history.push({ role: "assistant", content: final });
             if (userData.history.length > 12) userData.history.shift();
 
