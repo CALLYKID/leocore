@@ -191,35 +191,68 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
-    ============================================================*/
-    if (clearBtn) {
+   CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
+============================================================ */
+if (clearBtn) {
 
-        let holdTimer = null;
+    let holdTimer = null;
+    let holdActive = false;
 
-        // SHORT TAP — clear chat only (fade animation)
-        clearBtn.addEventListener("click", () => {
+    // SHORT TAP — clear chat only (fade animation)
+    clearBtn.addEventListener("click", () => {
+        if (holdActive) return;  // ignore if long hold triggered
 
-            if (clearBtn.classList.contains("holding")) return;
+        messages.classList.add("chat-fade-out");
 
-            messages.classList.add("chat-fade-out");
+        setTimeout(() => {
+            messages.innerHTML = "";
+            localStorage.removeItem("leocore-chat");
+            messages.classList.remove("chat-fade-out");
+        }, 400);
+    });
+
+    // HOLD START
+    clearBtn.addEventListener("mousedown", startHold);
+    clearBtn.addEventListener("touchstart", startHold);
+
+    // HOLD CANCEL
+    clearBtn.addEventListener("mouseup", cancelHold);
+    clearBtn.addEventListener("mouseleave", cancelHold);
+    clearBtn.addEventListener("touchend", cancelHold);
+    clearBtn.addEventListener("touchcancel", cancelHold);
+
+
+    function startHold(e) {
+        e.preventDefault();
+        holdActive = false;
+
+        // START 3-SECOND HOLD TIMER
+        holdTimer = setTimeout(() => {
+            holdActive = true;
+
+            const flash = document.createElement("div");
+            flash.className = "full-wipe-flash";
+            document.body.appendChild(flash);
 
             setTimeout(() => {
-                messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
-                messages.classList.remove("chat-fade-out");
-            }, 400);
-        });
+                localStorage.removeItem("leocore-name");
+                localStorage.removeItem("leocore-user");
+                location.reload();
+            }, 350);
 
-        // HOLD START
-        clearBtn.addEventListener("mousedown", startHold);
-        clearBtn.addEventListener("touchstart", startHold);
+        }, 3000);
+    }
 
-        // HOLD CANCEL
-        clearBtn.addEventListener("mouseup", cancelHold);
-        clearBtn.addEventListener("mouseleave", cancelHold);
-        clearBtn.addEventListener("touchend", cancelHold);
-        clearBtn.addEventListener("touchcancel", cancelHold);
+    function cancelHold(e) {
+        e.preventDefault();
+
+        if (holdTimer) {
+            clearTimeout(holdTimer);
+            holdTimer = null;
+        }
+    }
+}
 
         function startHold(e) {
             e.preventDefault();
