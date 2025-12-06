@@ -1,7 +1,7 @@
-window.onerror = function(msg, src, line, col, err) {
-    document.body.innerHTML += 
-        "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" 
-        + msg + "<br>Line: " + line + "</div>";
+window.onerror = function (msg, src, line, col, err) {
+    document.body.innerHTML +=
+        "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" +
+        msg + "<br>Line: " + line + "</div>";
 };
 
 window.addEventListener("DOMContentLoaded", () => {
@@ -90,7 +90,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================
-    // SEND MESSAGE — NON STREAMING VERSION (Render compatible)
+    // SEND MESSAGE — NON STREAMING VERSION
+    // (Render-compatible + fixed typing bubble)
     // ==========================================
     async function sendMessage() {
         const text = input.value.trim();
@@ -100,6 +101,7 @@ window.addEventListener("DOMContentLoaded", () => {
         input.value = "";
 
         const loader = addTypingBubble();
+        const start = performance.now();
 
         try {
             const response = await fetch("https://leocore.onrender.com/api/chat", {
@@ -111,12 +113,19 @@ window.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
+            const data = await response.json();
+
+            // Guarantee bubble shows at least 600ms
+            const minTime = 600;
+            const elapsed = performance.now() - start;
+
+            if (elapsed < minTime) {
+                await new Promise(res => setTimeout(res, minTime - elapsed));
+            }
+
             loader.remove();
 
             const aiBox = addMessage("", "ai");
-
-            // NON-STREAMING FIX — THIS WORKS 100% ON RENDER
-            const data = await response.json();
             aiBox.textContent = data.reply || "No response received.";
 
         } catch (err) {
