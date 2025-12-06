@@ -1,3 +1,4 @@
+/* RESET */
 *{
     margin:0;
     padding:0;
@@ -6,8 +7,9 @@
 
 body{
     background:#000;
-    overflow:hidden;
+    overflow-x:hidden;
     font-family:'Segoe UI',sans-serif;
+    color:white;
 }
 
 /* BG VIDEO */
@@ -32,25 +34,24 @@ body{
 /* CENTER CONTENT */
 .center-wrapper{
     position:absolute;
-    top:50%;
+    top:28%;
     left:50%;
     transform:translate(-50%, -50%);
     text-align:center;
     width:100%;
 }
 
-/* FAKE CHAT BAR */
 .fake-input {
     width: 85%;
     max-width: 600px;
     height: 62px;
+
     margin: 0 auto 35px;
 
     background: rgba(255,255,255,0.12);
     border: 2px solid rgba(0,200,255,0.8);
     border-radius: 18px;
 
-    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,37 +68,64 @@ body{
     pointer-events: none;
 }
 
-/* TITLE + SUBTITLE */
 .main-title {
-    font-size: 48px;
+    font-size: 46px;
     font-weight: 700;
-    text-align: center;
-    margin-top: 25px;
-    color: #ffffff;
-    letter-spacing: 2px;
     text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .subtitle{
-    margin-top:10px;
+    margin-top:8px;
     font-size:20px;
     opacity:0.8;
     letter-spacing:3px;
-    color:white;
 }
 
-/* FADE ANIMATION */
-.fade-in {
-    opacity: 0;
-    transform: translateY(12px);
-    animation: fadeInUp 0.8s ease forwards;
+/* NEW INFO CARD SECTION */
+.info-section{
+    width:100%;
+    display:flex;
+    justify-content:center;
+    margin-top:330px;
 }
 
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.info-card{
+    width:85%;
+    max-width:650px;
+    padding:28px;
+    border-radius:20px;
+
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(12px);
+    border:1px solid rgba(255,255,255,0.15);
+    box-shadow:0 0 25px rgba(0,180,255,0.25);
+
+    text-align:center;
+}
+
+.info-card h2{
+    margin-bottom:10px;
+    font-size:26px;
+    letter-spacing:1px;
+}
+
+.info-card p{
+    font-size:17px;
+    opacity:0.9;
+    line-height:1.5;
+}
+
+/* FEATURE ROW */
+.features{
+    margin-top:20px;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    font-size:15px;
+    color:#dff9ff;
+    opacity:0.85;
 }
 
 /* CHAT SCREEN */
@@ -118,38 +146,26 @@ body{
     display:flex;
 }
 
-/* ---------- FIXED CHAT HEADER (WORKING VERSION) ---------- */
 .chat-header{
-    padding:16px;
-    font-size:20px;
+    padding:20px;
+    font-size:22px;
     display:flex;
-    justify-content:space-between;
     align-items:center;
-    background:rgba(0,0,0,0.25);
-    backdrop-filter:blur(6px);
+    justify-content:space-between;
     color:white;
-}
-
-.chat-title {
-    flex:1;
-    text-align:center;
-    font-weight:600;
-    font-size:20px;
-    pointer-events:none; /* prevents title blocking touches */
 }
 
 .back-btn{
     background:none;
     border:none;
     color:white;
-    font-size:28px;
+    font-size:30px;
     cursor:pointer;
 }
 
-/* CLEAR BUTTON */
 .clear-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
     color: #fff;
     padding: 6px 12px;
     font-size: 12px;
@@ -157,19 +173,19 @@ body{
     cursor: pointer;
     transition: 0.2s;
     backdrop-filter: blur(4px);
+}
+.clear-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+.clear-btn.holding {
+    background: red;
+}
 
+/* Disable long-press select */
+.clear-btn {
     -webkit-user-select: none;
     -webkit-touch-callout: none;
     user-select: none;
-}
-
-.clear-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.clear-btn.holding {
-    background: red;
-    transition: 0.3s;
 }
 
 /* CHAT MESSAGES */
@@ -202,7 +218,7 @@ body{
     white-space: pre-wrap;
 }
 
-/* INPUT AREA */
+/* CHAT INPUT */
 .chat-input-area{
     padding:12px;
     display:flex;
@@ -216,7 +232,6 @@ body{
     border-radius:10px;
     border:none;
     outline:none;
-    background:#fff;
 }
 
 #sendBtn{
@@ -259,7 +274,7 @@ body{
     40% { transform: scale(1); opacity: 1; }
 }
 
-/* CLEAR CHAT FADE */
+/* Fade Out animation for clearing chat */
 .chat-fade-out {
     animation: fadeOutChat 0.4s forwards;
 }
@@ -269,7 +284,7 @@ body{
     100% { opacity: 0; transform: scale(0.95); }
 }
 
-/* FULL RESET FLASH */
+/* Full wipe flash */
 .full-wipe-flash {
     position: fixed;
     inset: 0;
@@ -284,4 +299,22 @@ body{
     0% { opacity: 0; }
     30% { opacity: 1; }
     100% { opacity: 0; }
+}
+
+/* FADE-IN ANIMATIONS */
+.fade-in {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeInUp 0.9s ease forwards;
+}
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+.delay-4 { animation-delay: 0.8s; }
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
