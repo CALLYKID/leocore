@@ -13,20 +13,18 @@ window.onerror = function (msg, src, line, col, err) {
 ============================================================ */
 window.addEventListener("DOMContentLoaded", () => {
 
+    /* ------------------ SELECTORS ------------------ */
     const chatScreen = document.getElementById("chatScreen");
     const closeChat = document.getElementById("closeChat");
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
     const clearBtn = document.getElementById("clearChat");
-
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
 
-    /* ============================================================
-       USER + MEMORY SYSTEM
-    ============================================================*/
+    /* ------------------ USER + MEMORY SYSTEM ------------------ */
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
@@ -51,9 +49,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ============================================================
-       AUTO SCROLL
-    ============================================================*/
+    /* ------------------ AUTO SCROLL ------------------ */
     function scrollToBottom() {
         setTimeout(() => {
             messages.scrollTop = messages.scrollHeight;
@@ -61,9 +57,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ============================================================
-       AUTO-TYPING PLACEHOLDER
-    ============================================================*/
+    /* ------------------ AUTO-TYPING PLACEHOLDER ------------------ */
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -96,9 +90,7 @@ window.addEventListener("DOMContentLoaded", () => {
     typeAnimation();
 
 
-    /* ============================================================
-       OPEN / CLOSE CHAT
-    ============================================================*/
+    /* ------------------ OPEN / CLOSE CHAT ------------------ */
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
     });
@@ -108,9 +100,7 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /* ============================================================
-       ADD MESSAGE HELPERS
-    ============================================================*/
+    /* ------------------ MESSAGE HELPERS ------------------ */
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -135,9 +125,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ============================================================
-       SEND MESSAGE
-    ============================================================*/
+    /* ------------------ SEND MESSAGE ------------------ */
     async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
@@ -169,8 +157,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             loader.remove();
 
-            const aiBox = addMessage(data.reply || "No response received.", "ai");
-            scrollToBottom();
+            addMessage(data.reply || "No response received.", "ai");
 
             if (data.newName) {
                 savedName = data.newName;
@@ -191,74 +178,43 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-   CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
-============================================================ */
-if (clearBtn) {
+       CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
+    ============================================================*/
+    if (clearBtn) {
 
-    let holdTimer = null;
-    let holdActive = false;
+        let holdTimer = null;
+        let holdActive = false;
 
-    // SHORT TAP — clear chat only (fade animation)
-    clearBtn.addEventListener("click", () => {
-        if (holdActive) return;  // ignore if long hold triggered
+        /* ----- TAP to clear chat (fade out) ----- */
+        clearBtn.addEventListener("click", () => {
+            if (holdActive) return;
 
-        messages.classList.add("chat-fade-out");
-
-        setTimeout(() => {
-            messages.innerHTML = "";
-            localStorage.removeItem("leocore-chat");
-            messages.classList.remove("chat-fade-out");
-        }, 400);
-    });
-
-    // HOLD START
-    clearBtn.addEventListener("mousedown", startHold);
-    clearBtn.addEventListener("touchstart", startHold);
-
-    // HOLD CANCEL
-    clearBtn.addEventListener("mouseup", cancelHold);
-    clearBtn.addEventListener("mouseleave", cancelHold);
-    clearBtn.addEventListener("touchend", cancelHold);
-    clearBtn.addEventListener("touchcancel", cancelHold);
-
-
-    function startHold(e) {
-        e.preventDefault();
-        holdActive = false;
-
-        // START 3-SECOND HOLD TIMER
-        holdTimer = setTimeout(() => {
-            holdActive = true;
-
-            const flash = document.createElement("div");
-            flash.className = "full-wipe-flash";
-            document.body.appendChild(flash);
+            messages.classList.add("chat-fade-out");
 
             setTimeout(() => {
+                messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
-                localStorage.removeItem("leocore-name");
-                localStorage.removeItem("leocore-user");
-                location.reload();
-            }, 350);
+                messages.classList.remove("chat-fade-out");
+            }, 400);
+        });
 
-        }, 3000);
-    }
+        /* ----- HOLD start ----- */
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
 
-    function cancelHold(e) {
-        e.preventDefault();
+        /* ----- HOLD cancel ----- */
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("touchcancel", cancelHold);
 
-        if (holdTimer) {
-            clearTimeout(holdTimer);
-            holdTimer = null;
-        }
-    }
-}
 
         function startHold(e) {
             e.preventDefault();
-            clearBtn.classList.add("holding");
+            holdActive = false;
 
             holdTimer = setTimeout(() => {
+                holdActive = true;
 
                 const flash = document.createElement("div");
                 flash.className = "full-wipe-flash";
@@ -268,16 +224,14 @@ if (clearBtn) {
                     localStorage.removeItem("leocore-chat");
                     localStorage.removeItem("leocore-name");
                     localStorage.removeItem("leocore-user");
-
                     location.reload();
                 }, 350);
 
-            }, 3000);
+            }, 3000); // 3 sec hold
         }
 
         function cancelHold(e) {
             e.preventDefault();
-            clearBtn.classList.remove("holding");
 
             if (holdTimer) {
                 clearTimeout(holdTimer);
@@ -285,4 +239,5 @@ if (clearBtn) {
             }
         }
     }
+
 });
