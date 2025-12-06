@@ -16,21 +16,6 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeText = document.getElementById("fakeText");
 
     // =====================================================
-    // 🔥 Firebase init
-    // =====================================================
-    const firebaseConfig = {
-        apiKey: "YOUR-KEY",
-        authDomain: "YOUR-DOMAIN",
-        projectId: "YOUR-ID",
-        appId: "YOUR-APPID",
-        measurementId: "YOUR-MEASURE-ID"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const analytics = firebase.analytics();
-
-
-    // =====================================================
     // USER ID (persists across sessions)
     // =====================================================
     let userId = localStorage.getItem("leocore-user");
@@ -38,7 +23,6 @@ window.addEventListener("DOMContentLoaded", () => {
         userId = "user-" + Math.random().toString(36).slice(2);
         localStorage.setItem("leocore-user", userId);
     }
-
 
     // =====================================================
     // AUTO SCROLL
@@ -48,7 +32,6 @@ window.addEventListener("DOMContentLoaded", () => {
             messages.scrollTop = messages.scrollHeight;
         }, 20);
     }
-
 
     // =====================================================
     // AUTO-TYPING PLACEHOLDER
@@ -84,22 +67,20 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
-
     // =====================================================
-    // OPEN CHAT
+    // OPEN CHAT + TRACK EVENT
     // =====================================================
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
 
-        // 🔥 Track analytics event
-        analytics.logEvent("user_opened_chat", {
+        // Google Analytics event
+        gtag('event', 'user_opened_chat', {
             userId: userId,
             timestamp: Date.now()
         });
     });
 
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
-
 
     // =====================================================
     // MESSAGE UI HELPERS
@@ -126,7 +107,6 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-
     // =====================================================
     // SEND MESSAGE — NON STREAMING VERSION
     // =====================================================
@@ -137,8 +117,8 @@ window.addEventListener("DOMContentLoaded", () => {
         addMessage(text, "user");
         input.value = "";
 
-        // 🔥 Track message sent
-        analytics.logEvent("message_sent", {
+        // Track message sent
+        gtag('event', 'message_sent', {
             userId: userId,
             message: text,
             timestamp: Date.now()
@@ -159,7 +139,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
-            // Guarantee typing bubble lasts 600ms
+            // Minimum typing bubble time
             const minTime = 600;
             const elapsed = performance.now() - start;
 
@@ -173,8 +153,8 @@ window.addEventListener("DOMContentLoaded", () => {
             aiBox.textContent = data.reply || "No response received.";
             scrollToBottom();
 
-            // 🔥 Track message received
-            analytics.logEvent("message_received", {
+            // Track message received
+            gtag('event', 'message_received', {
                 userId: userId,
                 response: data.reply || "",
                 timestamp: Date.now()
@@ -186,7 +166,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
     // =====================================================
     // INPUT EVENTS
     // =====================================================
@@ -194,4 +173,5 @@ window.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
+
 });
