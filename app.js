@@ -1,5 +1,5 @@
 /* ============================================================
-   GLOBAL ERROR OVERLAY (DEV ONLY)
+   DEV ERROR OVERLAY
 ============================================================ */
 window.onerror = function (msg, src, line, col, err) {
     document.body.innerHTML +=
@@ -26,7 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
     const clearBtn = document.getElementById("clearChat");
 
     /* -----------------------------------------------------
-       USER ID (PERSISTENT)
+       USER ID (persistent)
     ----------------------------------------------------- */
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
@@ -35,10 +35,9 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* -----------------------------------------------------
-       NAME MEMORY (PERSISTENT)
+       NAME MEMORY (persistent)
     ----------------------------------------------------- */
     let savedName = localStorage.getItem("leocore-name") || null;
-
 
     /* -----------------------------------------------------
        RESTORE CHAT HISTORY
@@ -48,7 +47,6 @@ window.addEventListener("DOMContentLoaded", () => {
         savedChat.forEach(msg => addMessage(msg.text, msg.sender, false));
         scrollToBottom();
     }
-
 
     /* -----------------------------------------------------
        SAVE CHAT
@@ -61,17 +59,52 @@ window.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-chat", JSON.stringify(allMessages));
     }
 
-
     /* -----------------------------------------------------
-       CLEAR CHAT BUTTON
+       CLEAR BUTTON: TAP = clear chat, HOLD = wipe all memory
     ----------------------------------------------------- */
     if (clearBtn) {
+
+        let holdTimer = null;
+
+        // TAP = clear chat only
         clearBtn.addEventListener("click", () => {
-            localStorage.removeItem("leocore-chat");
-            localStorage.removeItem("leocore-name");
+            if (clearBtn.classList.contains("holding")) return;
+
             messages.innerHTML = "";
-            savedName = null;
+            localStorage.removeItem("leocore-chat");
         });
+
+        // Start holding for wipe
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
+
+        // Cancel hold
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("touchcancel", cancelHold);
+
+        function startHold() {
+            clearBtn.classList.add("holding");
+
+            holdTimer = setTimeout(() => {
+                // FULL RESET
+                localStorage.removeItem("leocore-chat");
+                localStorage.removeItem("leocore-name");
+                localStorage.removeItem("leocore-user");
+
+                location.reload();
+            }, 3000); // hold 3 seconds
+        }
+
+        function cancelHold() {
+            clearBtn.classList.remove("holding");
+
+            if (holdTimer) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
+        }
     }
 
 
@@ -83,7 +116,6 @@ window.addEventListener("DOMContentLoaded", () => {
             messages.scrollTop = messages.scrollHeight;
         }, 20);
     }
-
 
     /* -----------------------------------------------------
        AUTO-TYPING PLACEHOLDER
@@ -119,9 +151,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
-
     /* -----------------------------------------------------
-       OPEN CHAT + ANALYTICS EVENT
+       OPEN CHAT
     ----------------------------------------------------- */
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
@@ -163,7 +194,6 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-
     /* -----------------------------------------------------
        SEND MESSAGE
     ----------------------------------------------------- */
@@ -174,14 +204,13 @@ window.addEventListener("DOMContentLoaded", () => {
         addMessage(text, "user");
         input.value = "";
 
-        /* Detect name from message */
+        // Detect name
         const nameMatch = text.match(/(i'?m|i am|my name is)\s+([a-zA-Z]+)/i);
         if (nameMatch) {
             savedName = nameMatch[2];
             localStorage.setItem("leocore-name", savedName);
         }
 
-        /* Analytics */
         gtag('event', 'message_sent', {
             userId,
             message: text,
