@@ -318,3 +318,13 @@ body{
         transform: translateY(0);
     }
 }
+
+/* INFO SECTION FIXED SPACING FOR ALL PHONES */
+.info-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    /* This adjusts based on screen height instead of a static value */
+    margin-top: calc(45vh + 60px);
+}
