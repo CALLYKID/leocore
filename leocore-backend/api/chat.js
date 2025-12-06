@@ -76,7 +76,7 @@ Facts: ${memory.facts.join(" | ") || "none"}
 }
 
 // -----------------------------------------------------
-// MAIN HANDLER
+// MAIN HANDLER (JSON MODE — RENDER SAFE)
 // -----------------------------------------------------
 export default async function chatHandler(req, res) {
     try {
@@ -93,43 +93,38 @@ export default async function chatHandler(req, res) {
 
         // RATE LIMIT
         const allowed = await rateLimit(userRef);
-        if (!allowed) return res.status(429).json({ reply: "Slow down fam 💀" });
+        if (!allowed) {
+            return res.status(429).json({ reply: "Slow down fam 💀" });
+        }
 
-        // LOAD DATA + SAFETY STRUCTURE
+        // LOAD DATA SAFELY
         let userData = (await userRef.get()).data() || {};
         if (!userData.history) userData.history = [];
         if (!userData.memory) userData.memory = { name: null, preferences: [], facts: [] };
 
-        // UPDATE MEMORY + HISTORY
+        // UPDATE MEMORY
         userData.memory = extractMemory(message, userData.memory);
 
+        // ADD USER MESSAGE
         userData.history.push({ role: "user", content: message });
         if (userData.history.length > 12) userData.history.shift();
 
-        // PREPARE REQUEST
+        // PREPARE GROQ PAYLOAD
         const payload = {
             model: "llama-3.1-8b-instant",
-            stream: true,
             messages: [
                 {
                     role: "system",
-                    content: `
-You are Leocore — a chill, Gen Z AI made for Leo.
-Keep replies natural and spaced clean.
-`
+                    content:
+`You are Leocore — a chill Gen Z AI built for Leo.
+Keep replies natural, spaced well, and not too long.`
                 },
                 { role: "system", content: "User memory:\n" + memoryBlock(userData.memory) },
                 ...userData.history
             ]
         };
 
-        // STREAM HEADERS
-        res.writeHead(200, {
-            "Content-Type": "text/event-stream",
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive"
-        });
-
+        // MAKE NON-STREAMING REQUEST
         const groqRes = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -143,55 +138,24 @@ Keep replies natural and spaced clean.
         );
 
         if (!groqRes.ok) {
-            const err = await groqRes.text();
-            res.write(`data: ${"⚠️ AI error: " + err}\n\n`);
-            return res.end();
+            const errText = await groqRes.text();
+            return res.json({ reply: "⚠️ AI error: " + errText });
         }
 
-        let final = "";
+        const json = await groqRes.json();
+        const reply = json?.choices?.[0]?.message?.content || "No reply.";
 
-        // =====================================================
-        // ⭐ FIXED NODE STREAM LOOP — NO EARLY RETURN
-        // =====================================================
-        groqRes.body.on("data", (chunk) => {
-            const text = chunk.toString();
-            const lines = text.split("\n");
+        // SAVE AI MESSAGE
+        userData.history.push({ role: "assistant", content: reply });
+        if (userData.history.length > 12) userData.history.shift();
 
-            for (const line of lines) {
-                if (!line.startsWith("data:")) continue;
+        await userRef.set(userData, { merge: true });
 
-                const json = line.replace("data:", "").trim();
-
-                if (json === "[DONE]") {
-                    res.write("data: END\n\n");
-                    continue; // <-- IMPORTANT FIX
-                }
-
-                try {
-                    const obj = JSON.parse(json);
-                    const token = obj?.choices?.[0]?.delta?.content || "";
-
-                    if (token) {
-                        final += token;
-                        res.write(`data: ${token}\n\n`);
-                    }
-                } catch {
-                    // Ignore malformed JSON chunks
-                }
-            }
-        });
-
-        groqRes.body.on("end", async () => {
-            userData.history.push({ role: "assistant", content: final });
-            if (userData.history.length > 12) userData.history.shift();
-
-            await userRef.set(userData, { merge: true });
-
-            res.end();
-        });
+        // RETURN JSON (NO STREAM)
+        return res.json({ reply });
 
     } catch (err) {
         console.error("SERVER ERROR:", err);
-        res.end();
+        return res.json({ reply: "Server crashed 😭" });
     }
 }
