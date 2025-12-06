@@ -126,7 +126,7 @@ export default async function chatHandler(req, res) {
                     role: "system",
                     content: `
 You are Leocore — a chill, Gen Z AI made for Leo.
-Keep replies smooth, clean, and natural.
+Keep replies natural, clean, spaced well.
 `
                 },
                 {
@@ -161,46 +161,55 @@ Keep replies smooth, clean, and natural.
             }
         );
 
+        // Handle API key errors, rate limits, etc.
+        if (!groqRes.ok) {
+            const errText = await groqRes.text();
+            console.error("🔥 GROQ ERROR:", errText);
+
+            res.write(`data: ${"⚠️ AI error: " + errText}\n\n`);
+            return res.end();
+        }
+
         const reader = groqRes.body.getReader();
         const decoder = new TextDecoder();
 
         let final = "";
 
         // -----------------------------------------------------
-        // STREAM LOOP
-        // -----------------------------------------------------
-        while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
+        // STREAM LOOP (updated)
+// -----------------------------------------------------
+while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
 
-            const chunk = decoder.decode(value);
-            const lines = chunk.split("\n");
+    const chunk = decoder.decode(value);
+    const lines = chunk.split("\n");
 
-            for (const line of lines) {
-                if (!line.startsWith("data:")) continue;
+    for (const line of lines) {
+        if (!line.trim().startsWith("data:")) continue;
 
-                const json = line.slice(5).trim();
+        const json = line.replace("data:", "").trim();
 
-                if (json === "[DONE]") {
-                    res.write("data: END\n\n");
-                    break;
-                }
-
-                try {
-                    const obj = JSON.parse(json);
-                    const token = obj?.choices?.[0]?.delta?.content || "";
-
-                    if (token) {
-                        final += token;
-                        res.write(`data: ${token}\n\n`);
-                    }
-                } catch {
-                    // ignore
-                }
-            }
+        if (json === "[DONE]") {
+            res.write("data: END\n\n");
+            continue;
         }
 
-        // SAVE ASSISTANT REPLY
+        try {
+            const obj = JSON.parse(json);
+            const token = obj?.choices?.[0]?.delta?.content || "";
+
+            if (token) {
+                final += token;
+                res.write(`data: ${token}\n\n`);
+            }
+        } catch (e) {
+            console.error("JSON PARSE ERROR:", e);
+        }
+    }
+}
+
+        // Save assistant reply
         userData.history.push({ role: "assistant", content: final });
         if (userData.history.length > 12) userData.history.shift();
 
