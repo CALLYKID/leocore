@@ -110,17 +110,20 @@ export default async function chatHandler(req, res) {
         }
 
         // LOAD DATA
-        let userData =
-            (await userRef.get()).data() || {
-                history: [],
-                memory: { name: null, preferences: [], facts: [] }
-            };
+let userData = (await userRef.get()).data() || {};
 
-        // UPDATE MEMORY + HISTORY
-        userData.memory = extractMemory(message, userData.memory);
-        userData.history.push({ role: "user", content: message });
-        if (userData.history.length > 12) userData.history.shift();
+// Always ensure structure exists
+if (!userData.history) userData.history = [];
+if (!userData.memory) userData.memory = {};
+if (!userData.memory.name) userData.memory.name = null;
+if (!userData.memory.preferences) userData.memory.preferences = [];
+if (!userData.memory.facts) userData.memory.facts = [];
 
+// UPDATE MEMORY + HISTORY
+userData.memory = extractMemory(message, userData.memory);
+
+userData.history.push({ role: "user", content: message });
+if (userData.history.length > 12) userData.history.shift();
         // -----------------------------------------------------
         // GROQ PAYLOAD
         // -----------------------------------------------------
