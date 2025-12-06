@@ -41,7 +41,6 @@ window.addEventListener("DOMContentLoaded", () => {
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
 
-
     /* ============================================================
        SAVE CHAT
     ============================================================*/
@@ -57,7 +56,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-
     /* ============================================================
        AUTO SCROLL
     ============================================================*/
@@ -66,7 +64,6 @@ window.addEventListener("DOMContentLoaded", () => {
             messages.scrollTop = messages.scrollHeight;
         }, 20);
     }
-
 
 
     /* ============================================================
@@ -105,9 +102,8 @@ window.addEventListener("DOMContentLoaded", () => {
     typeAnimation();
 
 
-
     /* ============================================================
-       OPEN CHAT — SHOW STARTUP LINE
+       OPEN CHAT — FIRST BOOT LINE
     ============================================================*/
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
@@ -124,7 +120,6 @@ window.addEventListener("DOMContentLoaded", () => {
     closeChat.addEventListener("click", () => {
         chatScreen.classList.remove("active");
     });
-
 
 
     /* ============================================================
@@ -154,10 +149,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-
     /* ============================================================
-       SAFE SEND MESSAGE FUNCTION
-       (Prevents creator hijack attempts)
+       SEND MESSAGE (with boot message + timeout handling)
     ============================================================*/
     async function sendMessage() {
         let text = input.value.trim();
@@ -165,12 +158,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const lower = text.toLowerCase();
 
-        // Block people trying to pretend they are "Leo"
+        // Creator protection
         if (
             lower.includes("i made you") ||
             lower.includes("i built you") ||
             lower.includes("i created you") ||
-            (lower.includes("my name is leo")) ||
+            lower.includes("my name is leo") ||
             (lower.includes("i am leo") && !lower.includes("not"))
         ) {
             text += " (note: user is NOT the creator)";
@@ -181,6 +174,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const loader = addTypingBubble();
         const start = performance.now();
+        let timeoutReached = false;
+
+        // NEW: Boot message if slow
+        const slowTimer = setTimeout(() => {
+            timeoutReached = true;
+            addMessage("⚙️ Hold up… I'm waking up the LeoCore engine…", "ai");
+        }, 900);
 
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
@@ -193,13 +193,14 @@ window.addEventListener("DOMContentLoaded", () => {
                 })
             });
 
+            clearTimeout(slowTimer);
+
             const data = await res.json();
 
-            // Minimum response delay (smooth UX)
             const minTime = 450;
             const elapsed = performance.now() - start;
             if (elapsed < minTime) {
-                await new Promise(res => setTimeout(res, minTime - elapsed));
+                await new Promise(r => setTimeout(r, minTime - elapsed));
             }
 
             loader.remove();
@@ -211,17 +212,16 @@ window.addEventListener("DOMContentLoaded", () => {
             }
 
         } catch (err) {
+            clearTimeout(slowTimer);
             loader.remove();
-            addMessage("Network error.", "ai");
+            addMessage("⚠️ Server still booting… try again in 3 seconds.", "ai");
         }
     }
-
 
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
-
 
 
     /* ============================================================
