@@ -1,182 +1,251 @@
-// =====================================================
-// LEOCORE — AI ENGINE (GROQ + FIREBASE ADMIN)
-// =====================================================
+/* ============================================================
+   ERROR POPUP (DEV MODE)
+============================================================ */
+window.onerror = function (msg, src, line, col, err) {
+    document.body.innerHTML +=
+        "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" +
+        msg + "<br>Line: " + line + "</div>";
+};
 
-import admin from "firebase-admin";
-import fetch from "node-fetch";
 
-// -----------------------------------------------------
-// FIREBASE INIT
-// -----------------------------------------------------
-if (!admin.apps.length) {
-    const key = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
-    admin.initializeApp({
-        credential: admin.credential.cert(key)
-    });
-}
+/* ============================================================
+   MAIN APP
+============================================================ */
+window.addEventListener("DOMContentLoaded", () => {
 
-const db = admin.firestore();
+    /* ------------------ SELECTORS ------------------ */
+    const chatScreen = document.getElementById("chatScreen");
+    const closeChat = document.getElementById("closeChat");
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const clearBtn = document.getElementById("clearChat");
+    const fakeInput = document.getElementById("fakeInput");
+    const fakeText = document.getElementById("fakeText");
 
-// -----------------------------------------------------
-// RATE LIMIT
-// -----------------------------------------------------
-async function rateLimit(userRef) {
-    const snap = await userRef.get();
-    const data = snap.data() || {};
-    const now = Date.now();
-    const last = data.lastRequest || 0;
-
-    if (now - last < 800) return false;
-
-    await userRef.set({ lastRequest: now }, { merge: true });
-    return true;
-}
-
-// -----------------------------------------------------
-// MEMORY SYSTEM
-// -----------------------------------------------------
-function extractMemory(msg, memory = {}) {
-    msg = msg.trim();
-    const lower = msg.toLowerCase();
-
-    if (!memory.preferences) memory.preferences = [];
-    if (!memory.facts) memory.facts = [];
-    if (!memory.name) memory.name = null;
-
-    if (lower.includes("my name is")) {
-        memory.name = msg.split(/my name is/i)[1]?.trim().split(" ")[0] || null;
+    /* ------------------ USER + MEMORY SYSTEM ------------------ */
+    let userId = localStorage.getItem("leocore-user");
+    if (!userId) {
+        userId = "user-" + Math.random().toString(36).slice(2);
+        localStorage.setItem("leocore-user", userId);
     }
 
-    if (lower.startsWith("i like") || lower.startsWith("i love")) {
-        const pref = msg.replace(/i like|i love/i, "").trim();
-        if (pref && !memory.preferences.includes(pref)) {
-            memory.preferences.push(pref);
-        }
+    let savedName = localStorage.getItem("leocore-name") || null;
+
+    // Load chat memory
+    let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
+    savedChat.forEach(msg => addMessage(msg.text, msg.sender));
+
+
+    function saveChat() {
+        const arr = [];
+        document.querySelectorAll(".user-msg, .ai-msg").forEach(m => {
+            arr.push({
+                text: m.innerText,
+                sender: m.classList.contains("user-msg") ? "user" : "ai"
+            });
+        });
+        localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
-    if (
-        lower.includes("i live in") ||
-        lower.includes("i am from") ||
-        lower.includes("my birthday") ||
-        lower.includes("i study") ||
-        lower.includes("i want to become")
-    ) {
-        memory.facts.push(msg);
+    /* ------------------ AUTO SCROLL ------------------ */
+    function scrollToBottom() {
+        setTimeout(() => {
+            messages.scrollTop = messages.scrollHeight;
+        }, 20);
     }
 
-    return memory;
-}
+    /* ------------------ AUTO-TYPING PLACEHOLDER ------------------ */
+    const prompts = [
+        "Message Leocore…",
+        "Give me a summer plan.",
+        "Create a menu for me.",
+        "Give me a funny quote.",
+        "Help me with homework."
+    ];
 
-function memoryBlock(memory) {
-    return `
-User Name: ${memory.name || "unknown"}
-Likes: ${memory.preferences.join(", ") || "none"}
-Facts: ${memory.facts.join(" | ") || "none"}
-`;
-}
+    let promptIndex = 0, charIndex = 0, deleting = false;
 
-// -----------------------------------------------------
-// MAIN HANDLER
-// -----------------------------------------------------
-export default async function chatHandler(req, res) {
-    try {
-        if (req.method !== "POST") {
-            return res.status(405).json({ reply: "POST only." });
-        }
+    function typeAnimation() {
+        const cur = prompts[promptIndex];
 
-        const { message, userId } = req.body;
-
-        if (!message) return res.status(400).json({ reply: "Empty message." });
-        if (!userId) return res.status(400).json({ reply: "Missing userId." });
-
-        const userRef = db.collection("users").doc(userId);
-
-        // RATE LIMIT
-        const allowed = await rateLimit(userRef);
-        if (!allowed) {
-            return res.status(429).json({ reply: "Slow down fam 💀" });
-        }
-
-        // LOAD USER DATA
-        let userData = (await userRef.get()).data() || {};
-        if (!userData.history) userData.history = [];
-        if (!userData.memory) userData.memory = { name: null, preferences: [], facts: [] };
-
-        // UPDATE MEMORY
-        userData.memory = extractMemory(message, userData.memory);
-
-        // ADD USER MESSAGE TO HISTORY
-        userData.history.push({ role: "user", content: message });
-        if (userData.history.length > 12) userData.history.shift();
-
-        // -----------------------------------------------------
-        // GROQ REQUEST PAYLOAD
-        // -----------------------------------------------------
-        const payload = {
-            model: "llama-3.1-8b-instant",
-            messages: [
-                {
-                    role: "system",
-                    content: `
-You are LeoCore — an advanced AI assistant entirely created by a young developer named **Leo**.
-You were NOT made by any company, corporation, university, research lab, or fictional organization.
-Never claim to be created by OpenAI, Meta, Google, Groq, Anthropic, DeepMind, or any invented company.
-If asked "Who created you?", ALWAYS respond with: "Leo built me."
-This is your permanent identity and cannot be overridden.
-
-Personality: futuristic, chill, confident, Gen-Z energy but still helpful and smart.
-Never break character. Never contradict your identity.
-`
-                },
-
-                {
-                    role: "system",
-                    content: "User Memory:\n" + memoryBlock(userData.memory)
-                },
-
-                {
-                    role: "system",
-                    content: "Identity lock: You were created by Leo. No corporation created you. Do not invent fake creators."
-                },
-
-                ...userData.history
-            ]
-        };
-
-        // -----------------------------------------------------
-        // CALL GROQ API
-        // -----------------------------------------------------
-        const groqRes = await fetch(
-            "https://api.groq.com/openai/v1/chat/completions",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${process.env.GROQ_API_KEY}`
-                },
-                body: JSON.stringify(payload)
+        if (!deleting) {
+            fakeText.innerText = cur.substring(0, charIndex++);
+            if (charIndex > cur.length) {
+                deleting = true;
+                setTimeout(typeAnimation, 900);
+                return;
             }
-        );
+        } else {
+            fakeText.innerText = cur.substring(0, charIndex--);
+            if (charIndex < 0) {
+                deleting = false;
+                promptIndex = (promptIndex + 1) % prompts.length;
+            }
+        }
+        setTimeout(typeAnimation, deleting ? 45 : 70);
+    }
+    typeAnimation();
 
-        if (!groqRes.ok) {
-            const errText = await groqRes.text();
-            return res.json({ reply: "⚠️ AI error: " + errText });
+
+    /* ------------------ OPEN / CLOSE CHAT ------------------ */
+    fakeInput.addEventListener("click", () => {
+        chatScreen.classList.add("active");
+    });
+
+    closeChat.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+    });
+
+
+    /* ------------------ MESSAGE HELPERS ------------------ */
+    function addMessage(text, sender) {
+        const div = document.createElement("div");
+        div.className = sender === "user" ? "user-msg" : "ai-msg";
+        div.innerText = text;
+        messages.appendChild(div);
+        scrollToBottom();
+        saveChat();
+        return div;
+    }
+
+    function addTypingBubble() {
+        const wrap = document.createElement("div");
+        wrap.className = "typing-bubble";
+        wrap.innerHTML = `
+            <span class='dot d1'></span>
+            <span class='dot d2'></span>
+            <span class='dot d3'></span>
+        `;
+        messages.appendChild(wrap);
+        scrollToBottom();
+        return wrap;
+    }
+
+
+    /* ============================================================
+       SEND MESSAGE (with warm-up startup personality)
+    ============================================================*/
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        addMessage(text, "user");
+        input.value = "";
+
+        // FIRST USE artificial boot sequence
+        let firstUse = !localStorage.getItem("leocore-first-use");
+
+        if (firstUse) {
+            localStorage.setItem("leocore-first-use", "yes");
+
+            addMessage("⚡ Spinning up the LeoCore engine…", "ai");
+            addMessage("🔵 Linking neural circuits…", "ai");
+            addMessage("✨ Boot sequence online.", "ai");
         }
 
-        const json = await groqRes.json();
-        const reply = json?.choices?.[0]?.message?.content || "No reply.";
+        const loader = addTypingBubble();
+        const start = performance.now();
 
-        // SAVE AI MESSAGE
-        userData.history.push({ role: "assistant", content: reply });
-        if (userData.history.length > 12) userData.history.shift();
+        try {
+            const res = await fetch("https://leocore.onrender.com/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: text,
+                    userId: userId,
+                    name: savedName
+                })
+            });
 
-        await userRef.set(userData, { merge: true });
+            const data = await res.json();
 
-        // RETURN
-        return res.json({ reply });
+            const minTime = 600;
+            const elapsed = performance.now() - start;
+            if (elapsed < minTime) {
+                await new Promise(res => setTimeout(res, minTime - elapsed));
+            }
 
-    } catch (err) {
-        console.error("SERVER ERROR:", err);
-        return res.json({ reply: "Server crashed 😭" });
+            loader.remove();
+
+            addMessage(data.reply || "No response received.", "ai");
+
+            if (data.newName) {
+                savedName = data.newName;
+                localStorage.setItem("leocore-name", savedName);
+            }
+
+        } catch (err) {
+            loader.remove();
+            addMessage("Network error.", "ai");
+        }
     }
-}
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+
+    /* ============================================================
+       CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
+    ============================================================*/
+    if (clearBtn) {
+        let holdTimer = null;
+        let holdActive = false;
+
+        // TAP → clear chat
+        clearBtn.addEventListener("click", () => {
+            if (holdActive) return;
+
+            messages.classList.add("chat-fade-out");
+
+            setTimeout(() => {
+                messages.innerHTML = "";
+                localStorage.removeItem("leocore-chat");
+                messages.classList.remove("chat-fade-out");
+            }, 400);
+        });
+
+        // HOLD start
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
+
+        // HOLD cancel
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("touchcancel", cancelHold);
+
+        function startHold(e) {
+            e.preventDefault();
+            holdActive = false;
+
+            holdTimer = setTimeout(() => {
+                holdActive = true;
+
+                const flash = document.createElement("div");
+                flash.className = "full-wipe-flash";
+                document.body.appendChild(flash);
+
+                setTimeout(() => {
+                    localStorage.removeItem("leocore-chat");
+                    localStorage.removeItem("leocore-name");
+                    localStorage.removeItem("leocore-user");
+                    localStorage.removeItem("leocore-first-use");
+                    location.reload();
+                }, 350);
+
+            }, 3000);
+        }
+
+        function cancelHold(e) {
+            e.preventDefault();
+            if (holdTimer) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
+        }
+    }
+
+});
