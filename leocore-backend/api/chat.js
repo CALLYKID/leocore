@@ -30,9 +30,23 @@ window.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-user", userId);
     }
 
+    // PROTECT CREATOR IDENTITY
+    function filterName(name) {
+        if (!name) return null;
+
+        const badNames = ["leo", "leonard", "leo core", "leocore"];
+
+        if (badNames.includes(name.toLowerCase())) {
+            return null; // reject saving this as a user name
+        }
+
+        return name;
+    }
+
     let savedName = localStorage.getItem("leocore-name") || null;
 
-    // Load chat memory
+    savedName = filterName(savedName); // sanitize existing memory
+
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
@@ -48,12 +62,14 @@ window.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
+
     /* ------------------ AUTO SCROLL ------------------ */
     function scrollToBottom() {
         setTimeout(() => {
             messages.scrollTop = messages.scrollHeight;
         }, 20);
     }
+
 
     /* ------------------ AUTO-TYPING PLACEHOLDER ------------------ */
     const prompts = [
@@ -123,9 +139,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ============================================================
-       SEND MESSAGE (with warm-up startup personality)
-    ============================================================*/
+    /* ------------------ SEND MESSAGE ------------------ */
     async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
@@ -133,19 +147,19 @@ window.addEventListener("DOMContentLoaded", () => {
         addMessage(text, "user");
         input.value = "";
 
-        // FIRST USE artificial boot sequence
-        let firstUse = !localStorage.getItem("leocore-first-use");
-
-        if (firstUse) {
-            localStorage.setItem("leocore-first-use", "yes");
-
-            addMessage("⚡ Spinning up the LeoCore engine…", "ai");
-            addMessage("🔵 Linking neural circuits…", "ai");
-            addMessage("✨ Boot sequence online.", "ai");
-        }
-
         const loader = addTypingBubble();
         const start = performance.now();
+
+        // IDENTIFY NAME WITHOUT BREAKING CREATOR IDENTITY
+        if (text.toLowerCase().includes("my name is")) {
+            let nameGuess = text.split(/my name is/i)[1]?.trim().split(" ")[0] || null;
+            nameGuess = filterName(nameGuess);
+
+            if (nameGuess) {
+                savedName = nameGuess;
+                localStorage.setItem("leocore-name", savedName);
+            }
+        }
 
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
@@ -154,32 +168,21 @@ window.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     message: text,
                     userId: userId,
-                    name: savedName
+                    name: savedName || null
                 })
             });
 
             const data = await res.json();
 
-            const minTime = 600;
-            const elapsed = performance.now() - start;
-            if (elapsed < minTime) {
-                await new Promise(res => setTimeout(res, minTime - elapsed));
-            }
-
             loader.remove();
-
             addMessage(data.reply || "No response received.", "ai");
-
-            if (data.newName) {
-                savedName = data.newName;
-                localStorage.setItem("leocore-name", savedName);
-            }
 
         } catch (err) {
             loader.remove();
             addMessage("Network error.", "ai");
         }
     }
+
 
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
@@ -191,10 +194,10 @@ window.addEventListener("DOMContentLoaded", () => {
        CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
     ============================================================*/
     if (clearBtn) {
+
         let holdTimer = null;
         let holdActive = false;
 
-        // TAP → clear chat
         clearBtn.addEventListener("click", () => {
             if (holdActive) return;
 
@@ -207,11 +210,9 @@ window.addEventListener("DOMContentLoaded", () => {
             }, 400);
         });
 
-        // HOLD start
         clearBtn.addEventListener("mousedown", startHold);
         clearBtn.addEventListener("touchstart", startHold);
 
-        // HOLD cancel
         clearBtn.addEventListener("mouseup", cancelHold);
         clearBtn.addEventListener("mouseleave", cancelHold);
         clearBtn.addEventListener("touchend", cancelHold);
@@ -232,7 +233,6 @@ window.addEventListener("DOMContentLoaded", () => {
                     localStorage.removeItem("leocore-chat");
                     localStorage.removeItem("leocore-name");
                     localStorage.removeItem("leocore-user");
-                    localStorage.removeItem("leocore-first-use");
                     location.reload();
                 }, 350);
 
@@ -241,6 +241,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         function cancelHold(e) {
             e.preventDefault();
+
             if (holdTimer) {
                 clearTimeout(holdTimer);
                 holdTimer = null;
