@@ -23,6 +23,9 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
+    let startupShown = false;
+
+
     /* ------------------ USER + MEMORY SYSTEM ------------------ */
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
@@ -30,23 +33,9 @@ window.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-user", userId);
     }
 
-    // PROTECT CREATOR IDENTITY
-    function filterName(name) {
-        if (!name) return null;
-
-        const badNames = ["leo", "leonard", "leo core", "leocore"];
-
-        if (badNames.includes(name.toLowerCase())) {
-            return null; // reject saving this as a user name
-        }
-
-        return name;
-    }
-
     let savedName = localStorage.getItem("leocore-name") || null;
 
-    savedName = filterName(savedName); // sanitize existing memory
-
+    // RESTORE CHAT
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
@@ -104,14 +93,26 @@ window.addEventListener("DOMContentLoaded", () => {
     typeAnimation();
 
 
-    /* ------------------ OPEN / CLOSE CHAT ------------------ */
+
+    /* ======================================================
+       OPEN CHAT — SHOW STARTUP MESSAGE INSTANTLY
+    ====================================================== */
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
+
+        if (!startupShown) {
+            startupShown = true;
+
+            setTimeout(() => {
+                addMessage("⚡ Booting LeoCore engine…", "ai");
+            }, 300); // slight delay for realism
+        }
     });
 
     closeChat.addEventListener("click", () => {
         chatScreen.classList.remove("active");
     });
+
 
 
     /* ------------------ MESSAGE HELPERS ------------------ */
@@ -139,6 +140,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
+
     /* ------------------ SEND MESSAGE ------------------ */
     async function sendMessage() {
         const text = input.value.trim();
@@ -150,17 +152,6 @@ window.addEventListener("DOMContentLoaded", () => {
         const loader = addTypingBubble();
         const start = performance.now();
 
-        // IDENTIFY NAME WITHOUT BREAKING CREATOR IDENTITY
-        if (text.toLowerCase().includes("my name is")) {
-            let nameGuess = text.split(/my name is/i)[1]?.trim().split(" ")[0] || null;
-            nameGuess = filterName(nameGuess);
-
-            if (nameGuess) {
-                savedName = nameGuess;
-                localStorage.setItem("leocore-name", savedName);
-            }
-        }
-
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
@@ -168,14 +159,26 @@ window.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     message: text,
                     userId: userId,
-                    name: savedName || null
+                    name: savedName
                 })
             });
 
             const data = await res.json();
 
+            const minTime = 500;
+            const elapsed = performance.now() - start;
+            if (elapsed < minTime) {
+                await new Promise(res => setTimeout(res, minTime - elapsed));
+            }
+
             loader.remove();
-            addMessage(data.reply || "No response received.", "ai");
+
+            addMessage(data.reply || "No response.", "ai");
+
+            if (data.newName) {
+                savedName = data.newName;
+                localStorage.setItem("leocore-name", savedName);
+            }
 
         } catch (err) {
             loader.remove();
@@ -184,20 +187,23 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
+
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
 
 
+
     /* ============================================================
-       CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
+       CLEAR BUTTON — TAP = CLEAR CHAT, HOLD = FULL WIPE
     ============================================================*/
     if (clearBtn) {
 
         let holdTimer = null;
         let holdActive = false;
 
+        // SHORT TAP → CLEAR CHAT
         clearBtn.addEventListener("click", () => {
             if (holdActive) return;
 
@@ -210,13 +216,14 @@ window.addEventListener("DOMContentLoaded", () => {
             }, 400);
         });
 
+        // HOLD → FULL DELETE USER DATA
         clearBtn.addEventListener("mousedown", startHold);
         clearBtn.addEventListener("touchstart", startHold);
-
         clearBtn.addEventListener("mouseup", cancelHold);
         clearBtn.addEventListener("mouseleave", cancelHold);
         clearBtn.addEventListener("touchend", cancelHold);
         clearBtn.addEventListener("touchcancel", cancelHold);
+
 
         function startHold(e) {
             e.preventDefault();
@@ -241,7 +248,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
         function cancelHold(e) {
             e.preventDefault();
-
             if (holdTimer) {
                 clearTimeout(holdTimer);
                 holdTimer = null;
