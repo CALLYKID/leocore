@@ -11,17 +11,43 @@ window.addEventListener("DOMContentLoaded", () => {
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
     // =====================================================
-    // USER ID (persists across sessions)
+    // USER ID (fresh every reload)
     // =====================================================
-    let userId = localStorage.getItem("leocore-user");
-    if (!userId) {
-        userId = "user-" + Math.random().toString(36).slice(2);
-        localStorage.setItem("leocore-user", userId);
+    let userId = "user-" + Math.random().toString(36).slice(2);
+
+    // =====================================================
+    // RESTORE CHAT HISTORY
+    // =====================================================
+    let savedChat = JSON.parse(localStorage.getItem("leocore-chat"));
+    if (savedChat) {
+        savedChat.forEach(msg => addMessage(msg.text, msg.sender, false));
+        scrollToBottom();
+    }
+
+    // =====================================================
+    // SAVE CHAT FUNCTION
+    // =====================================================
+    function saveChat() {
+        const allMessages = [...document.querySelectorAll("#messages div")].map(x => ({
+            text: x.innerText,
+            sender: x.classList.contains("user-msg") ? "user" : "ai"
+        }));
+        localStorage.setItem("leocore-chat", JSON.stringify(allMessages));
+    }
+
+    // =====================================================
+    // CLEAR CHAT BUTTON SUPPORT (you add button in HTML)
+    // =====================================================
+    const clearBtn = document.getElementById("clearChat");
+    if (clearBtn) {
+        clearBtn.addEventListener("click", () => {
+            localStorage.removeItem("leocore-chat");
+            messages.innerHTML = "";
+        });
     }
 
     // =====================================================
@@ -68,12 +94,11 @@ window.addEventListener("DOMContentLoaded", () => {
     typeAnimation();
 
     // =====================================================
-    // OPEN CHAT + TRACK EVENT
+    // OPEN CHAT + ANALYTICS
     // =====================================================
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
 
-        // Google Analytics event
         gtag('event', 'user_opened_chat', {
             userId: userId,
             timestamp: Date.now()
@@ -83,13 +108,15 @@ window.addEventListener("DOMContentLoaded", () => {
     closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
     // =====================================================
-    // MESSAGE UI HELPERS
+    // MESSAGE HELPERS
     // =====================================================
-    function addMessage(text, sender) {
+    function addMessage(text, sender, save = true) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
         div.innerText = text;
         messages.appendChild(div);
+
+        if (save) saveChat();
         scrollToBottom();
         return div;
     }
@@ -108,7 +135,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     // =====================================================
-    // SEND MESSAGE — NON STREAMING VERSION
+    // SEND MESSAGE
     // =====================================================
     async function sendMessage() {
         const text = input.value.trim();
@@ -117,9 +144,8 @@ window.addEventListener("DOMContentLoaded", () => {
         addMessage(text, "user");
         input.value = "";
 
-        // Track message sent
         gtag('event', 'message_sent', {
-            userId: userId,
+            userId,
             message: text,
             timestamp: Date.now()
         });
@@ -133,29 +159,24 @@ window.addEventListener("DOMContentLoaded", () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: text,
-                    userId: userId
+                    userId
                 })
             });
 
             const data = await response.json();
 
-            // Minimum typing bubble time
             const minTime = 600;
             const elapsed = performance.now() - start;
-
             if (elapsed < minTime) {
                 await new Promise(res => setTimeout(res, minTime - elapsed));
             }
 
             loader.remove();
 
-            const aiBox = addMessage("", "ai");
-            aiBox.textContent = data.reply || "No response received.";
-            scrollToBottom();
+            const aiBox = addMessage(data.reply || "No response received.", "ai");
 
-            // Track message received
             gtag('event', 'message_received', {
-                userId: userId,
+                userId,
                 response: data.reply || "",
                 timestamp: Date.now()
             });
@@ -170,8 +191,8 @@ window.addEventListener("DOMContentLoaded", () => {
     // INPUT EVENTS
     // =====================================================
     sendBtn.addEventListener("click", sendMessage);
+
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
-
 });
