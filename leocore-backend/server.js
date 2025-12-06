@@ -5,12 +5,13 @@ import chatHandler from "./api/chat.js";
 const app = express();
 
 // ==============================
-// CORS CONFIG FOR RENDER + VERCEL
+// CORS CONFIG (Render + Vercel + Local Testing)
 // ==============================
 app.use(cors({
     origin: [
         "https://leocore.vercel.app",
-        "https://leocore.onrender.com"
+        "https://leocore.onrender.com",
+        "http://localhost:3000"
     ],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type"],
@@ -21,15 +22,17 @@ app.use(cors({
 app.use(express.json({ limit: "1mb" }));
 
 // ==============================
-// SSE MIDDLEWARE FIX 🔥
-// This ensures Render does NOT buffer the output.
+// SSE SAFETY MIDDLEWARE 🔥
+// Ensures Render does NOT buffer streaming responses
 // ==============================
 app.use((req, res, next) => {
-    res.setHeader("Cache-Control", "no-cache");
+    // These do NOT break regular requests, but unlock SSE
+    res.setHeader("Cache-Control", "no-cache, no-transform");
     res.setHeader("Connection", "keep-alive");
 
-    // Extremely important for streaming on Render
-    res.flushHeaders?.();
+    // Required on some hosts (Render sometimes needs this)
+    if (res.flushHeaders) res.flushHeaders();
+
     next();
 });
 
@@ -39,7 +42,7 @@ app.use((req, res, next) => {
 app.post("/api/chat", chatHandler);
 
 // ==============================
-// HOME TEST
+// HOME ROUTE
 // ==============================
 app.get("/", (req, res) => {
     res.send("Leocore Backend is running 😎");
