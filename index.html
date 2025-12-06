@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEOCORE</title>
-    
-    <!-- FONTS -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+    <!-- GOOGLE FONTS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
 
@@ -28,7 +28,7 @@
     </video>
     <div class="overlay"></div>
 
-    <!-- CENTER CONTENT -->
+    <!-- CENTER HERO CONTENT -->
     <div class="center-wrapper">
         <div class="fake-input fade-in" id="fakeInput">
             <span class="fake-text" id="fakeText"></span>
@@ -39,22 +39,27 @@
     </div>
 
     <!-- INFO SECTION -->
-    <section class="info-section fade-in delay-3">
-        <h2>What is LeoCore?</h2>
-        <p>
-            LeoCore is a fast, personal AI built by <strong>Leo</strong> — designed to speak your vibe,
-            remember your preferences, and stay private.
-        </p>
+    <div class="info-section fade-in delay-3">
+        <div class="info-card">
+            <h2>What is LeoCore?</h2>
 
-        <div class="info-icons">
-            <span>⚡ Fast</span>
-            <span>🔒 Private</span>
-            <span>🧠 Remembers You</span>
+            <p>
+                LeoCore is a fast, personal AI built by <strong>Leo</strong> —
+                designed to speak your vibe, remember your preferences,
+                and stay private.
+            </p>
+
+            <div class="features">
+                <span>⚡ Fast</span>
+                <span>🔒 Private</span>
+                <span>🧠 Remembers You</span>
+            </div>
         </div>
-    </section>
+    </div>
 
     <!-- CHAT SCREEN -->
     <div class="chat-screen" id="chatScreen">
+
         <div class="chat-header">
             <button class="back-btn" id="closeChat">←</button>
             <span class="chat-title">LEOCORE</span>
@@ -67,8 +72,9 @@
             <input type="text" id="userInput" placeholder="Say something...">
             <button id="sendBtn">➤</button>
         </div>
+
     </div>
 
-    <script src="app.js?v=5000"></script>
+    <script src="app.js?v=6000"></script>
 </body>
 </html>
