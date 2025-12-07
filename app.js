@@ -24,7 +24,10 @@ window.addEventListener("DOMContentLoaded", () => {
     const fakeText = document.getElementById("fakeText");
 
 
-    /* ------------------ USER + MEMORY SYSTEM ------------------ */
+    /* ============================================================
+       USER ID + LOCAL MEMORY
+       (Backend handles ALL logic, frontend only stores userId)
+    ============================================================*/
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
@@ -33,10 +36,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let savedName = localStorage.getItem("leocore-name") || null;
 
+    // Restore chat history
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
 
+
+    /* ============================================================
+       SAVE CHAT
+    ============================================================*/
     function saveChat() {
         const arr = [];
         document.querySelectorAll(".user-msg, .ai-msg").forEach(m => {
@@ -49,7 +57,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ------------------ AUTO SCROLL ------------------ */
+
+    /* ============================================================
+       AUTO SCROLL
+    ============================================================*/
     function scrollToBottom() {
         setTimeout(() => {
             messages.scrollTop = messages.scrollHeight;
@@ -57,7 +68,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ------------------ AUTO-TYPING PLACEHOLDER ------------------ */
+
+    /* ============================================================
+       AUTO-TYPING HERO PLACEHOLDER
+    ============================================================*/
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -90,7 +104,10 @@ window.addEventListener("DOMContentLoaded", () => {
     typeAnimation();
 
 
-    /* ------------------ OPEN / CLOSE CHAT ------------------ */
+
+    /* ============================================================
+       OPEN / CLOSE CHAT
+    ============================================================*/
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
     });
@@ -100,7 +117,10 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    /* ------------------ MESSAGE HELPERS ------------------ */
+
+    /* ============================================================
+       MESSAGE HELPERS
+    ============================================================*/
     function addMessage(text, sender) {
         const div = document.createElement("div");
         div.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -125,7 +145,10 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ------------------ SEND MESSAGE ------------------ */
+
+    /* ============================================================
+       SEND MESSAGE — FULLY BACKEND CONTROLLED
+    ============================================================*/
     async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
@@ -149,10 +172,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            const minTime = 600;
+            // Smooth UX delay
+            const minTime = 500;
             const elapsed = performance.now() - start;
             if (elapsed < minTime) {
-                await new Promise(res => setTimeout(res, minTime - elapsed));
+                await new Promise(r => setTimeout(r, minTime - elapsed));
             }
 
             loader.remove();
@@ -166,7 +190,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             loader.remove();
-            addMessage("Network error.", "ai");
+            addMessage("⚠️ Network error.", "ai");
         }
     }
 
@@ -177,68 +201,64 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
 
+
     /* ============================================================
-   CLEAR BUTTON — TAP = clear chat, HOLD = full wipe
-============================================================ */
-if (clearBtn) {
+       CLEAR BUTTON — TAP = CLEAR CHAT, HOLD 3s = WIPE EVERYTHING
+    ============================================================*/
+    if (clearBtn) {
 
-    let holdTimer = null;
-    let holdActive = false;
-    let holdTriggered = false;
+        let holdTimer = null;
+        let holdTriggered = false;
 
-    /* ----- TAP to clear chat (fade out) ----- */
-    clearBtn.addEventListener("click", () => {
-        if (holdTriggered) return; // ignore if long hold happened
+        // TAP = clear chat only
+        clearBtn.addEventListener("click", () => {
+            if (holdTriggered) return;
 
-        messages.classList.add("chat-fade-out");
-
-        setTimeout(() => {
-            messages.innerHTML = "";
-            localStorage.removeItem("leocore-chat");
-            messages.classList.remove("chat-fade-out");
-        }, 400);
-    });
-
-    /* ----- HOLD start (NO preventDefault here) ----- */
-    clearBtn.addEventListener("mousedown", startHold);
-    clearBtn.addEventListener("touchstart", startHold);
-
-    /* ----- HOLD cancel ----- */
-    clearBtn.addEventListener("mouseup", cancelHold);
-    clearBtn.addEventListener("mouseleave", cancelHold);
-    clearBtn.addEventListener("touchend", cancelHold);
-    clearBtn.addEventListener("touchcancel", cancelHold);
-
-
-    function startHold(e) {
-        holdTriggered = false;
-
-        holdTimer = setTimeout(() => {
-            holdTriggered = true;
-
-            // NOW block click
-            e.preventDefault();
-
-            const flash = document.createElement("div");
-            flash.className = "full-wipe-flash";
-            document.body.appendChild(flash);
+            messages.classList.add("chat-fade-out");
 
             setTimeout(() => {
+                messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
-                localStorage.removeItem("leocore-name");
-                localStorage.removeItem("leocore-user");
-                location.reload();
+                messages.classList.remove("chat-fade-out");
             }, 350);
+        });
 
-        }, 3000); // 3 sec hold
-    }
+        // HOLD start
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
 
-    function cancelHold() {
-        if (holdTimer) {
-            clearTimeout(holdTimer);
-            holdTimer = null;
+        // HOLD cancel
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("touchcancel", cancelHold);
+
+        function startHold(e) {
+            holdTriggered = false;
+
+            holdTimer = setTimeout(() => {
+                holdTriggered = true;
+
+                const flash = document.createElement("div");
+                flash.className = "full-wipe-flash";
+                document.body.appendChild(flash);
+
+                setTimeout(() => {
+                    localStorage.removeItem("leocore-chat");
+                    localStorage.removeItem("leocore-name");
+                    localStorage.removeItem("leocore-user");
+                    location.reload();
+                }, 350);
+
+            }, 3000);
+        }
+
+        function cancelHold() {
+            if (holdTimer) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
         }
     }
-}
 
 });
