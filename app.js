@@ -163,7 +163,7 @@ window.addEventListener("DOMContentLoaded", () => {
 ============================================================ */
     async function streamMessage(fullText) {
         // Convert newlines to paragraphs ChatGPT-style
-        fullText = fullText.replace(/\n/g, "<br><br>");
+        fullText = fullText.replace(/\n/g, "<br>");
 
         const wrap = document.createElement("div");
         wrap.className = "ai-msg";
