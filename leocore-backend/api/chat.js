@@ -159,8 +159,11 @@ export default async function handler(req, res) {
         });
 
         const ai = await groqResponse.json();
-        const reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
 
+let reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
+
+// Force first letter uppercase
+reply = reply.replace(/^\s*[a-z]/, m => m.toUpperCase());
         data.history.push({ role: "assistant", content: reply });
         if (data.history.length > 8) data.history.shift();
 
