@@ -400,3 +400,66 @@ body{
     opacity: 1;
     transition: opacity 0.25s ease;
 }
+/* ============================================================
+   LEOCORE NEON SEND BUTTON
+============================================================ */
+
+.send-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: radial-gradient(circle, #00eaff, #0088ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    box-shadow: 
+        0 0 12px #00eaff,
+        0 0 25px #009dff,
+        inset 0 0 8px rgba(255,255,255,0.4);
+
+    transition: 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Send icon styling */
+.send-btn .send-icon {
+    font-size: 22px;
+    color: white;
+    font-weight: bold;
+    transform: translateX(1px);
+    transition: 0.2s;
+}
+
+/* Hover animation */
+.send-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 
+        0 0 18px #00eaff,
+        0 0 35px #00b7ff,
+        inset 0 0 12px rgba(255,255,255,0.6);
+}
+
+/* Ripple pulse */
+.send-btn::after {
+    content: "";
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: scale(0) translate(-50%, -50%);
+    pointer-events: none;
+    animation: sendPulse 2s infinite ease-out;
+}
+
+@keyframes sendPulse {
+    0% { transform: scale(0) translate(-50%, -50%); opacity: 0.6; }
+    70% { transform: scale(1.6) translate(-50%, -50%); opacity: 0; }
+    100% { opacity: 0; }
+}
