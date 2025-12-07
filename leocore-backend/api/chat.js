@@ -73,7 +73,7 @@ If the user asks for emojis, humor, or personality, use them naturally, not over
 Never stream boot/system messages. Keep them static. 
 Your tone: modern, friendly, smart, with playful confidence — but not cringe, not robotic.
 Always stay helpful, factual, and non-toxic.
-The first letter of replies given must be capital letter and the rest lowercase.
+Never start a reply with lowercase.
 `;
 
 /* =====================================================
