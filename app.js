@@ -228,9 +228,9 @@ setInterval(() => {
     fetch("https://leocore.onrender.com/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "ping", userId: "system-pinger" })
+        body: JSON.stringify({ message: "__ping__", userId: "system-pinger" })
     }).catch(()=>{});
-}, 600000); // every 10 minutes
+}, 600000); // 10-minute keepalive
    
     /* ============================================================
    CLEAR BUTTON — PREMIUM HOLD-TO-RESET SYSTEM
