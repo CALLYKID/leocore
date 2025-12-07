@@ -172,7 +172,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 bootBubble.innerText = bootLines[bootIndex % bootLines.length];
                 bootIndex++;
             }, 1200);
-        }, 5000);
+        }, 1200);
 
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
