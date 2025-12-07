@@ -119,26 +119,22 @@ window.addEventListener("DOMContentLoaded", () => {
        SPIRAL TYPING BUBBLE
 ============================================================ */
     function createTypingBubble() {
-        const wrap = document.createElement("div");
-        wrap.className = "ai-msg";
+    const wrap = document.createElement("div");
+    wrap.className = "ai-msg typing-holder";
 
-        const bubble = document.createElement("div");
-        bubble.className = "bubble typing-holder";
+    wrap.innerHTML = `
+        <div class="spiral-bubble">
+            <div class="spiral-core"></div>
+            <div class="orbit o1"></div>
+            <div class="orbit o2"></div>
+            <div class="orbit o3"></div>
+        </div>
+    `;
 
-        bubble.innerHTML = `
-            <div class="spiral-bubble">
-                <div class="spiral-core"></div>
-                <div class="orbit o1"></div>
-                <div class="orbit o2"></div>
-                <div class="orbit o3"></div>
-            </div>
-        `;
+    messages.appendChild(wrap);
+    scrollToBottom();
 
-        wrap.appendChild(bubble);
-        messages.appendChild(wrap);
-        scrollToBottom();
-
-        return wrap;
+    return wrap;
     }
 
 
