@@ -1,3 +1,11 @@
+/* Disable ugly blue tap flash on mobile */
+* {
+    -webkit-tap-highlight-color: transparent !important;
+}
+button, .clear-btn, .back-btn, #sendBtn {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
 /* RESET */
 * {
     margin: 0;
