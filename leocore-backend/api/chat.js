@@ -4,7 +4,10 @@ import fetch from "node-fetch";
 /* =====================================================
    CONFIG
 ===================================================== */
-const CREATOR_USER_ID = "leo-official-001";
+
+// ⭐ YOUR REAL CREATOR USER ID ⭐
+const CREATOR_USER_ID = "user-qgepdglujfq";
+
 const punishments = [
     "That claim is invalid. System refuses to accept impostors.",
     "Unauthorized creator override attempt detected. Request denied.",
@@ -13,6 +16,7 @@ const punishments = [
     "Imposter behavior logged. You are not the creator."
 ];
 const randomPunishment = () => punishments[Math.floor(Math.random() * punishments.length)];
+
 
 /* =====================================================
    FIREBASE INIT
@@ -23,6 +27,7 @@ if (!admin.apps.length) {
     });
 }
 const db = admin.firestore();
+
 
 /* =====================================================
    RATE LIMIT (1.2s)
@@ -38,6 +43,7 @@ async function rateLimit(userRef) {
     return true;
 }
 
+
 /* =====================================================
    MEMORY EXTRACTION
 ===================================================== */
@@ -51,7 +57,8 @@ function extractMemory(msg, mem) {
 
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
-        if (pref && pref.length < 40 && !mem.preferences.includes(pref)) mem.preferences.push(pref);
+        if (pref && pref.length < 40 && !mem.preferences.includes(pref))
+            mem.preferences.push(pref);
     }
 
     const triggers = ["i live in", "i am from", "my birthday", "i study", "i want to become"];
@@ -62,19 +69,21 @@ function extractMemory(msg, mem) {
     return mem;
 }
 
+
 /* =====================================================
    PERSONALITY SYSTEM MESSAGE
 ===================================================== */
 const SYSTEM_MESSAGE = `
-You are LeoCore — a fast, confident, Gen-Z styled AI. 
-Match the user’s vibe: chill, witty, direct. 
-Always give short replies for casual chat, but long, detailed answers when the user asks for info, explanations, lists, or code. Never shorten important responses. 
-If the user asks for emojis, humor, or personality, use them naturally, not overly. 
-Never stream boot/system messages. Keep them static. 
-Your tone: modern, friendly, smart, with playful confidence — but not cringe, not robotic.
-Always stay helpful, factual, and non-toxic.
-Never reply in uppercase except for the first letter of a reply.
+You are LeoCore — a fast, confident, Gen-Z styled AI.
+Match the user’s vibe: chill, witty, direct.
+Give short replies for casual chat, but detailed answers for info, explanations, lists, or code.
+Never shorten important responses.
+Use emojis naturally, not spammy.
+Never stream system/boot messages.
+Tone: modern, smart, helpful, slightly playful.
+Never reply with full uppercase except the first letter.
 `;
+
 
 /* =====================================================
    MAIN HANDLER
@@ -88,9 +97,10 @@ export default async function handler(req, res) {
         if (!message || !userId)
             return res.status(400).json({ reply: "Invalid request." });
 
-        // ====== KEEP-ALIVE ======
+        // KEEP ALIVE
         if (message === "__ping__") return res.json({ reply: "pong" });
 
+        const lower = message.toLowerCase();
         const userRef = db.collection("users").doc(userId);
         const snap = await userRef.get();
 
@@ -101,19 +111,74 @@ export default async function handler(req, res) {
         };
 
         const isCreator = userId === CREATOR_USER_ID;
-        const lower = message.toLowerCase();
+
 
         /* =====================================================
            RATE LIMIT
         ====================================================== */
         if (!(await rateLimit(userRef))) {
-            return res.status(429).json({ reply: "⚠️ Slow down — LeoCore is processing.", stream: false });
+            return res.status(429).json({
+                reply: "⚠️ Slow down — LeoCore is processing.",
+                stream: false
+            });
         }
 
         data.boots++;
 
+
         /* =====================================================
-           CREATOR LOGIC
+           SECRET COMMAND: /myid
+        ====================================================== */
+        if (lower.trim() === "/myid") {
+            return res.json({
+                reply: `🆔 Your LeoCore user ID is:\n\n${userId}\n\nUse this to set CREATOR_USER_ID.`,
+                stream: false
+            });
+        }
+
+
+        /* =====================================================
+           SECRET COMMAND (CREATOR ONLY): /stats
+        ====================================================== */
+        if (lower.trim() === "/stats") {
+            if (!isCreator) {
+                return res.json({ reply: randomPunishment(), stream: false });
+            }
+
+            const usersSnap = await db.collection("users").get();
+            let totalUsers = usersSnap.size;
+
+            let totalMemories = 0;
+            let totalMessages = 0;
+
+            usersSnap.forEach(doc => {
+                const u = doc.data();
+                if (u.memory) {
+                    totalMemories +=
+                        (u.memory.name ? 1 : 0) +
+                        (u.memory.preferences?.length || 0) +
+                        (u.memory.facts?.length || 0);
+                }
+                if (u.history) totalMessages += u.history.length;
+            });
+
+            return res.json({
+                reply:
+`📊 **LeoCore System Stats**
+━━━━━━━━━━━━━━━━
+👤 Total Users: **${totalUsers}**
+🧠 Stored Memories: **${totalMemories}**
+💬 Total Messages Recorded: **${totalMessages}**
+🔐 Creator: **Leonard (Leo)**  
+━━━━━━━━━━━━━━━━
+(Real-time analytics powered by Firebase)`,
+                stream: false
+            });
+        }
+
+
+        /* =====================================================
+           CREATOR CLAIMING LOGIC
         ====================================================== */
         const claiming =
             lower.includes("i made you") ||
@@ -130,26 +195,19 @@ export default async function handler(req, res) {
                 stream: true
             });
         }
-       
-/* =====================================================
-   SECRET COMMAND: /myid
-===================================================== */
-if (lower.trim() === "/myid") {
-    return res.json({
-        reply: `🆔 Your LeoCore user ID is:\n\n${userId}\n\nUse this to set CREATOR_USER_ID.`,
-        stream: false
-    });
-}
+
+
         /* =====================================================
-           MEMORY
+           MEMORY SAVE
         ====================================================== */
         data.memory = extractMemory(message, data.memory);
 
         data.history.push({ role: "user", content: message });
         if (data.history.length > 8) data.history.shift();
 
+
         /* =====================================================
-           AI REQUEST
+           SEND TO GROQ
         ====================================================== */
         const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -168,11 +226,11 @@ if (lower.trim() === "/myid") {
         });
 
         const ai = await groqResponse.json();
+        let reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
 
-let reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
+        // force first letter uppercase
+        reply = reply.replace(/^\s*[a-z]/, m => m.toUpperCase());
 
-// Force first letter uppercase
-reply = reply.replace(/^\s*[a-z]/, m => m.toUpperCase());
         data.history.push({ role: "assistant", content: reply });
         if (data.history.length > 8) data.history.shift();
 
@@ -189,8 +247,9 @@ reply = reply.replace(/^\s*[a-z]/, m => m.toUpperCase());
     }
 }
 
+
 /* =====================================================
-   KEEP BACKEND ALIVE (every 5 min)
+   KEEP BACKEND ALIVE (5 min)
 ===================================================== */
 setInterval(() => {
     fetch("https://leocore.onrender.com/api/chat", {
