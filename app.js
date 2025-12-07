@@ -119,9 +119,6 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
-    /* ------------------------------------------------------------
-       NEW: TYPING DOTS BUBBLE
-    ------------------------------------------------------------ */
     function createTypingBubble() {
         const div = document.createElement("div");
         div.className = "typing-bubble ai-msg";
@@ -137,8 +134,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SEND MESSAGE — AI BOOT + TYPING DOTS
-    ============================================================*/
+       SEND MESSAGE — UPDATED FINAL VERSION
+============================================================ */
     async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
@@ -148,6 +145,14 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const start = performance.now();
 
+        /* ----------------------------------------------------------
+           INSTANT STREAMING DOTS (always show immediately)
+        ---------------------------------------------------------- */
+        let typingBubble = createTypingBubble();
+
+        /* ----------------------------------------------------------
+           BOOT BUBBLE (only shows if backend is slow)
+        ---------------------------------------------------------- */
         let bootBubble = null;
         let bootInterval = null;
 
@@ -162,20 +167,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
         let bootIndex = 0;
 
-        // Delay before showing loader (5 seconds)
         const bootDelay = setTimeout(() => {
             bootBubble = createBootBubble();
-
             bootInterval = setInterval(() => {
                 if (!bootBubble) return;
                 bootBubble.innerText = bootLines[bootIndex % bootLines.length];
                 bootIndex++;
             }, 1200);
-
         }, 5000);
 
 
         try {
+            /* SEND TO BACKEND */
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -188,30 +191,22 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            const minTime = 600;
+            /* Ensure minimum load time */
+            const minTime = 500;
             const elapsed = performance.now() - start;
 
             if (elapsed < minTime) {
                 await new Promise(r => setTimeout(r, minTime - elapsed));
             }
 
+            /* CLEANUP LOADERS */
             clearTimeout(bootDelay);
             clearInterval(bootInterval);
 
+            if (typingBubble) typingBubble.remove();
             if (bootBubble) bootBubble.remove();
 
-
-            /* -------------------------
-               SHOW TYPING DOTS
-            -------------------------- */
-            const typingBubble = createTypingBubble();
-            await new Promise(r => setTimeout(r, 700));
-            typingBubble.remove();
-
-
-            /* -------------------------
-               FINAL AI MESSAGE
-            -------------------------- */
+            /* FINAL AI MESSAGE */
             addMessage(data.reply || "No response received.", "ai");
 
             if (data.newName) {
@@ -220,14 +215,16 @@ window.addEventListener("DOMContentLoaded", () => {
             }
 
         } catch (err) {
+
             clearTimeout(bootDelay);
             clearInterval(bootInterval);
+
+            if (typingBubble) typingBubble.remove();
             if (bootBubble) bootBubble.remove();
 
             addMessage("⚠️ Network error. Backend is still waking up.", "ai");
         }
     }
-
 
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
