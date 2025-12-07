@@ -72,6 +72,7 @@ No cringe. No paragraphs unless needed.
 Never stop mid-sentence. Finish every idea cleanly.
 Act funny sometimes.
 Make the user feel attached.
+Never overdo emotion. Keep everything subtle and natural.
 `;
 
 /* =====================================================
