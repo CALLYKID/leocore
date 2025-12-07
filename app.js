@@ -25,6 +25,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
+       OPEN / CLOSE CHAT
+    ============================================================*/
+    fakeInput.addEventListener("click", () => {
+        chatScreen.classList.add("active");
+    });
+
+    closeChat.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+    });
+
+
+    /* ============================================================
        USER ID + LOCAL STORAGE
     ============================================================*/
     let userId = localStorage.getItem("leocore-user");
@@ -80,7 +92,7 @@ window.addEventListener("DOMContentLoaded", () => {
             fakeText.innerText = cur.substring(0, charIndex++);
             if (charIndex > cur.length) {
                 deleting = true;
-                setTimeout(typeAnimation, 900); 
+                setTimeout(typeAnimation, 900);
                 return;
             }
         } else {
@@ -121,7 +133,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SEND MESSAGE — AI BOOT ANIMATION V3
+       SEND MESSAGE — GPT STYLE BOOT ANIMATION
     ============================================================*/
     async function sendMessage() {
         const text = input.value.trim();
@@ -132,24 +144,23 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const start = performance.now();
 
+        // Boot bubble (GPT-style)
         let bootBubble = null;
         let bootInterval = null;
-        let bootStarted = false;
 
         const bootLines = [
             "🧠 Booting core systems…",
             "🔌 Reconnecting neural mesh…",
-            "⚡ Spinning up processing clusters…",
+            "⚡ Spinning up processors…",
             "📡 Syncing memory banks…",
-            "🔍 Scanning request… hold on…",
+            "🔍 Analysing request…",
             "🤖 Warming up response engine…"
         ];
 
         let bootIndex = 0;
 
-        // Delay before showing loader (5 seconds)
+        // Delay before starting animation
         const bootDelay = setTimeout(() => {
-            bootStarted = true;
             bootBubble = createBootBubble();
 
             bootInterval = setInterval(() => {
@@ -157,26 +168,29 @@ window.addEventListener("DOMContentLoaded", () => {
                 bootBubble.innerText = bootLines[bootIndex % bootLines.length];
                 bootIndex++;
                 scrollToBottom();
-            }, 1200);
+            }, 1300);
 
         }, 5000);
 
 
+        /* ============================================================
+           SEND TO BACKEND
+        ============================================================*/
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: text,
-                    userId: userId,
+                    userId,
                     name: savedName
                 })
             });
 
             const data = await res.json();
 
-            const minTime = 600;
             const elapsed = performance.now() - start;
+            const minTime = 600;
             if (elapsed < minTime) {
                 await new Promise(r => setTimeout(r, minTime - elapsed));
             }
@@ -217,6 +231,7 @@ window.addEventListener("DOMContentLoaded", () => {
         let holdTimer = null;
         let holdTriggered = false;
 
+        // Tap: clear chat only
         clearBtn.addEventListener("click", () => {
             if (holdTriggered) return;
             messages.classList.add("chat-fade-out");
@@ -227,9 +242,9 @@ window.addEventListener("DOMContentLoaded", () => {
             }, 350);
         });
 
+        // Hold = wipe everything
         clearBtn.addEventListener("mousedown", startHold);
         clearBtn.addEventListener("touchstart", startHold);
-
         clearBtn.addEventListener("mouseup", cancelHold);
         clearBtn.addEventListener("mouseleave", cancelHold);
         clearBtn.addEventListener("touchend", cancelHold);
@@ -239,6 +254,7 @@ window.addEventListener("DOMContentLoaded", () => {
             holdTriggered = false;
             holdTimer = setTimeout(() => {
                 holdTriggered = true;
+
                 const flash = document.createElement("div");
                 flash.className = "full-wipe-flash";
                 document.body.appendChild(flash);
@@ -254,12 +270,9 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         function cancelHold() {
-            if (holdTimer) {
-                clearTimeout(holdTimer);
-                holdTimer = null;
-            }
+            if (holdTimer) clearTimeout(holdTimer);
+            holdTimer = null;
         }
-
     }
 
 });
