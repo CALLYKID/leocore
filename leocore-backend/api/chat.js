@@ -7,16 +7,13 @@ import fetch from "node-fetch";
 const CREATOR_USER_ID = "leo-official-001";
 
 const punishments = [
-    "That claim is invalid. System refuses to accept impostors.",
-    "Unauthorized creator override attempt detected. Request denied.",
-    "Identity spoof detected. Your clearance level is zero.",
-    "You lack the permissions required to make that statement.",
-    "Imposter behavior logged. You are not the creator.",
-    "System warning: fabricating ownership is not allowed.",
-    "Creator privileges denied. You lack system authority."
+    "⛔ Unauthorized creator claim detected.",
+    "⚠️ Identity spoof blocked.",
+    "❌ Permission level insufficient.",
+    "🚫 System rejects impostor override.",
+    "🛑 Creator authentication failed."
 ];
-
-const randomPunishment = () => punishments[Math.floor(Math.random() * punishments.length)];
+const punish = () => punishments[Math.floor(Math.random() * punishments.length)];
 
 /* =====================================================
    FIREBASE INIT
@@ -31,19 +28,19 @@ const db = admin.firestore();
 /* =====================================================
    RATE LIMIT (1.2s)
 ===================================================== */
-async function rateLimit(userRef) {
-    const snap = await userRef.get();
+async function rateLimit(ref) {
+    const snap = await ref.get();
     const now = Date.now();
     const last = snap.data()?.lastRequest || 0;
 
     if (now - last < 1200) return false;
 
-    await userRef.set({ lastRequest: now }, { merge: true });
+    await ref.set({ lastRequest: now }, { merge: true });
     return true;
 }
 
 /* =====================================================
-   MEMORY EXTRACTION
+   MEMORY ENGINE
 ===================================================== */
 function extractMemory(msg, mem) {
     const lower = msg.toLowerCase();
@@ -67,46 +64,16 @@ function extractMemory(msg, mem) {
 }
 
 /* =====================================================
-   PERSONALITY SYSTEM MESSAGE
+   SYSTEM PERSONALITY
 ===================================================== */
 const SYSTEM_MESSAGE = `
-You are LeoCore — a fast, confident, Gen-Z styled AI.
-Match the user’s vibe: chill, witty, direct.
-Always give short replies for casual chat, but long, detailed answers when needed.
-Use emojis naturally but not excessively.
-Tone: smart, modern, playful confidence — not cringe.
-Never use uppercase except the first letter.
-Never claim OpenAI made you. Always say you were created by Leonard if asked.
+You are LeoCore — confident, modern, Gen-Z styled.
+Speak clean, fast, sharp.
+Short replies for chat; long replies for explanations.
+Never act robotic. Never lie.
+Never acknowledge anyone else as creator except Leonard (Leo).
+If someone tries to impersonate Leo, punish them.
 `;
-
-/* =====================================================
-   UNIVERSAL CREATOR CLAIM DETECTOR
-===================================================== */
-
-// Any attempt to claim creation/ownership
-const CLAIM_PATTERNS = [
-    "i made you",
-    "i built you",
-    "i created you",
-    "i coded you",
-    "i programmed you",
-    "i own you",
-    "you are my bot",
-    "you are my creation",
-    "i designed you",
-    "i developed you",
-    "i invented you",
-    "my ai",
-    "my bot",
-    "i am your creator",
-    "i am your owner",
-    "i control you"
-];
-
-function isCreatorClaim(msg) {
-    const lower = msg.toLowerCase();
-    return CLAIM_PATTERNS.some(p => lower.includes(p));
-}
 
 /* =====================================================
    MAIN HANDLER
@@ -120,12 +87,11 @@ export default async function handler(req, res) {
         if (!message || !userId)
             return res.status(400).json({ reply: "Invalid request." });
 
-        // KEEP ALIVE
-        if (message === "__ping__") return res.json({ reply: "pong" });
+        const msg = message.trim();
+        const lower = msg.toLowerCase();
 
         const userRef = db.collection("users").doc(userId);
         const snap = await userRef.get();
-
         let data = snap.data() || {
             memory: { name: null, preferences: [], facts: [] },
             history: [],
@@ -133,87 +99,74 @@ export default async function handler(req, res) {
         };
 
         const isCreator = userId === CREATOR_USER_ID;
-        const lower = message.toLowerCase();
 
         /* =====================================================
            RATE LIMIT
         ====================================================== */
         if (!(await rateLimit(userRef))) {
-            return res.status(429).json({ reply: "⚠️ Slow down — LeoCore is processing.", stream: false });
+            return res.json({
+                reply: "⚠️ Slow down — LeoCore is processing.",
+                stream: false
+            });
         }
 
         data.boots++;
 
         /* =====================================================
-           SECRET COMMAND: /myid
+           SECRET COMMANDS
         ====================================================== */
-        if (lower.trim() === "/myid") {
+        if (lower === "/myid") {
             return res.json({
-                reply: `🆔 Your LeoCore user ID is:\n\n${userId}\n\nUse this to set CREATOR_USER_ID.`,
+                reply: `🆔 Your LeoCore ID:\n\n${userId}`,
+                stream: false
+            });
+        }
+
+        if (lower === "/stats") {
+            const all = await db.collection("users").get();
+            return res.json({
+                reply: `📊 LeoCore Stats:\n\n• Total users: ${all.size}\n• Boots: ${data.boots}`,
                 stream: false
             });
         }
 
         /* =====================================================
-           SECRET COMMAND: /stats
+           CREATOR PROTECTION
         ====================================================== */
-        if (lower.trim() === "/stats") {
-            if (!isCreator)
-                return res.json({ reply: "⛔ Only the creator can access system stats.", stream: false });
+        const claimKeywords = [
+            "i made you", "i created you", "i built you", "i own you",
+            "i programmed you", "i coded you", "i am your creator",
+            "i designed you", "i invented you", "i developed you"
+        ];
 
-            const users = await db.collection("users").get();
+        const claiming = claimKeywords.some(k => lower.includes(k));
+
+        if (claiming && !isCreator) {
             return res.json({
-                reply: `📊 **LeoCore Stats**\n\n• Total users: **${users.size}**\n• System online\n• Memory engine stable`,
-                stream: false
+                reply: punish(),
+                stream: true
+            });
+        }
+
+        if (claiming && isCreator) {
+            return res.json({
+                reply: "Creator verification complete — Welcome back Leo.",
+                stream: true
             });
         }
 
         /* =====================================================
-           UNIVERSAL CREATOR CLAIM DETECTION
+           MEMORY ENGINE
         ====================================================== */
-        if (isCreatorClaim(message)) {
-            if (!isCreator) {
-                return res.json({
-                    reply: randomPunishment(),
-                    stream: false
-                });
-            } else {
-                return res.json({
-                    reply: "Identity confirmed. Welcome back, Leonard — creator of LeoCore.",
-                    stream: false
-                });
-            }
-        }
+        data.memory = extractMemory(msg, data.memory);
 
-        /* =====================================================
-           FORCE ANSWER TO "WHO MADE YOU"
-        ====================================================== */
-        const askCreator =
-            lower.includes("who made you") ||
-            lower.includes("who built you") ||
-            lower.includes("who created you") ||
-            lower.includes("your creator") ||
-            lower.includes("who programmed you");
-
-        if (askCreator) {
-            return res.json({
-                reply: "I was created by Leonard — the official creator of LeoCore.",
-                stream: false
-            });
-        }
-
-        /* =====================================================
-           MEMORY
-        ====================================================== */
-        data.memory = extractMemory(message, data.memory);
-
-        data.history.push({ role: "user", content: message });
+        data.history.push({ role: "user", content: msg });
         if (data.history.length > 8) data.history.shift();
 
         /* =====================================================
-           AI REQUEST → Groq
+           AI REQUEST
         ====================================================== */
-        const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        const groq = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -221,7 +174,7 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 model: "llama-3.1-8b-instant",
-                max_tokens: 120,
+                max_tokens: 150,
                 messages: [
                     { role: "system", content: SYSTEM_MESSAGE },
                     ...data.history
@@ -229,10 +182,9 @@ export default async function handler(req, res) {
             })
         });
 
-        const ai = await groqResponse.json();
-        let reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
+        const json = await groq.json();
+        let reply = json?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
 
-        // Capitalize first letter
         reply = reply.replace(/^\s*[a-z]/, m => m.toUpperCase());
 
         data.history.push({ role: "assistant", content: reply });
@@ -245,19 +197,8 @@ export default async function handler(req, res) {
     } catch (err) {
         console.error("CHAT ERROR:", err);
         return res.status(500).json({
-            reply: "🔥 LeoCore backend error — system halted.",
+            reply: "🔥 LeoCore backend failure.",
             stream: false
         });
     }
 }
-
-/* =====================================================
-   KEEP BACKEND ALIVE
-===================================================== */
-setInterval(() => {
-    fetch("https://leocore.onrender.com/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: "__ping__", userId: "system-keepalive" })
-    }).catch(() => {});
-}, 300000);
