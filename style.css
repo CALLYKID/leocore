@@ -41,7 +41,7 @@ body{
     transform:translate(-50%, -50%);
     text-align:center;
 
-    width:fit-content;         /* <--- FIX #1 */
+    width:fit-content;
     max-width:100%;
     pointer-events:none !important;
     z-index:5;
@@ -52,7 +52,6 @@ body{
     width: 85vw;
     max-width: 600px;
     height: 62px;
-
     margin: 0 auto 35px;
 
     background: rgba(255,255,255,0.12);
@@ -60,32 +59,31 @@ body{
     border-radius: 18px;
 
     display: flex;
-    align-items: center;
-    justify-content: center;
+    align-items:center;
+    justify-content:center;
 
     backdrop-filter: blur(6px);
     box-shadow: 0 0 25px rgba(0,180,255,0.4);
 
-    cursor: pointer;
-    pointer-events:auto !important;   /* <--- FIX #2 */
-    position: relative;
-    z-index: 10;                        /* <--- FIX #3 */
+    cursor:pointer;
+    pointer-events:auto !important;
+    position:relative;
+    z-index:10;
 }
 
 .fake-text {
-    white-space: nowrap;
-    font-size: 20px;
-    color: #dff9ff;
+    white-space:nowrap;
+    font-size:20px;
+    color:#dff9ff;
     pointer-events:none;
 }
 
 .main-title {
     font-family:'Montserrat',sans-serif;
-    font-size: 46px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-
+    font-size:46px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:2px;
     pointer-events:none !important;
 }
 
@@ -157,10 +155,14 @@ body{
     backdrop-filter:blur(10px);
     z-index:20;
     pointer-events:auto !important;
+
+    opacity:0;
+    transition:opacity 0.25s ease;
 }
 
 .chat-screen.active{
     display:flex;
+    opacity:1;
 }
 
 /* HEADER */
@@ -194,17 +196,16 @@ body{
     cursor:pointer;
     transition:0.2s;
     backdrop-filter: blur(4px);
-}
-.clear-btn:hover { background: rgba(255,255,255,0.2); }
-.clear-btn.holding { background:red; }
 
-.clear-btn {
     user-select:none;
     -webkit-user-select:none;
     -webkit-touch-callout:none;
 }
 
-/* MESSAGES */
+.clear-btn:hover { background: rgba(255,255,255,0.2); }
+.clear-btn.holding { background:red; }
+
+/* CHAT MESSAGES */
 .chat-messages{
     flex:1;
     padding:15px;
@@ -253,7 +254,72 @@ body{
     font-size:16px;
 }
 
-/* GPT BOOT BUBBLE */
+/* ============================================================
+   LEOCORE NEON SEND BUTTON — (✦ Send)
+============================================================ */
+#sendBtn {
+    width: 110px;
+    height: 56px;
+    border-radius: 50px;
+    border: none;
+
+    background: radial-gradient(circle, #00eaff, #0088ff);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+    letter-spacing: 1px;
+
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+
+    box-shadow:
+        0 0 12px #00eaff,
+        0 0 25px #009dff,
+        inset 0 0 8px rgba(255,255,255,0.4);
+
+    transition:0.2s ease;
+}
+
+#sendBtn:hover {
+    transform: scale(1.08);
+    box-shadow:
+        0 0 18px #00eaff,
+        0 0 35px #00b7ff,
+        inset 0 0 12px rgba(255,255,255,0.6);
+}
+
+#sendBtn:active {
+    transform: scale(0.94);
+}
+
+#sendBtn::after {
+    content:"";
+    position:absolute;
+    width:180%;
+    height:180%;
+    background:rgba(255,255,255,0.18);
+    border-radius:50%;
+    top:50%;
+    left:50%;
+    transform:scale(0) translate(-50%,-50%);
+    animation:sendPulse 2s infinite ease-out;
+}
+
+@keyframes sendPulse {
+    0% { transform:scale(0) translate(-50%,-50%); opacity:0.7; }
+    70% { transform:scale(1.8) translate(-50%,-50%); opacity:0; }
+    100% { opacity:0; }
+}
+
+/* ============================================================
+   BOOTING MESSAGE
+============================================================ */
 .booting-msg {
     align-self:flex-start;
     background:#1a2337;
@@ -284,7 +350,61 @@ body{
     100%{ box-shadow:0 0 0px #00eaff55; }
 }
 
-/* FADE OUT FOR CLEAR */
+/* ============================================================
+   ULTRA NEON TYPING BUBBLE
+============================================================ */
+
+.typing-bubble {
+    align-self:flex-start;
+    background:rgba(10,16,35,0.75);
+    border:1px solid rgba(0,200,255,0.4);
+    padding:10px 16px;
+    border-radius:14px 14px 14px 4px;
+
+    display:inline-flex;
+    gap:10px;
+    width:fit-content;
+
+    backdrop-filter:blur(8px);
+    box-shadow:
+        0 0 12px rgba(0,200,255,0.25),
+        inset 0 0 6px rgba(0,200,255,0.2);
+
+    animation:bubbleFloat 2.2s ease-in-out infinite;
+}
+
+@keyframes bubbleFloat {
+    0% { transform:translateY(0); opacity:0.95; }
+    50% { transform:translateY(-4px); opacity:1; }
+    100% { transform:translateY(0); opacity:0.95; }
+}
+
+/* Dot animation */
+.typing-bubble .dot {
+    width:9px;
+    height:9px;
+    background:#00eaff;
+    border-radius:50%;
+
+    opacity:0.8;
+    box-shadow:
+        0 0 10px #00eaff,
+        0 0 18px #00eaffaa;
+
+    animation:neonDot 1.2s infinite ease-in-out;
+}
+
+.typing-bubble .d1 { animation-delay:0s; }
+.typing-bubble .d2 { animation-delay:0.18s; }
+.typing-bubble .d3 { animation-delay:0.36s; }
+
+@keyframes neonDot {
+    0%   { transform:scale(0.7); opacity:0.5; }
+    50%  { transform:scale(1.25); opacity:1; }
+    100% { transform:scale(0.7); opacity:0.5; }
+}
+
+/* CLEAR FADE */
 .chat-fade-out {
     animation: fadeOutChat 0.4s forwards;
 }
@@ -294,10 +414,10 @@ body{
     100%{ opacity:0; transform:scale(0.95); }
 }
 
-/* FULL WIPE */
+/* FULL WIPE FLASH */
 .full-wipe-flash {
-    position: fixed;
-    inset: 0;
+    position:fixed;
+    inset:0;
     background:white;
     opacity:0;
     pointer-events:none;
@@ -305,13 +425,13 @@ body{
     animation:wipeFlash 0.35s forwards;
 }
 
-@keyframes wipeFlash{
+@keyframes wipeFlash {
     0%{opacity:0;}
     30%{opacity:1;}
     100%{opacity:0;}
 }
 
-/* FADE-IN HERO */
+/* HERO FADE-IN */
 .fade-in{
     opacity:0;
     transform:translateY(12px);
@@ -322,134 +442,6 @@ body{
 .delay-2{animation-delay:0.4s;}
 .delay-3{animation-delay:0.6s;}
 
-@keyframes fadeInUp{
-    to{
-        opacity:1;
-        transform:translateY(0);
-    }
-}
-
-/* ============================================================
-   ULTRA NEON TYPING BUBBLE (LEOCORE EDITION)
-============================================================ */
-
-.typing-bubble {
-    align-self: flex-start;
-    background: rgba(10, 16, 35, 0.75);
-    border: 1px solid rgba(0, 200, 255, 0.4);
-    padding: 10px 16px;
-    border-radius: 14px 14px 14px 4px;
-    display: inline-flex;
-    gap: 10px;
-    width: fit-content;
-
-    backdrop-filter: blur(8px);
-    box-shadow: 0 0 12px rgba(0, 200, 255, 0.25),
-                inset 0 0 6px rgba(0, 200, 255, 0.2);
-
-    animation: bubbleFloat 2.2s ease-in-out infinite;
-}
-
-/* Floating animation */
-@keyframes bubbleFloat {
-    0% { transform: translateY(0px); opacity: 0.95; }
-    50% { transform: translateY(-4px); opacity: 1; }
-    100% { transform: translateY(0px); opacity: 0.95; }
-}
-
-/* Dots */
-.typing-bubble .dot {
-    width: 9px;
-    height: 9px;
-    background: #00eaff;
-    border-radius: 50%;
-    opacity: 0.8;
-
-    box-shadow: 0 0 10px #00eaff,
-                0 0 18px #00eaffaa;
-
-    animation: neonDot 1.2s infinite ease-in-out;
-}
-
-/* Per-dot delay */
-.typing-bubble .d1 { animation-delay: 0s; }
-.typing-bubble .d2 { animation-delay: 0.18s; }
-.typing-bubble .d3 { animation-delay: 0.36s; }
-
-@keyframes neonDot {
-    0%   { transform: scale(0.7); opacity: 0.5; }
-    50%  { transform: scale(1.25); opacity: 1; }
-    100% { transform: scale(0.7); opacity: 0.5; }
-}
-
-.chat-screen {
-    opacity: 0;
-}
-
-.chat-screen.active {
-    opacity: 1;
-    transition: opacity 0.25s ease;
-}
-/* ============================================================
-   LEOCORE NEON SEND BUTTON
-============================================================ */
-
-.send-btn {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: radial-gradient(circle, #00eaff, #0088ff);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-
-    box-shadow: 
-        0 0 12px #00eaff,
-        0 0 25px #009dff,
-        inset 0 0 8px rgba(255,255,255,0.4);
-
-    transition: 0.2s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Send icon styling */
-.send-btn .send-icon {
-    font-size: 22px;
-    color: white;
-    font-weight: bold;
-    transform: translateX(1px);
-    transition: 0.2s;
-}
-
-/* Hover animation */
-.send-btn:hover {
-    transform: scale(1.08);
-    box-shadow: 
-        0 0 18px #00eaff,
-        0 0 35px #00b7ff,
-        inset 0 0 12px rgba(255,255,255,0.6);
-}
-
-/* Ripple pulse */
-.send-btn::after {
-    content: "";
-    position: absolute;
-    width: 140%;
-    height: 140%;
-    background: rgba(255,255,255,0.15);
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: scale(0) translate(-50%, -50%);
-    pointer-events: none;
-    animation: sendPulse 2s infinite ease-out;
-}
-
-@keyframes sendPulse {
-    0% { transform: scale(0) translate(-50%, -50%); opacity: 0.6; }
-    70% { transform: scale(1.6) translate(-50%, -50%); opacity: 0; }
-    100% { opacity: 0; }
+@keyframes fadeInUp {
+    to{ opacity:1; transform:translateY(0); }
 }
