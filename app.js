@@ -115,17 +115,22 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     function createTypingBubble() {
-        const div = document.createElement("div");
-        div.className = "typing-bubble ai-msg";
-        div.innerHTML = `
-            <span class="dot d1"></span>
-            <span class="dot d2"></span>
-            <span class="dot d3"></span>
-        `;
-        messages.appendChild(div);
-        scrollToBottom();
-        return div;
-    }
+    const div = document.createElement("div");
+    div.className = "ai-msg";
+
+    div.innerHTML = `
+        <div class="spiral-bubble">
+            <div class="spiral-core"></div>
+            <div class="orbit o1"></div>
+            <div class="orbit o2"></div>
+            <div class="orbit o3"></div>
+        </div>
+    `;
+
+    messages.appendChild(div);
+    scrollToBottom();
+    return div;
+}
 
     /* ============================================================
        SEND MESSAGE — FINAL VERSION
