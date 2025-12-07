@@ -297,3 +297,37 @@ body {
 ============================================================ */
 
 /* Spiral typing bubble, reset system, streaming cursor... */
+/* FIX — typing indicator should NOT look like a chat bubble */
+.typing-holder,
+.typing-holder .spiral-bubble {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Prevent bubble styles from affecting spiral */
+.typing-holder .bubble {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+
+/* Restore correct flex behaviour */
+.typing-holder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+}
+
+/* Ensure orbit dots show + animate */
+.spiral-bubble {
+    position: relative !important;
+    overflow: visible !important;
+}
+
+.spiral-bubble .orbit {
+    display: block !important;
+    opacity: 1 !important;
+}
