@@ -328,21 +328,38 @@ body{
     /* This adjusts based on screen height instead of a static value */
     margin-top: calc(45vh + 60px);
 }
-.boot-bubble {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: 0.35s ease;
-    background: rgba(0, 0, 0, 0.4);
-    border-left: 3px solid #00eaff;
-    padding: 10px 14px;
-    border-radius: 6px;
-    margin: 6px 0;
-    font-size: 14px;
+/* NEW GPT-STYLE BOOT BUBBLE */
+.booting-msg {
+    align-self: flex-start;
+    background: #1a2337;
     color: #dff8ff;
-    backdrop-filter: blur(4px);
+
+    padding: 10px 14px;
+    border-radius: 12px 12px 12px 4px;
+    max-width: 75%;
+    font-size: 15px;
+    white-space: pre-wrap;
+
+    opacity: 0;
+    transform: translateY(6px);
+    transition: 0.35s ease, background 0.3s;
+
+    border-left: 3px solid #00eaff;
+    backdrop-filter: blur(5px);
 }
 
-.boot-bubble.show {
+.booting-msg.show {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Optional pulse glow */
+@keyframes bootPulse {
+    0% { box-shadow: 0 0 0px #00eaff55; }
+    50% { box-shadow: 0 0 12px #00eaff88; }
+    100% { box-shadow: 0 0 0px #00eaff55; }
+}
+
+.booting-msg.show {
+    animation: bootPulse 1.8s infinite ease-in-out;
 }
