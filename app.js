@@ -147,7 +147,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-   SEND MESSAGE — with Progressive Boot Lines
+   SEND MESSAGE — Deluxe Boot Animation Edition
 ============================================================ */
 async function sendMessage() {
     const text = input.value.trim();
@@ -156,33 +156,46 @@ async function sendMessage() {
     addMessage(text, "user");
     input.value = "";
 
-    const loader = addTypingBubble();
     const start = performance.now();
 
-    // BOOT LINES (Gen-Z + Chaotic Energy)
+    // Typing bubble while waiting for AI
+    const loader = addTypingBubble();
+
+    // ============================================================
+    // BOOT-UP ANIMATION SYSTEM
+    // ============================================================
+
+    // Animated boot lines
     const bootLines = [
-        "🤖 Hold up… I'm waking up my brain cells…",
         "🧠 Booting thought engine… don't judge the startup speed…",
-        "📡 Gathering leftover data particles… everything’s scattered 💀",
+        "🛰️ Gathering leftover data particles… everything’s scattered 💀",
         "🔧 Stabilising processors… someone unplugged my neurons",
         "⏳ Loading… nearly cooked… don’t swipe away yet",
-        "🥽 Recalibrating questionable logic modules…",
-        "🤯 Bro who designed this boot time… oh wait, Leo did.",
-        "⚡ Systems ready — cooking your answer 🔥"
+        "🤖 Hold up… I'm waking up my brain cells…"
     ];
 
     let bootIndex = 0;
-    let bootInterval = null;
+    let bootBubbleInterval = null;
+    let bootStarted = false;
 
-    // Start progressive boot messages
-    bootInterval = setInterval(() => {
-        if (bootIndex < bootLines.length) {
-            addMessage(bootLines[bootIndex], "ai");
+    // Wait 5 seconds BEFORE showing any boot animation
+    const bootDelay = setTimeout(() => {
+        bootStarted = true;
+
+        bootBubbleInterval = setInterval(() => {
+            if (bootIndex >= bootLines.length) return;
+
+            addBootBubble(bootLines[bootIndex]);
             bootIndex++;
-        }
-    }, 700); // every 0.7 sec a new boot message appears
+
+        }, 1200); // animation speed for each bubble
+    }, 5000);
 
 
+
+    // ============================================================
+    // SEND TO BACKEND
+    // ============================================================
     try {
         const res = await fetch("https://leocore.onrender.com/api/chat", {
             method: "POST",
@@ -196,14 +209,18 @@ async function sendMessage() {
 
         const data = await res.json();
 
-        // Smooth UX
-        const minTime = 500;
+        // Smooth minimum delay
+        const minTime = 600;
         const elapsed = performance.now() - start;
         if (elapsed < minTime) {
             await new Promise(r => setTimeout(r, minTime - elapsed));
         }
 
-        clearInterval(bootInterval);
+        // STOP all boot animations
+        clearTimeout(bootDelay);
+        clearInterval(bootBubbleInterval);
+
+        removeAllBootBubbles();
         loader.remove();
 
         addMessage(data.reply || "No response received.", "ai");
@@ -214,9 +231,13 @@ async function sendMessage() {
         }
 
     } catch (err) {
-        clearInterval(bootInterval);
+        clearTimeout(bootDelay);
+        clearInterval(bootBubbleInterval);
+
+        removeAllBootBubbles();
         loader.remove();
-        addMessage("⚠️ Network error. Server might be cold starting.", "ai");
+
+        addMessage("⚠️ Network error. Backend is still waking up.", "ai");
     }
 }
 
