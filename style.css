@@ -570,3 +570,50 @@ body {
     box-shadow: 0 0 12px #ff1a1a;
     transition: width linear;
 }
+/* ============================================================
+   LEOCORE — NEON STREAMING CURSOR SYSTEM
+============================================================ */
+
+/* Container for streamed text */
+.ai-streaming {
+    position: relative;
+    display: inline-block;
+    white-space: pre-wrap;
+    line-height: 1.45;
+}
+
+/* Neon cursor */
+.neon-cursor {
+    position: absolute;
+    right: -8px;
+    bottom: 0;
+    width: 6px;
+    height: 18px;
+    background: #00eaff;
+    border-radius: 2px;
+    box-shadow: 0 0 12px #00eaff, 0 0 22px #9400ff;
+    animation: cursorBlink 0.7s infinite alternate ease-in-out;
+}
+
+@keyframes cursorBlink {
+    0% { opacity: 1; }
+    100% { opacity: 0.2; }
+}
+
+/* Cursor dissolve effect when message ends */
+.neon-cursor.fade-out {
+    animation: cursorFade 0.35s forwards ease;
+}
+
+@keyframes cursorFade {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 0 14px #00eaff;
+    }
+    100% {
+        transform: scale(2.4);
+        opacity: 0;
+        box-shadow: 0 0 40px #9400ff;
+    }
+}
