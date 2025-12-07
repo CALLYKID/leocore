@@ -228,6 +228,18 @@ window.addEventListener("DOMContentLoaded", () => {
    CLEAR BUTTON — PREMIUM HOLD-TO-RESET SYSTEM
 ============================================================ */
 if (clearBtn) {
+   // SINGLE TAP = normal clear messages ONLY
+clearBtn.addEventListener("click", () => {
+    if (holdTriggered) return; // Ignore if long-press already activated
+
+    messages.style.opacity = 0;
+
+    setTimeout(() => {
+        messages.innerHTML = "";
+        localStorage.removeItem("leocore-chat");
+        messages.style.opacity = 1;
+    }, 200);
+});
     let holdTimer = null;
     let holdTriggered = false;
 
