@@ -25,8 +25,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       USER ID + LOCAL MEMORY
-       (Backend handles ALL logic, frontend only stores userId)
+       USER ID + LOCAL STORAGE
     ============================================================*/
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
@@ -36,15 +35,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let savedName = localStorage.getItem("leocore-name") || null;
 
-    // Restore chat history
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
 
-
-    /* ============================================================
-       SAVE CHAT
-    ============================================================*/
     function saveChat() {
         const arr = [];
         document.querySelectorAll(".user-msg, .ai-msg").forEach(m => {
@@ -57,7 +51,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-
     /* ============================================================
        AUTO SCROLL
     ============================================================*/
@@ -68,9 +61,8 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
 
-
     /* ============================================================
-       AUTO-TYPING HERO PLACEHOLDER
+       HERO AUTO-TYPE
     ============================================================*/
     const prompts = [
         "Message Leocore…",
@@ -84,12 +76,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function typeAnimation() {
         const cur = prompts[promptIndex];
-
         if (!deleting) {
             fakeText.innerText = cur.substring(0, charIndex++);
             if (charIndex > cur.length) {
                 deleting = true;
-                setTimeout(typeAnimation, 900);
+                setTimeout(typeAnimation, 900); 
                 return;
             }
         } else {
@@ -102,20 +93,6 @@ window.addEventListener("DOMContentLoaded", () => {
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
-
-
-
-    /* ============================================================
-       OPEN / CLOSE CHAT
-    ============================================================*/
-    fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-    });
-
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
-
 
 
     /* ============================================================
@@ -131,133 +108,99 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
-    function addTypingBubble() {
-        const wrap = document.createElement("div");
-        wrap.className = "typing-bubble";
-        wrap.innerHTML = `
-            <span class='dot d1'></span>
-            <span class='dot d2'></span>
-            <span class='dot d3'></span>
-        `;
-        messages.appendChild(wrap);
+    function createBootBubble() {
+        const div = document.createElement("div");
+        div.className = "ai-msg booting-msg";
+        div.innerText = "…";
+        messages.appendChild(div);
+
+        setTimeout(() => div.classList.add("show"), 20);
         scrollToBottom();
-        return wrap;
+        return div;
     }
 
-function addBootBubble(text) {
-    const div = document.createElement("div");
-    div.className = "boot-bubble";
-    div.innerText = text;
-
-    messages.appendChild(div);
-    scrollToBottom();
-
-    // fade-in animation
-    setTimeout(() => {
-        div.classList.add("show");
-    }, 20);
-
-    return div;
-}
-
-function removeAllBootBubbles() {
-    document.querySelectorAll(".boot-bubble").forEach(b => b.remove());
-}
 
     /* ============================================================
-   SEND MESSAGE — Deluxe Boot Animation Edition
-============================================================ */
-async function sendMessage() {
-    const text = input.value.trim();
-    if (!text) return;
+       SEND MESSAGE — AI BOOT ANIMATION V3
+    ============================================================*/
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
 
-    addMessage(text, "user");
-    input.value = "";
+        addMessage(text, "user");
+        input.value = "";
 
-    const start = performance.now();
+        const start = performance.now();
 
-    // Typing bubble while waiting for AI
-    const loader = addTypingBubble();
+        let bootBubble = null;
+        let bootInterval = null;
+        let bootStarted = false;
 
-    // ============================================================
-    // BOOT-UP ANIMATION SYSTEM
-    // ============================================================
+        const bootLines = [
+            "🧠 Booting core systems…",
+            "🔌 Reconnecting neural mesh…",
+            "⚡ Spinning up processing clusters…",
+            "📡 Syncing memory banks…",
+            "🔍 Scanning request… hold on…",
+            "🤖 Warming up response engine…"
+        ];
 
-    // Animated boot lines
-    const bootLines = [
-        "🧠 Booting thought engine… don't judge the startup speed…",
-        "🛰️ Gathering leftover data particles… everything’s scattered 💀",
-        "🔧 Stabilising processors… someone unplugged my neurons",
-        "⏳ Loading… nearly cooked… don’t swipe away yet",
-        "🤖 Hold up… I'm waking up my brain cells…"
-    ];
+        let bootIndex = 0;
 
-    let bootIndex = 0;
-    let bootBubbleInterval = null;
-    let bootStarted = false;
+        // Delay before showing loader (5 seconds)
+        const bootDelay = setTimeout(() => {
+            bootStarted = true;
+            bootBubble = createBootBubble();
 
-    // Wait 5 seconds BEFORE showing any boot animation
-    const bootDelay = setTimeout(() => {
-        bootStarted = true;
+            bootInterval = setInterval(() => {
+                if (!bootBubble) return;
+                bootBubble.innerText = bootLines[bootIndex % bootLines.length];
+                bootIndex++;
+                scrollToBottom();
+            }, 1200);
 
-        bootBubbleInterval = setInterval(() => {
-            if (bootIndex >= bootLines.length) return;
-
-            addBootBubble(bootLines[bootIndex]);
-            bootIndex++;
-
-        }, 1200); // animation speed for each bubble
-    }, 5000);
+        }, 5000);
 
 
+        try {
+            const res = await fetch("https://leocore.onrender.com/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: text,
+                    userId: userId,
+                    name: savedName
+                })
+            });
 
-    // ============================================================
-    // SEND TO BACKEND
-    // ============================================================
-    try {
-        const res = await fetch("https://leocore.onrender.com/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: text,
-                userId: userId,
-                name: savedName
-            })
-        });
+            const data = await res.json();
 
-        const data = await res.json();
+            const minTime = 600;
+            const elapsed = performance.now() - start;
+            if (elapsed < minTime) {
+                await new Promise(r => setTimeout(r, minTime - elapsed));
+            }
 
-        // Smooth minimum delay
-        const minTime = 600;
-        const elapsed = performance.now() - start;
-        if (elapsed < minTime) {
-            await new Promise(r => setTimeout(r, minTime - elapsed));
+            clearTimeout(bootDelay);
+            clearInterval(bootInterval);
+
+            if (bootBubble) bootBubble.remove();
+
+            addMessage(data.reply || "No response received.", "ai");
+
+            if (data.newName) {
+                savedName = data.newName;
+                localStorage.setItem("leocore-name", savedName);
+            }
+
+        } catch (err) {
+            clearTimeout(bootDelay);
+            clearInterval(bootInterval);
+            if (bootBubble) bootBubble.remove();
+
+            addMessage("⚠️ Network error. Backend is still waking up.", "ai");
         }
-
-        // STOP all boot animations
-        clearTimeout(bootDelay);
-        clearInterval(bootBubbleInterval);
-
-        removeAllBootBubbles();
-        loader.remove();
-
-        addMessage(data.reply || "No response received.", "ai");
-
-        if (data.newName) {
-            savedName = data.newName;
-            localStorage.setItem("leocore-name", savedName);
-        }
-
-    } catch (err) {
-        clearTimeout(bootDelay);
-        clearInterval(bootBubbleInterval);
-
-        removeAllBootBubbles();
-        loader.remove();
-
-        addMessage("⚠️ Network error. Backend is still waking up.", "ai");
     }
-}
 
 
     sendBtn.addEventListener("click", sendMessage);
@@ -266,21 +209,17 @@ async function sendMessage() {
     });
 
 
-
     /* ============================================================
-       CLEAR BUTTON — TAP = CLEAR CHAT, HOLD 3s = WIPE EVERYTHING
+       CLEAR BUTTON — TAP = CLEAR CHAT, HOLD = WIPE ALL
     ============================================================*/
     if (clearBtn) {
 
         let holdTimer = null;
         let holdTriggered = false;
 
-        // TAP = clear chat only
         clearBtn.addEventListener("click", () => {
             if (holdTriggered) return;
-
             messages.classList.add("chat-fade-out");
-
             setTimeout(() => {
                 messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
@@ -288,11 +227,9 @@ async function sendMessage() {
             }, 350);
         });
 
-        // HOLD start
         clearBtn.addEventListener("mousedown", startHold);
         clearBtn.addEventListener("touchstart", startHold);
 
-        // HOLD cancel
         clearBtn.addEventListener("mouseup", cancelHold);
         clearBtn.addEventListener("mouseleave", cancelHold);
         clearBtn.addEventListener("touchend", cancelHold);
@@ -300,10 +237,8 @@ async function sendMessage() {
 
         function startHold(e) {
             holdTriggered = false;
-
             holdTimer = setTimeout(() => {
                 holdTriggered = true;
-
                 const flash = document.createElement("div");
                 flash.className = "full-wipe-flash";
                 document.body.appendChild(flash);
@@ -324,6 +259,7 @@ async function sendMessage() {
                 holdTimer = null;
             }
         }
+
     }
 
 });
