@@ -8,6 +8,7 @@
     <!-- GOOGLE FONTS -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 
+    <!-- MAIN STYLE -->
     <link rel="stylesheet" href="style.css">
 
     <!-- GOOGLE ANALYTICS -->
@@ -29,18 +30,19 @@
     <video id="bgVideo" autoplay muted loop playsinline>
         <source src="waves.mp4" type="video/mp4">
     </video>
+
     <div class="overlay"></div>
 
-    <!-- CENTER HERO CONTENT -->
-    <div class="chat-header">
-    <button class="back-btn" id="closeChat" aria-label="Close chat">←</button>
+    <!-- HERO SECTION -->
+    <div class="center-wrapper fade-in">
 
-    <span class="chat-title">LEOCORE</span>
+        <div class="fake-input fade-in" id="fakeInput" onclick="openChat()" role="button" aria-label="Open LeoCore chat">
+            <span class="fake-text" id="fakeText"></span>
+        </div>
 
-    <button class="clear-btn" id="clearChat" aria-label="Clear chat history">
-        <span class="clear-icon">🗑</span> Clear
-    </button>
-</div>
+        <h1 class="main-title fade-in delay-1">LEOCORE</h1>
+        <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
+    </div>
 
     <!-- INFO SECTION -->
     <div class="info-section fade-in delay-3">
@@ -64,19 +66,23 @@
     <!-- CHAT SCREEN -->
     <div class="chat-screen" id="chatScreen">
 
+        <!-- CHAT HEADER -->
         <div class="chat-header">
-            <button class="clear-btn" id="clearChat" aria-label="Clear chat history">
-    <span class="clear-icon">🗑</span> Clear
-</button>
+
+            <button class="back-btn" id="closeChat" aria-label="Close chat">←</button>
+
             <span class="chat-title">LEOCORE</span>
+
             <button class="clear-btn" id="clearChat" aria-label="Clear chat history">
-    <span class="clear-icon">🗑</span> Clear
+                <span class="clear-icon">🗑</span> Clear
             </button>
+
         </div>
 
+        <!-- CHAT MESSAGES -->
         <div class="chat-messages" id="messages"></div>
 
-        <!-- INPUT AREA -->
+        <!-- INPUT BAR -->
         <div class="chat-input-area">
 
             <label class="sr-only" for="userInput">Type your message</label>
@@ -91,6 +97,7 @@
         </div>
     </div>
 
+    <!-- UI SCRIPTS -->
     <script>
         function openChat() {
             document.getElementById("chatScreen").classList.add("active");
