@@ -2,7 +2,7 @@
    GLOBAL FIXES
 ============================================================ */
 
-/* Remove blue tap highlight */
+/* Remove blue tap flash */
 * {
     -webkit-tap-highlight-color: transparent !important;
     margin: 0;
@@ -23,13 +23,11 @@ body {
     opacity: 0;
     animation: siteFadeIn 0.7s ease forwards;
 }
-
 @keyframes siteFadeIn { to { opacity: 1; } }
 
 /* ============================================================
    BACKGROUND VIDEO
 ============================================================ */
-
 #bgVideo {
     position: fixed;
     inset: 0;
@@ -37,7 +35,7 @@ body {
     height: 100%;
     object-fit: cover;
     z-index: -10;
-    pointer-events: none !important;
+    pointer-events: none;
 }
 
 .overlay {
@@ -45,17 +43,16 @@ body {
     inset: 0;
     background: rgba(0,0,40,0.35);
     z-index: -5;
-    pointer-events: none !important;
 }
 
 /* ============================================================
-   HERO SECTION
+   HERO SECTION — CLEAN LAYOUT
 ============================================================ */
 
 .center-wrapper {
     width: 100%;
-    padding-top: 22vh;
-    padding-bottom: 18vh;
+    padding-top: 18vh;       /* cleaned spacing */
+    padding-bottom: 10vh;    /* cleaned spacing */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -66,7 +63,7 @@ body {
     width: 85vw;
     max-width: 600px;
     height: 62px;
-    margin: 0 auto 35px;
+    margin-bottom: 32px;
     background: rgba(255,255,255,0.12);
     border: 2px solid rgba(0,200,255,0.8);
     border-radius: 18px;
@@ -79,7 +76,6 @@ body {
     opacity: 0;
     animation: heroFade 1s ease forwards;
 }
-
 @keyframes heroFade { to { opacity: 1; } }
 
 .fake-text {
@@ -105,31 +101,45 @@ body {
 }
 
 /* ============================================================
-   INFO CARD
+   INFO CARD — CLEAN SPACING
 ============================================================ */
 
 .info-section {
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-top: 5vh;
+    padding-top: 6vh; /* reduced spacing */
 }
 
 .info-card {
     width: 85%;
     max-width: 650px;
-    padding: 28px;
-    border-radius: 20px;
+    padding: 26px;
+    border-radius: 22px;
     background: rgba(255,255,255,0.08);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.15);
     box-shadow: 0 0 25px rgba(0,180,255,0.25);
     text-align: center;
     opacity: 0;
-    animation: cardAppear 0.9s ease 0.5s forwards;
+    animation: cardAppear 0.9s ease 0.45s forwards;
+}
+@keyframes cardAppear { to { opacity: 1; } }
+
+.info-card p {
+    margin-top: 8px;
+    font-size: 17px;
+    line-height: 1.45;
 }
 
-@keyframes cardAppear { to { opacity: 1; } }
+.features {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    font-size: 16px;
+    opacity: 0.85;
+}
 
 /* ============================================================
    CHAT SCREEN
@@ -145,7 +155,6 @@ body {
     z-index: 20;
     opacity: 0;
 }
-
 .chat-screen.active {
     display: flex;
     opacity: 1;
@@ -176,7 +185,6 @@ body {
     font-size: 20px;
     cursor: pointer;
 }
-
 .back-btn:hover {
     background: rgba(0,255,255,0.25);
     box-shadow: 0 0 12px rgba(0,255,255,0.65);
@@ -185,8 +193,8 @@ body {
 .chat-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 22px;
-    letter-spacing: 1.5px;
     font-weight: 700;
+    letter-spacing: 1.5px;
     background: linear-gradient(90deg, #00eaff, #9d4bff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -214,7 +222,7 @@ body {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
 .ai-msg, .user-msg {
@@ -222,13 +230,13 @@ body {
     display: flex;
 }
 
-.ai-msg .bubble,
-.user-msg .bubble {
+.bubble {
     max-width: 92%;
     padding: 14px 18px;
     border-radius: 14px;
     font-size: 16px;
     line-height: 1.48;
+    white-space: pre-wrap;
 }
 
 .ai-msg { justify-content: flex-start; }
@@ -236,13 +244,13 @@ body {
 
 .ai-msg .bubble {
     background: #222b45;
-    color: white;
+    color: #fff;
     border-radius: 14px 14px 14px 6px;
 }
 
 .user-msg .bubble {
     background: #008cff;
-    color: white;
+    color: #fff;
     border-radius: 14px 14px 6px 14px;
 }
 
@@ -266,14 +274,13 @@ body {
     border: 2px solid rgba(0,200,255,0.35);
     border-radius: 16px;
     font-size: 16px;
-    color: white;
+    color: #fff;
 }
 
 .chat-input-area input:focus {
     border-color: #00eaff;
     animation: inputPulse 1.8s infinite ease-out;
 }
-
 @keyframes inputPulse { 50% { box-shadow: 0 0 22px #00eaff; } }
 
 #sendBtn {
@@ -282,7 +289,7 @@ body {
     border: none;
     border-radius: 16px;
     background: radial-gradient(circle, #00eaff, #0088ff);
-    color: white;
+    color: #fff;
     font-size: 18px;
     display: flex;
     align-items: center;
@@ -292,13 +299,12 @@ body {
 }
 
 /* ============================================================
-   TYPING SPIRAL — RESTORED PERFECT VERSION
+   SPIRAL TYPING INDICATOR — PERFECT VERSION
 ============================================================ */
 
 .typing-holder {
     display: flex !important;
     align-items: center !important;
-    justify-content: flex-start !important;
     background: none !important;
     padding: 0 !important;
     margin: 0 !important;
@@ -329,7 +335,7 @@ body {
 @keyframes coreBeat {
     0% { transform: scale(0.8); opacity: .6; }
     50% { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(0.8); opacity:.6; }
+    100% { transform: scale(0.8); opacity: .6; }
 }
 
 .orbit {
@@ -340,14 +346,11 @@ body {
     border-radius: 50%;
     box-shadow: 0 0 8px #00eaff;
     animation: orbitSpin 2.6s linear infinite;
-    opacity: 0.9;
 }
-
 @keyframes orbitSpin {
     0% { transform: rotate(0deg) translateX(18px); }
     100% { transform: rotate(360deg) translateX(18px); }
 }
-
 .o2 { animation-delay: .35s; }
 .o3 { animation-delay: .7s; }
 
@@ -358,7 +361,6 @@ body {
 .ai-streaming {
     position: relative;
     display: inline-block;
-    white-space: pre-wrap;
     line-height: 1.45;
 }
 
@@ -372,19 +374,18 @@ body {
     border-radius: 2px;
     animation: cursorBlink 0.7s infinite alternate ease-in-out;
 }
-
-@keyframes cursorBlink { 100% { opacity: 0.2; } }
+@keyframes cursorBlink { 100% { opacity: 0.25; } }
 
 .neon-cursor.fade-out {
     animation: cursorFade 0.35s forwards ease;
 }
-
 @keyframes cursorFade {
     0% { transform: scale(1); opacity: 1; }
     100% { transform: scale(2.4); opacity: 0; }
 }
+
 /* ============================================================
-   RESTORED PREMIUM DELETE SYSTEM (FULL WORKING VERSION)
+   PREMIUM DELETE SYSTEM — FULLY RESTORED
 ============================================================ */
 
 .clear-status {
@@ -394,24 +395,19 @@ body {
     transform: translateX(-50%);
     width: 260px;
     text-align: center;
-    z-index: 99999;
     opacity: 0;
+    z-index: 999999;
     transition: opacity 0.25s ease;
 }
 
 .clear-status-text {
     font-size: 16px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 10px 0;
     color: #ff9c9c;
     animation: textFade 1.2s infinite ease-in-out;
 }
+@keyframes textFade { 50% { opacity: .55; } }
 
-@keyframes textFade {
-    50% { opacity: 0.55; }
-}
-
-/* ===== Spiral loader ===== */
 .clear-spiral {
     width: 26px;
     height: 26px;
@@ -420,23 +416,21 @@ body {
 }
 
 .clear-spiral .dot {
-    position: absolute;
     width: 7px;
     height: 7px;
     background: #ff5b5b;
+    position: absolute;
     border-radius: 50%;
     animation: spiralSpin 1.4s linear infinite;
 }
-
-.clear-spiral .d2 { animation-delay: 0.2s; }
-.clear-spiral .d3 { animation-delay: 0.4s; }
+.clear-spiral .d2 { animation-delay: .2s; }
+.clear-spiral .d3 { animation-delay: .4s; }
 
 @keyframes spiralSpin {
     0% { transform: rotate(0deg) translateX(10px); }
     100% { transform: rotate(360deg) translateX(10px); }
 }
 
-/* ===== Progress Bar ===== */
 .clear-progress {
     width: 100%;
     height: 10px;
@@ -448,28 +442,28 @@ body {
 }
 
 .clear-progress-fill {
-    height: 100%;
     width: 0%;
+    height: 100%;
     background: #ff3b3b;
     box-shadow: 0 0 12px #ff1a1a;
     transition: width linear;
 }
 
-/* ===== Screen Pulse ===== */
+/* PULSE */
 .fullscreen-pulse {
     position: fixed;
     inset: 0;
     background: rgba(255,0,0,0.18);
-    pointer-events: none;
     animation: pulseFlash 0.35s ease-out forwards;
-    z-index: 9999;
+    pointer-events: none;
+    z-index: 99999;
+}
+@keyframes pulseFlash {
+    0% { opacity: .2; }
+    100% { opacity: 1; }
 }
 
-@keyframes pulseFlash {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-/* HOLDING STATE — overheating glow */
+/* Holding glow */
 .clear-btn.holding {
     background: rgba(255, 0, 0, 0.25) !important;
     border-color: rgba(255, 60, 60, 0.8) !important;
@@ -477,6 +471,5 @@ body {
         0 0 12px rgba(255, 40, 40, 0.7),
         0 0 22px rgba(255, 0, 0, 0.8),
         inset 0 0 12px rgba(255, 80, 80, 0.6);
-    transform: scale(1.05);
-    transition: 0.2s ease;
+    transform: scale(1.04);
 }
