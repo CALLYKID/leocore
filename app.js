@@ -57,6 +57,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 20);
     }
 
+
     /* ============================================================
        HERO AUTO-TYPE
     ============================================================*/
@@ -90,6 +91,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
+
     /* ============================================================
        MESSAGE HELPERS
     ============================================================*/
@@ -108,15 +110,10 @@ window.addEventListener("DOMContentLoaded", () => {
         div.className = "ai-msg booting-msg";
         div.innerText = "…";
         messages.appendChild(div);
-
-        setTimeout(() => div.classList.add("show"), 20);
         scrollToBottom();
         return div;
     }
 
-    /* ============================================================
-       NEW SPIRAL TYPING BUBBLE
-    ============================================================ */
     function createTypingBubble() {
         const div = document.createElement("div");
         div.className = "typing-holder";
@@ -135,8 +132,51 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
+
     /* ============================================================
-       SEND MESSAGE — FAKE STREAMING VERSION
+       STREAMING EFFECT — THE MAGIC
+    ============================================================*/
+    function fakeStream(message) {
+        return new Promise(resolve => {
+            const container = document.createElement("div");
+            container.className = "ai-msg";
+
+            const streamBox = document.createElement("span");
+            streamBox.className = "ai-streaming";
+            streamBox.innerText = "";
+
+            const cursor = document.createElement("span");
+            cursor.className = "neon-cursor";
+
+            container.appendChild(streamBox);
+            container.appendChild(cursor);
+
+            messages.appendChild(container);
+            scrollToBottom();
+
+            let i = 0;
+
+            function typeNext() {
+                if (i < message.length) {
+                    streamBox.innerText += message[i];
+                    i++;
+                    scrollToBottom();
+                    setTimeout(typeNext, 18); // speed
+                } else {
+                    cursor.classList.add("fade-out");
+                    setTimeout(() => cursor.remove(), 350);
+                    saveChat();
+                    resolve();
+                }
+            }
+
+            typeNext();
+        });
+    }
+
+
+    /* ============================================================
+       SEND MESSAGE — WITH STREAMING
     ============================================================*/
     async function sendMessage() {
         const text = input.value.trim();
@@ -147,10 +187,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const start = performance.now();
 
-        // typing animation
         let typingBubble = createTypingBubble();
-
-        // boot bubble
         let bootBubble = null;
         let bootInterval = null;
 
@@ -198,45 +235,18 @@ window.addEventListener("DOMContentLoaded", () => {
             if (typingBubble) typingBubble.remove();
             if (bootBubble) bootBubble.remove();
 
-            /* ============================================================
-               FAKE STREAMING ILLUSION
-            ============================================================*/
-            const full = data.reply || "No response received.";
-            let shown = "";
-            const bubble = addMessage(" ", "ai"); // blank bubble to fill
-
-            let i = 0;
-            const speed = 15; // lower = faster
-
-            function stream() {
-                if (i < full.length) {
-                    shown += full[i];
-                    bubble.innerText = shown;
-                    i++;
-                    scrollToBottom();
-                    setTimeout(stream, speed);
-                } else {
-                    saveChat();
-                }
-            }
-
-            stream();
-
-            if (data.newName) {
-                savedName = data.newName;
-                localStorage.setItem("leocore-name", savedName);
-            }
+            await fakeStream(data.reply || "No response received.");
 
         } catch (err) {
             clearTimeout(bootDelay);
             clearInterval(bootInterval);
-
             if (typingBubble) typingBubble.remove();
             if (bootBubble) bootBubble.remove();
 
             addMessage("⚠️ Network error. Backend is still waking up.", "ai");
         }
     }
+
 
     /* ============================================================
        BUTTON + INPUT EVENTS
@@ -246,25 +256,29 @@ window.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Enter") sendMessage();
     });
 
+
     /* ============================================================
-       GLOBAL KEEP-ALIVE REQUEST
+       KEEPALIVE — every 10 minutes
     ============================================================*/
     setInterval(() => {
         fetch("https://leocore.onrender.com/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: "__ping__", userId: "system-keepalive" })
+            body: JSON.stringify({ message: "__ping__", userId: "system-pinger" })
         }).catch(()=>{});
-    }, 600000); // 10 minutes
+    }, 600000);
+
 
     /* ============================================================
-       CLEAR BUTTON — PREMIUM HOLD-TO-RESET SYSTEM
+       CLEAR BUTTON — SINGLE TAP + PREMIUM HOLD RESET
     ============================================================*/
     if (clearBtn) {
+
         clearBtn.addEventListener("click", () => {
             if (holdTriggered) return;
 
             messages.style.opacity = 0;
+
             setTimeout(() => {
                 messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
@@ -362,6 +376,7 @@ window.addEventListener("DOMContentLoaded", () => {
         clearBtn.addEventListener("contextmenu", e => e.preventDefault());
         clearBtn.addEventListener("selectstart", e => e.preventDefault());
     }
+
 
     /* ============================================================
        OPEN CHAT
