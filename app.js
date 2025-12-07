@@ -147,52 +147,78 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SEND MESSAGE — FULLY BACKEND CONTROLLED
-    ============================================================*/
-    async function sendMessage() {
-        const text = input.value.trim();
-        if (!text) return;
+   SEND MESSAGE — with Progressive Boot Lines
+============================================================ */
+async function sendMessage() {
+    const text = input.value.trim();
+    if (!text) return;
 
-        addMessage(text, "user");
-        input.value = "";
+    addMessage(text, "user");
+    input.value = "";
 
-        const loader = addTypingBubble();
-        const start = performance.now();
+    const loader = addTypingBubble();
+    const start = performance.now();
 
-        try {
-            const res = await fetch("https://leocore.onrender.com/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: text,
-                    userId: userId,
-                    name: savedName
-                })
-            });
+    // BOOT LINES (Gen-Z + Chaotic Energy)
+    const bootLines = [
+        "🤖 Hold up… I'm waking up my brain cells…",
+        "🧠 Booting thought engine… don't judge the startup speed…",
+        "📡 Gathering leftover data particles… everything’s scattered 💀",
+        "🔧 Stabilising processors… someone unplugged my neurons",
+        "⏳ Loading… nearly cooked… don’t swipe away yet",
+        "🥽 Recalibrating questionable logic modules…",
+        "🤯 Bro who designed this boot time… oh wait, Leo did.",
+        "⚡ Systems ready — cooking your answer 🔥"
+    ];
 
-            const data = await res.json();
+    let bootIndex = 0;
+    let bootInterval = null;
 
-            // Smooth UX delay
-            const minTime = 500;
-            const elapsed = performance.now() - start;
-            if (elapsed < minTime) {
-                await new Promise(r => setTimeout(r, minTime - elapsed));
-            }
-
-            loader.remove();
-
-            addMessage(data.reply || "No response received.", "ai");
-
-            if (data.newName) {
-                savedName = data.newName;
-                localStorage.setItem("leocore-name", savedName);
-            }
-
-        } catch (err) {
-            loader.remove();
-            addMessage("⚠️ Network error.", "ai");
+    // Start progressive boot messages
+    bootInterval = setInterval(() => {
+        if (bootIndex < bootLines.length) {
+            addMessage(bootLines[bootIndex], "ai");
+            bootIndex++;
         }
+    }, 700); // every 0.7 sec a new boot message appears
+
+
+    try {
+        const res = await fetch("https://leocore.onrender.com/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message: text,
+                userId: userId,
+                name: savedName
+            })
+        });
+
+        const data = await res.json();
+
+        // Smooth UX
+        const minTime = 500;
+        const elapsed = performance.now() - start;
+        if (elapsed < minTime) {
+            await new Promise(r => setTimeout(r, minTime - elapsed));
+        }
+
+        clearInterval(bootInterval);
+        loader.remove();
+
+        addMessage(data.reply || "No response received.", "ai");
+
+        if (data.newName) {
+            savedName = data.newName;
+            localStorage.setItem("leocore-name", savedName);
+        }
+
+    } catch (err) {
+        clearInterval(bootInterval);
+        loader.remove();
+        addMessage("⚠️ Network error. Server might be cold starting.", "ai");
     }
+}
 
 
     sendBtn.addEventListener("click", sendMessage);
