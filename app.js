@@ -57,7 +57,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 20);
     }
 
-
     /* ============================================================
        HERO AUTO-TYPE
     ============================================================*/
@@ -91,7 +90,6 @@ window.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
-
     /* ============================================================
        MESSAGE HELPERS
     ============================================================*/
@@ -110,10 +108,15 @@ window.addEventListener("DOMContentLoaded", () => {
         div.className = "ai-msg booting-msg";
         div.innerText = "…";
         messages.appendChild(div);
+
+        setTimeout(() => div.classList.add("show"), 20);
         scrollToBottom();
         return div;
     }
 
+    /* ============================================================
+       NEW SPIRAL TYPING BUBBLE
+    ============================================================ */
     function createTypingBubble() {
         const div = document.createElement("div");
         div.className = "typing-holder";
@@ -132,51 +135,41 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
-
     /* ============================================================
-       STREAMING EFFECT — THE MAGIC
+       FAKE STREAMING FUNCTION
     ============================================================*/
-    function fakeStream(message) {
-        return new Promise(resolve => {
-            const container = document.createElement("div");
-            container.className = "ai-msg";
+    async function typeStreamEffect(fullText) {
+        let bubble = addMessage("", "ai");  // empty bubble to start
 
-            const streamBox = document.createElement("span");
-            streamBox.className = "ai-streaming";
-            streamBox.innerText = "";
+        let i = 0;
+        let cursorOn = true;
 
-            const cursor = document.createElement("span");
-            cursor.className = "neon-cursor";
+        // blinking cursor animation
+        const cursorInterval = setInterval(() => {
+            cursorOn = !cursorOn;
+            bubble.innerHTML = bubble.innerText + (cursorOn ? "│" : "");
+        }, 350);
 
-            container.appendChild(streamBox);
-            container.appendChild(cursor);
+        while (i < fullText.length) {
+            let speed = 13 + Math.random() * 28;
 
-            messages.appendChild(container);
+            const ch = fullText[i];
+            if (".,!?:;".includes(ch)) speed += 120;
+
+            bubble.innerText = fullText.substring(0, i + 1);
             scrollToBottom();
+            i++;
 
-            let i = 0;
+            await new Promise(r => setTimeout(r, speed));
+        }
 
-            function typeNext() {
-                if (i < message.length) {
-                    streamBox.innerText += message[i];
-                    i++;
-                    scrollToBottom();
-                    setTimeout(typeNext, 18); // speed
-                } else {
-                    cursor.classList.add("fade-out");
-                    setTimeout(() => cursor.remove(), 350);
-                    saveChat();
-                    resolve();
-                }
-            }
-
-            typeNext();
-        });
+        clearInterval(cursorInterval);
+        bubble.innerText = fullText; // final clean text
+        saveChat();
     }
 
-
     /* ============================================================
-       SEND MESSAGE — WITH STREAMING
+       SEND MESSAGE — FINAL VERSION WITH STREAMING
     ============================================================*/
     async function sendMessage() {
         const text = input.value.trim();
@@ -235,18 +228,28 @@ window.addEventListener("DOMContentLoaded", () => {
             if (typingBubble) typingBubble.remove();
             if (bootBubble) bootBubble.remove();
 
-            await fakeStream(data.reply || "No response received.");
+            // STREAM IF LONGER THAN 35 CHARS
+            if (data.reply && data.reply.length > 35) {
+                await typeStreamEffect(data.reply);
+            } else {
+                addMessage(data.reply || "No response received.", "ai");
+            }
+
+            if (data.newName) {
+                savedName = data.newName;
+                localStorage.setItem("leocore-name", savedName);
+            }
 
         } catch (err) {
             clearTimeout(bootDelay);
             clearInterval(bootInterval);
+
             if (typingBubble) typingBubble.remove();
             if (bootBubble) bootBubble.remove();
 
             addMessage("⚠️ Network error. Backend is still waking up.", "ai");
         }
     }
-
 
     /* ============================================================
        BUTTON + INPUT EVENTS
@@ -256,10 +259,7 @@ window.addEventListener("DOMContentLoaded", () => {
         if (e.key === "Enter") sendMessage();
     });
 
-
-    /* ============================================================
-       KEEPALIVE — every 10 minutes
-    ============================================================*/
+    /* KEEPALIVE TO STOP RENDER SLEEP */
     setInterval(() => {
         fetch("https://leocore.onrender.com/api/chat", {
             method: "POST",
@@ -268,15 +268,12 @@ window.addEventListener("DOMContentLoaded", () => {
         }).catch(()=>{});
     }, 600000);
 
-
     /* ============================================================
-       CLEAR BUTTON — SINGLE TAP + PREMIUM HOLD RESET
+       PREMIUM HOLD-TO-RESET SYSTEM  (UNCHANGED)
     ============================================================*/
     if (clearBtn) {
-
         clearBtn.addEventListener("click", () => {
             if (holdTriggered) return;
-
             messages.style.opacity = 0;
 
             setTimeout(() => {
@@ -377,9 +374,8 @@ window.addEventListener("DOMContentLoaded", () => {
         clearBtn.addEventListener("selectstart", e => e.preventDefault());
     }
 
-
     /* ============================================================
-       OPEN CHAT
+       OPEN + CLOSE CHAT
     ============================================================*/
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
@@ -391,9 +387,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 10);
     });
 
-    /* ============================================================
-       CLOSE CHAT
-    ============================================================*/
     closeChat.addEventListener("click", () => {
         chatScreen.style.transition = "opacity 0.25s ease";
         chatScreen.style.opacity = "0";
