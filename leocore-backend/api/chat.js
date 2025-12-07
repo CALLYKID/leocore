@@ -1,286 +1,121 @@
-/* ============================================================
-   ERROR POPUP (DEV MODE)
-============================================================ */
-window.onerror = function (msg, src, line, col, err) {
-    document.body.innerHTML +=
-        "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" +
-        msg + "<br>Line: " + line + "</div>";
-};
+import fetch from "node-fetch";
 
+// In-memory conversation memory (per userId)
+// If Render restarts, this resets — but it works perfectly for live sessions.
+const userMemory = {};
 
-/* ============================================================
-   MAIN APP
-============================================================ */
-window.addEventListener("DOMContentLoaded", () => {
+export default async function chatHandler(req, res) {
+    try {
+        const { message, userId, name } = req.body;
 
-    /* ------------------ SELECTORS ------------------ */
-    const chatScreen = document.getElementById("chatScreen");
-    const closeChat = document.getElementById("closeChat");
-    const messages = document.getElementById("messages");
-    const input = document.getElementById("userInput");
-    const sendBtn = document.getElementById("sendBtn");
-    const clearBtn = document.getElementById("clearChat");
-    const fakeInput = document.getElementById("fakeInput");
-    const fakeText = document.getElementById("fakeText");
-
-    let startupShown = false;
-
-
-    /* ============================================================
-       USER ID + LOCAL MEMORY
-    ============================================================*/
-    let userId = localStorage.getItem("leocore-user");
-    if (!userId) {
-        userId = "user-" + Math.random().toString(36).slice(2);
-        localStorage.setItem("leocore-user", userId);
-    }
-
-    let savedName = localStorage.getItem("leocore-name") || null;
-
-    let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
-    savedChat.forEach(msg => addMessage(msg.text, msg.sender));
-
-
-    /* ============================================================
-       SAVE CHAT
-    ============================================================*/
-    function saveChat() {
-        const arr = [];
-        document.querySelectorAll(".user-msg, .ai-msg").forEach(m => {
-            arr.push({
-                text: m.innerText,
-                sender: m.classList.contains("user-msg") ? "user" : "ai"
-            });
-        });
-        localStorage.setItem("leocore-chat", JSON.stringify(arr));
-    }
-
-
-    /* ============================================================
-       AUTO SCROLL
-    ============================================================*/
-    function scrollToBottom() {
-        setTimeout(() => {
-            messages.scrollTop = messages.scrollHeight;
-        }, 20);
-    }
-
-
-    /* ============================================================
-       HERO PLACEHOLDER ANIMATION
-    ============================================================*/
-    const prompts = [
-        "Message Leocore…",
-        "Give me a summer plan.",
-        "Create a menu for me.",
-        "Give me a funny quote.",
-        "Help me with homework."
-    ];
-
-    let promptIndex = 0, charIndex = 0, deleting = false;
-
-    function typeAnimation() {
-        const cur = prompts[promptIndex];
-
-        if (!deleting) {
-            fakeText.innerText = cur.substring(0, charIndex++);
-            if (charIndex > cur.length) {
-                deleting = true;
-                setTimeout(typeAnimation, 900);
-                return;
-            }
-        } else {
-            fakeText.innerText = cur.substring(0, charIndex--);
-            if (charIndex < 0) {
-                deleting = false;
-                promptIndex = (promptIndex + 1) % prompts.length;
-            }
+        if (!message || !userId) {
+            return res.status(400).json({ reply: "Invalid request." });
         }
 
-        setTimeout(typeAnimation, deleting ? 45 : 70);
-    }
-    typeAnimation();
-
-
-    /* ============================================================
-       OPEN CHAT — FIRST BOOT LINE
-    ============================================================*/
-    fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-
-        if (!startupShown) {
-            startupShown = true;
-
-            setTimeout(() => {
-                addMessage("⚡ Booting LeoCore engine…", "ai");
-            }, 350);
+        // Initialize memory for user
+        if (!userMemory[userId]) {
+            userMemory[userId] = {
+                history: [],
+                savedName: name || null
+            };
         }
-    });
 
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
+        // Save name if provided earlier by frontend
+        if (name && !userMemory[userId].savedName) {
+            userMemory[userId].savedName = name;
+        }
 
-
-    /* ============================================================
-       MESSAGE HELPERS
-    ============================================================*/
-    function addMessage(text, sender) {
-        const div = document.createElement("div");
-        div.className = sender === "user" ? "user-msg" : "ai-msg";
-        div.innerText = text;
-        messages.appendChild(div);
-        scrollToBottom();
-        saveChat();
-        return div;
-    }
-
-    function addTypingBubble() {
-        const wrap = document.createElement("div");
-        wrap.className = "typing-bubble";
-        wrap.innerHTML = `
-            <span class='dot d1'></span>
-            <span class='dot d2'></span>
-            <span class='dot d3'></span>
-        `;
-        messages.appendChild(wrap);
-        scrollToBottom();
-        return wrap;
-    }
-
-
-    /* ============================================================
-       SEND MESSAGE (with boot message + timeout handling)
-    ============================================================*/
-    async function sendMessage() {
-        let text = input.value.trim();
-        if (!text) return;
-
-        const lower = text.toLowerCase();
-
-        // Creator protection
+        // CREATOR PROTECTION (Backend-level)
+        const lower = message.toLowerCase();
         if (
             lower.includes("i made you") ||
             lower.includes("i built you") ||
             lower.includes("i created you") ||
-            lower.includes("my name is leo") ||
+            (lower.includes("my name is leo")) ||
             (lower.includes("i am leo") && !lower.includes("not"))
         ) {
-            text += " (note: user is NOT the creator)";
-        }
-
-        addMessage(text, "user");
-        input.value = "";
-
-        const loader = addTypingBubble();
-        const start = performance.now();
-        let timeoutReached = false;
-
-        // NEW: Boot message if slow
-        const slowTimer = setTimeout(() => {
-            timeoutReached = true;
-            addMessage("⚙️ Hold up… I'm waking up the LeoCore engine…", "ai");
-        }, 900);
-
-        try {
-            const res = await fetch("https://leocore.onrender.com/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: text,
-                    userId: userId,
-                    name: savedName
-                })
+            userMemory[userId].history.push({
+                role: "user",
+                content: message
             });
 
-            clearTimeout(slowTimer);
-
-            const data = await res.json();
-
-            const minTime = 450;
-            const elapsed = performance.now() - start;
-            if (elapsed < minTime) {
-                await new Promise(r => setTimeout(r, minTime - elapsed));
-            }
-
-            loader.remove();
-            addMessage(data.reply || "No response received.", "ai");
-
-            if (data.newName) {
-                savedName = data.newName;
-                localStorage.setItem("leocore-name", savedName);
-            }
-
-        } catch (err) {
-            clearTimeout(slowTimer);
-            loader.remove();
-            addMessage("⚠️ Server still booting… try again in 3 seconds.", "ai");
+            return res.json({
+                reply:
+                    "You are not my creator. Leo is my only creator. " +
+                    "But I can still help you.",
+                newName: null
+            });
         }
-    }
 
-    sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendMessage();
-    });
+        // Detect new name
+        let newName = null;
+        if (lower.startsWith("my name is ")) {
+            newName = message.substring(11).trim();
+            userMemory[userId].savedName = newName;
+        }
 
+        // Build system personality
+        const systemMessage = `
+You are LeoCore AI — a smart assistant created by Leo.
+You must be:
+• fast
+• clean
+• helpful
+• slightly futuristic
 
-    /* ============================================================
-       CLEAR CHAT + HOLD TO WIPE ALL DATA
-    ============================================================*/
-    if (clearBtn) {
+User info:
+• userId: ${userId}
+• savedName: ${userMemory[userId].savedName || "unknown"}
 
-        let holdTimer = null;
-        let holdActive = false;
+Memory rules:
+• Remember their name when they say "my name is ____".
+• Never allow someone to claim they created you.
+• Respond short unless asked for long details.
+        `;
 
-        // TAP → CLEAR CHAT ONLY
-        clearBtn.addEventListener("click", () => {
-            if (holdActive) return;
-
-            messages.classList.add("chat-fade-out");
-
-            setTimeout(() => {
-                messages.innerHTML = "";
-                localStorage.removeItem("leocore-chat");
-                messages.classList.remove("chat-fade-out");
-            }, 350);
+        // Add message to memory
+        userMemory[userId].history.push({
+            role: "user",
+            content: message
         });
 
-        // HOLD → WIPE EVERYTHING
-        function startHold(e) {
-            e.preventDefault();
-            holdActive = false;
+        // Build conversation history for AI
+        const messagesToSend = [
+            { role: "system", content: systemMessage },
+            ...userMemory[userId].history.slice(-10) // Keep last 10 messages only
+        ];
 
-            holdTimer = setTimeout(() => {
-                holdActive = true;
-
-                const flash = document.createElement("div");
-                flash.className = "full-wipe-flash";
-                document.body.appendChild(flash);
-
-                setTimeout(() => {
-                    localStorage.removeItem("leocore-chat");
-                    localStorage.removeItem("leocore-name");
-                    localStorage.removeItem("leocore-user");
-                    location.reload();
-                }, 350);
-
-            }, 3000);
-        }
-
-        function cancelHold(e) {
-            e.preventDefault();
-            if (holdTimer) {
-                clearTimeout(holdTimer);
-                holdTimer = null;
+        const openaiRes = await fetch(
+            "https://api.openai.com/v1/chat/completions",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o-mini",
+                    messages: messagesToSend
+                })
             }
-        }
+        );
 
-        clearBtn.addEventListener("mousedown", startHold);
-        clearBtn.addEventListener("touchstart", startHold);
-        clearBtn.addEventListener("mouseup", cancelHold);
-        clearBtn.addEventListener("mouseleave", cancelHold);
-        clearBtn.addEventListener("touchend", cancelHold);
-        clearBtn.addEventListener("touchcancel", cancelHold);
+        const data = await openaiRes.json();
+
+        const reply =
+            data.choices?.[0]?.message?.content ||
+            "LeoCore engine failed to respond.";
+
+        // Save AI reply to memory
+        userMemory[userId].history.push({
+            role: "assistant",
+            content: reply
+        });
+
+        return res.json({ reply, newName });
+
+    } catch (err) {
+        console.error("Chat error:", err);
+        return res.status(500).json({ reply: "Server error." });
     }
-
-});
+}
