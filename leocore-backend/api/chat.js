@@ -130,7 +130,16 @@ export default async function handler(req, res) {
                 stream: true
             });
         }
-
+       
+/* =====================================================
+   SECRET COMMAND: /myid
+===================================================== */
+if (lower.trim() === "/myid") {
+    return res.json({
+        reply: `🆔 Your LeoCore user ID is:\n\n${userId}\n\nUse this to set CREATOR_USER_ID.`,
+        stream: false
+    });
+}
         /* =====================================================
            MEMORY
         ====================================================== */
