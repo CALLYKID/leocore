@@ -391,3 +391,12 @@ body{
     50%  { transform: scale(1.25); opacity: 1; }
     100% { transform: scale(0.7); opacity: 0.5; }
 }
+
+.chat-screen {
+    opacity: 0;
+}
+
+.chat-screen.active {
+    opacity: 1;
+    transition: opacity 0.25s ease;
+}
