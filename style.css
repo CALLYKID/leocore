@@ -383,3 +383,89 @@ body {
     0% { transform: scale(1); opacity: 1; }
     100% { transform: scale(2.4); opacity: 0; }
 }
+/* ============================================================
+   RESTORED PREMIUM DELETE SYSTEM (FULL WORKING VERSION)
+============================================================ */
+
+.clear-status {
+    position: fixed;
+    bottom: 42%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 260px;
+    text-align: center;
+    z-index: 99999;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.clear-status-text {
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    color: #ff9c9c;
+    animation: textFade 1.2s infinite ease-in-out;
+}
+
+@keyframes textFade {
+    50% { opacity: 0.55; }
+}
+
+/* ===== Spiral loader ===== */
+.clear-spiral {
+    width: 26px;
+    height: 26px;
+    margin: 0 auto 12px;
+    position: relative;
+}
+
+.clear-spiral .dot {
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: #ff5b5b;
+    border-radius: 50%;
+    animation: spiralSpin 1.4s linear infinite;
+}
+
+.clear-spiral .d2 { animation-delay: 0.2s; }
+.clear-spiral .d3 { animation-delay: 0.4s; }
+
+@keyframes spiralSpin {
+    0% { transform: rotate(0deg) translateX(10px); }
+    100% { transform: rotate(360deg) translateX(10px); }
+}
+
+/* ===== Progress Bar ===== */
+.clear-progress {
+    width: 100%;
+    height: 10px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 6px;
+    box-shadow: 0 0 10px #ff3b3b55;
+}
+
+.clear-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: #ff3b3b;
+    box-shadow: 0 0 12px #ff1a1a;
+    transition: width linear;
+}
+
+/* ===== Screen Pulse ===== */
+.fullscreen-pulse {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,0,0,0.18);
+    pointer-events: none;
+    animation: pulseFlash 0.35s ease-out forwards;
+    z-index: 9999;
+}
+
+@keyframes pulseFlash {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
