@@ -328,3 +328,21 @@ body{
     /* This adjusts based on screen height instead of a static value */
     margin-top: calc(45vh + 60px);
 }
+.boot-bubble {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: 0.35s ease;
+    background: rgba(0, 0, 0, 0.4);
+    border-left: 3px solid #00eaff;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin: 6px 0;
+    font-size: 14px;
+    color: #dff8ff;
+    backdrop-filter: blur(4px);
+}
+
+.boot-bubble.show {
+    opacity: 1;
+    transform: translateY(0);
+}
