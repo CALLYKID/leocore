@@ -25,18 +25,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       OPEN / CLOSE CHAT
-    ============================================================*/
-    fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-    });
-
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
-
-
-    /* ============================================================
        USER ID + LOCAL STORAGE
     ============================================================*/
     let userId = localStorage.getItem("leocore-user");
@@ -131,9 +119,25 @@ window.addEventListener("DOMContentLoaded", () => {
         return div;
     }
 
+    /* ------------------------------------------------------------
+       NEW: TYPING DOTS BUBBLE
+    ------------------------------------------------------------ */
+    function createTypingBubble() {
+        const div = document.createElement("div");
+        div.className = "typing-bubble ai-msg";
+        div.innerHTML = `
+            <span class="dot d1"></span>
+            <span class="dot d2"></span>
+            <span class="dot d3"></span>
+        `;
+        messages.appendChild(div);
+        scrollToBottom();
+        return div;
+    }
+
 
     /* ============================================================
-       SEND MESSAGE — GPT STYLE BOOT ANIMATION
+       SEND MESSAGE — AI BOOT + TYPING DOTS
     ============================================================*/
     async function sendMessage() {
         const text = input.value.trim();
@@ -144,22 +148,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const start = performance.now();
 
-        // Boot bubble (GPT-style)
         let bootBubble = null;
         let bootInterval = null;
 
         const bootLines = [
             "🧠 Booting core systems…",
             "🔌 Reconnecting neural mesh…",
-            "⚡ Spinning up processors…",
+            "⚡ Spinning up processing clusters…",
             "📡 Syncing memory banks…",
-            "🔍 Analysing request…",
+            "🔍 Scanning request… hold on…",
             "🤖 Warming up response engine…"
         ];
 
         let bootIndex = 0;
 
-        // Delay before starting animation
+        // Delay before showing loader (5 seconds)
         const bootDelay = setTimeout(() => {
             bootBubble = createBootBubble();
 
@@ -167,30 +170,27 @@ window.addEventListener("DOMContentLoaded", () => {
                 if (!bootBubble) return;
                 bootBubble.innerText = bootLines[bootIndex % bootLines.length];
                 bootIndex++;
-                scrollToBottom();
-            }, 1300);
+            }, 1200);
 
         }, 5000);
 
 
-        /* ============================================================
-           SEND TO BACKEND
-        ============================================================*/
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: text,
-                    userId,
+                    userId: userId,
                     name: savedName
                 })
             });
 
             const data = await res.json();
 
-            const elapsed = performance.now() - start;
             const minTime = 600;
+            const elapsed = performance.now() - start;
+
             if (elapsed < minTime) {
                 await new Promise(r => setTimeout(r, minTime - elapsed));
             }
@@ -200,6 +200,18 @@ window.addEventListener("DOMContentLoaded", () => {
 
             if (bootBubble) bootBubble.remove();
 
+
+            /* -------------------------
+               SHOW TYPING DOTS
+            -------------------------- */
+            const typingBubble = createTypingBubble();
+            await new Promise(r => setTimeout(r, 700));
+            typingBubble.remove();
+
+
+            /* -------------------------
+               FINAL AI MESSAGE
+            -------------------------- */
             addMessage(data.reply || "No response received.", "ai");
 
             if (data.newName) {
@@ -231,7 +243,6 @@ window.addEventListener("DOMContentLoaded", () => {
         let holdTimer = null;
         let holdTriggered = false;
 
-        // Tap: clear chat only
         clearBtn.addEventListener("click", () => {
             if (holdTriggered) return;
             messages.classList.add("chat-fade-out");
@@ -242,19 +253,18 @@ window.addEventListener("DOMContentLoaded", () => {
             }, 350);
         });
 
-        // Hold = wipe everything
         clearBtn.addEventListener("mousedown", startHold);
         clearBtn.addEventListener("touchstart", startHold);
+
         clearBtn.addEventListener("mouseup", cancelHold);
         clearBtn.addEventListener("mouseleave", cancelHold);
         clearBtn.addEventListener("touchend", cancelHold);
         clearBtn.addEventListener("touchcancel", cancelHold);
 
-        function startHold(e) {
+        function startHold() {
             holdTriggered = false;
             holdTimer = setTimeout(() => {
                 holdTriggered = true;
-
                 const flash = document.createElement("div");
                 flash.className = "full-wipe-flash";
                 document.body.appendChild(flash);
@@ -270,8 +280,10 @@ window.addEventListener("DOMContentLoaded", () => {
         }
 
         function cancelHold() {
-            if (holdTimer) clearTimeout(holdTimer);
-            holdTimer = null;
+            if (holdTimer) {
+                clearTimeout(holdTimer);
+                holdTimer = null;
+            }
         }
     }
 
