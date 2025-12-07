@@ -223,7 +223,15 @@ window.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
-
+   
+setInterval(() => {
+    fetch("https://leocore.onrender.com/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "ping", userId: "system-pinger" })
+    }).catch(()=>{});
+}, 600000); // every 10 minutes
+   
     /* ============================================================
    CLEAR BUTTON — PREMIUM HOLD-TO-RESET SYSTEM
 ============================================================ */
