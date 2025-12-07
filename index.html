@@ -30,7 +30,8 @@
 
     <!-- CENTER HERO CONTENT -->
     <div class="center-wrapper">
-        <div class="fake-input fade-in" id="fakeInput">
+        <!-- CLICKABLE INPUT FIXED -->
+        <div class="fake-input fade-in" id="fakeInput" onclick="openChat()">
             <span class="fake-text" id="fakeText"></span>
         </div>
 
@@ -38,7 +39,7 @@
         <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
     </div>
 
-    <!-- INFO SECTION -->
+    <!-- INFO SECTION (NO INTERACTION) -->
     <div class="info-section fade-in delay-3">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -63,8 +64,6 @@
         <div class="chat-header">
             <button class="back-btn" id="closeChat">←</button>
             <span class="chat-title">LEOCORE</span>
-
-            <!-- FIXED: unique id -->
             <button class="clear-btn" id="clearChat">Clear</button>
         </div>
 
@@ -77,6 +76,13 @@
 
     </div>
 
-    <script src="app.js?v=7000"></script>
+    <!-- CHAT OPEN FUNCTION (NEEDED FOR CLICK FIX) -->
+    <script>
+        function openChat() {
+            document.getElementById("chatScreen").classList.add("active");
+        }
+    </script>
+
+    <script src="app.js?v=8000"></script>
 </body>
 </html>
