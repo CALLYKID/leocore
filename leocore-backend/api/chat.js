@@ -166,10 +166,7 @@ export default async function handler(req, res) {
 
         await userRef.set(data, { merge: true });
 
-        return res.json({
-            reply: (data.boots === 1 ? "\n\n" : "") + reply,
-            forceStatic: true   // ⭐ tells frontend to stream it
-        });
+        return res.json({ reply, forceStatic: true });
 
     } catch (err) {
         console.error("CHAT ERROR:", err);
