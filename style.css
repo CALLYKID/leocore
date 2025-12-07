@@ -474,3 +474,10 @@ body {
     50% { box-shadow: 0 0 18px #00eaff99, inset 0 0 14px #00eaff55; }
     100% { box-shadow: 0 0 10px #00eaff55, inset 0 0 8px #00eaff33; }
 }
+/* Make the spiral bubble float like a typing indicator */
+.typing-holder {
+    align-self: flex-start;
+    padding: 6px 10px;
+    background: transparent !important;
+    border: none !important;
+}
