@@ -1,10 +1,9 @@
 /* ============================================================
-   GLOBAL RESET + MOBILE FIXES
+   GLOBAL FIXES
 ============================================================ */
+
+/* Disable ugly blue tap flash on mobile */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
     -webkit-tap-highlight-color: transparent !important;
 }
 button, .clear-btn, .back-btn, #sendBtn {
@@ -12,9 +11,14 @@ button, .clear-btn, .back-btn, #sendBtn {
     -webkit-tap-highlight-color: transparent !important;
 }
 
-/* ============================================================
-   GLOBAL FONT + PAGE FADE-IN
-============================================================ */
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* GLOBAL FONT */
 body {
     background: #000;
     overflow-x: hidden;
@@ -23,13 +27,10 @@ body {
     opacity: 0;
     animation: siteFadeIn 0.7s ease forwards;
 }
-@keyframes siteFadeIn {
-    to { opacity: 1; }
-}
 
-/* ============================================================
-   BACKGROUND VIDEO + OVERLAY
-============================================================ */
+@keyframes siteFadeIn { to { opacity: 1; } }
+
+/* BG VIDEO */
 #bgVideo {
     position: fixed;
     inset: 0;
@@ -39,16 +40,20 @@ body {
     z-index: -10;
     pointer-events: none !important;
 }
+
+/* BG overlay */
 .overlay {
     position: fixed;
     inset: 0;
     background: rgba(0,0,40,0.35);
     z-index: -5;
+    pointer-events: none !important;
 }
 
 /* ============================================================
    HERO SECTION
 ============================================================ */
+
 .center-wrapper {
     width: 100%;
     padding-top: 22vh;
@@ -57,8 +62,10 @@ body {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    z-index: 5;
 }
 
+/* fake input */
 .fake-input {
     width: 85vw;
     max-width: 600px;
@@ -73,12 +80,11 @@ body {
     backdrop-filter: blur(6px);
     box-shadow: 0 0 25px rgba(0,180,255,0.4);
     cursor: pointer;
-    opacity: 0;
     animation: heroFade 1s ease forwards;
+    opacity: 0;
 }
-@keyframes heroFade {
-    to { opacity: 1; transform: translateY(0); }
-}
+
+@keyframes heroFade { to { opacity: 1; } }
 
 .fake-text {
     white-space: nowrap;
@@ -95,6 +101,7 @@ body {
     opacity: 0;
     animation: heroFade 1s ease 0.2s forwards;
 }
+
 .subtitle {
     margin-top: 8px;
     font-size: 20px;
@@ -105,12 +112,14 @@ body {
 /* ============================================================
    INFO CARD
 ============================================================ */
+
 .info-section {
     width: 100%;
     display: flex;
     justify-content: center;
     padding-top: 5vh;
 }
+
 .info-card {
     width: 85%;
     max-width: 650px;
@@ -124,32 +133,32 @@ body {
     opacity: 0;
     animation: cardAppear 0.9s ease 0.5s forwards;
 }
-@keyframes cardAppear {
-    to { opacity: 1; }
-}
+
+@keyframes cardAppear { to { opacity: 1; } }
 
 .info-card h2 {
     font-family: 'Montserrat', sans-serif;
     font-size: 26px;
-    font-weight: 700;
     margin-bottom: 12px;
 }
+
 .info-card p {
     font-size: 17px;
-    line-height: 1.5;
     opacity: 0.92;
     margin-bottom: 20px;
 }
+
 .features {
     display: flex;
     justify-content: center;
     gap: 18px;
-    font-size: 16px;
+    opacity: 0.85;
 }
 
 /* ============================================================
    CHAT SCREEN
 ============================================================ */
+
 .chat-screen {
     position: fixed;
     inset: 0;
@@ -160,6 +169,7 @@ body {
     z-index: 20;
     opacity: 0;
 }
+
 .chat-screen.active {
     display: flex;
     opacity: 1;
@@ -167,19 +177,17 @@ body {
 }
 
 /* ============================================================
-   FINAL CLEAN CHAT HEADER (ONE VERSION ONLY)
+   HEADER — VERSION 4 (FINAL)
 ============================================================ */
+
 .chat-header {
-    width: 100%;
-    padding: 16px 20px;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    padding: 14px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(12px);
-
-    border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+    border-bottom: 1px solid rgba(0,255,255,0.15);
     box-shadow: 0 2px 20px rgba(0,255,255,0.05);
 }
 
@@ -193,6 +201,7 @@ body {
     cursor: pointer;
     transition: 0.25s ease;
 }
+
 .back-btn:hover {
     background: rgba(0,255,255,0.25);
     box-shadow: 0 0 12px rgba(0,255,255,0.65);
@@ -201,14 +210,14 @@ body {
 .chat-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 22px;
-    font-weight: 800;
+    letter-spacing: 1.5px;
+    font-weight: 700;
     background: linear-gradient(90deg, #00eaff, #9d4bff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-shadow: 0 0 10px rgba(0,255,255,0.35);
 }
 
-/* Clean neon clear button */
 .clear-btn {
     background: rgba(255,255,255,0.09);
     border: 1px solid rgba(255,255,255,0.15);
@@ -222,6 +231,7 @@ body {
     gap: 6px;
     transition: 0.25s ease;
 }
+
 .clear-btn:hover {
     background: rgba(255,70,70,0.28);
     border-color: rgba(255,70,70,0.4);
@@ -229,8 +239,9 @@ body {
 }
 
 /* ============================================================
-   CHAT MESSAGES
+   MESSAGES
 ============================================================ */
+
 .chat-messages {
     flex: 1;
     padding: 15px;
@@ -239,14 +250,14 @@ body {
     flex-direction: column;
     gap: 10px;
 }
-.ai-msg, .user-msg {
-    display: flex;
-    width: 100%;
-}
-.ai-msg { justify-content: flex-start; }
-.user-msg { justify-content: flex-end; }
 
-.bubble {
+.ai-msg, .user-msg {
+    width: 100%;
+    display: flex;
+}
+
+.ai-msg .bubble,
+.user-msg .bubble {
     max-width: 92%;
     padding: 14px 18px;
     border-radius: 14px;
@@ -254,18 +265,26 @@ body {
     line-height: 1.48;
     white-space: pre-wrap;
 }
+
+.ai-msg { justify-content: flex-start; }
+.user-msg { justify-content: flex-end; }
+
 .ai-msg .bubble {
     background: #222b45;
+    color: white;
     border-radius: 14px 14px 14px 6px;
 }
+
 .user-msg .bubble {
     background: #008cff;
+    color: white;
     border-radius: 14px 14px 6px 14px;
 }
 
 /* ============================================================
-   CHAT INPUT AREA
+   INPUT BAR
 ============================================================ */
+
 .chat-input-area {
     padding: 12px;
     display: flex;
@@ -273,105 +292,133 @@ body {
     background: rgba(20,20,40,0.5);
     backdrop-filter: blur(8px);
 }
+
 .chat-input-area input {
     flex: 1;
     height: 56px;
     padding: 0 18px;
     font-size: 16px;
-    color: #ffffff;
-    background: rgba(255,255,255,0.10);
+    background: rgba(255,255,255,0.1);
     border: 2px solid rgba(0,200,255,0.35);
     border-radius: 16px;
-    backdrop-filter: blur(8px);
+    color: white;
     transition: 0.22s ease;
+    backdrop-filter: blur(8px);
 }
+
 .chat-input-area input:focus {
     border-color: #00eaff;
     animation: inputPulse 1.8s infinite ease-out;
 }
-@keyframes inputPulse {
-    50% { box-shadow: 0 0 22px #00eaff; }
-}
+@keyframes inputPulse { 50% { box-shadow: 0 0 22px #00eaff; } }
 
 #sendBtn {
     width: 56px;
     height: 56px;
     border-radius: 16px;
-    border: none;
     background: radial-gradient(circle, #00eaff, #0088ff);
     color: white;
-    font-size: 18px;
-    font-weight: 600;
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    font-size: 18px;
+    font-weight: 600;
     transition: 0.2s ease;
     box-shadow: 0 0 12px #00eaff, 0 0 25px #009dff, inset 0 0 8px rgba(255,255,255,0.4);
+    position: relative;
+    overflow: hidden;
 }
+
 #sendBtn:hover { transform: scale(1.06); }
 
-/* ============================================================
-   TYPING BUBBLE
-============================================================ */
-.typing-bubble {
-    background: rgba(10,16,35,0.75);
-    border: 1px solid rgba(0,200,255,0.4);
-    padding: 10px 16px;
-    border-radius: 14px 14px 14px 4px;
-    display: inline-flex;
-    gap: 10px;
-    animation: bubbleFloat 2.2s infinite ease-in-out;
-}
-@keyframes bubbleFloat {
-    50% { transform: translateY(-4px); }
-}
-
-/* ============================================================
-   STREAMING CURSOR SYSTEM
-============================================================ */
-.ai-streaming {
-    position: relative;
-    display: inline-block;
-    white-space: pre-wrap;
-}
-.neon-cursor {
+#sendBtn::after {
+    content: "";
     position: absolute;
-    right: -8px;
-    bottom: 0;
-    width: 6px;
-    height: 18px;
-    background: #00eaff;
-    border-radius: 2px;
-    box-shadow: 0 0 12px #00eaff, 0 0 22px #9400ff;
-    animation: cursorBlink 0.7s infinite alternate;
+    width: 140%;
+    height: 140%;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: scale(0) translate(-50%, -50%);
+    animation: sendPulse 2s infinite ease-out;
 }
-@keyframes cursorBlink {
-    0% { opacity: 1; }
-    100% { opacity: 0.2; }
-}
-.neon-cursor.fade-out {
-    animation: cursorFade 0.35s forwards ease;
-}
-@keyframes cursorFade {
-    0% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(2.4); }
+
+@keyframes sendPulse {
+    70% {
+        transform: scale(1.6) translate(-50%, -50%);
+        opacity: 0;
+    }
 }
 
 /* ============================================================
-   DELETE EVERYTHING ANIMATION (CLEAR CHAT)
+   TYPING BUBBLE + SPIRAL
 ============================================================ */
-.fullscreen-pulse {
-    position: fixed;
-    inset: 0;
-    background: rgba(255, 0, 0, 0.18);
-    pointer-events: none;
-    animation: pulseFlash 0.35s ease-out forwards;
-    z-index: 9999;
+
+.typing-holder {
+    align-self: flex-start;
+    padding: 6px 10px;
 }
-@keyframes pulseFlash {
-    to { opacity: 1; }
+
+.spiral-bubble {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(0,200,255,0.15);
+    border: 2px solid rgba(0,200,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 14px #00eaff55, inset 0 0 10px #00eaff33;
+    animation: spiralPulse 2.2s infinite ease-in-out;
 }
+
+@keyframes spiralPulse {
+    0% { box-shadow: 0 0 10px #00eaff55; }
+    50% { box-shadow: 0 0 18px #00eaff99; }
+    100% { box-shadow: 0 0 10px #00eaff55; }
+}
+
+.spiral-core {
+    width: 10px;
+    height: 10px;
+    background: #00eaff;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #00eaff;
+    animation: coreBeat 1.4s infinite ease-in-out;
+}
+
+@keyframes coreBeat {
+    0% { transform: scale(0.8); opacity: .6; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(0.8); opacity:.6; }
+}
+
+.orbit {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #00eaff;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #00eaff;
+    animation: orbitSpin 2.6s linear infinite;
+    opacity: 0.9;
+}
+
+.orbit.o1 { animation-delay: 0s; }
+.orbit.o2 { animation-delay: 0.35s; }
+.orbit.o3 { animation-delay: 0.7s; }
+
+@keyframes orbitSpin {
+    0% { transform: rotate(0deg) translateX(18px); }
+    100% { transform: rotate(360deg) translateX(18px); }
+}
+
+/* ============================================================
+   RESET SYSTEM (KEEPING FUNCTIONALITY)
+============================================================ */
 
 .clear-status {
     position: fixed;
@@ -384,37 +431,50 @@ body {
     opacity: 0;
     transition: opacity 0.25s ease;
 }
+
 .clear-status-text {
     font-size: 16px;
     margin-bottom: 10px;
     color: #ffaaaa;
-    letter-spacing: 1px;
     animation: textFade 1.2s infinite ease-in-out;
 }
-@keyframes textFade {
-    50% { opacity: 0.5; }
+
+@keyframes textFade { 50% { opacity: 0.5; } }
+
+.fullscreen-pulse {
+    position: fixed;
+    inset: 0;
+    background: rgba(255,0,0,0.18);
+    pointer-events: none;
+    animation: pulseFlash 0.35s ease-out forwards;
+    z-index: 9999;
 }
 
-/* Spiral loader */
+@keyframes pulseFlash {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .clear-spiral {
-    position: relative;
     width: 26px;
     height: 26px;
     margin: 0 auto 12px;
 }
+
 .clear-spiral .dot {
     position: absolute;
     width: 7px;
     height: 7px;
     background: #ff5b5b;
     border-radius: 50%;
-    box-shadow: 0 0 8px #ff5b5b;
-    animation: clearSpin 1.4s linear infinite;
+    animation: spiralSpin 1.4s linear infinite;
 }
+
 .clear-spiral .d2 { animation-delay: 0.2s; }
 .clear-spiral .d3 { animation-delay: 0.4s; }
-@keyframes clearSpin {
-    0%   { transform: rotate(0deg) translateX(10px); }
+
+@keyframes spiralSpin {
+    0% { transform: rotate(0deg) translateX(10px); }
     100% { transform: rotate(360deg) translateX(10px); }
 }
 
@@ -425,7 +485,9 @@ body {
     border-radius: 20px;
     overflow: hidden;
     margin-top: 6px;
+    box-shadow: 0 0 10px #ff3b3b55;
 }
+
 .clear-progress-fill {
     height: 100%;
     width: 0%;
@@ -433,3 +495,39 @@ body {
     box-shadow: 0 0 12px #ff1a1a;
     transition: width linear;
 }
+
+/* ============================================================
+   STREAMING CURSOR
+============================================================ */
+
+.ai-streaming {
+    position: relative;
+    display: inline-block;
+    white-space: pre-wrap;
+    line-height: 1.45;
+}
+
+.neon-cursor {
+    position: absolute;
+    right: -8px;
+    bottom: 0;
+    width: 6px;
+    height: 18px;
+    background: #00eaff;
+    border-radius: 2px;
+    animation: cursorBlink 0.7s infinite alternate ease-in-out;
+}
+
+@keyframes cursorBlink { 100% { opacity: 0.2; } }
+
+.neon-cursor.fade-out {
+    animation: cursorFade 0.35s forwards ease;
+}
+
+@keyframes cursorFade {
+    0% { transform: scale(1); opacity: 1; }
+    100% { transform: scale(2.4); opacity: 0; }
+}
+
+.bubble p { margin-bottom: 10px; }
+.bubble p:last-child { margin-bottom: 0; }
