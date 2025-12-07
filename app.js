@@ -225,53 +225,106 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 
     /* ============================================================
-       CLEAR BUTTON
-    ============================================================*/
-    if (clearBtn) {
-        let holdTimer = null;
-        let holdTriggered = false;
+   CLEAR BUTTON — PREMIUM HOLD-TO-RESET SYSTEM
+============================================================ */
+if (clearBtn) {
+    let holdTimer = null;
+    let holdTriggered = false;
 
-        clearBtn.addEventListener("click", () => {
-            if (holdTriggered) return;
-            messages.classList.add("chat-fade-out");
+    let statusBox = null;
+    let progressFill = null;
+
+    function createStatusUI() {
+        statusBox = document.createElement("div");
+        statusBox.className = "clear-status";
+
+        statusBox.innerHTML = `
+            <div class="clear-spiral">
+                <div class="dot d1"></div>
+                <div class="dot d2"></div>
+                <div class="dot d3"></div>
+            </div>
+            <div class="clear-status-text">Wiping LeoCore…</div>
+            <div class="clear-progress">
+                <div class="clear-progress-fill"></div>
+            </div>
+        `;
+
+        document.body.appendChild(statusBox);
+        progressFill = statusBox.querySelector(".clear-progress-fill");
+
+        setTimeout(() => statusBox.style.opacity = 1, 20);
+    }
+
+    function startHold() {
+        holdTriggered = false;
+        clearBtn.classList.add("holding");
+
+        // Screen pulse
+        const pulse = document.createElement("div");
+        pulse.className = "fullscreen-pulse";
+        document.body.appendChild(pulse);
+        setTimeout(() => pulse.remove(), 400);
+
+        // Build UI
+        createStatusUI();
+
+        // Begin progress animation
+        progressFill.style.transitionDuration = "3s";
+        setTimeout(() => {
+            progressFill.style.width = "100%";
+        }, 30);
+
+        // Vibrate at ~halfway
+        setTimeout(() => {
+            if (!holdTriggered) navigator.vibrate?.(40);
+        }, 1400);
+
+        // Full wipe
+        holdTimer = setTimeout(() => {
+            holdTriggered = true;
+            clearBtn.classList.remove("holding");
+
+            navigator.vibrate?.([100, 40, 100]);
+
+            statusBox.style.opacity = 0;
+            setTimeout(() => { statusBox.remove(); }, 400);
+
+            // Fade messages out
+            messages.style.opacity = 0;
+
             setTimeout(() => {
-                messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
-                messages.classList.remove("chat-fade-out");
+                localStorage.removeItem("leocore-name");
+                localStorage.removeItem("leocore-user");
+                location.reload();
             }, 350);
-        });
 
-        clearBtn.addEventListener("mousedown", startHold);
-        clearBtn.addEventListener("touchstart", startHold);
+        }, 3000);
+    }
 
-        clearBtn.addEventListener("mouseup", cancelHold);
-        clearBtn.addEventListener("mouseleave", cancelHold);
-        clearBtn.addEventListener("touchend", cancelHold);
-        clearBtn.addEventListener("touchcancel", cancelHold);
+    function cancelHold() {
+        clearTimeout(holdTimer);
+        clearBtn.classList.remove("holding");
 
-        function startHold() {
-            holdTriggered = false;
-            holdTimer = setTimeout(() => {
-                holdTriggered = true;
-
-                const flash = document.createElement("div");
-                flash.className = "full-wipe-flash";
-                document.body.appendChild(flash);
-
-                setTimeout(() => {
-                    localStorage.removeItem("leocore-chat");
-                    localStorage.removeItem("leocore-name");
-                    localStorage.removeItem("leocore-user");
-                    location.reload();
-                }, 350);
-
-            }, 3000);
-        }
-
-        function cancelHold() {
-            if (holdTimer) clearTimeout(holdTimer);
+        if (!holdTriggered && statusBox) {
+            statusBox.style.opacity = 0;
+            setTimeout(() => statusBox.remove(), 300);
         }
     }
+
+    clearBtn.addEventListener("mousedown", startHold);
+    clearBtn.addEventListener("touchstart", startHold);
+
+    clearBtn.addEventListener("mouseup", cancelHold);
+    clearBtn.addEventListener("mouseleave", cancelHold);
+    clearBtn.addEventListener("touchend", cancelHold);
+    clearBtn.addEventListener("touchcancel", cancelHold);
+
+    // Disable long-press selection popup
+    clearBtn.addEventListener("contextmenu", e => e.preventDefault());
+    clearBtn.addEventListener("selectstart", e => e.preventDefault());
+}
 
     /* ============================================================
        OPEN CHAT (fake input)
