@@ -25,14 +25,46 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       USER ID + LOCAL STORAGE
-    ============================================================*/
-    let userId = localStorage.getItem("leocore-user");
+       🔐 PERMANENT CREATOR ID SYSTEM (PATCHED)
+    ============================================================ */
+
+    const CREATOR_ID = "leo-official-001";
+    
+    // Set this to true ONLY on your device.
+    // Users will get random IDs.
+    const isCreatorDevice = true;
+
+    function getCookie(name) {
+        const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+        return match ? match[2] : null;
+    }
+
+    function setCookie(name, value) {
+        document.cookie = `${name}=${value}; path=/; max-age=31536000`; // 1 year
+    }
+
+    // Load userId from cookie or storage
+    let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
+
+    // If missing → create
     if (!userId) {
-        userId = "user-" + Math.random().toString(36).slice(2);
+        if (isCreatorDevice) {
+            userId = CREATOR_ID; 
+        } else {
+            userId = "user-" + Math.random().toString(36).slice(2);
+        }
+        setCookie("leocore-user", userId);
         localStorage.setItem("leocore-user", userId);
     }
 
+    // Sync both every load
+    setCookie("leocore-user", userId);
+    localStorage.setItem("leocore-user", userId);
+
+
+    /* ============================================================
+       NAME + CHAT LOAD
+    ============================================================ */
     let savedName = localStorage.getItem("leocore-name") || null;
 
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
@@ -53,7 +85,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        AUTO SCROLL
-    ============================================================*/
+    ============================================================ */
     function scrollToBottom() {
         setTimeout(() => {
             messages.scrollTop = messages.scrollHeight;
@@ -63,7 +95,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        HERO AUTO-TYPE
-    ============================================================*/
+    ============================================================ */
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -96,8 +128,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       CHATGPT-STYLE MESSAGE RENDERER
-============================================================ */
+       MESSAGE RENDERER
+    ============================================================ */
     function addMessage(text, sender) {
         const wrap = document.createElement("div");
         wrap.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -117,30 +149,30 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        SPIRAL TYPING BUBBLE
-============================================================ */
+    ============================================================ */
     function createTypingBubble() {
-    const wrap = document.createElement("div");
-    wrap.className = "ai-msg typing-holder";
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg typing-holder";
 
-    wrap.innerHTML = `
-        <div class="spiral-bubble">
-            <div class="spiral-core"></div>
-            <div class="orbit o1"></div>
-            <div class="orbit o2"></div>
-            <div class="orbit o3"></div>
-        </div>
-    `;
+        wrap.innerHTML = `
+            <div class="spiral-bubble">
+                <div class="spiral-core"></div>
+                <div class="orbit o1"></div>
+                <div class="orbit o2"></div>
+                <div class="orbit o3"></div>
+            </div>
+        `;
 
-    messages.appendChild(wrap);
-    scrollToBottom();
+        messages.appendChild(wrap);
+        scrollToBottom();
 
-    return wrap;
+        return wrap;
     }
 
 
     /* ============================================================
        BOOT BUBBLE
-============================================================ */
+    ============================================================ */
     function createBootBubble() {
         const wrap = document.createElement("div");
         wrap.className = "ai-msg";
@@ -155,10 +187,9 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAMING SIMULATION (CURSOR FOLLOWS TEXT)
-============================================================ */
+       STREAMING RESPONSE
+    ============================================================ */
     async function streamMessage(fullText) {
-        // Convert newlines to paragraphs ChatGPT-style
         fullText = fullText.replace(/\n/g, "<br>");
 
         const wrap = document.createElement("div");
@@ -167,12 +198,10 @@ window.addEventListener("DOMContentLoaded", () => {
         const bubble = document.createElement("div");
         bubble.className = "bubble ai-streaming";
 
-        // Main text container (prevents cursor deletion)
         const textSpan = document.createElement("span");
         textSpan.className = "stream-text";
         bubble.appendChild(textSpan);
 
-        // Cursor that follows text
         const cursor = document.createElement("div");
         cursor.className = "neon-cursor";
         bubble.appendChild(cursor);
@@ -185,8 +214,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
         while (i < fullText.length) {
             textSpan.innerHTML = fullText.substring(0, i + 1);
-
-            // Cursor follows automatically because it's always after textSpan
             scrollToBottom();
 
             let speed = 11 + Math.random() * 22;
@@ -195,15 +222,16 @@ window.addEventListener("DOMContentLoaded", () => {
             i++;
         }
 
-        // Fade cursor naturally
         cursor.classList.add("fade-out");
         setTimeout(() => cursor.remove(), 350);
 
         saveChat();
     }
-   /* ============================================================
+
+
+    /* ============================================================
        SEND MESSAGE
-============================================================ */
+    ============================================================ */
     async function sendMessage() {
         const text = input.value.trim();
         if (!text) return;
@@ -228,7 +256,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
         let bootIndex = 0;
 
-        // Boot bubble delay
         const bootDelay = setTimeout(() => {
             bootBubble = createBootBubble();
             bootInterval = setInterval(() => {
@@ -251,7 +278,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            // Minimum response time for illusion
             const minTime = 500;
             const elapsed = performance.now() - start;
             if (elapsed < minTime) {
@@ -264,7 +290,6 @@ window.addEventListener("DOMContentLoaded", () => {
             typingBubble.remove();
             if (bootBubble) bootBubble.parentElement.remove();
 
-            // ALWAYS STREAM (to protect illusion)
             await streamMessage(data.reply);
 
         } catch (err) {
@@ -278,7 +303,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        EVENTS
-============================================================ */
+    ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
@@ -287,7 +312,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        KEEPALIVE — 10 minutes
-============================================================ */
+    ============================================================ */
     setInterval(() => {
         fetch("https://leocore.onrender.com/api/chat", {
             method: "POST",
@@ -298,8 +323,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       PREMIUM HOLD-TO-RESET SYSTEM (UNCHANGED)
-============================================================ */
+       PREMIUM HOLD-TO-RESET (unchanged)
+    ============================================================ */
     if (clearBtn) {
         let holdTimer = null;
         let holdTriggered = false;
@@ -371,8 +396,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
                 setTimeout(() => {
                     localStorage.removeItem("leocore-chat");
+                    // DO NOT DELETE userId anymore (patched)
                     localStorage.removeItem("leocore-name");
-                    localStorage.removeItem("leocore-user");
                     location.reload();
                 }, 350);
             }, 3000);
@@ -403,7 +428,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        OPEN + CLOSE CHAT
-============================================================ */
+    ============================================================ */
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
         chatScreen.style.opacity = "0";
