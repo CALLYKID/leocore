@@ -1,11 +1,12 @@
-/* RESET */
+/* ============================================================
+   RESET + GLOBAL
+============================================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* GLOBAL FONT */
 body {
     background: #000;
     overflow-x: hidden;
@@ -13,7 +14,9 @@ body {
     color: white;
 }
 
-/* BG VIDEO */
+/* ============================================================
+   BACKGROUND VIDEO + OVERLAY
+============================================================ */
 #bgVideo {
     position: fixed;
     inset: 0;
@@ -24,7 +27,6 @@ body {
     pointer-events: none !important;
 }
 
-/* BG overlay */
 .overlay {
     position: fixed;
     inset: 0;
@@ -33,20 +35,42 @@ body {
     pointer-events: none !important;
 }
 
-/* CENTER HERO */
+/* ============================================================
+   FADE-IN ANIMATIONS (fixed)
+============================================================ */
+.fade-in {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: fadeUp 0.9s ease forwards;
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.4s; }
+.delay-3 { animation-delay: 0.6s; }
+
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================================
+   HERO / LANDING SECTION
+============================================================ */
 .center-wrapper {
     position: absolute;
     top: 30%;
     left: 50%;
     transform: translate(-50%, -50%);
     text-align: center;
-
     width: fit-content;
     max-width: 100%;
     pointer-events: none !important;
     z-index: 5;
 }
 
+/* Fake input on homepage */
 .fake-input {
     width: 85vw;
     max-width: 600px;
@@ -71,9 +95,9 @@ body {
 }
 
 .fake-text {
-    white-space: nowrap;
     font-size: 20px;
     color: #dff9ff;
+    white-space: nowrap;
 }
 
 .main-title {
@@ -91,7 +115,9 @@ body {
     letter-spacing: 3px;
 }
 
-/* INFO SECTION */
+/* ============================================================
+   INFO SECTION
+============================================================ */
 .info-section {
     margin-top: 60vh;
     width: 100%;
@@ -123,13 +149,12 @@ body {
 
 .info-card p {
     font-size: 17px;
-    line-height: 1.5;
     opacity: 0.92;
-    margin-bottom: 20px;
+    line-height: 1.5;
 }
 
 .features {
-    margin-top: 8px;
+    margin-top: 10px;
     display: flex;
     justify-content: center;
     gap: 18px;
@@ -137,7 +162,9 @@ body {
     opacity: 0.85;
 }
 
-/* CHAT SCREEN */
+/* ============================================================
+   CHAT SCREEN
+============================================================ */
 .chat-screen {
     position: fixed;
     top: 0;
@@ -149,12 +176,13 @@ body {
     background: rgba(5,10,30,0.92);
     backdrop-filter: blur(10px);
     z-index: 20;
+    opacity: 0;
+    transition: opacity 0.25s ease;
 }
 
 .chat-screen.active {
     display: flex;
     opacity: 1;
-    transition: opacity 0.25s ease;
 }
 
 /* HEADER */
@@ -168,29 +196,29 @@ body {
 }
 
 .back-btn {
+    font-size: 30px;
     background: none;
     border: none;
     color: white;
-    font-size: 30px;
     cursor: pointer;
 }
 
-/* CLEAR BUTTON */
 .clear-btn {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
     padding: 6px 12px;
     font-size: 12px;
     border-radius: 6px;
     cursor: pointer;
-    transition: 0.2s;
+
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: white;
     backdrop-filter: blur(4px);
 }
-.clear-btn:hover { background: rgba(255,255,255,0.2); }
-.clear-btn.holding { background: red; }
+.clear-btn:hover { background: rgba(255,255,255,0.25); }
 
-/* MESSAGES */
+/* ============================================================
+   CHAT MESSAGES
+============================================================ */
 .chat-messages {
     flex: 1;
     padding: 15px;
@@ -203,25 +231,23 @@ body {
 .user-msg {
     align-self: flex-end;
     background: #008cff;
-    color: white;
     padding: 10px 14px;
     border-radius: 12px 12px 4px 12px;
     max-width: 75%;
-    white-space: pre-wrap;
+    color: white;
 }
 
 .ai-msg {
     align-self: flex-start;
     background: #222b45;
-    color: white;
     padding: 10px 14px;
     border-radius: 12px 12px 12px 4px;
     max-width: 75%;
-    white-space: pre-wrap;
+    color: white;
 }
 
 /* ============================================================
-   LEOCORE INPUT BAR — PREMIUM STYLE
+   INPUT BAR — PREMIUM STYLE
 ============================================================ */
 .chat-input-area {
     padding: 12px;
@@ -231,20 +257,17 @@ body {
     backdrop-filter: blur(8px);
 }
 
-/* The upgraded input */
+/* Neon input */
 .chat-input-area input {
     flex: 1;
-    min-width: 0;
     height: 56px;
-
     padding: 0 18px;
     font-size: 16px;
-    color: #ffffff;
+    color: white;
 
     background: rgba(255,255,255,0.10);
     border: 2px solid rgba(0,200,255,0.35);
     border-radius: 16px;
-
     backdrop-filter: blur(8px);
 
     box-shadow:
@@ -260,10 +283,7 @@ body {
     opacity: 0.85;
 }
 
-.chat-input-area input:hover {
-    border-color: rgba(0,200,255,0.6);
-}
-
+/* Focus glow pulse */
 .chat-input-area input:focus {
     border-color: #00eaff;
     animation: inputPulse 1.8s infinite ease-out;
@@ -271,22 +291,22 @@ body {
 
 @keyframes inputPulse {
     50% {
-        box-shadow:
+        box-shadow: 
             0 0 22px #00eaff,
             inset 0 0 14px rgba(255,255,255,0.12);
     }
 }
 
-/* SEND BUTTON */
+/* ============================================================
+   NEON SEND BUTTON
+============================================================ */
 #sendBtn {
     width: 56px;
     height: 56px;
     border-radius: 16px;
-    border: none;
 
     background: radial-gradient(circle, #00eaff, #0088ff);
     color: white;
-
     font-size: 18px;
     font-weight: 600;
 
@@ -294,21 +314,19 @@ body {
     align-items: center;
     justify-content: center;
 
+    border: none;
     cursor: pointer;
-    transition: 0.2s ease;
+    position: relative;
 
     box-shadow:
         0 0 12px #00eaff,
         0 0 25px #009dff,
         inset 0 0 8px rgba(255,255,255,0.4);
-
-    overflow: hidden;
 }
 
-#sendBtn:hover {
-    transform: scale(1.06);
-}
+#sendBtn:hover { transform: scale(1.06); }
 
+/* Neon ripple */
 #sendBtn::after {
     content: "";
     position: absolute;
@@ -316,6 +334,7 @@ body {
     height: 140%;
     background: rgba(255,255,255,0.15);
     border-radius: 50%;
+
     top: 50%;
     left: 50%;
     transform: scale(0) translate(-50%, -50%);
@@ -329,15 +348,17 @@ body {
 /* ============================================================
    TYPING BUBBLE
 ============================================================ */
-
 .typing-bubble {
     align-self: flex-start;
-    background: rgba(10, 16, 35, 0.75);
-    border: 1px solid rgba(0, 200, 255, 0.4);
-    padding: 10px 16px;
-    border-radius: 14px 14px 14px 4px;
     display: inline-flex;
     gap: 10px;
+
+    padding: 10px 16px;
+    background: rgba(10, 16, 35, 0.75);
+    border: 1px solid rgba(0, 200, 255, 0.4);
+    border-radius: 14px 14px 14px 4px;
+
+    backdrop-filter: blur(8px);
     animation: bubbleFloat 2.2s infinite ease-in-out;
 }
 
@@ -348,9 +369,10 @@ body {
 .typing-bubble .dot {
     width: 9px;
     height: 9px;
-    background: #00eaff;
     border-radius: 50%;
+    background: #00eaff;
     animation: neonDot 1.2s infinite ease-in-out;
+    opacity: 0.8;
 }
 
 .typing-bubble .d2 { animation-delay: 0.18s; }
@@ -361,30 +383,28 @@ body {
 }
 
 /* ============================================================
-   ACCESSIBILITY FIXES
+   ACCESSIBILITY HELPERS
 ============================================================ */
 
-/* Skip to content link (hidden until tabbed) */
 .skip-link {
     position: absolute;
     top: -40px;
     left: 10px;
     background: #00eaff;
-    color: #000;
+    color: black;
     padding: 10px 14px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
-    transition: top 0.25s ease;
-    z-index: 999999;
+    transition: top 0.25s;
+    z-index: 9999;
 }
 
 .skip-link:focus {
     top: 10px;
 }
 
-/* Screen reader only text */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -392,7 +412,7 @@ body {
     padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0, 0, 0, 0);
+    clip: rect(0,0,0,0);
     white-space: nowrap;
     border: 0;
-}
+    }
