@@ -21,7 +21,7 @@ body{
     height:100%;
     object-fit:cover;
     z-index:-10;
-    pointer-events:none !important; /* FIX */
+    pointer-events:none !important;
 }
 
 /* Overlay tint */
@@ -30,22 +30,26 @@ body{
     inset:0;
     background:rgba(0,0,40,0.35);
     z-index:-5;
-    pointer-events:none !important; /* FIX */
+    pointer-events:none !important;
 }
 
-/* CENTER CONTENT */
+/* CENTER CONTENT — FIXED */
 .center-wrapper{
     position:absolute;
     top:30%;
     left:50%;
     transform:translate(-50%, -50%);
     text-align:center;
-    width:100%;
-    pointer-events:none !important; /* FIX */
+
+    width:fit-content;         /* <--- FIX #1 */
+    max-width:100%;
+    pointer-events:none !important;
+    z-index:5;
 }
 
+/* FAKE INPUT — ALWAYS CLICKABLE */
 .fake-input {
-    width: 85%;
+    width: 85vw;
     max-width: 600px;
     height: 62px;
 
@@ -63,14 +67,16 @@ body{
     box-shadow: 0 0 25px rgba(0,180,255,0.4);
 
     cursor: pointer;
-    pointer-events:auto !important; /* FIX — allow clicks */
+    pointer-events:auto !important;   /* <--- FIX #2 */
+    position: relative;
+    z-index: 10;                        /* <--- FIX #3 */
 }
 
 .fake-text {
     white-space: nowrap;
     font-size: 20px;
     color: #dff9ff;
-    pointer-events: none;
+    pointer-events:none;
 }
 
 .main-title {
@@ -79,6 +85,8 @@ body{
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 2px;
+
+    pointer-events:none !important;
 }
 
 .subtitle{
@@ -86,15 +94,16 @@ body{
     font-size:20px;
     opacity:0.8;
     letter-spacing:3px;
+    pointer-events:none !important;
 }
 
 /* INFO SECTION */
 .info-section {
-    margin-top: 60vh;
+    margin-top:60vh;
     width:100%;
     display:flex;
     justify-content:center;
-    pointer-events:none !important; /* FIX */
+    pointer-events:none !important;
 }
 
 .info-card{
@@ -109,6 +118,7 @@ body{
     box-shadow:0 0 25px rgba(0,180,255,0.25);
 
     text-align:center;
+    pointer-events:none !important;
 }
 
 .info-card h2{
@@ -146,13 +156,14 @@ body{
     background:rgba(5,10,30,0.92);
     backdrop-filter:blur(10px);
     z-index:20;
-    pointer-events:auto !important; /* FIX */
+    pointer-events:auto !important;
 }
 
 .chat-screen.active{
     display:flex;
 }
 
+/* HEADER */
 .chat-header{
     padding:20px;
     font-size:22px;
@@ -170,32 +181,30 @@ body{
     cursor:pointer;
 }
 
+/* CLEAR BUTTON */
 .clear-btn {
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.25);
     color: #fff;
+
     padding: 6px 12px;
     font-size: 12px;
     border-radius: 6px;
-    cursor: pointer;
-    transition: 0.2s;
+
+    cursor:pointer;
+    transition:0.2s;
     backdrop-filter: blur(4px);
 }
-.clear-btn:hover {
-    background: rgba(255,255,255,0.2);
-}
-.clear-btn.holding {
-    background: red;
-}
+.clear-btn:hover { background: rgba(255,255,255,0.2); }
+.clear-btn.holding { background:red; }
 
-/* Disable long press selection */
 .clear-btn {
     user-select:none;
     -webkit-user-select:none;
     -webkit-touch-callout:none;
 }
 
-/* CHAT MESSAGES */
+/* MESSAGES */
 .chat-messages{
     flex:1;
     padding:15px;
@@ -203,7 +212,7 @@ body{
     display:flex;
     flex-direction:column;
     gap:10px;
-    pointer-events:auto !important; /* FIX */
+    pointer-events:auto !important;
 }
 
 .user-msg{
@@ -232,7 +241,7 @@ body{
     display:flex;
     gap:10px;
     background:rgba(20,20,40,0.5);
-    pointer-events:auto !important; /* FIX */
+    pointer-events:auto !important;
 }
 
 .chat-input-area input{
@@ -254,110 +263,78 @@ body{
     cursor:pointer;
 }
 
-/* TYPING BUBBLE */
-.typing-bubble {
-    background: #1c2333;
-    padding: 8px 14px;
-    border-radius: 16px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    width: fit-content;
+/* GPT BOOT BUBBLE */
+.booting-msg {
+    align-self:flex-start;
+    background:#1a2337;
+    color:#dff8ff;
+
+    padding:10px 14px;
+    border-radius:12px 12px 12px 4px;
+    max-width:75%;
+    white-space: pre-wrap;
+
+    opacity:0;
+    transform:translateY(6px);
+    transition:0.35s ease;
+
+    border-left:3px solid #00eaff;
+    backdrop-filter:blur(5px);
 }
 
-.typing-bubble .dot {
-    width: 6px;
-    height: 6px;
-    background: #a3b4ff;
-    border-radius: 50%;
-    opacity: 0.6;
-    animation: bounce 1.4s infinite ease-in-out;
+.booting-msg.show {
+    opacity:1;
+    transform:translateY(0);
+    animation: bootPulse 1.8s infinite ease-in-out;
 }
 
-.typing-bubble .d1 { animation-delay: 0s; }
-.typing-bubble .d2 { animation-delay: 0.2s; }
-.typing-bubble .d3 { animation-delay: 0.4s; }
-
-@keyframes bounce {
-    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-    40% { transform: scale(1); opacity: 1; }
+@keyframes bootPulse {
+    0% { box-shadow:0 0 0px #00eaff55; }
+    50%{ box-shadow:0 0 12px #00eaff88; }
+    100%{ box-shadow:0 0 0px #00eaff55; }
 }
 
-/* CHAT CLEAR (fade out) */
+/* FADE OUT FOR CLEAR */
 .chat-fade-out {
     animation: fadeOutChat 0.4s forwards;
 }
 
 @keyframes fadeOutChat {
-    0% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(0.95); }
+    0% { opacity:1; transform:scale(1); }
+    100%{ opacity:0; transform:scale(0.95); }
 }
 
 /* FULL WIPE */
 .full-wipe-flash {
     position: fixed;
     inset: 0;
-    background: white;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 99999;
-    animation: wipeFlash 0.35s forwards;
+    background:white;
+    opacity:0;
+    pointer-events:none;
+    z-index:99999;
+    animation:wipeFlash 0.35s forwards;
 }
 
-@keyframes wipeFlash {
-    0% { opacity: 0; }
-    30% { opacity: 1; }
-    100% { opacity: 0; }
+@keyframes wipeFlash{
+    0%{opacity:0;}
+    30%{opacity:1;}
+    100%{opacity:0;}
 }
 
-/* FADE-IN ANIMATIONS */
-.fade-in {
-    opacity: 0;
-    transform: translateY(12px);
-    animation: fadeInUp 0.9s ease forwards;
+/* FADE-IN HERO */
+.fade-in{
+    opacity:0;
+    transform:translateY(12px);
+    animation:fadeInUp 0.9s ease forwards;
 }
-.delay-1 { animation-delay: 0.2s; }
-.delay-2 { animation-delay: 0.4s; }
-.delay-3 { animation-delay: 0.6s; }
 
-@keyframes fadeInUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
+.delay-1{animation-delay:0.2s;}
+.delay-2{animation-delay:0.4s;}
+.delay-3{animation-delay:0.6s;}
+
+@keyframes fadeInUp{
+    to{
+        opacity:1;
+        transform:translateY(0);
     }
-}
-
-/* GPT-STYLE BOOT BUBBLE */
-.booting-msg {
-    align-self: flex-start;
-    background: #1a2337;
-    color: #dff8ff;
-
-    padding: 10px 14px;
-    border-radius: 12px 12px 12px 4px;
-    max-width: 75%;
-    font-size: 15px;
-    white-space: pre-wrap;
-
-    opacity: 0;
-    transform: translateY(6px);
-    transition: 0.35s ease, background 0.3s;
-
-    border-left: 3px solid #00eaff;
-    backdrop-filter: blur(5px);
-}
-
-.booting-msg.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-@keyframes bootPulse {
-    0% { box-shadow: 0 0 0px #00eaff55; }
-    50% { box-shadow: 0 0 12px #00eaff88; }
-    100% { box-shadow: 0 0 0px #00eaff55; }
-}
-
-.booting-msg.show {
-    animation: bootPulse 1.8s infinite ease-in-out;
 }
