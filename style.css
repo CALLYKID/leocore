@@ -404,3 +404,73 @@ body {
     white-space: nowrap;
     border: 0;
 }
+
+/* ============================================================
+   SOFT SPIRAL TYPING BUBBLE — LEOCORE PREMIUM
+============================================================ */
+
+.spiral-bubble {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(0, 200, 255, 0.15);
+    border: 2px solid rgba(0, 200, 255, 0.4);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 
+        0 0 14px #00eaff55,
+        inset 0 0 10px #00eaff33;
+
+    animation: spiralPulse 2.2s infinite ease-in-out;
+}
+
+/* Center dot */
+.spiral-core {
+    width: 10px;
+    height: 10px;
+    background: #00eaff;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #00eaff;
+    animation: coreBeat 1.4s infinite ease-in-out;
+}
+
+/* Orbit dots */
+.orbit {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #00eaff;
+    border-radius: 50%;
+
+    box-shadow: 0 0 8px #00eaff;
+
+    animation: orbitSpin 2.6s linear infinite;
+    transform-origin: 50% 50%;
+    opacity: 0.9;
+}
+
+.orbit.o1 { animation-delay: 0s; }
+.orbit.o2 { animation-delay: 0.35s; }
+.orbit.o3 { animation-delay: 0.7s; }
+
+/* Keyframes */
+@keyframes orbitSpin {
+    0% { transform: rotate(0deg) translateX(18px) rotate(0deg); }
+    100% { transform: rotate(360deg) translateX(18px) rotate(-360deg); }
+}
+
+@keyframes coreBeat {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.6; }
+}
+
+@keyframes spiralPulse {
+    0% { box-shadow: 0 0 10px #00eaff55, inset 0 0 8px #00eaff33; }
+    50% { box-shadow: 0 0 18px #00eaff99, inset 0 0 14px #00eaff55; }
+    100% { box-shadow: 0 0 10px #00eaff55, inset 0 0 8px #00eaff33; }
+}
