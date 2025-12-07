@@ -116,7 +116,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function createTypingBubble() {
     const div = document.createElement("div");
-    div.className = "ai-msg";
+    div.className = "typing-holder"; /* FIXED */
 
     div.innerHTML = `
         <div class="spiral-bubble">
@@ -130,6 +130,7 @@ window.addEventListener("DOMContentLoaded", () => {
     messages.appendChild(div);
     scrollToBottom();
     return div;
+    }
 }
 
     /* ============================================================
