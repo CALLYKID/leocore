@@ -339,29 +339,55 @@ body{
     }
 }
 
-/* FIX: Make typing bubble look like a proper AI bubble */
+/* ============================================================
+   ULTRA NEON TYPING BUBBLE (LEOCORE EDITION)
+============================================================ */
+
 .typing-bubble {
     align-self: flex-start;
-    background: #1c2333;
-    padding: 10px 14px;
-    border-radius: 12px 12px 12px 4px;
-    max-width: 75%;
+    background: rgba(10, 16, 35, 0.75);
+    border: 1px solid rgba(0, 200, 255, 0.4);
+    padding: 10px 16px;
+    border-radius: 14px 14px 14px 4px;
     display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    gap: 10px;
+    width: fit-content;
+
+    backdrop-filter: blur(8px);
+    box-shadow: 0 0 12px rgba(0, 200, 255, 0.25),
+                inset 0 0 6px rgba(0, 200, 255, 0.2);
+
+    animation: bubbleFloat 2.2s ease-in-out infinite;
 }
 
-/* Dot animation (your original) */
+/* Floating animation */
+@keyframes bubbleFloat {
+    0% { transform: translateY(0px); opacity: 0.95; }
+    50% { transform: translateY(-4px); opacity: 1; }
+    100% { transform: translateY(0px); opacity: 0.95; }
+}
+
+/* Dots */
 .typing-bubble .dot {
-    width: 7px;
-    height: 7px;
-    background: #a3b4ff;
+    width: 9px;
+    height: 9px;
+    background: #00eaff;
     border-radius: 50%;
-    opacity: 0.7;
-    animation: bounce 1.4s infinite ease-in-out;
+    opacity: 0.8;
+
+    box-shadow: 0 0 10px #00eaff,
+                0 0 18px #00eaffaa;
+
+    animation: neonDot 1.2s infinite ease-in-out;
 }
 
+/* Per-dot delay */
 .typing-bubble .d1 { animation-delay: 0s; }
-.typing-bubble .d2 { animation-delay: 0.2s; }
-.typing-bubble .d3 { animation-delay: 0.4s; }
+.typing-bubble .d2 { animation-delay: 0.18s; }
+.typing-bubble .d3 { animation-delay: 0.36s; }
+
+@keyframes neonDot {
+    0%   { transform: scale(0.7); opacity: 0.5; }
+    50%  { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(0.7); opacity: 0.5; }
+}
