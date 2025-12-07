@@ -1,22 +1,25 @@
-/* ============================================================
-   RESET + GLOBAL
-============================================================ */
+/* RESET */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* GLOBAL FONT */
 body {
     background: #000;
     overflow-x: hidden;
     font-family: 'Inter', sans-serif;
     color: white;
+
+    opacity: 0;
+    animation: siteFadeIn 0.7s ease forwards;
+}
+@keyframes siteFadeIn {
+    to { opacity: 1; }
 }
 
-/* ============================================================
-   BACKGROUND VIDEO + OVERLAY
-============================================================ */
+/* BG VIDEO */
 #bgVideo {
     position: fixed;
     inset: 0;
@@ -27,6 +30,7 @@ body {
     pointer-events: none !important;
 }
 
+/* BG overlay */
 .overlay {
     position: fixed;
     inset: 0;
@@ -36,41 +40,23 @@ body {
 }
 
 /* ============================================================
-   FADE-IN ANIMATIONS (fixed)
-============================================================ */
-.fade-in {
-    opacity: 0;
-    transform: translateY(12px);
-    animation: fadeUp 0.9s ease forwards;
-}
-
-.delay-1 { animation-delay: 0.2s; }
-.delay-2 { animation-delay: 0.4s; }
-.delay-3 { animation-delay: 0.6s; }
-
-@keyframes fadeUp {
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ============================================================
-   HERO / LANDING SECTION
+   FIXED HERO (NO MORE ZOOM, NO MORE MISALIGNMENT)
 ============================================================ */
 .center-wrapper {
-    position: absolute;
-    top: 30%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    width: 100%;
+    padding-top: 22vh;
+    padding-bottom: 18vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
     text-align: center;
-    width: fit-content;
-    max-width: 100%;
-    pointer-events: none !important;
     z-index: 5;
 }
 
-/* Fake input on homepage */
+/* Fake input */
 .fake-input {
     width: 85vw;
     max-width: 600px;
@@ -90,14 +76,18 @@ body {
 
     cursor: pointer;
     pointer-events: auto !important;
-    position: relative;
-    z-index: 10;
+
+    animation: heroFade 1s ease forwards;
+    opacity: 0;
+}
+@keyframes heroFade {
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .fake-text {
+    white-space: nowrap;
     font-size: 20px;
     color: #dff9ff;
-    white-space: nowrap;
 }
 
 .main-title {
@@ -106,24 +96,28 @@ body {
     font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 2px;
+
+    opacity: 0;
+    animation: heroFade 1s ease 0.2s forwards;
 }
 
 .subtitle {
     margin-top: 8px;
     font-size: 20px;
     opacity: 0.8;
-    letter-spacing: 3px;
+
+    opacity: 0;
+    animation: heroFade 1s ease 0.4s forwards;
 }
 
 /* ============================================================
-   INFO SECTION
+   INFO SECTION FIXED (NO MORE MARGIN-TOP 60vh MADNESS)
 ============================================================ */
 .info-section {
-    margin-top: 60vh;
     width: 100%;
     display: flex;
     justify-content: center;
-    pointer-events: none !important;
+    padding-top: 5vh;
 }
 
 .info-card {
@@ -138,6 +132,12 @@ body {
     box-shadow: 0 0 25px rgba(0,180,255,0.25);
 
     text-align: center;
+
+    opacity: 0;
+    animation: cardAppear 0.9s ease 0.5s forwards;
+}
+@keyframes cardAppear {
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .info-card h2 {
@@ -149,12 +149,13 @@ body {
 
 .info-card p {
     font-size: 17px;
-    opacity: 0.92;
     line-height: 1.5;
+    opacity: 0.92;
+    margin-bottom: 20px;
 }
 
 .features {
-    margin-top: 10px;
+    margin-top: 8px;
     display: flex;
     justify-content: center;
     gap: 18px;
@@ -173,16 +174,17 @@ body {
     height: 100%;
     display: none;
     flex-direction: column;
+
     background: rgba(5,10,30,0.92);
     backdrop-filter: blur(10px);
     z-index: 20;
-    opacity: 0;
-    transition: opacity 0.25s ease;
-}
 
+    opacity: 0;
+}
 .chat-screen.active {
     display: flex;
     opacity: 1;
+    transition: opacity 0.25s ease;
 }
 
 /* HEADER */
@@ -196,29 +198,28 @@ body {
 }
 
 .back-btn {
-    font-size: 30px;
     background: none;
     border: none;
     color: white;
+    font-size: 30px;
     cursor: pointer;
 }
 
+/* CLEAR BUTTON */
 .clear-btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.25);
+    color: #fff;
     padding: 6px 12px;
     font-size: 12px;
     border-radius: 6px;
     cursor: pointer;
-
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: white;
-    backdrop-filter: blur(4px);
+    transition: 0.2s;
 }
-.clear-btn:hover { background: rgba(255,255,255,0.25); }
+.clear-btn:hover { background: rgba(255,255,255,0.2); }
+.clear-btn.holding { background: red; }
 
-/* ============================================================
-   CHAT MESSAGES
-============================================================ */
+/* MESSAGES */
 .chat-messages {
     flex: 1;
     padding: 15px;
@@ -231,23 +232,25 @@ body {
 .user-msg {
     align-self: flex-end;
     background: #008cff;
+    color: white;
     padding: 10px 14px;
     border-radius: 12px 12px 4px 12px;
     max-width: 75%;
-    color: white;
+    white-space: pre-wrap;
 }
 
 .ai-msg {
     align-self: flex-start;
     background: #222b45;
+    color: white;
     padding: 10px 14px;
     border-radius: 12px 12px 12px 4px;
     max-width: 75%;
-    color: white;
+    white-space: pre-wrap;
 }
 
 /* ============================================================
-   INPUT BAR — PREMIUM STYLE
+   NEW PREMIUM INPUT BAR
 ============================================================ */
 .chat-input-area {
     padding: 12px;
@@ -257,24 +260,21 @@ body {
     backdrop-filter: blur(8px);
 }
 
-/* Neon input */
+/* INPUT */
 .chat-input-area input {
     flex: 1;
     height: 56px;
+
     padding: 0 18px;
     font-size: 16px;
-    color: white;
+    color: #ffffff;
 
     background: rgba(255,255,255,0.10);
     border: 2px solid rgba(0,200,255,0.35);
     border-radius: 16px;
+
     backdrop-filter: blur(8px);
 
-    box-shadow:
-        0 0 12px rgba(0,200,255,0.15),
-        inset 0 0 12px rgba(255,255,255,0.05);
-
-    outline: none;
     transition: 0.22s ease;
 }
 
@@ -283,30 +283,26 @@ body {
     opacity: 0.85;
 }
 
-/* Focus glow pulse */
 .chat-input-area input:focus {
     border-color: #00eaff;
     animation: inputPulse 1.8s infinite ease-out;
 }
-
 @keyframes inputPulse {
     50% {
-        box-shadow: 
-            0 0 22px #00eaff,
-            inset 0 0 14px rgba(255,255,255,0.12);
+        box-shadow: 0 0 22px #00eaff;
     }
 }
 
-/* ============================================================
-   NEON SEND BUTTON
-============================================================ */
+/* SEND BUTTON */
 #sendBtn {
     width: 56px;
     height: 56px;
     border-radius: 16px;
+    border: none;
 
     background: radial-gradient(circle, #00eaff, #0088ff);
     color: white;
+
     font-size: 18px;
     font-weight: 600;
 
@@ -314,19 +310,22 @@ body {
     align-items: center;
     justify-content: center;
 
-    border: none;
     cursor: pointer;
-    position: relative;
+    transition: 0.2s ease;
 
     box-shadow:
         0 0 12px #00eaff,
         0 0 25px #009dff,
         inset 0 0 8px rgba(255,255,255,0.4);
+
+    position: relative;
+    overflow: hidden;
 }
 
-#sendBtn:hover { transform: scale(1.06); }
+#sendBtn:hover {
+    transform: scale(1.06);
+}
 
-/* Neon ripple */
 #sendBtn::after {
     content: "";
     position: absolute;
@@ -334,13 +333,11 @@ body {
     height: 140%;
     background: rgba(255,255,255,0.15);
     border-radius: 50%;
-
     top: 50%;
     left: 50%;
     transform: scale(0) translate(-50%, -50%);
     animation: sendPulse 2s infinite ease-out;
 }
-
 @keyframes sendPulse {
     70% { transform: scale(1.6) translate(-50%, -50%); opacity: 0; }
 }
@@ -350,18 +347,14 @@ body {
 ============================================================ */
 .typing-bubble {
     align-self: flex-start;
-    display: inline-flex;
-    gap: 10px;
-
-    padding: 10px 16px;
     background: rgba(10, 16, 35, 0.75);
     border: 1px solid rgba(0, 200, 255, 0.4);
+    padding: 10px 16px;
     border-radius: 14px 14px 14px 4px;
-
-    backdrop-filter: blur(8px);
+    display: inline-flex;
+    gap: 10px;
     animation: bubbleFloat 2.2s infinite ease-in-out;
 }
-
 @keyframes bubbleFloat {
     50% { transform: translateY(-4px); }
 }
@@ -369,38 +362,33 @@ body {
 .typing-bubble .dot {
     width: 9px;
     height: 9px;
-    border-radius: 50%;
     background: #00eaff;
+    border-radius: 50%;
     animation: neonDot 1.2s infinite ease-in-out;
-    opacity: 0.8;
 }
-
 .typing-bubble .d2 { animation-delay: 0.18s; }
 .typing-bubble .d3 { animation-delay: 0.36s; }
-
 @keyframes neonDot {
     50% { transform: scale(1.25); opacity: 1; }
 }
 
 /* ============================================================
-   ACCESSIBILITY HELPERS
+   ACCESSIBILITY FIXES
 ============================================================ */
-
 .skip-link {
     position: absolute;
     top: -40px;
     left: 10px;
     background: #00eaff;
-    color: black;
+    color: #000;
     padding: 10px 14px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
     text-decoration: none;
-    transition: top 0.25s;
-    z-index: 9999;
+    transition: top 0.25s ease;
+    z-index: 999999;
 }
-
 .skip-link:focus {
     top: 10px;
 }
@@ -412,7 +400,7 @@ body {
     padding: 0;
     margin: -1px;
     overflow: hidden;
-    clip: rect(0,0,0,0);
+    clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
-    }
+}
