@@ -363,3 +363,8 @@ body{
 .booting-msg.show {
     animation: bootPulse 1.8s infinite ease-in-out;
 }
+
+/* FIX — STOP INFO BOX FROM BLOCKING CLICKS */
+.info-section {
+    pointer-events: none !important;
+}
