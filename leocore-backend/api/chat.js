@@ -193,6 +193,7 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 model: "llama-3.1-8b-instant",
+                max_tokens: 150
                 messages: [
                     { role: "system", content: SYSTEM_MESSAGE },
                     { role: "system", content: `User Memory:\n${JSON.stringify(data.memory, null, 2)}` },
