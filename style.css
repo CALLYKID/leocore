@@ -229,24 +229,39 @@ body {
     gap: 10px;
 }
 
-.user-msg {
-    align-self: flex-end;
-    background: #008cff;
-    color: white;
-    padding: 10px 14px;
-    border-radius: 12px 12px 4px 12px;
-    max-width: 75%;
+.ai-msg, .user-msg {
+    width: 100%;
+    max-width: 100%;
+    padding: 0; /* container handles padding */
+    display: flex;
+}
+
+.ai-msg .bubble,
+.user-msg .bubble {
+    max-width: 92%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 16px;
+    line-height: 1.48;
     white-space: pre-wrap;
 }
 
 .ai-msg {
-    align-self: flex-start;
+    justify-content: flex-start;
+}
+.ai-msg .bubble {
     background: #222b45;
     color: white;
-    padding: 10px 14px;
-    border-radius: 12px 12px 12px 4px;
-    max-width: 75%;
-    white-space: pre-wrap;
+    border-radius: 14px 14px 14px 6px;
+}
+
+.user-msg {
+    justify-content: flex-end;
+}
+.user-msg .bubble {
+    background: #008cff;
+    color: white;
+    border-radius: 14px 14px 6px 14px;
 }
 
 /* ============================================================
@@ -616,4 +631,11 @@ body {
         opacity: 0;
         box-shadow: 0 0 40px #9400ff;
     }
+}
+
+.bubble p {
+    margin-bottom: 10px;
+}
+.bubble p:last-child {
+    margin-bottom: 0;
 }
