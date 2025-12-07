@@ -118,22 +118,22 @@ window.addEventListener("DOMContentLoaded", () => {
        NEW SPIRAL TYPING ANIMATION
     ============================================================*/
     function createTypingBubble() {
-        const div = document.createElement("div");
-        div.className = "typing-holder";
+    const div = document.createElement("div");
+    div.className = "typing-holder";
 
-        div.innerHTML = `
-            <div class="spiral-bubble">
-                <div class="spiral-core"></div>
-                <div class="orbit o1"></div>
-                <div class="orbit o2"></div>
-                <div class="orbit o3"></div>
-            </div>
-        `;
+    div.innerHTML = `
+        <div class="spiral-bubble">
+            <div class="spiral-core"></div>
+            <div class="orbit o1"></div>
+            <div class="orbit o2"></div>
+            <div class="orbit o3"></div>
+        </div>
+    `;
 
-        messages.appendChild(div);
-        scrollToBottom();
-        return div;
-    }
+    messages.appendChild(div);
+    scrollToBottom();
+    return div;
+}
 
     /* ============================================================
        SEND MESSAGE — FINAL VERSION
