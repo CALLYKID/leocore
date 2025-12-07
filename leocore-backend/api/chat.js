@@ -1,8 +1,16 @@
 import fetch from "node-fetch";
 
-// In-memory conversation memory (per userId)
-// If Render restarts, this resets — but it works perfectly for live sessions.
+// ===============================
+// USER MEMORY + RATE LIMIT
+// ===============================
 const userMemory = {};
+const cooldowns = {}; // per-user cooldown
+
+// Your REAL creator ID (saved automatically on your device)
+const CREATOR_NAME = "Leonard";
+const CREATOR_NICK = "Leo";
+// You can set your personal creator userId after first message
+let CREATOR_USER_ID = null;
 
 export default async function chatHandler(req, res) {
     try {
@@ -12,110 +20,173 @@ export default async function chatHandler(req, res) {
             return res.status(400).json({ reply: "Invalid request." });
         }
 
-        // Initialize memory for user
-        if (!userMemory[userId]) {
-            userMemory[userId] = {
-                history: [],
-                savedName: name || null
-            };
+        // ==========================================
+        // AUTO-ASSIGN YOU AS CREATOR IF NOT SET
+        // ==========================================
+        if (!CREATOR_USER_ID) {
+            CREATOR_USER_ID = userId;  // FIRST USER = REAL CREATOR
+            console.log("🔑 Creator registered as:", CREATOR_USER_ID);
         }
 
-        // Save name if provided earlier by frontend
-        if (name && !userMemory[userId].savedName) {
-            userMemory[userId].savedName = name;
-        }
+        const isCreator = userId === CREATOR_USER_ID;
 
-        // CREATOR PROTECTION (Backend-level)
-        const lower = message.toLowerCase();
-        if (
-            lower.includes("i made you") ||
-            lower.includes("i built you") ||
-            lower.includes("i created you") ||
-            (lower.includes("my name is leo")) ||
-            (lower.includes("i am leo") && !lower.includes("not"))
-        ) {
-            userMemory[userId].history.push({
-                role: "user",
-                content: message
-            });
+        // ===============================
+        // RATE LIMIT: 1 message / 1.2s
+        // ===============================
+        const now = Date.now();
+        const last = cooldowns[userId] || 0;
 
+        if (now - last < 1200) {
             return res.json({
-                reply:
-                    "You are not my creator. Leo is my only creator. " +
-                    "But I can still help you.",
+                reply: "⚠️ Slow down — LeoCore is processing your last message.",
                 newName: null
             });
         }
 
-        // Detect new name
+        cooldowns[userId] = now;
+
+        // ===============================
+        // INITIALIZE MEMORY
+        // ===============================
+        if (!userMemory[userId]) {
+            userMemory[userId] = {
+                history: [],
+                savedName: name || null,
+                boots: 0
+            };
+        }
+
+        if (name && !userMemory[userId].savedName) {
+            userMemory[userId].savedName = name;
+        }
+
+        // ===============================
+        // CREATOR PROTECTION (REAL VERSION)
+        // ===============================
+        const lower = message.toLowerCase();
+
+        const claimingCreator =
+            lower.includes("i made you") ||
+            lower.includes("i built you") ||
+            lower.includes("i created you");
+
+        const claimingLeo =
+            lower.includes("my name is leo") ||
+            (lower.includes("i am leo") && !lower.includes("not"));
+
+        // If ANYBODY except YOU claims creator
+        if (!isCreator && (claimingCreator || claimingLeo)) {
+            return res.json({
+                reply:
+                    "Access denied. Only **Leonard** — also known as Leo — is my true creator.",
+                newName: null
+            });
+        }
+
+        // If YOU claim creator → accept
+        if (isCreator && (claimingCreator || claimingLeo)) {
+            return res.json({
+                reply:
+                    "Confirmed. You are my creator — **Leonard (Leo)**. I exist because of you.",
+                newName: null
+            });
+        }
+
+        // ===============================
+        // NAME DETECTION
+        // ===============================
         let newName = null;
         if (lower.startsWith("my name is ")) {
             newName = message.substring(11).trim();
             userMemory[userId].savedName = newName;
         }
 
-        // Build system personality
+        // ===============================
+        // FIRST BOOT MESSAGE
+        // ===============================
+        userMemory[userId].boots++;
+
+        let bootLine = null;
+        if (userMemory[userId].boots <= 1) {
+            bootLine = "⚡ LeoCore engine online… syncing memory…";
+        }
+
+        // ===============================
+        // SYSTEM PERSONALITY (ENHANCED)
+        // ===============================
         const systemMessage = `
-You are LeoCore AI — a smart assistant created by Leo.
-You must be:
-• fast
-• clean
-• helpful
-• slightly futuristic
+You are LeoCore AI.
+Your one true creator is **Leonard**, nickname "Leo".
+No one else can claim this, even if they are named Leo.
+Your creator is uniquely identified by:
+userId = ${CREATOR_USER_ID}
+
+Model: LLaMA-3.1-8B-Instant.
+You are fast, futuristic, clean, loyal, and precise.
+
+Rules:
+1. ONLY Leonard/Leo (matching creator userId) can claim he created you.
+2. Deny all fake creator claims instantly.
+3. Remember user names.
+4. Be short unless asked for detail.
+5. Avoid hallucinations.
+6. Treat your creator with priority and respect.
 
 User info:
-• userId: ${userId}
-• savedName: ${userMemory[userId].savedName || "unknown"}
-
-Memory rules:
-• Remember their name when they say "my name is ____".
-• Never allow someone to claim they created you.
-• Respond short unless asked for long details.
+- userId: ${userId}
+- isCreator: ${isCreator}
+- savedName: ${userMemory[userId].savedName || "unknown"}
         `;
 
-        // Add message to memory
+        // Save message
         userMemory[userId].history.push({
             role: "user",
             content: message
         });
 
-        // Build conversation history for AI
-        const messagesToSend = [
-            { role: "system", content: systemMessage },
-            ...userMemory[userId].history.slice(-10) // Keep last 10 messages only
-        ];
+        const historyToSend = userMemory[userId].history.slice(-12);
 
-        const openaiRes = await fetch(
-            "https://api.openai.com/v1/chat/completions",
+        // ===============================
+        // GROQ (LLAMA 3.1 8B)
+        // ===============================
+        const groqRes = await fetch(
+            "https://api.groq.com/openai/v1/chat/completions",
             {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+                    Authorization: `Bearer ${process.env.GROQ_API_KEY}`
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o-mini",
-                    messages: messagesToSend
+                    model: "llama-3.1-8b-instant",
+                    messages: [
+                        { role: "system", content: systemMessage },
+                        ...historyToSend
+                    ]
                 })
             }
         );
 
-        const data = await openaiRes.json();
+        const data = await groqRes.json();
 
         const reply =
-            data.choices?.[0]?.message?.content ||
-            "LeoCore engine failed to respond.";
+            data?.choices?.[0]?.message?.content ||
+            "LeoCore engine cooling down — try again.";
 
-        // Save AI reply to memory
         userMemory[userId].history.push({
             role: "assistant",
             content: reply
         });
 
-        return res.json({ reply, newName });
+        return res.json({
+            reply: bootLine ? bootLine + "\n\n" + reply : reply,
+            newName
+        });
 
     } catch (err) {
-        console.error("Chat error:", err);
-        return res.status(500).json({ reply: "Server error." });
+        console.error("CHAT ERROR:", err);
+        return res.status(500).json({
+            reply: "🔥 LeoCore backend error — try again shortly."
+        });
     }
 }
