@@ -22,6 +22,9 @@
 
 <body>
 
+    <!-- SKIP LINK (INVISIBLE UNTIL TAB PRESSED) -->
+    <a href="#messages" class="skip-link">Skip to chat</a>
+
     <!-- BACKGROUND VIDEO -->
     <video id="bgVideo" autoplay muted loop playsinline>
         <source src="waves.mp4" type="video/mp4">
@@ -30,7 +33,6 @@
 
     <!-- CENTER HERO CONTENT -->
     <div class="center-wrapper">
-        <!-- CLICKABLE INPUT FIXED -->
         <div class="fake-input fade-in" id="fakeInput" onclick="openChat()">
             <span class="fake-text" id="fakeText"></span>
         </div>
@@ -39,7 +41,7 @@
         <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
     </div>
 
-    <!-- INFO SECTION (NO INTERACTION) -->
+    <!-- INFO SECTION -->
     <div class="info-section fade-in delay-3">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -70,19 +72,25 @@
         <div class="chat-messages" id="messages"></div>
 
         <div class="chat-input-area">
+
+            <!-- ACCESSIBILITY LABEL (INVISIBLE) -->
+            <label for="userInput" class="sr-only">Message input</label>
+
             <input type="text" id="userInput" placeholder="Say something...">
-            <button id="sendBtn">✦ Send</button>
+
+            <button id="sendBtn" class="send-btn">
+                <span class="send-icon">✦</span> Send
+            </button>
         </div>
 
     </div>
 
-    <!-- CHAT OPEN FUNCTION (NEEDED FOR CLICK FIX) -->
     <script>
         function openChat() {
             document.getElementById("chatScreen").classList.add("active");
         }
     </script>
 
-    <script src="app.js?v=8000"></script>
+    <script src="app.js?v=9000"></script>
 </body>
 </html>
