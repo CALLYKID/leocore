@@ -83,9 +83,7 @@ export default async function handler(req, res) {
         if (!message || !userId)
             return res.status(400).json({ reply: "Invalid request." });
 
-        /* =====================================================
-           FAST KEEP-ALIVE
-        ====================================================== */
+        // ====== KEEP-ALIVE ======
         if (message === "__ping__") return res.json({ reply: "pong" });
 
         const userRef = db.collection("users").doc(userId);
@@ -104,7 +102,7 @@ export default async function handler(req, res) {
            RATE LIMIT
         ====================================================== */
         if (!(await rateLimit(userRef))) {
-            return res.status(429).json({ reply: "⚠️ Slow down — LeoCore is processing." });
+            return res.status(429).json({ reply: "⚠️ Slow down — LeoCore is processing.", stream: false });
         }
 
         data.boots++;
@@ -112,30 +110,32 @@ export default async function handler(req, res) {
         /* =====================================================
            CREATOR LOGIC
         ====================================================== */
-        if (!isCreator &&
-            (lower.includes("i made you") ||
-             lower.includes("i built you") ||
-             lower.includes("i created you"))) {
-            return res.json({ reply: randomPunishment() });
+        const claiming =
+            lower.includes("i made you") ||
+            lower.includes("i built you") ||
+            lower.includes("i created you");
+
+        if (!isCreator && claiming) {
+            return res.json({ reply: randomPunishment(), stream: true });
         }
 
-        if (isCreator &&
-            (lower.includes("i made you") ||
-             lower.includes("i built you") ||
-             lower.includes("i created you"))) {
-            return res.json({ reply: "Identity confirmed: Leonard (Leo), system creator." });
+        if (isCreator && claiming) {
+            return res.json({
+                reply: "Identity confirmed: Leonard (Leo), system creator.",
+                stream: true
+            });
         }
 
         /* =====================================================
-           MEMORY SYSTEM
+           MEMORY
         ====================================================== */
         data.memory = extractMemory(message, data.memory);
 
         data.history.push({ role: "user", content: message });
-        if (data.history.length > 8) data.history.shift(); // faster
+        if (data.history.length > 8) data.history.shift();
 
         /* =====================================================
-           AI REQUEST — OPTIMIZED
+           AI REQUEST
         ====================================================== */
         const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -154,8 +154,7 @@ export default async function handler(req, res) {
         });
 
         const ai = await groqResponse.json();
-        const reply =
-            ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
+        const reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
 
         data.history.push({ role: "assistant", content: reply });
         if (data.history.length > 8) data.history.shift();
@@ -163,19 +162,21 @@ export default async function handler(req, res) {
         await userRef.set(data, { merge: true });
 
         return res.json({
-            reply:
-                (data.boots === 1 ? "⚡ LeoCore engine online… syncing memory…\n\n" : "") +
-                reply
+            reply: (data.boots === 1 ? "⚡ LeoCore engine online… syncing memory…\n\n" : "") + reply,
+            stream: true   // ⭐ tells frontend to stream it
         });
 
     } catch (err) {
         console.error("CHAT ERROR:", err);
-        return res.status(500).json({ reply: "🔥 LeoCore backend error — system halted." });
+        return res.status(500).json({
+            reply: "🔥 LeoCore backend error — system halted.",
+            stream: false
+        });
     }
 }
 
 /* =====================================================
-   GLOBAL KEEP-ALIVE (5 MIN)
+   KEEP BACKEND ALIVE (every 5 min)
 ===================================================== */
 setInterval(() => {
     fetch("https://leocore.onrender.com/api/chat", {
