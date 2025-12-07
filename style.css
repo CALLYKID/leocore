@@ -253,16 +253,6 @@ body{
     font-size:16px;
 }
 
-#sendBtn{
-    padding:14px 18px;
-    font-size:22px;
-    border:none;
-    border-radius:10px;
-    background:#00c8ff;
-    color:white;
-    cursor:pointer;
-}
-
 /* GPT BOOT BUBBLE */
 .booting-msg {
     align-self:flex-start;
