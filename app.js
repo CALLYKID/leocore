@@ -29,7 +29,7 @@ window.addEventListener("DOMContentLoaded", () => {
     let userId = localStorage.getItem("leocore-user");
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
-        localLocalStorage.setItem("leocore-user", userId);
+        localStorage.setItem("leocore-user", userId);
     }
 
     let savedName = localStorage.getItem("leocore-name") || null;
@@ -115,25 +115,25 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       NEW SPIRAL TYPING ANIMATION
-    ============================================================*/
+       NEW SPIRAL TYPING BUBBLE
+    ============================================================ */
     function createTypingBubble() {
-    const div = document.createElement("div");
-    div.className = "typing-holder";
+        const div = document.createElement("div");
+        div.className = "typing-holder";
 
-    div.innerHTML = `
-        <div class="spiral-bubble">
-            <div class="spiral-core"></div>
-            <div class="orbit o1"></div>
-            <div class="orbit o2"></div>
-            <div class="orbit o3"></div>
-        </div>
-    `;
+        div.innerHTML = `
+            <div class="spiral-bubble">
+                <div class="spiral-core"></div>
+                <div class="orbit o1"></div>
+                <div class="orbit o2"></div>
+                <div class="orbit o3"></div>
+            </div>
+        `;
 
-    messages.appendChild(div);
-    scrollToBottom();
-    return div;
-}
+        messages.appendChild(div);
+        scrollToBottom();
+        return div;
+    }
 
     /* ============================================================
        SEND MESSAGE — FINAL VERSION
@@ -147,10 +147,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const start = performance.now();
 
-        /* Spiral typing animation */
+        // typing animation
         let typingBubble = createTypingBubble();
 
-        /* Boot bubble (in case backend sleeps) */
+        // boot bubble
         let bootBubble = null;
         let bootInterval = null;
 
@@ -187,14 +187,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            /* Ensure minimum feel-nice response time */
             const minTime = 500;
             const elapsed = performance.now() - start;
             if (elapsed < minTime) {
                 await new Promise(r => setTimeout(r, minTime - elapsed));
             }
 
-            /* Cleanup */
             clearTimeout(bootDelay);
             clearInterval(bootInterval);
             if (typingBubble) typingBubble.remove();
@@ -218,6 +216,9 @@ window.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    /* ============================================================
+       BUTTON + INPUT EVENTS
+    ============================================================*/
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
@@ -297,4 +298,4 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 250);
     });
 
-}); // END MAIN APP
+});
