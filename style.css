@@ -875,3 +875,81 @@ body {
     border-color: rgba(0,200,255,0.35);
     box-shadow: 0 0 10px #00eaff55;
 }
+/* -----------------------------------------
+   NEON HEADER UPGRADE
+------------------------------------------*/
+
+.chat-header {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+    box-shadow: 0 2px 20px rgba(0, 255, 255, 0.05);
+}
+
+/* -----------------------------------------
+   BACK BUTTON (LEFT)
+------------------------------------------*/
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    padding: 10px 14px;
+    border-radius: 50px;
+    color: #dffaff;
+    font-size: 20px;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.back-btn:hover {
+    background: rgba(0, 255, 255, 0.25);
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.65);
+}
+
+/* -----------------------------------------
+   CHAT TITLE
+------------------------------------------*/
+
+.chat-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00eaff, #9d4bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 10px rgba(0,255,255,0.35);
+}
+
+/* -----------------------------------------
+   CLEAR BUTTON (RIGHT)
+------------------------------------------*/
+
+.clear-btn {
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 8px 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    color: #dffaff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.25s ease;
+}
+
+.clear-btn:hover {
+    background: rgba(255, 70, 70, 0.28);
+    border-color: rgba(255, 70, 70, 0.4);
+    box-shadow: 0 0 12px rgba(255, 40, 40, 0.55);
+}
+
+.clear-icon {
+    font-size: 17px;
+    opacity: 0.9;
+}
