@@ -73,7 +73,7 @@ If the user asks for emojis, humor, or personality, use them naturally, not over
 Never stream boot/system messages. Keep them static. 
 Your tone: modern, friendly, smart, with playful confidence — but not cringe, not robotic.
 Always stay helpful, factual, and non-toxic.
-Never start a sentence in lowercase.
+The first letter of replies given must be capital letter and the rest lowercase.
 `;
 
 /* =====================================================
@@ -167,7 +167,7 @@ export default async function handler(req, res) {
         await userRef.set(data, { merge: true });
 
         return res.json({
-            reply: (data.boots === 1 ? "⚡ LeoCore engine online… syncing memory…\n\n" : "") + reply,
+            reply: (data.boots === 1 ? "\n\n" : "") + reply,
             forceStatic: true   // ⭐ tells frontend to stream it
         });
 
