@@ -144,7 +144,25 @@ window.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
+function addBootBubble(text) {
+    const div = document.createElement("div");
+    div.className = "boot-bubble";
+    div.innerText = text;
 
+    messages.appendChild(div);
+    scrollToBottom();
+
+    // fade-in animation
+    setTimeout(() => {
+        div.classList.add("show");
+    }, 20);
+
+    return div;
+}
+
+function removeAllBootBubbles() {
+    document.querySelectorAll(".boot-bubble").forEach(b => b.remove());
+}
 
     /* ============================================================
    SEND MESSAGE — Deluxe Boot Animation Edition
