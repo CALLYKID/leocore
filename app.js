@@ -151,7 +151,7 @@ window.addEventListener("DOMContentLoaded", () => {
         }, 350);
 
         while (i < fullText.length) {
-            let speed = 13 + Math.random() * 28;
+            let speed = 5 + Math.random() * 12;
 
             const ch = fullText[i];
             if (".,!?:;".includes(ch)) speed += 120;
