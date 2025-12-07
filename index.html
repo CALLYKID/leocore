@@ -22,8 +22,8 @@
 
 <body>
 
-    <!-- SKIP LINK (INVISIBLE UNTIL TAB PRESSED) -->
-    <a href="#messages" class="skip-link">Skip to chat</a>
+    <!-- ACCESSIBILITY SKIP LINK -->
+    <a href="#chatScreen" class="skip-link">Skip to Chat</a>
 
     <!-- BACKGROUND VIDEO -->
     <video id="bgVideo" autoplay muted loop playsinline>
@@ -32,8 +32,10 @@
     <div class="overlay"></div>
 
     <!-- CENTER HERO CONTENT -->
-    <div class="center-wrapper">
-        <div class="fake-input fade-in" id="fakeInput" onclick="openChat()">
+    <div class="center-wrapper fade-in">
+
+        <!-- CLICKABLE INPUT TEXT -->
+        <div class="fake-input fade-in" id="fakeInput" onclick="openChat()" role="button" aria-label="Open LeoCore chat">
             <span class="fake-text" id="fakeText"></span>
         </div>
 
@@ -64,33 +66,35 @@
     <div class="chat-screen" id="chatScreen">
 
         <div class="chat-header">
-            <button class="back-btn" id="closeChat">←</button>
+            <button class="back-btn" id="closeChat" aria-label="Close chat">←</button>
             <span class="chat-title">LEOCORE</span>
-            <button class="clear-btn" id="clearChat">Clear</button>
+            <button class="clear-btn" id="clearChat" aria-label="Clear chat history">Clear</button>
         </div>
 
         <div class="chat-messages" id="messages"></div>
 
+        <!-- INPUT AREA -->
         <div class="chat-input-area">
 
-            <!-- ACCESSIBILITY LABEL (INVISIBLE) -->
-            <label for="userInput" class="sr-only">Message input</label>
+            <label class="sr-only" for="userInput">Type your message</label>
+            <input 
+                type="text" 
+                id="userInput" 
+                placeholder="Say something..." 
+                autocomplete="off"
+            >
 
-            <input type="text" id="userInput" placeholder="Say something...">
-
-            <button id="sendBtn" class="send-btn">
-                <span class="send-icon">✦</span> Send
-            </button>
+            <button id="sendBtn" aria-label="Send message">✦ Send</button>
         </div>
-
     </div>
 
+    <!-- OPEN CHAT FUNCTION -->
     <script>
         function openChat() {
             document.getElementById("chatScreen").classList.add("active");
         }
     </script>
 
-    <script src="app.js?v=9000"></script>
+    <script src="app.js?v=9999"></script>
 </body>
 </html>
