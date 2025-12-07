@@ -21,7 +21,7 @@ body{
     height:100%;
     object-fit:cover;
     z-index:-10;
-    pointer-events:none;
+    pointer-events:none !important; /* FIX */
 }
 
 /* Overlay tint */
@@ -30,6 +30,7 @@ body{
     inset:0;
     background:rgba(0,0,40,0.35);
     z-index:-5;
+    pointer-events:none !important; /* FIX */
 }
 
 /* CENTER CONTENT */
@@ -40,6 +41,7 @@ body{
     transform:translate(-50%, -50%);
     text-align:center;
     width:100%;
+    pointer-events:none !important; /* FIX */
 }
 
 .fake-input {
@@ -59,7 +61,9 @@ body{
 
     backdrop-filter: blur(6px);
     box-shadow: 0 0 25px rgba(0,180,255,0.4);
+
     cursor: pointer;
+    pointer-events:auto !important; /* FIX — allow clicks */
 }
 
 .fake-text {
@@ -90,6 +94,7 @@ body{
     width:100%;
     display:flex;
     justify-content:center;
+    pointer-events:none !important; /* FIX */
 }
 
 .info-card{
@@ -141,6 +146,7 @@ body{
     background:rgba(5,10,30,0.92);
     backdrop-filter:blur(10px);
     z-index:20;
+    pointer-events:auto !important; /* FIX */
 }
 
 .chat-screen.active{
@@ -197,6 +203,7 @@ body{
     display:flex;
     flex-direction:column;
     gap:10px;
+    pointer-events:auto !important; /* FIX */
 }
 
 .user-msg{
@@ -225,6 +232,7 @@ body{
     display:flex;
     gap:10px;
     background:rgba(20,20,40,0.5);
+    pointer-events:auto !important; /* FIX */
 }
 
 .chat-input-area input{
@@ -319,16 +327,7 @@ body{
     }
 }
 
-/* INFO SECTION FIXED SPACING FOR ALL PHONES */
-.info-section {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-
-    /* This adjusts based on screen height instead of a static value */
-    margin-top: calc(45vh + 60px);
-}
-/* NEW GPT-STYLE BOOT BUBBLE */
+/* GPT-STYLE BOOT BUBBLE */
 .booting-msg {
     align-self: flex-start;
     background: #1a2337;
@@ -353,7 +352,6 @@ body{
     transform: translateY(0);
 }
 
-/* Optional pulse glow */
 @keyframes bootPulse {
     0% { box-shadow: 0 0 0px #00eaff55; }
     50% { box-shadow: 0 0 12px #00eaff88; }
@@ -362,9 +360,4 @@ body{
 
 .booting-msg.show {
     animation: bootPulse 1.8s infinite ease-in-out;
-}
-
-/* FIX — STOP INFO BOX FROM BLOCKING CLICKS */
-.info-section {
-    pointer-events: none !important;
 }
