@@ -15,7 +15,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HJQL69N043"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag(){ dataLayer.push(arguments); }
       gtag('js', new Date());
       gtag('config', 'G-HJQL69N043');
     </script>
@@ -23,7 +23,7 @@
 
 <body>
 
-    <!-- ACCESSIBILITY SKIP LINK -->
+    <!-- ACCESSIBILITY SKIP LINK (works but stays hidden until focused) -->
     <a href="#chatScreen" class="skip-link">Skip to Chat</a>
 
     <!-- BACKGROUND VIDEO -->
@@ -34,18 +34,18 @@
     <div class="overlay"></div>
 
     <!-- HERO SECTION -->
-    <div class="center-wrapper fade-in">
+    <div class="center-wrapper">
 
-        <div class="fake-input fade-in" id="fakeInput" onclick="openChat()" role="button" aria-label="Open LeoCore chat">
+        <div class="fake-input" id="fakeInput" onclick="openChat()" role="button" aria-label="Open LeoCore chat">
             <span class="fake-text" id="fakeText"></span>
         </div>
 
-        <h1 class="main-title fade-in delay-1">LEOCORE</h1>
-        <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
+        <h1 class="main-title">LEOCORE</h1>
+        <div class="subtitle">Your AI. Your Vibe.</div>
     </div>
 
     <!-- INFO SECTION -->
-    <div class="info-section fade-in delay-3">
+    <div class="info-section">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
 
@@ -76,7 +76,6 @@
             <button class="clear-btn" id="clearChat" aria-label="Clear chat history">
                 <span class="clear-icon">🗑</span> Clear
             </button>
-
         </div>
 
         <!-- CHAT MESSAGES -->
@@ -84,7 +83,6 @@
 
         <!-- INPUT BAR -->
         <div class="chat-input-area">
-
             <label class="sr-only" for="userInput">Type your message</label>
             <input 
                 type="text" 
@@ -92,12 +90,11 @@
                 placeholder="Say something..." 
                 autocomplete="off"
             >
-
             <button id="sendBtn" aria-label="Send message">✦ Send</button>
         </div>
     </div>
 
-    <!-- UI SCRIPTS -->
+    <!-- OPEN CHAT SCRIPT -->
     <script>
         function openChat() {
             document.getElementById("chatScreen").classList.add("active");
