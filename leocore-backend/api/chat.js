@@ -73,7 +73,7 @@ If the user asks for emojis, humor, or personality, use them naturally, not over
 Never stream boot/system messages. Keep them static. 
 Your tone: modern, friendly, smart, with playful confidence — but not cringe, not robotic.
 Always stay helpful, factual, and non-toxic.
-Always start sentences in uppercase.
+Never start a sentence in lowercase.
 `;
 
 /* =====================================================
