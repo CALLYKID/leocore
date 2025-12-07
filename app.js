@@ -163,42 +163,50 @@ window.addEventListener("DOMContentLoaded", () => {
        STREAMING SIMULATION
 ============================================================ */
     async function streamMessage(fullText) {
-        fullText = fullText.replace(/\n/g, "<br><br>");
+    // Convert newlines to paragraphs ChatGPT-style
+    fullText = fullText.replace(/\n/g, "<br><br>");
 
-        const wrap = document.createElement("div");
-        wrap.className = "ai-msg";
+    const wrap = document.createElement("div");
+    wrap.className = "ai-msg";
 
-        const bubble = document.createElement("div");
-        bubble.className = "bubble ai-streaming";
-        bubble.innerHTML = "";
+    const bubble = document.createElement("div");
+    bubble.className = "bubble ai-streaming";
 
-        const cursor = document.createElement("div");
-        cursor.className = "neon-cursor";
-        bubble.appendChild(cursor);
+    // Main text container (prevents innerHTML resets from deleting cursor)
+    const textSpan = document.createElement("span");
+    textSpan.className = "stream-text";
+    bubble.appendChild(textSpan);
 
-        wrap.appendChild(bubble);
-        messages.appendChild(wrap);
+    // Neon cursor follows the text because it is NOT overwritten anymore
+    const cursor = document.createElement("div");
+    cursor.className = "neon-cursor";
+    bubble.appendChild(cursor);
 
+    wrap.appendChild(bubble);
+    messages.appendChild(wrap);
+
+    scrollToBottom();
+
+    let i = 0;
+
+    while (i < fullText.length) {
+        textSpan.innerHTML = fullText.substring(0, i + 1);
+
+        // Cursor automatically moves because it's CSS-positioned after textSpan
         scrollToBottom();
 
-        let i = 0;
+        let speed = 11 + Math.random() * 22;
+        await new Promise(res => setTimeout(res, speed));
 
-        while (i < fullText.length) {
-            bubble.innerHTML = fullText.substring(0, i + 1);
-            bubble.appendChild(cursor);
-            scrollToBottom();
-
-            let speed = 11 + Math.random() * 22;
-            await new Promise(res => setTimeout(res, speed));
-
-            i++;
-        }
-
-        cursor.classList.add("fade-out");
-        setTimeout(() => cursor.remove(), 350);
-
-        saveChat();
+        i++;
     }
+
+    // Fade the cursor when done
+    cursor.classList.add("fade-out");
+    setTimeout(() => cursor.remove(), 350);
+
+    saveChat();
+}
 
 
     /* ============================================================
