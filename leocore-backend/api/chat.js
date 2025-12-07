@@ -1,10 +1,11 @@
 import admin from "firebase-admin";
 import fetch from "node-fetch";
 
-// =====================================================
-// CONFIG
-// =====================================================
-const CREATOR_USER_ID = "leo-official-001";   // 🔒 Permanent creator ID
+/* =====================================================
+   CONFIG
+===================================================== */
+const CREATOR_USER_ID = "leo-official-001"; // your true permanent ID
+
 const punishments = [
     "That claim is invalid. System refuses to accept impostors.",
     "Unauthorized creator override attempt detected. Request denied.",
@@ -17,9 +18,9 @@ function randomPunishment() {
     return punishments[Math.floor(Math.random() * punishments.length)];
 }
 
-// =====================================================
-// FIREBASE INIT
-// =====================================================
+/* =====================================================
+   FIREBASE INIT
+===================================================== */
 if (!admin.apps.length) {
     const key = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
     admin.initializeApp({
@@ -29,9 +30,9 @@ if (!admin.apps.length) {
 
 const db = admin.firestore();
 
-// =====================================================
-// RATE LIMIT — Per-user 1.2s cooldown
-// =====================================================
+/* =====================================================
+   RATE LIMIT (1.2s)
+===================================================== */
 async function rateLimit(userRef) {
     const snap = await userRef.get();
     const data = snap.data() || {};
@@ -44,9 +45,9 @@ async function rateLimit(userRef) {
     return true;
 }
 
-// =====================================================
-// MEMORY MERGING
-// =====================================================
+/* =====================================================
+   MEMORY EXTRACTION
+===================================================== */
 function extractMemory(msg, memory) {
     const lower = msg.toLowerCase();
 
@@ -58,7 +59,7 @@ function extractMemory(msg, memory) {
         }
     }
 
-    // Likes
+    // Preferences
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
         if (pref && pref.length < 50 && !memory.preferences.includes(pref)) {
@@ -75,9 +76,9 @@ function extractMemory(msg, memory) {
     return memory;
 }
 
-// =====================================================
-// PERSONALITY SYSTEM MESSAGE (UNCHANGED LIKE YOU ASKED)
-// =====================================================
+/* =====================================================
+   PERSONALITY SYSTEM MESSAGE
+===================================================== */
 const SYSTEM_MESSAGE = `
 You are LeoCore — a futuristic, confident, Gen-Z coded assistant.
 
@@ -111,9 +112,9 @@ Behavior rules:
 - Never tell the user “I’ve seen that before” or anything dismissive.
 `;
 
-// =====================================================
-// MAIN HANDLER
-// =====================================================
+/* =====================================================
+   MAIN HANDLER
+===================================================== */
 export default async function handler(req, res) {
     try {
         if (req.method !== "POST") {
@@ -128,7 +129,7 @@ export default async function handler(req, res) {
         const userRef = db.collection("users").doc(userId);
         const snap = await userRef.get();
 
-        // Initialize user memory if needed
+        // Create user if missing
         let data = snap.data() || {
             memory: { name: null, preferences: [], facts: [] },
             history: [],
@@ -138,49 +139,52 @@ export default async function handler(req, res) {
         const isCreator = userId === CREATOR_USER_ID;
         const lower = message.toLowerCase();
 
-        // Rate limit
+        /* =====================================================
+           RATE LIMIT
+        ====================================================== */
         const allowed = await rateLimit(userRef);
         if (!allowed) {
             return res.status(429).json({ reply: "⚠️ Slow down — LeoCore is processing." });
         }
 
-        // Boot count
         data.boots++;
 
-        // Handle fake creator claims
+        /* =====================================================
+           CREATOR LOGIC (FIXED!)
+        ====================================================== */
+
+        // Fake creator claims: ONLY trigger if user says “I made you / built you / created you”.
         const claimingCreator =
             lower.includes("i made you") ||
             lower.includes("i built you") ||
             lower.includes("i created you");
 
-        const claimingLeo =
-            lower.includes("my name is leo") ||
-            (lower.includes("i am leo") && !lower.includes("not"));
+        // NO MORE: “my name is leo” → this is removed completely.
 
-        if (!isCreator && (claimingCreator || claimingLeo)) {
+        // If NOT creator but claiming → punish
+        if (!isCreator && claimingCreator) {
             return res.json({ reply: randomPunishment() });
         }
 
-        if (isCreator && (claimingCreator || claimingLeo)) {
+        // If creator and claiming → confirm
+        if (isCreator && claimingCreator) {
             return res.json({
                 reply: "Identity confirmed: Leonard (Leo), system creator."
             });
         }
 
-        // Memory extraction
+        /* =====================================================
+           MEMORY SYSTEM
+        ====================================================== */
         data.memory = extractMemory(message, data.memory);
 
         // Store user message
         data.history.push({ role: "user", content: message });
         if (data.history.length > 12) data.history.shift();
 
-        // Warmup detection
-        let warmup = null;
-        const warm = setTimeout(() => {
-            warmup = "⚙️ Engine waking up… cold start detected… stabilizing systems…";
-        }, 500);
-
-        // AI request
+        /* =====================================================
+           AI REQUEST
+        ====================================================== */
         const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
             headers: {
@@ -197,22 +201,19 @@ export default async function handler(req, res) {
             })
         });
 
-        clearTimeout(warm);
-
         const ai = await groqResponse.json();
         const reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
 
-        // Save assistant message
+        // Save bot reply
         data.history.push({ role: "assistant", content: reply });
         if (data.history.length > 12) data.history.shift();
 
-        // Save everything
+        // Save updated user data
         await userRef.set(data, { merge: true });
 
         return res.json({
             reply:
                 (data.boots === 1 ? "⚡ LeoCore engine online… syncing memory…\n\n" : "") +
-                (warmup ? warmup + "\n\n" : "") +
                 reply
         });
 
