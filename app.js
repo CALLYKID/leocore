@@ -36,7 +36,6 @@ window.addEventListener("DOMContentLoaded", () => {
     let savedName = localStorage.getItem("leocore-name") || null;
 
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
-
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
 
 
@@ -160,56 +159,53 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAMING SIMULATION
+       STREAMING SIMULATION (CURSOR FOLLOWS TEXT)
 ============================================================ */
     async function streamMessage(fullText) {
-    // Convert newlines to paragraphs ChatGPT-style
-    fullText = fullText.replace(/\n/g, "<br><br>");
+        // Convert newlines to paragraphs ChatGPT-style
+        fullText = fullText.replace(/\n/g, "<br><br>");
 
-    const wrap = document.createElement("div");
-    wrap.className = "ai-msg";
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg";
 
-    const bubble = document.createElement("div");
-    bubble.className = "bubble ai-streaming";
+        const bubble = document.createElement("div");
+        bubble.className = "bubble ai-streaming";
 
-    // Main text container (prevents innerHTML resets from deleting cursor)
-    const textSpan = document.createElement("span");
-    textSpan.className = "stream-text";
-    bubble.appendChild(textSpan);
+        // Main text container (prevents cursor deletion)
+        const textSpan = document.createElement("span");
+        textSpan.className = "stream-text";
+        bubble.appendChild(textSpan);
 
-    // Neon cursor follows the text because it is NOT overwritten anymore
-    const cursor = document.createElement("div");
-    cursor.className = "neon-cursor";
-    bubble.appendChild(cursor);
+        // Cursor that follows text
+        const cursor = document.createElement("div");
+        cursor.className = "neon-cursor";
+        bubble.appendChild(cursor);
 
-    wrap.appendChild(bubble);
-    messages.appendChild(wrap);
-
-    scrollToBottom();
-
-    let i = 0;
-
-    while (i < fullText.length) {
-        textSpan.innerHTML = fullText.substring(0, i + 1);
-
-        // Cursor automatically moves because it's CSS-positioned after textSpan
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
         scrollToBottom();
 
-        let speed = 11 + Math.random() * 22;
-        await new Promise(res => setTimeout(res, speed));
+        let i = 0;
 
-        i++;
+        while (i < fullText.length) {
+            textSpan.innerHTML = fullText.substring(0, i + 1);
+
+            // Cursor follows automatically because it's always after textSpan
+            scrollToBottom();
+
+            let speed = 11 + Math.random() * 22;
+            await new Promise(res => setTimeout(res, speed));
+
+            i++;
+        }
+
+        // Fade cursor naturally
+        cursor.classList.add("fade-out");
+        setTimeout(() => cursor.remove(), 350);
+
+        saveChat();
     }
-
-    // Fade the cursor when done
-    cursor.classList.add("fade-out");
-    setTimeout(() => cursor.remove(), 350);
-
-    saveChat();
-}
-
-
-    /* ============================================================
+   /* ============================================================
        SEND MESSAGE
 ============================================================ */
     async function sendMessage() {
@@ -236,6 +232,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
         let bootIndex = 0;
 
+        // Boot bubble delay
         const bootDelay = setTimeout(() => {
             bootBubble = createBootBubble();
             bootInterval = setInterval(() => {
@@ -243,6 +240,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 bootIndex++;
             }, 1200);
         }, 1200);
+
 
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
@@ -257,24 +255,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
+            // Minimum response time for illusion
             const minTime = 500;
             const elapsed = performance.now() - start;
-            if (elapsed < minTime) await new Promise(r => setTimeout(r, minTime - elapsed));
+            if (elapsed < minTime) {
+                await new Promise(r => setTimeout(r, minTime - elapsed));
+            }
 
             clearTimeout(bootDelay);
             clearInterval(bootInterval);
+
             typingBubble.remove();
             if (bootBubble) bootBubble.parentElement.remove();
 
-            if (data.reply.length > 35) {
-                await streamMessage(data.reply);
-            } else {
-                addMessage(data.reply, "ai");
-            }
+            // ALWAYS STREAM (to protect illusion)
+            await streamMessage(data.reply);
 
         } catch (err) {
             typingBubble.remove();
             if (bootBubble) bootBubble.parentElement.remove();
+
             addMessage("⚠️ Network error. Backend is still waking up.", "ai");
         }
     }
@@ -302,7 +302,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       PREMIUM HOLD-TO-RESET SYSTEM (YOUR ORIGINAL VERSION)
+       PREMIUM HOLD-TO-RESET SYSTEM (UNCHANGED)
 ============================================================ */
     if (clearBtn) {
         let holdTimer = null;
@@ -356,7 +356,9 @@ window.addEventListener("DOMContentLoaded", () => {
             createStatusUI();
 
             progressFill.style.transitionDuration = "3s";
-            setTimeout(() => progressFill.style.width = "100%", 30);
+            setTimeout(() => {
+                progressFill.style.width = "100%";
+            }, 30);
 
             setTimeout(() => {
                 if (!holdTriggered) navigator.vibrate?.(40);
@@ -377,7 +379,6 @@ window.addEventListener("DOMContentLoaded", () => {
                     localStorage.removeItem("leocore-user");
                     location.reload();
                 }, 350);
-
             }, 3000);
         }
 
