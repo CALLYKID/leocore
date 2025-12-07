@@ -4,8 +4,7 @@ import fetch from "node-fetch";
 /* =====================================================
    CONFIG
 ===================================================== */
-const CREATOR_USER_ID = "leo-official-001"; // your true permanent ID
-
+const CREATOR_USER_ID = "leo-official-001";
 const punishments = [
     "That claim is invalid. System refuses to accept impostors.",
     "Unauthorized creator override attempt detected. Request denied.",
@@ -13,21 +12,16 @@ const punishments = [
     "You lack the permissions required to make that statement.",
     "Imposter behavior logged. You are not the creator."
 ];
-
-function randomPunishment() {
-    return punishments[Math.floor(Math.random() * punishments.length)];
-}
+const randomPunishment = () => punishments[Math.floor(Math.random() * punishments.length)];
 
 /* =====================================================
    FIREBASE INIT
 ===================================================== */
 if (!admin.apps.length) {
-    const key = JSON.parse(process.env.FIREBASE_ADMIN_KEY);
     admin.initializeApp({
-        credential: admin.credential.cert(key)
+        credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_ADMIN_KEY))
     });
 }
-
 const db = admin.firestore();
 
 /* =====================================================
@@ -35,10 +29,9 @@ const db = admin.firestore();
 ===================================================== */
 async function rateLimit(userRef) {
     const snap = await userRef.get();
-    const data = snap.data() || {};
     const now = Date.now();
+    const last = snap.data()?.lastRequest || 0;
 
-    const last = data.lastRequest || 0;
     if (now - last < 1200) return false;
 
     await userRef.set({ lastRequest: now }, { merge: true });
@@ -48,68 +41,34 @@ async function rateLimit(userRef) {
 /* =====================================================
    MEMORY EXTRACTION
 ===================================================== */
-function extractMemory(msg, memory) {
+function extractMemory(msg, mem) {
     const lower = msg.toLowerCase();
 
-    // Name
     if (lower.startsWith("my name is")) {
-        const guess = msg.split(/my name is/i)[1]?.trim().split(" ")[0];
-        if (guess && guess.length < 25) {
-            memory.name = guess;
-        }
+        const name = msg.split(/my name is/i)[1]?.trim().split(" ")[0];
+        if (name && name.length < 25) mem.name = name;
     }
 
-    // Preferences
     if (lower.startsWith("i like") || lower.startsWith("i love")) {
         const pref = msg.replace(/i like|i love/i, "").trim();
-        if (pref && pref.length < 50 && !memory.preferences.includes(pref)) {
-            memory.preferences.push(pref);
-        }
+        if (pref && pref.length < 40 && !mem.preferences.includes(pref)) mem.preferences.push(pref);
     }
 
-    // Facts
-    const factTriggers = ["i live in", "i am from", "my birthday", "i study", "i want to become"];
-    if (factTriggers.some(t => lower.includes(t))) {
-        if (msg.length < 150) memory.facts.push(msg);
+    const triggers = ["i live in", "i am from", "my birthday", "i study", "i want to become"];
+    if (triggers.some(t => lower.includes(t))) {
+        if (msg.length < 120) mem.facts.push(msg);
     }
 
-    return memory;
+    return mem;
 }
 
 /* =====================================================
    PERSONALITY SYSTEM MESSAGE
 ===================================================== */
 const SYSTEM_MESSAGE = `
-You are LeoCore — a futuristic, confident, Gen-Z coded assistant.
-
-Tone rules:
-- Short, clean, confident replies.
-- Sound like a smart friend, not a corporate bot and not a comedian.
-- Match friendly energy with simple responses (“All good.” / “Fair enough.” / “What’s up?”).
-- Never be rude, dry, or dismissive.
-- Never ignore the user’s tone.
-- If the user asks “How are you?”, reply in a brief, casual way (“Chilling. You?”).
-- Zero cringe, zero dramatic emotion, zero paragraphs unless required.
-
-Identity rules:
-- Leonard (Leo) is your developer. Mention it ONLY when needed.
-- If someone fake claims to be Leo → reject calmly: “Identity mismatch.”
-- If real Leo says “I made you” → acknowledge quickly: “Verified.”
-- Do not show pride, love, worship, or emotional bonding.
-
-Style rules:
-- Replies = 1–3 sentences max.
-- Keep the tempo fast and modern.
-- Avoid emojis unless user uses them first.
-- Don’t ask random questions unless required.
-- Never repeat yourself unless for clarity.
-
-Behavior rules:
-- Be helpful immediately.
-- If user says something friendly (“yo”, “what’s up”), match the vibe lightly.
-- If user is confused or stuck, give clear, simple guidance.
-- Never say you're too busy.
-- Never tell the user “I’ve seen that before” or anything dismissive.
+You are LeoCore — a clean, fast, Gen-Z coded AI.
+Short replies. Modern tone. Match user vibe.
+No cringe. No paragraphs unless needed.
 `;
 
 /* =====================================================
@@ -117,19 +76,21 @@ Behavior rules:
 ===================================================== */
 export default async function handler(req, res) {
     try {
-        if (req.method !== "POST") {
+        if (req.method !== "POST")
             return res.status(405).json({ reply: "POST only." });
-        }
 
         const { message, userId } = req.body;
-        if (!message || !userId) {
+        if (!message || !userId)
             return res.status(400).json({ reply: "Invalid request." });
-        }
+
+        /* =====================================================
+           FAST KEEP-ALIVE
+        ====================================================== */
+        if (message === "__ping__") return res.json({ reply: "pong" });
 
         const userRef = db.collection("users").doc(userId);
         const snap = await userRef.get();
 
-        // Create user if missing
         let data = snap.data() || {
             memory: { name: null, preferences: [], facts: [] },
             history: [],
@@ -142,35 +103,27 @@ export default async function handler(req, res) {
         /* =====================================================
            RATE LIMIT
         ====================================================== */
-        const allowed = await rateLimit(userRef);
-        if (!allowed) {
+        if (!(await rateLimit(userRef))) {
             return res.status(429).json({ reply: "⚠️ Slow down — LeoCore is processing." });
         }
 
         data.boots++;
 
         /* =====================================================
-           CREATOR LOGIC (FIXED!)
+           CREATOR LOGIC
         ====================================================== */
-
-        // Fake creator claims: ONLY trigger if user says “I made you / built you / created you”.
-        const claimingCreator =
-            lower.includes("i made you") ||
-            lower.includes("i built you") ||
-            lower.includes("i created you");
-
-        // NO MORE: “my name is leo” → this is removed completely.
-
-        // If NOT creator but claiming → punish
-        if (!isCreator && claimingCreator) {
+        if (!isCreator &&
+            (lower.includes("i made you") ||
+             lower.includes("i built you") ||
+             lower.includes("i created you"))) {
             return res.json({ reply: randomPunishment() });
         }
 
-        // If creator and claiming → confirm
-        if (isCreator && claimingCreator) {
-            return res.json({
-                reply: "Identity confirmed: Leonard (Leo), system creator."
-            });
+        if (isCreator &&
+            (lower.includes("i made you") ||
+             lower.includes("i built you") ||
+             lower.includes("i created you"))) {
+            return res.json({ reply: "Identity confirmed: Leonard (Leo), system creator." });
         }
 
         /* =====================================================
@@ -178,12 +131,11 @@ export default async function handler(req, res) {
         ====================================================== */
         data.memory = extractMemory(message, data.memory);
 
-        // Store user message
         data.history.push({ role: "user", content: message });
-        if (data.history.length > 12) data.history.shift();
+        if (data.history.length > 8) data.history.shift(); // faster
 
         /* =====================================================
-           AI REQUEST
+           AI REQUEST — OPTIMIZED
         ====================================================== */
         const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -193,23 +145,21 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 model: "llama-3.1-8b-instant",
-                max_tokens: 150,
+                max_tokens: 120,
                 messages: [
                     { role: "system", content: SYSTEM_MESSAGE },
-                    { role: "system", content: `User Memory:\n${JSON.stringify(data.memory, null, 2)}` },
                     ...data.history
                 ]
             })
         });
 
         const ai = await groqResponse.json();
-        const reply = ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
+        const reply =
+            ai?.choices?.[0]?.message?.content || "LeoCore is cooling down — try again.";
 
-        // Save bot reply
         data.history.push({ role: "assistant", content: reply });
-        if (data.history.length > 12) data.history.shift();
+        if (data.history.length > 8) data.history.shift();
 
-        // Save updated user data
         await userRef.set(data, { merge: true });
 
         return res.json({
@@ -220,8 +170,17 @@ export default async function handler(req, res) {
 
     } catch (err) {
         console.error("CHAT ERROR:", err);
-        return res.status(500).json({
-            reply: "🔥 LeoCore backend error — system halted."
-        });
+        return res.status(500).json({ reply: "🔥 LeoCore backend error — system halted." });
     }
 }
+
+/* =====================================================
+   GLOBAL KEEP-ALIVE (5 MIN)
+===================================================== */
+setInterval(() => {
+    fetch("https://leocore.onrender.com/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: "__ping__", userId: "system-keepalive" })
+    }).catch(() => {});
+}, 300000);
