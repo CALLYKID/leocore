@@ -25,6 +25,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     let isStreaming = false;
     let stopStream = false;
+    let lastUserPrompt = "";
 
 
     /* ============================================================
@@ -195,7 +196,36 @@ function scrollToBottom() {
         saveChat();
     }
 
+async function sendContinuation() {
+    addMessage("Continuing…", "user");
 
+    const loader = createTypingBubble();
+
+    const mode = localStorage.getItem("leocore-mode") || "default";
+    const isFlame = mode === "flame";
+
+    try {
+        const res = await fetch("https://leocore.onrender.com/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message: lastUserPrompt + " (continue)",
+                userId,
+                mode,
+                boost: isFlame ? "🔥 FLAME TONE" : ""
+            })
+        });
+
+        const data = await res.json();
+        loader.remove();
+        await streamMessage(data.reply, isFlame);
+
+    } catch (err) {
+        loader.remove();
+        addMessage("⚠️ Network issue during continuation.", "ai");
+    }
+}
+   
     /* ============================================================
        SEND MESSAGE (FIXED: MODE ADDED)
 ============================================================ */
@@ -208,6 +238,16 @@ function scrollToBottom() {
 
         const text = input.value.trim();
         if (!text) return;
+       
+       // Store last real user message for "continue" feature
+if (text.toLowerCase() !== "continue") {
+    lastUserPrompt = text;
+} else {
+    // If user types “continue”
+    if (lastUserPrompt) {
+        return sendContinuation();
+    }
+}
 
         addMessage(text, "user");
         input.value = "";
