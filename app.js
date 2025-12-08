@@ -417,6 +417,16 @@ document.querySelectorAll(".mode-btn").forEach(btn => {
     });
 });
 
+// PARALLAX TILT EFFECT FOR BG + HERO
+document.addEventListener("mousemove", (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 10;
+    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+
+    document.querySelectorAll(".parallax").forEach(el => {
+        el.style.transform = `translate(${x}px, ${y}px)`;
+    });
+});
+
 /* ============================================================
    QUICK TOOLS LOGIC (FIXED)
 ============================================================ */
