@@ -222,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ignoreNextResponse = false;
                 cancelStream = false;
                 input.disabled = false;
-            }, 150);
+            }, 250); // ⭐ improved timing
 
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
@@ -293,7 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ============================================================
        ⭐ RESTORE PREMIUM HOLD-TO-RESET WIPE SYSTEM
     ============================================================ */
-
     if (clearBtn) {
 
         let holdTimer = null;
@@ -387,22 +386,39 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ============================================================
-   MODE SELECTOR LOGIC
+   MODE SELECTOR LOGIC (MERGED HANDLER ⭐)
 ============================================================ */
+const modeThemes = {
+    study: "#00aaff",
+    research: "#00ffc6",
+    reading: "#ffa840",
+    deep: "#ff0033",
+    chill: "#b400ff",
+    precision: "#00eaff"
+};
+
 document.querySelectorAll(".mode-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-        document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+
+        // highlight
+        document.querySelectorAll(".mode-btn")
+            .forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
 
         const mode = btn.dataset.mode;
         localStorage.setItem("leocore-mode", mode);
 
+        // theme glow
+        const col = modeThemes[mode];
+        document.documentElement.style.setProperty("--theme-glow", col);
+
+        // AI message
         addMessage(`Mode switched to **${mode}**.`, "ai");
     });
 });
 
 /* ============================================================
-   QUICK TOOLS LOGIC
+   QUICK TOOLS LOGIC (FIXED)
 ============================================================ */
 document.querySelectorAll(".tool-btn").forEach(tool => {
     tool.addEventListener("click", () => {
@@ -416,24 +432,12 @@ document.querySelectorAll(".tool-btn").forEach(tool => {
         };
 
         input.value = prompts[task];
-        chatScreen.classList.add("active");
-        input.focus();
-    });
-});
-const modeThemes = {
-    study: "#00aaff",
-    research: "#00ffc6",
-    reading: "#ffa840",
-    deep: "#ff0033",
-    chill: "#b400ff",
-    precision: "#00eaff"
-};
 
-document.querySelectorAll(".mode-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        let mode = btn.dataset.mode;
-        let col = modeThemes[mode];
-
-        document.documentElement.style.setProperty("--theme-glow", col);
+        if (!document.getElementById("chatScreen").classList.contains("active")) {
+            chatScreen.classList.add("active");
+            setTimeout(() => input.focus(), 200);
+        } else {
+            input.focus();
+        }
     });
 });
