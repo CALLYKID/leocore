@@ -626,3 +626,36 @@ button, .clear-btn, .back-btn, #sendBtn {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
 }
+/* SIDE NEON GLOW */
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    width: 160px;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    filter: blur(90px);
+    opacity: 0.45;
+    animation: glowMove 12s infinite alternate ease-in-out;
+}
+
+body::before {
+    left: -40px;
+    background: var(--theme-glow);
+}
+
+body::after {
+    right: -40px;
+    background: #9400ff;
+}
+
+@keyframes glowMove {
+    0%   { transform: translateY(0px); }
+    50%  { transform: translateY(80px); }
+    100% { transform: translateY(-20px); }
+}
+:root {
+    --theme-glow: #00eaff;
+}
