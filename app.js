@@ -24,12 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    /* STATES */
+    /* STREAM STATES */
     let isStreaming = false;
     let cancelStream = false;
 
-    // ⭐ NEW — prevents illusion break
+    // ⭐ NEW — blocks backend reply after STOP
     let ignoreNextResponse = false;
+
 
     /* ============================================================
        PERMANENT USER ID
@@ -49,10 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.getItem("leocore-user");
 
     if (!userId) {
-        userId = CREATOR_ID;
+        userId = CREATOR_ID; // default to creator device
         setCookie("leocore-user", userId);
         localStorage.setItem("leocore-user", userId);
     }
+
 
     /* ============================================================
        LOAD CHAT HISTORY
@@ -72,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-chat", JSON.stringify(data));
     }
 
+
     /* ============================================================
        AUTO SCROLL
     ============================================================ */
@@ -80,6 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
             messages.scrollTop = messages.scrollHeight;
         }, 10);
     }
+
 
     /* ============================================================
        HERO AUTO TYPE
@@ -114,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
+
     /* ============================================================
        MESSAGE BUILDER
     ============================================================ */
@@ -134,8 +139,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return bubble;
     }
 
+
     /* ============================================================
-       TYPING INDICATOR
+       TYPING BUBBLE
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
@@ -152,11 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
         messages.appendChild(wrap);
         scrollToBottom();
+
         return wrap;
     }
 
+
     /* ============================================================
-       STREAM MESSAGE (ChatGPT-style)
+       STREAM MESSAGE
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
@@ -194,7 +202,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (cancelStream) {
-            // User STOPPED → DO NOT show rest
             cursor.remove();
             isStreaming = false;
             return;
@@ -207,27 +214,29 @@ document.addEventListener("DOMContentLoaded", () => {
         saveChat();
     }
 
+
     /* ============================================================
        SEND MESSAGE
     ============================================================ */
     async function sendMessage() {
 
-        /* =============================
-           STOP MODE — FIXED
-        ============================== */
+        /* ====================================================
+           STOP MODE (FIXED)
+        ==================================================== */
         if (isStreaming) {
             cancelStream = true;
             isStreaming = false;
 
-            // ⭐ KEY PATCH → ignore backend reply
-            ignoreNextResponse = true;
+            ignoreNextResponse = true; // ⭐ block backend reply
 
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
             return;
         }
 
-        /* Normal send */
+        /* ====================================================
+           NORMAL SEND
+        ==================================================== */
         const text = input.value.trim();
         if (!text) return;
 
@@ -249,17 +258,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            // ⭐ Ignore backend reply if STOP was pressed
+            // ⭐ Do NOT show reply if STOP happened
             if (ignoreNextResponse) {
                 ignoreNextResponse = false;
                 loader.remove();
+                input.disabled = false;
                 return;
             }
 
             loader.remove();
             await streamMessage(data.reply);
 
-        } catch (e) {
+        } catch (err) {
             loader.remove();
             addMessage("⚠️ Network issue. Try again.", "ai");
         }
@@ -268,6 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
         sendBtn.innerHTML = "➤";
         sendBtn.classList.remove("stop-mode");
     }
+
 
     /* ============================================================
        LISTENERS
