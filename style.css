@@ -690,3 +690,73 @@ body.flame-glow .mode-pill {
     width: 100px;
     text-align: center;
 }
+
+/* Higher contrast for cards + readability boost */
+.creator-card,
+.info-card,
+.testimonial-bubble,
+.mode-btn,
+.tool-btn {
+    background: rgba(12, 20, 40, 0.55) !important;
+    border: 1px solid rgba(0,255,255,0.18) !important;
+    backdrop-filter: blur(10px) !important;
+    color: #eafaff !important;
+}
+.mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+/* dot indicator */
+.mode-btn::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.8;
+}
+
+/* color-coded accents */
+.mode-btn[data-mode="study"]      { color: #00aaff; }
+.mode-btn[data-mode="research"]   { color: #00ffc6; }
+.mode-btn[data-mode="reading"]    { color: #ffa840; }
+.mode-btn[data-mode="deep"]       { color: #ff0033; }
+.mode-btn[data-mode="chill"]      { color: #b400ff; }
+.mode-btn[data-mode="precision"]  { color: #00eaff; }
+
+.mode-btn.active {
+    box-shadow: 0 0 18px currentColor !important;
+    border-color: currentColor !important;
+}
+.tool-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 15px;
+}
+
+.tool-btn span {
+    display: inline-block;
+}
+.testimonial-bubble {
+    margin-bottom: 14px !important;
+}
+
+.testimonial-separator {
+    width: 60%;
+    height: 1px;
+    background: rgba(0,255,255,0.18);
+    border-radius: 50px;
+    margin: 10px auto 0;
+}
+
+.mode-pill {
+    width: 90px !important;
+    min-width: 90px !important;
+    text-align: center;
+    white-space: nowrap;
+}
