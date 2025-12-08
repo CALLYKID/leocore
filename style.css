@@ -726,6 +726,7 @@ body.flame-glow .mode-pill {
 .mode-btn[data-mode="deep"]       { color: #ff0033; }
 .mode-btn[data-mode="chill"]      { color: #b400ff; }
 .mode-btn[data-mode="precision"]  { color: #00eaff; }
+.mode-btn[data-mode="flame"]      { color: #ff5500; }
 
 .mode-btn.active {
     box-shadow: 0 0 18px currentColor !important;
