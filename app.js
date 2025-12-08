@@ -24,11 +24,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    /* STATES */
+    /* STREAM STATES */
     let isStreaming = false;
     let cancelStream = false;
 
-    // ⭐ NEW — prevents illusion break
+    // ⭐ New variable — prevent backend reply after STOP
     let ignoreNextResponse = false;
 
     /* ============================================================
@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
         return v ? v[2] : null;
     }
+
     function setCookie(name, value) {
         document.cookie = `${name}=${value}; path=/; max-age=31536000`;
     }
@@ -58,18 +59,17 @@ document.addEventListener("DOMContentLoaded", () => {
        LOAD CHAT HISTORY
     ============================================================ */
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
-
     savedChat.forEach(m => addMessage(m.text, m.sender));
 
     function saveChat() {
-        const data = [];
+        const arr = [];
         document.querySelectorAll(".bubble").forEach(b => {
-            data.push({
+            arr.push({
                 text: b.innerHTML,
                 sender: b.parentElement.classList.contains("user-msg") ? "user" : "ai"
             });
         });
-        localStorage.setItem("leocore-chat", JSON.stringify(data));
+        localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
     /* ============================================================
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function scrollToBottom() {
         setTimeout(() => {
             messages.scrollTop = messages.scrollHeight;
-        }, 10);
+        }, 20);
     }
 
     /* ============================================================
@@ -110,6 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 pi = (pi + 1) % prompts.length;
             }
         }
+
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
@@ -130,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         scrollToBottom();
         saveChat();
-
         return bubble;
     }
 
@@ -180,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
         bubble.appendChild(cursor);
         wrap.appendChild(bubble);
         messages.appendChild(wrap);
+
         scrollToBottom();
 
         let i = 0;
@@ -207,26 +208,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       SEND MESSAGE
+       SEND MESSAGE  (STOP MODE FIXED)
     ============================================================ */
     async function sendMessage() {
 
-        /* =============================
-           STOP MODE — FIXED
-        ============================== */
+        /* ============================
+           STOP MODE FIX
+        ============================ */
         if (isStreaming) {
             cancelStream = true;
             isStreaming = false;
 
-            // ⭐ KEY PATCH — skip NEXT backend reply only
-            ignoreNextResponse = true;
+            ignoreNextResponse = true; // block the backend reply
+
+            // ⭐ FULL RESET — THIS FIXES YOUR BUG
+            setTimeout(() => {
+                ignoreNextResponse = false;
+                cancelStream = false;
+                input.disabled = false;
+            }, 150);
 
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
             return;
         }
 
-        /* Normal send */
+        /* ============================
+           NORMAL SEND
+        ============================ */
         const text = input.value.trim();
         if (!text) return;
 
@@ -248,20 +257,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            // ⭐ FIX — Ignore only the reply caused by STOP
             if (ignoreNextResponse) {
-                ignoreNextResponse = false;  
+                ignoreNextResponse = false;
                 loader.remove();
-                input.disabled = false;
-                sendBtn.innerHTML = "➤";
-                sendBtn.classList.remove("stop-mode");
                 return;
             }
 
             loader.remove();
             await streamMessage(data.reply);
 
-        } catch (e) {
+        } catch (err) {
             loader.remove();
             addMessage("⚠️ Network issue. Try again.", "ai");
         }
@@ -272,9 +277,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       LISTENERS
+       EVENT LISTENERS
     ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
+
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
