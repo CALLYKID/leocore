@@ -905,3 +905,61 @@ body::after {
     gap: 10px;
     padding: 12px;
 }
+
+#sendBtn {
+    width: 52px;
+
+    background: var(--theme-glow);
+    border-radius: 14px;
+    border: none;
+
+    color: #000;
+    font-size: 20px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 0 12px var(--theme-glow);
+}.chat-input-area input {
+    flex: 1;
+    background: rgba(0,0,0,0.35);
+    border: 2px solid rgba(255,255,255,0.25);
+    padding: 0 14px;
+    color: #fff;
+
+    border-radius: 14px;
+    outline: none;
+}
+.mode-pill {
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.35);
+    border: 2px solid var(--theme-glow);
+    border-radius: 14px;
+
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+
+    box-shadow: 0 0 12px var(--theme-glow);
+
+    transition: 0.25s ease;
+}
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    gap: 10px;
+}
+
+.chat-input-area input,
+.mode-pill,
+#sendBtn {
+    height: 46px;
+    border-radius: 14px;
+}
