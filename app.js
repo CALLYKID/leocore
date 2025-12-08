@@ -292,62 +292,74 @@ document.addEventListener("DOMContentLoaded", () => {
 document.querySelectorAll(".clear-status").forEach(e => e.remove());
    
     /* ============================================================
-       HOLD TO DELETE (fixed)
-    ============================================================ */
-    let clearProgress = 0;
-    let clearIntervalId = null;
+   DELETE SYSTEM — TAP = CLEAR CHAT, HOLD = FULL WIPE
+============================================================ */
+let holdTimer = null;
+let holdActive = false;
 
-    function startClear() {
-        if (clearIntervalId) return;
+function clearChatInstant() {
+    messages.innerHTML = "";
+    localStorage.removeItem("leocore-chat");
+    addMessage("🗑 Chat cleared.", "ai");
+}
 
-        const popup = document.createElement("div");
-        popup.className = "clear-status";
-        popup.id = "clearStatusPopup";
+function fullWipeAnimation() {
+    const overlay = document.createElement("div");
+    overlay.id = "wipeOverlay";
+    overlay.innerHTML = `
+        <div class="wipe-container">
+            <div class="wipe-loader"></div>
+            <div class="wipe-text">Clearing data...</div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
 
-        popup.innerHTML = `
-            <div class="clear-status-text">Hold to delete chat…</div>
-            <div class="clear-progress"><div class="clear-progress-fill" id="clearFill"></div></div>
-        `;
+    // fade in
+    requestAnimationFrame(() => overlay.classList.add("show"));
 
-        document.body.appendChild(popup);
-        requestAnimationFrame(() => popup.style.opacity = 1);
+    setTimeout(() => {
+        // perform real wipe
+        localStorage.clear();
 
-        clearProgress = 0;
-        const fill = document.getElementById("clearFill");
+        chatScreen.classList.remove("active");
 
-        clearIntervalId = setInterval(() => {
-            clearProgress += 3;
-            fill.style.width = clearProgress + "%";
+        // fade out then remove
+        overlay.classList.remove("show");
+        setTimeout(() => overlay.remove(), 600);
 
-            if (clearProgress >= 100) finishClear();
-        }, 28);
+    }, 1700);
+}
+
+clearBtn.addEventListener("mousedown", startHold);
+clearBtn.addEventListener("touchstart", startHold);
+
+clearBtn.addEventListener("mouseup", cancelHold);
+clearBtn.addEventListener("mouseleave", cancelHold);
+clearBtn.addEventListener("touchend", cancelHold);
+
+function startHold() {
+    if (holdTimer) return;
+
+    holdActive = false;
+
+    holdTimer = setTimeout(() => {
+        holdActive = true;
+        fullWipeAnimation();
+    }, 1000); // hold duration: 1 second
+}
+
+function cancelHold() {
+    if (!holdTimer) return;
+
+    clearTimeout(holdTimer);
+
+    if (!holdActive) {
+        // short tap → clear only chat
+        clearChatInstant();
     }
 
-    function cancelClear() {
-        clearIntervalId && clearInterval(clearIntervalId);
-        clearIntervalId = null;
-        clearProgress = 0;
-
-        const popup = document.getElementById("clearStatusPopup");
-        if (popup) {
-            popup.style.opacity = 0;
-            setTimeout(() => popup.remove(), 200);
-        }
-    }
-
-    function finishClear() {
-        cancelClear();
-        messages.innerHTML = "";
-        localStorage.removeItem("leocore-chat");
-        addMessage("🗑 Chat cleared.", "ai");
-    }
-
-    clearBtn.addEventListener("mousedown", startClear);
-    clearBtn.addEventListener("touchstart", startClear);
-    clearBtn.addEventListener("mouseup", cancelClear);
-    clearBtn.addEventListener("mouseleave", cancelClear);
-    clearBtn.addEventListener("touchend", cancelClear);
-
+    holdTimer = null;
+}
 
     /* ============================================================
        MODE SYSTEM (FLAME MODE ADDED)
