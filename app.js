@@ -12,7 +12,7 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   GLOBAL SCROLL FLAG (FIXED — MUST BE GLOBAL)
+   GLOBAL SCROLL FLAG (MUST BE GLOBAL)
 ============================================================ */
 let scrollRAF = false;
 
@@ -33,7 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const fakeText = document.getElementById("fakeText");
     const modeBadge = document.getElementById("modeBadge");
 
-    /* ---------------- STREAM FLAGS ---------------- */
     let isStreaming = false;
     let cancelStream = false;
     let ignoreNextResponse = false;
@@ -50,9 +49,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.cookie = `${name}=${value}; path=/; max-age=31536000`;
     }
 
-    let userId =
-        getCookie("leocore-user") ||
-        localStorage.getItem("leocore-user");
+    let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
 
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
@@ -80,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SAFE AUTO SCROLL (FIXED)
+       SAFE AUTO SCROLL
     ============================================================ */
     function scrollToBottom() {
         if (scrollRAF) return;
@@ -94,7 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HERO AUTO-TYPER
+       HERO AUTO-TYPE
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -108,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function typeAnimation() {
         const txt = prompts[pi];
-
         if (!deleting) {
             fakeText.textContent = txt.substring(0, ci++);
             if (ci > txt.length) {
@@ -122,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 pi = (pi + 1) % prompts.length;
             }
         }
-
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
@@ -150,12 +145,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AI TYPING BUBBLE
+       TYPING BUBBLE
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
         wrap.className = "ai-msg typing-holder";
-
         wrap.innerHTML = `
             <div class="spiral-bubble">
                 <div class="spiral-core"></div>
@@ -164,10 +158,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="orbit o3"></div>
             </div>
         `;
-
         messages.appendChild(wrap);
         scrollToBottom();
-
         return wrap;
     }
 
@@ -203,18 +195,16 @@ document.addEventListener("DOMContentLoaded", () => {
         let i = 0;
         while (i < full.length) {
             if (cancelStream) break;
-
             span.innerHTML = full.substring(0, i + 1);
             i++;
-
             scrollToBottom();
             await new Promise(r => setTimeout(r, 14 + Math.random() * 18));
         }
 
         cursor.classList.add("fade-out");
-        setTimeout(() => cursor.remove(), 250);
+        setTimeout(() => cursor.remove(), 200);
 
-        setTimeout(saveChat, 50);
+        setTimeout(saveChat, 40);
         isStreaming = false;
     }
 
@@ -224,18 +214,11 @@ document.addEventListener("DOMContentLoaded", () => {
     ============================================================ */
     async function sendMessage() {
 
-        // STOP stream first
         if (isStreaming) {
             cancelStream = true;
-            isStreaming = false;
             ignoreNextResponse = true;
 
-            setTimeout(() => {
-                ignoreNextResponse = false;
-                cancelStream = false;
-                input.disabled = false;
-            }, 250);
-
+            setTimeout(() => { ignoreNextResponse = false; }, 200);
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
             return;
@@ -274,14 +257,14 @@ document.addEventListener("DOMContentLoaded", () => {
             loader.remove();
             await streamMessage(data.reply);
 
-        } catch (err) {
+        } catch {
             loader.remove();
             addMessage("⚠️ Network issue. Try again.", "ai");
         }
 
         input.disabled = false;
-        sendBtn.classList.remove("stop-mode");
         sendBtn.innerHTML = "➤";
+        sendBtn.classList.remove("stop-mode");
     }
 
 
@@ -289,18 +272,12 @@ document.addEventListener("DOMContentLoaded", () => {
        CHAT EVENTS
     ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendMessage();
-    });
-
+    input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
         setTimeout(() => input.focus(), 150);
     });
-
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
+    closeChat.addEventListener("click", () => chatScreen.classList.remove("active"));
 
 
     /* ============================================================
@@ -309,11 +286,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (clearBtn) {
 
         let holdTimer = null;
-        let holdTriggered = false;
+        let triggered = false;
         let statusBox = null;
-        let progressFill = null;
+        let fill = null;
 
-        function createStatusUI() {
+        function createUI() {
             statusBox = document.createElement("div");
             statusBox.className = "clear-status";
 
@@ -333,16 +310,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             document.body.appendChild(statusBox);
 
-            progressFill = statusBox.querySelector(".clear-progress-fill");
+            fill = statusBox.querySelector(".clear-progress-fill");
 
             setTimeout(() => statusBox.style.opacity = 1, 20);
         }
 
         clearBtn.addEventListener("click", () => {
-            if (holdTriggered) return;
+            if (triggered) return;
 
             messages.style.opacity = 0;
-
             setTimeout(() => {
                 messages.innerHTML = "";
                 localStorage.removeItem("leocore-chat");
@@ -351,14 +327,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         function startHold() {
-            holdTriggered = false;
-            createStatusUI();
+            triggered = false;
+            createUI();
 
-            progressFill.style.transitionDuration = "3s";
-            setTimeout(() => progressFill.style.width = "100%", 30);
+            fill.style.transitionDuration = "3s";
+            setTimeout(() => fill.style.width = "100%", 30);
 
             holdTimer = setTimeout(() => {
-                holdTriggered = true;
+                triggered = true;
 
                 statusBox.style.opacity = 0;
                 setTimeout(() => statusBox.remove(), 400);
@@ -377,15 +353,14 @@ document.addEventListener("DOMContentLoaded", () => {
         function cancelHold() {
             clearTimeout(holdTimer);
 
-            if (!holdTriggered && statusBox) {
+            if (!triggered && statusBox) {
                 statusBox.style.opacity = 0;
-                setTimeout(() => statusBox.remove(), 300);
+                setTimeout(() => statusBox.remove(), 250);
             }
         }
 
         clearBtn.addEventListener("mousedown", startHold);
         clearBtn.addEventListener("touchstart", startHold);
-
         clearBtn.addEventListener("mouseup", cancelHold);
         clearBtn.addEventListener("mouseleave", cancelHold);
         clearBtn.addEventListener("touchend", cancelHold);
@@ -394,10 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       MODE SYSTEM — NEW BEHAVIOUR
-       - Open chat instantly
-       - Update badge
-       - NO "mode switched" messages
+       MODE SYSTEM — No Popup, Instant Chat Open
     ============================================================ */
     const modeThemes = {
         study: "#00aaff",
@@ -408,36 +380,29 @@ document.addEventListener("DOMContentLoaded", () => {
         precision: "#00eaff"
     };
 
-    const savedMode = localStorage.getItem("leocore-mode");
+    const saved = localStorage.getItem("leocore-mode");
 
-    if (savedMode) {
+    if (saved) {
         modeBadge.style.display = "inline-block";
-        modeBadge.textContent = savedMode.toUpperCase();
-        document.documentElement.style.setProperty("--theme-glow", modeThemes[savedMode]);
+        modeBadge.textContent = saved.toUpperCase();
+        document.documentElement.style.setProperty("--theme-glow", modeThemes[saved]);
     }
 
     document.querySelectorAll(".mode-btn").forEach(btn => {
-
         btn.addEventListener("click", () => {
-
             const mode = btn.dataset.mode;
 
-            // Save mode
             localStorage.setItem("leocore-mode", mode);
 
-            // Update badge
             modeBadge.style.display = "inline-block";
             modeBadge.textContent = mode.toUpperCase();
 
-            // Highlight active
             document.querySelectorAll(".mode-btn")
                 .forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
 
-            // Apply colour glow
             document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
 
-            // Open chat instantly
             chatScreen.classList.add("active");
             setTimeout(() => input.focus(), 150);
         });
@@ -445,7 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       QUICK TOOLS — Prefill & Open Chat
+       QUICK TOOLS — Prefill Input
     ============================================================ */
     const toolPrompts = {
         summarise: "Summarise this text:",
@@ -456,12 +421,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document.querySelectorAll(".tool-btn").forEach(btn => {
         btn.addEventListener("click", () => {
-
             const task = btn.dataset.task;
-
             input.value = toolPrompts[task] || "";
             chatScreen.classList.add("active");
-
             setTimeout(() => input.focus(), 150);
         });
     });
@@ -469,9 +431,8 @@ document.addEventListener("DOMContentLoaded", () => {
 }); // END DOMContentLoaded
 
 
-
 /* ============================================================
-   PARALLAX — Smooth
+   PARALLAX
 ============================================================ */
 let pRaf = false;
 
