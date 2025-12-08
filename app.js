@@ -2,19 +2,21 @@
    DEV ERROR POPUP
 ============================================================ */
 window.onerror = function (msg, src, line) {
-    document.body.innerHTML += `
-        <div style="position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:8px;border:1px solid red;z-index:9999">
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `<div style="position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:8px;border:1px solid red;z-index:9999">
             ${msg}<br>Line: ${line}
-        </div>`;
+        </div>`
+    );
 };
 
 
 /* ============================================================
-   MAIN APP (EVERYTHING MUST LIVE INSIDE HERE)
+   MAIN APP
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENTS */
+    /* ---------------- ELEMENTS ---------------- */
     const chatScreen = document.getElementById("chatScreen");
     const closeChat = document.getElementById("closeChat");
     const messages = document.getElementById("messages");
@@ -24,12 +26,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    /* STREAM STATES */
+    /* ---------------- STREAM FLAGS ---------------- */
     let isStreaming = false;
     let cancelStream = false;
     let ignoreNextResponse = false;
 
-    /* USER ID */
+    /* ---------------- USER ID SYSTEM ---------------- */
     const CREATOR_ID = "leo-official-001";
 
     function getCookie(name) {
@@ -41,17 +43,21 @@ document.addEventListener("DOMContentLoaded", () => {
         document.cookie = `${name}=${value}; path=/; max-age=31536000`;
     }
 
-    let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
+    let userId =
+        getCookie("leocore-user") ||
+        localStorage.getItem("leocore-user");
 
     if (!userId) {
-        userId = CREATOR_ID;
+        userId = "user-" + Math.random().toString(36).slice(2);
         setCookie("leocore-user", userId);
         localStorage.setItem("leocore-user", userId);
     }
 
+    const IS_CREATOR = userId === CREATOR_ID;
+
 
     /* ============================================================
-       LOAD CHAT
+       LOAD & SAVE CHAT
     ============================================================ */
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(m => addMessage(m.text, m.sender));
@@ -67,17 +73,24 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
-    /* ============================================================
-       SCROLL
-    ============================================================ */
-    function scrollToBottom() {
-        setTimeout(() => {
-            messages.scrollTop = messages.scrollHeight;
-        }, 20);
-    }
 
     /* ============================================================
-       HERO AUTO-TYPE
+       SCROLL (Throttled)
+    ============================================================ */
+    let scrollRAF = false;
+    function scrollToBottom() {
+        if (scrollRAF) return;
+        scrollRAF = true;
+
+        requestAnimationFrame(() => {
+            messages.scrollTop = messages.scrollHeight;
+            scrollRAF = false;
+        });
+    }
+
+
+    /* ============================================================
+       HERO AUTO-TYPE (Optimised)
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -105,7 +118,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 pi = (pi + 1) % prompts.length;
             }
         }
-
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
@@ -137,7 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
     function createTypingBubble() {
         const wrap = document.createElement("div");
         wrap.className = "ai-msg typing-holder";
-
         wrap.innerHTML = `
             <div class="spiral-bubble">
                 <div class="spiral-core"></div>
@@ -146,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="orbit o3"></div>
             </div>
         `;
-
         messages.appendChild(wrap);
         scrollToBottom();
         return wrap;
@@ -154,7 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAM REPLY
+       STREAMING ENGINE (Optimised + Stable Save)
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
@@ -184,7 +194,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let i = 0;
         while (i < full.length) {
             if (cancelStream) break;
-
             span.innerHTML = full.substring(0, i + 1);
             i++;
 
@@ -192,29 +201,23 @@ document.addEventListener("DOMContentLoaded", () => {
             await new Promise(r => setTimeout(r, 14 + Math.random() * 18));
         }
 
-        if (cancelStream) {
-            cursor.remove();
-            isStreaming = false;
-            return;
-        }
-
         cursor.classList.add("fade-out");
-        setTimeout(() => cursor.remove(), 350);
+        setTimeout(() => cursor.remove(), 250);
+
+        setTimeout(saveChat, 50);
 
         isStreaming = false;
-        saveChat();
     }
 
 
     /* ============================================================
-       SEND MESSAGE
+       SEND MESSAGE + STOP STREAM
     ============================================================ */
     async function sendMessage() {
 
         if (isStreaming) {
             cancelStream = true;
             isStreaming = false;
-
             ignoreNextResponse = true;
 
             setTimeout(() => {
@@ -254,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await res.json();
 
             if (ignoreNextResponse) {
-                ignoreNextResponse = false;
                 loader.remove();
                 return;
             }
@@ -294,13 +296,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HOLD-TO-RESET WIPE (Premium)
+       HOLD-TO-RESET (Premium)
     ============================================================ */
     if (clearBtn) {
 
         let holdTimer = null;
         let holdTriggered = false;
-
         let statusBox = null;
         let progressFill = null;
 
@@ -323,8 +324,8 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
             document.body.appendChild(statusBox);
-            progressFill = statusBox.querySelector(".clear-progress-fill");
 
+            progressFill = statusBox.querySelector(".clear-progress-fill");
             setTimeout(() => statusBox.style.opacity = 1, 20);
         }
 
@@ -342,7 +343,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         function startHold() {
             holdTriggered = false;
-
             createStatusUI();
 
             progressFill.style.transitionDuration = "3s";
@@ -387,7 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       ⭐ MODE SELECTOR (MOVED INSIDE DOM LOADED)
+       MODE SELECTOR (FINISHED VERSION)
     ============================================================ */
     const modeThemes = {
         study: "#00aaff",
@@ -398,9 +398,12 @@ document.addEventListener("DOMContentLoaded", () => {
         precision: "#00eaff"
     };
 
-    document.querySelectorAll(".mode-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
+    const savedMode = localStorage.getItem("leocore-mode") || "default";
 
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        if (btn.dataset.mode === savedMode) btn.classList.add("active");
+
+        btn.addEventListener("click", () => {
             document.querySelectorAll(".mode-btn")
                 .forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
@@ -408,25 +411,32 @@ document.addEventListener("DOMContentLoaded", () => {
             const mode = btn.dataset.mode;
             localStorage.setItem("leocore-mode", mode);
 
-            const col = modeThemes[mode];
-            document.documentElement.style.setProperty("--theme-glow", col);
+            document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
 
             addMessage(`Mode switched to **${mode}**.`, "ai");
         });
     });
 
-
 }); // END DOMContentLoaded
 
 
 /* ============================================================
-   PARALLAX (OUTSIDE DOM → LOW LATENCY)
+   PARALLAX — Ultra Optimised
 ============================================================ */
-document.addEventListener("mousemove", (e) => {
-    const x = (e.clientX / window.innerWidth - 0.5) * 10;
-    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+let pRaf = false;
 
-    document.querySelectorAll(".parallax").forEach(el => {
-        el.style.transform = `translate(${x}px, ${y}px)`;
+document.addEventListener("mousemove", (e) => {
+    if (pRaf) return;
+    pRaf = true;
+
+    requestAnimationFrame(() => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 10;
+        const y = (e.clientY / window.innerHeight - 0.5) * 10;
+
+        document.querySelectorAll(".parallax").forEach(el => {
+            el.style.transform = `translate(${x}px, ${y}px)`;
+        });
+
+        pRaf = false;
     });
 });
