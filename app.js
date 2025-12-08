@@ -1,5 +1,5 @@
 /* ============================================================
-   DEV ERROR POPUP
+   DEV ERROR POPUP (for debugging)
 ============================================================ */
 window.onerror = function (msg, src, line) {
     document.body.insertAdjacentHTML(
@@ -9,6 +9,12 @@ window.onerror = function (msg, src, line) {
         </div>`
     );
 };
+
+
+/* ============================================================
+   GLOBAL SCROLL FLAG (MUST BE GLOBAL!)
+============================================================ */
+let scrollRAF = false;
 
 
 /* ============================================================
@@ -59,9 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ============================================================
        LOAD & SAVE CHAT
     ============================================================ */
-    let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
-    savedChat.forEach(m => addMessage(m.text, m.sender));
-
     function saveChat() {
         const arr = [];
         document.querySelectorAll(".bubble").forEach(b => {
@@ -73,11 +76,13 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
+    let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
+    savedChat.forEach(m => addMessage(m.text, m.sender));
+
 
     /* ============================================================
-       SCROLL (Throttled)
+       SCROLL (THROTTLED + NO ERRORS)
     ============================================================ */
-    let scrollRAF = false;
     function scrollToBottom() {
         if (scrollRAF) return;
         scrollRAF = true;
@@ -90,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HERO AUTO-TYPE (Optimised)
+       HERO AUTO-TYPE
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -118,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 pi = (pi + 1) % prompts.length;
             }
         }
+
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
@@ -139,16 +145,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         scrollToBottom();
         saveChat();
+
         return bubble;
     }
 
 
     /* ============================================================
-       TYPING INDICATOR
+       AI TYPING INDICATOR
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
         wrap.className = "ai-msg typing-holder";
+
         wrap.innerHTML = `
             <div class="spiral-bubble">
                 <div class="spiral-core"></div>
@@ -157,14 +165,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="orbit o3"></div>
             </div>
         `;
+
         messages.appendChild(wrap);
         scrollToBottom();
+
         return wrap;
     }
 
 
     /* ============================================================
-       STREAMING ENGINE (Optimised + Stable Save)
+       STREAMING ENGINE (Stable + Smooth)
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
@@ -194,6 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let i = 0;
         while (i < full.length) {
             if (cancelStream) break;
+
             span.innerHTML = full.substring(0, i + 1);
             i++;
 
@@ -204,8 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cursor.classList.add("fade-out");
         setTimeout(() => cursor.remove(), 250);
 
-        setTimeout(saveChat, 50);
-
+        setTimeout(saveChat, 60);
         isStreaming = false;
     }
 
@@ -215,6 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ============================================================ */
     async function sendMessage() {
 
+        /* Stop streaming if user clicks during stream */
         if (isStreaming) {
             cancelStream = true;
             isStreaming = false;
@@ -228,9 +239,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
+
             return;
         }
 
+        /* Normal send */
         const text = input.value.trim();
         if (!text) return;
 
@@ -238,8 +251,8 @@ document.addEventListener("DOMContentLoaded", () => {
         input.value = "";
 
         input.disabled = true;
-        sendBtn.innerHTML = "■";
         sendBtn.classList.add("stop-mode");
+        sendBtn.innerHTML = "■";
 
         const loader = createTypingBubble();
 
@@ -270,8 +283,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         input.disabled = false;
-        sendBtn.innerHTML = "➤";
         sendBtn.classList.remove("stop-mode");
+        sendBtn.innerHTML = "➤";
     }
 
 
@@ -284,14 +297,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fakeInput.addEventListener("click", () => {
-        if (isStreaming) return;
-        chatScreen.classList.add("active");
+        if (!isStreaming) chatScreen.classList.add("active");
         setTimeout(() => input.focus(), 200);
     });
 
     closeChat.addEventListener("click", () => {
-        if (isStreaming) return;
-        chatScreen.classList.remove("active");
+        if (!isStreaming) chatScreen.classList.remove("active");
     });
 
 
@@ -326,6 +337,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.appendChild(statusBox);
 
             progressFill = statusBox.querySelector(".clear-progress-fill");
+
             setTimeout(() => statusBox.style.opacity = 1, 20);
         }
 
@@ -346,9 +358,7 @@ document.addEventListener("DOMContentLoaded", () => {
             createStatusUI();
 
             progressFill.style.transitionDuration = "3s";
-            setTimeout(() => {
-                progressFill.style.width = "100%";
-            }, 30);
+            setTimeout(() => progressFill.style.width = "100%", 30);
 
             holdTimer = setTimeout(() => {
                 holdTriggered = true;
@@ -387,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       MODE SELECTOR (FINISHED VERSION)
+       MODE SELECTOR
     ============================================================ */
     const modeThemes = {
         study: "#00aaff",
@@ -406,6 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".mode-btn")
                 .forEach(b => b.classList.remove("active"));
+
             btn.classList.add("active");
 
             const mode = btn.dataset.mode;
@@ -417,11 +428,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-}); // END DOMContentLoaded
+}); // END main app
 
 
 /* ============================================================
-   PARALLAX — Ultra Optimised
+   PARALLAX — Global + Ultra Smooth
 ============================================================ */
 let pRaf = false;
 
@@ -438,28 +449,5 @@ document.addEventListener("mousemove", (e) => {
         });
 
         pRaf = false;
-    });
-});
-
-/* ============================================================
-   PARALLAX — Ultra Optimised (SAFE)
-============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-    let pRaf = false;
-
-    document.addEventListener("mousemove", (e) => {
-        if (pRaf) return;
-        pRaf = true;
-
-        requestAnimationFrame(() => {
-            const x = (e.clientX / window.innerWidth - 0.5) * 10;
-            const y = (e.clientY / window.innerHeight - 0.5) * 10;
-
-            document.querySelectorAll(".parallax").forEach(el => {
-                el.style.transform = `translate(${x}px, ${y}px)`;
-            });
-
-            pRaf = false;
-        });
     });
 });
