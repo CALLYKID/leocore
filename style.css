@@ -341,3 +341,101 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 .o2 { animation-delay: .35s; }
 .o3 { animation-delay: .7s; }
+/* ============================================================
+   LEOCORE HEADER — ANIMATED GLASS + NEON SWIPE
+============================================================ */
+
+.glow-header {
+    position: relative;
+    padding: 14px 20px;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(0,255,255,0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+    animation: headerFade 0.6s ease forwards;
+}
+
+@keyframes headerFade {
+    0% { opacity: 0; transform: translateY(-12px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Soft glow behind header */
+.glow-header::before {
+    content: "";
+    position: absolute;
+    inset: -30px;
+    background: radial-gradient(circle, rgba(0,200,255,0.20), transparent 70%);
+    z-index: -1;
+    animation: glowPulse 5s infinite ease-in-out;
+}
+
+@keyframes glowPulse {
+    0% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(1.15); }
+    100% { opacity: 0.4; transform: scale(1); }
+}
+
+/* Glass icon buttons */
+.glass-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    color: #e4faff;
+    transition: 0.25s ease;
+}
+
+.glass-btn:active {
+    transform: scale(0.90);
+    background: rgba(0,200,255,0.25);
+    box-shadow: 0 0 16px rgba(0,200,255,0.55);
+}
+
+/* Title wrapper */
+.chat-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Main title */
+.chat-title {
+    font-family: Montserrat, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    background: linear-gradient(90deg,#00eaff,#9d4bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0;
+    animation: titleIn 0.8s ease forwards;
+}
+
+@keyframes titleIn {
+    0% { opacity: 0; transform: translateY(-8px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Neon underline swipe */
+.title-underline {
+    margin-top: 3px;
+    width: 0%;
+    height: 3px;
+    border-radius: 3px;
+    background: linear-gradient(90deg,#00eaff,#9400ff);
+    animation: underlineSwipe 1s ease forwards 0.4s;
+}
+
+@keyframes underlineSwipe {
+    0% { width: 0; opacity: 0; }
+    100% { width: 80%; opacity: 1; }
+}
