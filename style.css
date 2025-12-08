@@ -1,4 +1,6 @@
-/* RESET + TOUCH FIXES */
+/* ============================================================
+   RESET + TOUCH FIXES
+============================================================ */
 * {
     margin: 0;
     padding: 0;
@@ -16,7 +18,9 @@ body {
 }
 @keyframes fadeIn { to { opacity: 1; } }
 
-/* VIDEO BACKGROUND */
+/* ============================================================
+   VIDEO BACKGROUND
+============================================================ */
 #bgVideo {
     position: fixed;
     inset: 0;
@@ -32,11 +36,13 @@ body {
     inset: 0;
     background: rgba(0,0,25,0.4);
     backdrop-filter: blur(3px);
-    pointer-events: none; /* IMPORTANT */
+    pointer-events: none;
     z-index: -4;
 }
 
-/* HERO */
+/* ============================================================
+   HERO SECTION
+============================================================ */
 .center-wrapper {
     text-align: center;
     padding-top: 18vh;
@@ -45,28 +51,64 @@ body {
     position: relative;
 }
 
+/* ============================================================
+   LEOCORE NEON INPUT 2.0 — POLISHED + ANIMATED
+============================================================ */
 .fake-input {
     width: 85vw;
     max-width: 600px;
-    height: 62px;
-    background: rgba(255,255,255,0.12);
-    border: 2px solid rgba(0,200,255,0.85);
-    border-radius: 18px;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 0 30px rgba(0,200,255,0.45);
+    height: 64px;
+
+    margin: 0 auto 28px auto;
+
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+
+    background: rgba(0,15,30,0.35);
+    border-radius: 18px;
+
+    /* Outer neon border */
+    border: 2px solid rgba(0,200,255,0.8);
+
+    /* Subtle glow */
+    box-shadow:
+        0 0 12px rgba(0,200,255,0.55),
+        0 0 35px rgba(0,200,255,0.25);
+
+    backdrop-filter: blur(6px);
+
+    overflow: hidden;
     cursor: pointer;
-    margin-bottom: 32px;
+
+    /* Entrance animation */
+    opacity: 0;
+    animation: heroReveal 0.6s ease forwards, inputBreath 4s ease-in-out infinite;
 }
 
+/* Smooth neon breathing animation */
+@keyframes inputBreath {
+    0% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.2); }
+    50% { box-shadow: 0 0 22px rgba(0,200,255,0.75), 0 0 70px rgba(0,200,255,0.35); }
+    100% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.2); }
+}
+
+/* Tap squeeze */
+.fake-input:active {
+    transform: scale(0.98);
+    box-shadow: 0 0 30px rgba(0,200,255,0.85);
+}
+
+/* Upgraded fake text */
 .fake-text {
-    color: #dffaff;
     font-size: 20px;
+    color: #d8faff;
     white-space: nowrap;
+    letter-spacing: 0.3px;
+    transition: opacity 0.25s ease;
 }
 
+/* Main Title */
 .main-title {
     font-size: 46px;
     font-weight: 800;
@@ -78,7 +120,9 @@ body {
     font-size: 19px;
 }
 
-/* INFO CARD */
+/* ============================================================
+   INFO CARD
+============================================================ */
 .info-section {
     display: flex;
     justify-content: center;
@@ -107,7 +151,9 @@ body {
     gap: 22px;
 }
 
-/* CHAT SCREEN */
+/* ============================================================
+   CHAT SCREEN
+============================================================ */
 .chat-screen {
     position: fixed;
     inset: 0;
@@ -123,7 +169,9 @@ body {
     opacity: 1;
 }
 
-/* CHAT HEADER */
+/* ============================================================
+   CHAT HEADER
+============================================================ */
 .chat-header {
     padding: 14px 18px;
     background: rgba(0,0,0,0.35);
@@ -142,7 +190,9 @@ body {
     color: #fff;
 }
 
-/* MESSAGES */
+/* ============================================================
+   MESSAGES
+============================================================ */
 .chat-messages {
     flex: 1;
     padding: 14px;
@@ -166,7 +216,9 @@ body {
 .ai-msg { justify-content: flex-start; display: flex; }
 .ai-msg .bubble { background: #1e263f; }
 
-/* INPUT BAR */
+/* ============================================================
+   INPUT BAR
+============================================================ */
 .chat-input-area {
     padding: 12px;
     display: flex;
