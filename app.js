@@ -24,12 +24,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
 
-    /* AI STREAM STATES */
+    /* STATES */
     let isStreaming = false;
     let cancelStream = false;
 
+    // ⭐ NEW — prevents illusion break
+    let ignoreNextResponse = false;
+
     /* ============================================================
-       PERMANENT USER ID (Creator locked)
+       PERMANENT USER ID
     ============================================================ */
     const CREATOR_ID = "leo-official-001";
 
@@ -46,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.getItem("leocore-user");
 
     if (!userId) {
-        // Creator device for now
         userId = CREATOR_ID;
         setCookie("leocore-user", userId);
         localStorage.setItem("leocore-user", userId);
@@ -59,16 +61,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     savedChat.forEach(m => addMessage(m.text, m.sender));
 
-
     function saveChat() {
-        const out = [];
+        const data = [];
         document.querySelectorAll(".bubble").forEach(b => {
-            out.push({
+            data.push({
                 text: b.innerHTML,
                 sender: b.parentElement.classList.contains("user-msg") ? "user" : "ai"
             });
         });
-        localStorage.setItem("leocore-chat", JSON.stringify(out));
+        localStorage.setItem("leocore-chat", JSON.stringify(data));
     }
 
     /* ============================================================
@@ -81,7 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       HERO AUTO TYPING
+       HERO AUTO TYPE
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -120,21 +121,21 @@ document.addEventListener("DOMContentLoaded", () => {
         const wrap = document.createElement("div");
         wrap.className = sender === "user" ? "user-msg" : "ai-msg";
 
-        const b = document.createElement("div");
-        b.className = "bubble";
-        b.innerHTML = text;
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = text;
 
-        wrap.appendChild(b);
+        wrap.appendChild(bubble);
         messages.appendChild(wrap);
 
         scrollToBottom();
         saveChat();
 
-        return b;
+        return bubble;
     }
 
     /* ============================================================
-       TYPING LOADER BUBBLE
+       TYPING INDICATOR
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
@@ -155,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       STREAM TEXT LIKE CHATGPT
+       STREAM MESSAGE (ChatGPT-style)
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
@@ -192,9 +193,8 @@ document.addEventListener("DOMContentLoaded", () => {
             await new Promise(r => setTimeout(r, 14 + Math.random() * 18));
         }
 
-        // STOP MODE pressed
         if (cancelStream) {
-            span.innerHTML = full;
+            // User STOPPED → DO NOT show rest
             cursor.remove();
             isStreaming = false;
             return;
@@ -212,22 +212,28 @@ document.addEventListener("DOMContentLoaded", () => {
     ============================================================ */
     async function sendMessage() {
 
-        // If AI is typing → STOP
+        /* =============================
+           STOP MODE — FIXED
+        ============================== */
         if (isStreaming) {
             cancelStream = true;
             isStreaming = false;
+
+            // ⭐ KEY PATCH → ignore backend reply
+            ignoreNextResponse = true;
+
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
             return;
         }
 
+        /* Normal send */
         const text = input.value.trim();
         if (!text) return;
 
         addMessage(text, "user");
         input.value = "";
 
-        // lock UI
         input.disabled = true;
         sendBtn.innerHTML = "■";
         sendBtn.classList.add("stop-mode");
@@ -238,16 +244,19 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: text,
-                    userId
-                })
+                body: JSON.stringify({ message: text, userId })
             });
 
             const data = await res.json();
 
-            loader.remove();
+            // ⭐ Ignore backend reply if STOP was pressed
+            if (ignoreNextResponse) {
+                ignoreNextResponse = false;
+                loader.remove();
+                return;
+            }
 
+            loader.remove();
             await streamMessage(data.reply);
 
         } catch (e) {
@@ -261,27 +270,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       EVENT LISTENERS
+       LISTENERS
     ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
 
-    /* CHAT OPEN */
     fakeInput.addEventListener("click", () => {
         if (isStreaming) return;
         chatScreen.classList.add("active");
         setTimeout(() => input.focus(), 200);
     });
 
-    /* CHAT CLOSE */
     closeChat.addEventListener("click", () => {
         if (isStreaming) return;
         chatScreen.classList.remove("active");
     });
 
-    /* CLEAR CHAT */
     clearBtn.addEventListener("click", () => {
         messages.innerHTML = "";
         localStorage.removeItem("leocore-chat");
