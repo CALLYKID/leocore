@@ -656,6 +656,28 @@ body::after {
     50%  { transform: translateY(80px); }
     100% { transform: translateY(-20px); }
 }
+
+.orb {
+    position: fixed;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #00eaff55, #00eaff00);
+    filter: blur(25px);
+    z-index: -1;
+    animation: orbFloat 14s infinite ease-in-out;
+}
+
+.orb1 { top: 20%; left: 10%; animation-delay: 0s; }
+.orb2 { top: 60%; right: 12%; animation-delay: 3s; }
+.orb3 { top: 80%; left: 40%; animation-delay: 6s; }
+
+@keyframes orbFloat {
+    0%   { transform: translate(0, 0); }
+    50%  { transform: translate(30px, -40px); }
+    100% { transform: translate(-20px, 20px); }
+}
+
 :root {
     --theme-glow: #00eaff;
 }
