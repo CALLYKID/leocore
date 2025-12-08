@@ -709,3 +709,8 @@ body::after {
     50% { top: 120%; }
     100% { top: -100%; }
 }
+
+.mode-btn.active {
+    box-shadow: 0 0 18px var(--theme-glow);
+    background: rgba(0,200,255,0.35);
+}
