@@ -54,19 +54,21 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AUTO SCROLL (FIXED VARIABLE ORDER)
-    ============================================================*/
-    let scrollRAF = false;
+   SAFE AUTO SCROLL (CANNOT RUN BEFORE INITIALIZATION)
+============================================================ */
+let scrollRAF;
 
-    function scrollToBottom() {
-        if (scrollRAF) return;
-        scrollRAF = true;
+function scrollToBottom() {
+    if (scrollRAF === undefined) scrollRAF = false; // safe init
 
-        requestAnimationFrame(() => {
-            messages.scrollTop = messages.scrollHeight;
-            scrollRAF = false;
-        });
-    }
+    if (scrollRAF) return;
+    scrollRAF = true;
+
+    requestAnimationFrame(() => {
+        messages.scrollTop = messages.scrollHeight;
+        scrollRAF = false;
+    });
+}
 
 
     /* ============================================================
