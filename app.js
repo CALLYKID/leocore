@@ -11,9 +11,7 @@ window.onerror = function (msg, src, line) {
 };
 
 
-/* ============================================================
-   GLOBAL STATE
-============================================================ */
+/* GLOBAL STATE */
 let scrollRAF = false;
 let isStreaming = false;
 let cancelStream = false;
@@ -25,13 +23,13 @@ let ignoreNextResponse = false;
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ---------------- ELEMENTS ---------------- */
+    /* ELEMENTS (UPDATED TO MATCH YOUR HTML) */
     const chatScreen = document.getElementById("chatScreen");
-    const closeChat = document.getElementById("closeChat");
+    const closeChat = document.getElementById("backBtn");   // FIXED
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-    const clearBtn = document.getElementById("clearChat");
+    const clearBtn = document.getElementById("deleteBtn");   // FIXED
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
     const modePill = document.getElementById("modePill");
@@ -75,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SCROLL CONTROLLER
+       SCROLL
     ============================================================ */
     function scrollToBottom() {
         if (scrollRAF) return;
@@ -165,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAMING ENGINE (fast mode enabled)
+       STREAMING ENGINE
     ============================================================ */
     async function streamMessage(full, isFlame = false) {
         isStreaming = true;
@@ -193,10 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollToBottom();
 
         let i = 0;
-
-        const speed = () => {
-            return isFlame ? (6 + Math.random() * 9) : (14 + Math.random() * 18);
-        };
+        const speed = () => isFlame ? (6 + Math.random() * 9) : (14 + Math.random() * 18);
 
         while (i < full.length) {
             if (cancelStream) break;
@@ -238,8 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const loader = createTypingBubble();
 
-        const currentMode = localStorage.getItem("leocore-mode") || "default";
-        const isFlameMode = currentMode === "flame";
+        const mode = localStorage.getItem("leocore-mode") || "default";
+        const isFlameMode = mode === "flame";
 
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
@@ -248,7 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     message: text,
                     userId,
-                    mode: currentMode,
+                    mode,
                     boost: isFlameMode ? "🔥 FLAME TONE" : ""
                 })
             });
@@ -272,9 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ============================================================
-       CHAT EVENTS
-    ============================================================ */
+    /* BUTTON EVENTS */
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
 
@@ -288,81 +281,71 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-   // 💀 Clean any old leftover popups on load
-document.querySelectorAll(".clear-status").forEach(e => e.remove());
-   
     /* ============================================================
-   DELETE SYSTEM — TAP = CLEAR CHAT, HOLD = FULL WIPE
-============================================================ */
-let holdTimer = null;
-let holdActive = false;
+       DELETE SYSTEM — TAP = CLEAR CHAT, HOLD = FULL WIPE
+    ============================================================ */
+    let holdTimer = null;
+    let holdActive = false;
 
-function clearChatInstant() {
-    messages.innerHTML = "";
-    localStorage.removeItem("leocore-chat");
-    addMessage("🗑 Chat cleared.", "ai");
-}
-
-function fullWipeAnimation() {
-    const overlay = document.createElement("div");
-    overlay.id = "wipeOverlay";
-    overlay.innerHTML = `
-        <div class="wipe-container">
-            <div class="wipe-loader"></div>
-            <div class="wipe-text">Clearing data...</div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-
-    // fade in
-    requestAnimationFrame(() => overlay.classList.add("show"));
-
-    setTimeout(() => {
-        // perform real wipe
-        localStorage.clear();
-
-        chatScreen.classList.remove("active");
-
-        // fade out then remove
-        overlay.classList.remove("show");
-        setTimeout(() => overlay.remove(), 600);
-
-    }, 1700);
-}
-
-clearBtn.addEventListener("mousedown", startHold);
-clearBtn.addEventListener("touchstart", startHold);
-
-clearBtn.addEventListener("mouseup", cancelHold);
-clearBtn.addEventListener("mouseleave", cancelHold);
-clearBtn.addEventListener("touchend", cancelHold);
-
-function startHold() {
-    if (holdTimer) return;
-
-    holdActive = false;
-
-    holdTimer = setTimeout(() => {
-        holdActive = true;
-        fullWipeAnimation();
-    }, 1000); // hold duration: 1 second
-}
-
-function cancelHold() {
-    if (!holdTimer) return;
-
-    clearTimeout(holdTimer);
-
-    if (!holdActive) {
-        // short tap → clear only chat
-        clearChatInstant();
+    function clearChatInstant() {
+        messages.innerHTML = "";
+        localStorage.removeItem("leocore-chat");
+        addMessage("🗑 Chat cleared.", "ai");
     }
 
-    holdTimer = null;
-}
+    function fullWipeAnimation() {
+        const overlay = document.createElement("div");
+        overlay.id = "wipeOverlay";
+        overlay.innerHTML = `
+            <div class="wipe-container">
+                <div class="wipe-loader"></div>
+                <div class="wipe-text">Clearing data...</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(() => overlay.classList.add("show"));
+
+        setTimeout(() => {
+            localStorage.clear();
+            chatScreen.classList.remove("active");
+
+            overlay.classList.remove("show");
+            setTimeout(() => overlay.remove(), 600);
+        }, 1700);
+    }
+
+    clearBtn.addEventListener("mousedown", startHold);
+    clearBtn.addEventListener("touchstart", startHold);
+    clearBtn.addEventListener("mouseup", cancelHold);
+    clearBtn.addEventListener("mouseleave", cancelHold);
+    clearBtn.addEventListener("touchend", cancelHold);
+
+    function startHold() {
+        if (holdTimer) return;
+
+        holdActive = false;
+        holdTimer = setTimeout(() => {
+            holdActive = true;
+            fullWipeAnimation();
+        }, 1000);
+    }
+
+    function cancelHold() {
+        if (!holdTimer) return;
+
+        clearTimeout(holdTimer);
+
+        if (!holdActive) {
+            clearChatInstant();
+        }
+
+        holdTimer = null;
+    }
+
 
     /* ============================================================
-       MODE SYSTEM (FLAME MODE ADDED)
+       MODE SYSTEM
     ============================================================ */
     const modeThemes = {
         study: "#00aaff",
@@ -371,7 +354,7 @@ function cancelHold() {
         deep: "#ff0033",
         chill: "#b400ff",
         precision: "#00eaff",
-        flame: "#ff4500"        // 🔥 FIRE ORANGE/RED
+        flame: "#ff4500"
     };
 
     function updateModePill() {
@@ -380,7 +363,6 @@ function cancelHold() {
         modePill.textContent = mode.toUpperCase();
         document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
 
-        // 🔥 activate fire animation
         if (mode === "flame") {
             modePill.classList.add("flame-active");
             document.body.classList.add("flame-glow");
@@ -399,14 +381,13 @@ function cancelHold() {
     document.querySelectorAll(".mode-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const mode = btn.dataset.mode;
-
             localStorage.setItem("leocore-mode", mode);
-            updateModePill();
 
             document.querySelectorAll(".mode-btn")
                 .forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
 
+            updateModePill();
             chatScreen.classList.add("active");
             setTimeout(() => input.focus(), 150);
         });
