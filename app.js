@@ -27,9 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* STREAM STATES */
     let isStreaming = false;
     let cancelStream = false;
-
-    // ⭐ New variable — prevent backend reply after STOP
-    let ignoreNextResponse = false;
+    let ignoreNextResponse = false; // ⭐ FIX STOP-MODE
 
     /* ============================================================
        PERMANENT USER ID
@@ -45,9 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.cookie = `${name}=${value}; path=/; max-age=31536000`;
     }
 
-    let userId =
-        getCookie("leocore-user") ||
-        localStorage.getItem("leocore-user");
+    let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
 
     if (!userId) {
         userId = CREATOR_ID;
@@ -115,6 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     typeAnimation();
 
+
     /* ============================================================
        MESSAGE BUILDER
     ============================================================ */
@@ -134,8 +131,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return bubble;
     }
 
+
     /* ============================================================
-       TYPING INDICATOR
+       TYPING BUBBLE
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
@@ -155,8 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
+
     /* ============================================================
-       STREAM MESSAGE (ChatGPT-style)
+       STREAM MESSAGE
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
@@ -207,21 +206,18 @@ document.addEventListener("DOMContentLoaded", () => {
         saveChat();
     }
 
+
     /* ============================================================
-       SEND MESSAGE  (STOP MODE FIXED)
+       SEND MESSAGE (STOP MODE FIXED)
     ============================================================ */
     async function sendMessage() {
 
-        /* ============================
-           STOP MODE FIX
-        ============================ */
         if (isStreaming) {
             cancelStream = true;
             isStreaming = false;
 
-            ignoreNextResponse = true; // block the backend reply
+            ignoreNextResponse = true;
 
-            // ⭐ FULL RESET — THIS FIXES YOUR BUG
             setTimeout(() => {
                 ignoreNextResponse = false;
                 cancelStream = false;
@@ -233,9 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        /* ============================
-           NORMAL SEND
-        ============================ */
         const text = input.value.trim();
         if (!text) return;
 
@@ -276,11 +269,11 @@ document.addEventListener("DOMContentLoaded", () => {
         sendBtn.classList.remove("stop-mode");
     }
 
+
     /* ============================================================
        EVENT LISTENERS
     ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
-
     input.addEventListener("keydown", e => {
         if (e.key === "Enter") sendMessage();
     });
@@ -296,8 +289,99 @@ document.addEventListener("DOMContentLoaded", () => {
         chatScreen.classList.remove("active");
     });
 
-    clearBtn.addEventListener("click", () => {
-        messages.innerHTML = "";
-        localStorage.removeItem("leocore-chat");
-    });
+
+    /* ============================================================
+       ⭐ RESTORE PREMIUM HOLD-TO-RESET WIPE SYSTEM
+    ============================================================ */
+
+    if (clearBtn) {
+
+        let holdTimer = null;
+        let holdTriggered = false;
+
+        let statusBox = null;
+        let progressFill = null;
+
+        function createStatusUI() {
+            statusBox = document.createElement("div");
+            statusBox.className = "clear-status";
+
+            statusBox.innerHTML = `
+                <div class="clear-spiral">
+                    <div class="dot d1"></div>
+                    <div class="dot d2"></div>
+                    <div class="dot d3"></div>
+                </div>
+
+                <div class="clear-status-text">Wiping LeoCore…</div>
+
+                <div class="clear-progress">
+                    <div class="clear-progress-fill"></div>
+                </div>
+            `;
+
+            document.body.appendChild(statusBox);
+            progressFill = statusBox.querySelector(".clear-progress-fill");
+
+            setTimeout(() => statusBox.style.opacity = 1, 20);
+        }
+
+        // Short tap → clear chat only
+        clearBtn.addEventListener("click", () => {
+            if (holdTriggered) return;
+
+            messages.style.opacity = 0;
+
+            setTimeout(() => {
+                messages.innerHTML = "";
+                localStorage.removeItem("leocore-chat");
+                messages.style.opacity = 1;
+            }, 200);
+        });
+
+        function startHold() {
+            holdTriggered = false;
+
+            createStatusUI();
+
+            progressFill.style.transitionDuration = "3s";
+            setTimeout(() => {
+                progressFill.style.width = "100%";
+            }, 30);
+
+            holdTimer = setTimeout(() => {
+                holdTriggered = true;
+
+                statusBox.style.opacity = 0;
+                setTimeout(() => statusBox.remove(), 400);
+
+                messages.style.opacity = 0;
+
+                setTimeout(() => {
+                    localStorage.removeItem("leocore-chat");
+                    localStorage.removeItem("leocore-name");
+                    location.reload();
+                }, 350);
+
+            }, 3000);
+        }
+
+        function cancelHold() {
+            clearTimeout(holdTimer);
+
+            if (!holdTriggered && statusBox) {
+                statusBox.style.opacity = 0;
+                setTimeout(() => statusBox.remove(), 300);
+            }
+        }
+
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
+
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("touchcancel", cancelHold);
+    }
+
 });
