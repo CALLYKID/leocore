@@ -54,21 +54,26 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AUTO SCROLL (FIXED VARIABLE ORDER)
-    ============================================================*/
-    let scrollRAF = false;
+   SAFE AUTO SCROLL — FIXES EARLY CALLS + HIDDEN CHAT
+============================================================ */
+var scrollRAF = false; // use var so it's hoisted
 
-    function scrollToBottom() {
-        if (scrollRAF) return;
-        scrollRAF = true;
+function scrollToBottom() {
+    // if messages does not exist YET, exit safely
+    if (!window.messages) return;
 
-        requestAnimationFrame(() => {
-            messages.scrollTop = messages.scrollHeight;
-            scrollRAF = false;
-        });
-    }
+    // if messages is hidden, don't scroll
+    if (getComputedStyle(messages).display === "none") return;
 
+    if (scrollRAF) return;
+    scrollRAF = true;
 
+    requestAnimationFrame(() => {
+        messages.scrollTop = messages.scrollHeight;
+        scrollRAF = false;
+    });
+}
+   
     /* ============================================================
        HERO AUTO-TYPE
 ============================================================ */
