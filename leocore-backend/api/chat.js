@@ -54,12 +54,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-   SAFE AUTO SCROLL (CANNOT RUN BEFORE INITIALIZATION)
+   SAFE AUTO SCROLL (IMMUNE TO EARLY CALLS)
 ============================================================ */
-let scrollRAF;
+var scrollRAF = false; // use var so it HOISTS
 
 function scrollToBottom() {
-    if (scrollRAF === undefined) scrollRAF = false; // safe init
+    // ensure messages element exists before using it
+    if (!window.messages) return;
 
     if (scrollRAF) return;
     scrollRAF = true;
@@ -69,6 +70,7 @@ function scrollToBottom() {
         scrollRAF = false;
     });
 }
+   
     /* ============================================================
        HERO AUTO-TYPE
 ============================================================ */
