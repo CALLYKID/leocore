@@ -685,14 +685,3 @@ body.flame-glow .mode-pill {
 .glow-header::after {
     pointer-events: none !important;
 }
-
-.mode-pill {
-    flex: 0 0 110px;
-    text-align: center;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-.mode-pill {
-    font-size: clamp(10px, 2.8vw, 14px);
-}
