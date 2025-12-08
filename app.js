@@ -388,13 +388,14 @@ document.addEventListener("DOMContentLoaded", () => {
         precision: "#00eaff",
         flame: "#ff4500"
     };
+function updateModePill() {
+    const mode = localStorage.getItem("leocore-mode") || "default";
+    modePill.textContent = mode.toUpperCase();
+    document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
 
-    function updateModePill() {
-        const mode = localStorage.getItem("leocore-mode") || "default";
-        if (modePill) modePill.textContent = mode.toUpperCase();
-        document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
-        document.body.classList.toggle("flame-mode", mode === "flame");
-    }
+    document.body.classList.toggle("flame-mode", mode === "flame");
+}
+    
 
     updateModePill();
 
