@@ -1,10 +1,13 @@
 /* ============================================================
    ERROR POPUP (DEV MODE)
 ============================================================ */
-window.onerror = function (msg, src, line, col, err) {
-    document.body.innerHTML +=
-        "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" +
-        msg + "<br>Line: " + line + "</div>";
+window.onerror = function (msg, src, line) {
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:8px;border:1px solid red;z-index:9999'>
+            ${msg}<br>Line: ${line}
+        </div>`
+    );
 };
 
 
@@ -54,10 +57,16 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AUTO SCROLL
+       AUTO SCROLL (Optimised)
     ============================================================*/
+    let scrollLock = false;
     function scrollToBottom() {
-        setTimeout(() => messages.scrollTop = messages.scrollHeight, 20);
+        if (scrollLock) return;
+        scrollLock = true;
+        requestAnimationFrame(() => {
+            messages.scrollTop = messages.scrollHeight;
+            scrollLock = false;
+        });
     }
 
 
@@ -76,12 +85,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function typeAnimation() {
         const cur = prompts[promptIndex];
+
         if (!deleting) {
             fakeText.innerText = cur.substring(0, charIndex++);
             if (charIndex > cur.length) {
                 deleting = true;
-                setTimeout(typeAnimation, 900);
-                return;
+                return setTimeout(typeAnimation, 900);
             }
         } else {
             fakeText.innerText = cur.substring(0, charIndex--);
@@ -90,6 +99,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 promptIndex = (promptIndex + 1) % prompts.length;
             }
         }
+
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
@@ -102,11 +112,11 @@ window.addEventListener("DOMContentLoaded", () => {
         const wrap = document.createElement("div");
         wrap.className = sender === "user" ? "user-msg" : "ai-msg";
 
-        const b = document.createElement("div");
-        b.className = "bubble";
-        b.innerHTML = text;
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = text;
 
-        wrap.appendChild(b);
+        wrap.appendChild(bubble);
         messages.appendChild(wrap);
 
         scrollToBottom();
@@ -137,16 +147,15 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AI STREAMING (ChatGPT style)
+       AI STREAMING (Simulated typing)
 ============================================================ */
     async function streamMessage(fullText) {
         fullText = fullText.replace(/\n/g, "<br>");
         isStreaming = true;
         stopStream = false;
 
-        // Button morphs to STOP
         sendBtn.classList.add("stop-mode");
-        sendBtn.innerHTML = ""; // icon controlled by CSS
+        sendBtn.innerHTML = "";
         input.disabled = true;
 
         const wrap = document.createElement("div");
@@ -157,8 +166,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
         const textSpan = document.createElement("span");
         textSpan.className = "stream-text";
-        bubble.appendChild(textSpan);
 
+        bubble.appendChild(textSpan);
         wrap.appendChild(bubble);
         messages.appendChild(wrap);
         scrollToBottom();
@@ -171,11 +180,10 @@ window.addEventListener("DOMContentLoaded", () => {
             textSpan.innerHTML = fullText.substring(0, i + 1);
             scrollToBottom();
 
-            await new Promise(res => setTimeout(res, 10 + Math.random() * 18));
+            await new Promise(res => setTimeout(res, 10 + Math.random() * 20));
             i++;
         }
 
-        // Reset to SEND mode
         sendBtn.classList.remove("stop-mode");
         sendBtn.innerHTML = "➤";
         input.disabled = false;
@@ -190,7 +198,6 @@ window.addEventListener("DOMContentLoaded", () => {
 ============================================================ */
     async function sendMessage() {
 
-        // ⛔ If streaming, clicking button stops the AI
         if (isStreaming) {
             stopStream = true;
             return;
@@ -202,13 +209,18 @@ window.addEventListener("DOMContentLoaded", () => {
         addMessage(text, "user");
         input.value = "";
 
-        let typingBubble = createTypingBubble();
+        const typingBubble = createTypingBubble();
 
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text, userId, name: savedName })
+                body: JSON.stringify({
+                    message: text,
+                    userId,
+                    name: savedName,
+                    mode: localStorage.getItem("leocore-mode") || "default"
+                })
             });
 
             const data = await res.json();
@@ -232,6 +244,7 @@ window.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("keydown", e => {
         if (e.key === "Enter" && !isStreaming) sendMessage();
     });
+
 
     /* ============================================================
        OPEN + CLOSE CHAT
