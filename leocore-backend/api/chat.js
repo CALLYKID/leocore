@@ -2,12 +2,9 @@
    ERROR POPUP (DEV MODE)
 ============================================================ */
 window.onerror = function (msg, src, line) {
-    document.body.insertAdjacentHTML(
-        "beforeend",
-        `<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:8px;border:1px solid red;z-index:9999'>
-            ${msg}<br>Line: ${line}
-        </div>`
-    );
+    document.body.innerHTML +=
+        "<div style='position:fixed;bottom:10px;left:10px;color:red;font-size:14px;background:#000;padding:10px;border:1px solid red;z-index:9999'>" +
+        msg + "<br>Line: " + line + "</div>";
 };
 
 
@@ -57,15 +54,17 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AUTO SCROLL (Optimised)
+       AUTO SCROLL (FIXED VARIABLE ORDER)
     ============================================================*/
-    let scrollLock = false;
+    let scrollRAF = false;
+
     function scrollToBottom() {
-        if (scrollLock) return;
-        scrollLock = true;
+        if (scrollRAF) return;
+        scrollRAF = true;
+
         requestAnimationFrame(() => {
             messages.scrollTop = messages.scrollHeight;
-            scrollLock = false;
+            scrollRAF = false;
         });
     }
 
@@ -85,12 +84,12 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function typeAnimation() {
         const cur = prompts[promptIndex];
-
         if (!deleting) {
             fakeText.innerText = cur.substring(0, charIndex++);
             if (charIndex > cur.length) {
                 deleting = true;
-                return setTimeout(typeAnimation, 900);
+                setTimeout(typeAnimation, 900);
+                return;
             }
         } else {
             fakeText.innerText = cur.substring(0, charIndex--);
@@ -99,7 +98,6 @@ window.addEventListener("DOMContentLoaded", () => {
                 promptIndex = (promptIndex + 1) % prompts.length;
             }
         }
-
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
@@ -112,11 +110,11 @@ window.addEventListener("DOMContentLoaded", () => {
         const wrap = document.createElement("div");
         wrap.className = sender === "user" ? "user-msg" : "ai-msg";
 
-        const bubble = document.createElement("div");
-        bubble.className = "bubble";
-        bubble.innerHTML = text;
+        const b = document.createElement("div");
+        b.className = "bubble";
+        b.innerHTML = text;
 
-        wrap.appendChild(bubble);
+        wrap.appendChild(b);
         messages.appendChild(wrap);
 
         scrollToBottom();
@@ -147,7 +145,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AI STREAMING (Simulated typing)
+       AI STREAMING
 ============================================================ */
     async function streamMessage(fullText) {
         fullText = fullText.replace(/\n/g, "<br>");
@@ -180,7 +178,7 @@ window.addEventListener("DOMContentLoaded", () => {
             textSpan.innerHTML = fullText.substring(0, i + 1);
             scrollToBottom();
 
-            await new Promise(res => setTimeout(res, 10 + Math.random() * 20));
+            await new Promise(res => setTimeout(res, 10 + Math.random() * 18));
             i++;
         }
 
@@ -194,7 +192,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SEND MESSAGE
+       SEND MESSAGE (FIXED: MODE ADDED)
 ============================================================ */
     async function sendMessage() {
 
@@ -224,7 +222,6 @@ window.addEventListener("DOMContentLoaded", () => {
             });
 
             const data = await res.json();
-
             typingBubble.remove();
 
             await streamMessage(data.reply);
