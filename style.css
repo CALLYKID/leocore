@@ -681,3 +681,8 @@ body::after {
 :root {
     --theme-glow: #00eaff;
 }
+
+.parallax {
+    transition: transform 0.25s ease-out;
+    will-change: transform;
+}
