@@ -80,6 +80,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function scrollToBottom() {
         if (scrollRAF) return;
         scrollRAF = true;
+
         requestAnimationFrame(() => {
             messages.scrollTop = messages.scrollHeight;
             scrollRAF = false;
@@ -138,6 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         scrollToBottom();
         saveChat();
+
         return bubble;
     }
 
@@ -163,9 +165,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAMING ENGINE (SMOOTHER + FASTER)
+       STREAMING ENGINE (fast mode enabled)
     ============================================================ */
-    async function streamMessage(full) {
+    async function streamMessage(full, isFlame = false) {
         isStreaming = true;
         cancelStream = false;
 
@@ -191,7 +193,10 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollToBottom();
 
         let i = 0;
-        const speed = () => 12 + Math.random() * 14;
+
+        const speed = () => {
+            return isFlame ? (6 + Math.random() * 9) : (14 + Math.random() * 18);
+        };
 
         while (i < full.length) {
             if (cancelStream) break;
@@ -233,6 +238,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const loader = createTypingBubble();
 
+        const currentMode = localStorage.getItem("leocore-mode") || "default";
+        const isFlameMode = currentMode === "flame";
+
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
@@ -240,14 +248,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 body: JSON.stringify({
                     message: text,
                     userId,
-                    mode: localStorage.getItem("leocore-mode") || "default"
+                    mode: currentMode,
+                    boost: isFlameMode ? "🔥 FLAME TONE" : ""
                 })
             });
 
             const data = await res.json();
             loader.remove();
 
-            if (!ignoreNextResponse) await streamMessage(data.reply);
+            if (!ignoreNextResponse) {
+                await streamMessage(data.reply, isFlameMode);
+            }
             ignoreNextResponse = false;
 
         } catch {
@@ -278,7 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HOLD TO DELETE CHAT (FINAL FIXED VERSION)
+       HOLD TO DELETE (fixed)
     ============================================================ */
     let clearProgress = 0;
     let clearIntervalId = null;
@@ -289,12 +300,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const popup = document.createElement("div");
         popup.className = "clear-status";
         popup.id = "clearStatusPopup";
+
         popup.innerHTML = `
             <div class="clear-status-text">Hold to delete chat…</div>
             <div class="clear-progress"><div class="clear-progress-fill" id="clearFill"></div></div>
-            <div class="clear-spiral">
-                <div class="dot"></div><div class="dot d2"></div><div class="dot d3"></div>
-            </div>
         `;
 
         document.body.appendChild(popup);
@@ -304,11 +313,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const fill = document.getElementById("clearFill");
 
         clearIntervalId = setInterval(() => {
-            clearProgress += 2;
+            clearProgress += 3;
             fill.style.width = clearProgress + "%";
 
             if (clearProgress >= 100) finishClear();
-        }, 30);
+        }, 28);
     }
 
     function cancelClear() {
@@ -319,7 +328,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const popup = document.getElementById("clearStatusPopup");
         if (popup) {
             popup.style.opacity = 0;
-            setTimeout(() => popup.remove(), 250);
+            setTimeout(() => popup.remove(), 200);
         }
     }
 
@@ -338,7 +347,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       MODE SYSTEM
+       MODE SYSTEM (FLAME MODE ADDED)
     ============================================================ */
     const modeThemes = {
         study: "#00aaff",
@@ -346,13 +355,24 @@ document.addEventListener("DOMContentLoaded", () => {
         reading: "#ffa840",
         deep: "#ff0033",
         chill: "#b400ff",
-        precision: "#00eaff"
+        precision: "#00eaff",
+        flame: "#ff4500"        // 🔥 FIRE ORANGE/RED
     };
 
     function updateModePill() {
         const mode = localStorage.getItem("leocore-mode") || "default";
+
         modePill.textContent = mode.toUpperCase();
         document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
+
+        // 🔥 activate fire animation
+        if (mode === "flame") {
+            modePill.classList.add("flame-active");
+            document.body.classList.add("flame-glow");
+        } else {
+            modePill.classList.remove("flame-active");
+            document.body.classList.remove("flame-glow");
+        }
     }
     updateModePill();
 
@@ -399,8 +419,9 @@ document.addEventListener("DOMContentLoaded", () => {
 }); // END DOM READY
 
 
+
 /* ============================================================
-   PARALLAX (SUPER SMOOTH)
+   PARALLAX
 ============================================================ */
 let pRaf = false;
 
