@@ -1,5 +1,5 @@
 /* ============================================================
-   DEV ERROR POPUP (for debugging)
+   DEV ERROR POPUP (Debug Only)
 ============================================================ */
 window.onerror = function (msg, src, line) {
     document.body.insertAdjacentHTML(
@@ -12,9 +12,12 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   GLOBAL SCROLL FLAG
+   GLOBAL STATE
 ============================================================ */
 let scrollRAF = false;
+let isStreaming = false;
+let cancelStream = false;
+let ignoreNextResponse = false;
 
 
 /* ============================================================
@@ -31,14 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const clearBtn = document.getElementById("clearChat");
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
-
-    // NEW
     const modePill = document.getElementById("modePill");
-
-    let isStreaming = false;
-    let cancelStream = false;
-    let ignoreNextResponse = false;
-
 
     /* ============================================================
        USER ID SYSTEM
@@ -53,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
-
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
         setCookie("leocore-user", userId);
@@ -62,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       LOAD & SAVE CHAT
+       CHAT SAVE / LOAD
     ============================================================ */
     function saveChat() {
         const arr = [];
@@ -80,12 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SAFE AUTO SCROLL
+       SCROLL CONTROLLER
     ============================================================ */
     function scrollToBottom() {
         if (scrollRAF) return;
         scrollRAF = true;
-
         requestAnimationFrame(() => {
             messages.scrollTop = messages.scrollHeight;
             scrollRAF = false;
@@ -96,18 +90,33 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ============================================================
        HERO AUTO-TYPER
     ============================================================ */
-    const prompts = ["Message LeoCore…","Give me a task.","Help me revise.","Make me a plan.","Let's work."];
+    const prompts = [
+        "Message LeoCore…",
+        "Give me a task.",
+        "Help me revise.",
+        "Make me a plan.",
+        "Let's work."
+    ];
+
     let pi = 0, ci = 0, deleting = false;
 
     function typeAnimation() {
         const txt = prompts[pi];
+
         if (!deleting) {
             fakeText.textContent = txt.substring(0, ci++);
-            if (ci > txt.length) { deleting = true; return setTimeout(typeAnimation, 900); }
+            if (ci > txt.length) {
+                deleting = true;
+                return setTimeout(typeAnimation, 900);
+            }
         } else {
             fakeText.textContent = txt.substring(0, ci--);
-            if (ci < 0) { deleting = false; pi = (pi + 1) % prompts.length; }
+            if (ci < 0) {
+                deleting = false;
+                pi = (pi + 1) % prompts.length;
+            }
         }
+
         setTimeout(typeAnimation, deleting ? 45 : 70);
     }
     typeAnimation();
@@ -154,11 +163,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAMING ENGINE
+       STREAMING ENGINE (SMOOTHER + FASTER)
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
         cancelStream = false;
+
         full = full.replace(/\n/g, "<br>");
 
         const wrap = document.createElement("div");
@@ -181,12 +191,16 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollToBottom();
 
         let i = 0;
+        const speed = () => 12 + Math.random() * 14;
+
         while (i < full.length) {
             if (cancelStream) break;
+
             span.innerHTML = full.substring(0, i + 1);
             i++;
+
             scrollToBottom();
-            await new Promise(r => setTimeout(r, 14 + Math.random() * 18));
+            await new Promise(r => setTimeout(r, speed()));
         }
 
         cursor.classList.add("fade-out");
@@ -201,7 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
        SEND MESSAGE
     ============================================================ */
     async function sendMessage() {
-
         if (isStreaming) {
             cancelStream = true;
             ignoreNextResponse = true;
@@ -233,7 +246,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
             loader.remove();
-            await streamMessage(data.reply);
+
+            if (!ignoreNextResponse) await streamMessage(data.reply);
+            ignoreNextResponse = false;
 
         } catch {
             loader.remove();
@@ -263,13 +278,67 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HOLD TO RESET
+       HOLD TO DELETE CHAT (FINAL FIXED VERSION)
     ============================================================ */
-    // unchanged (works fine)
+    let clearProgress = 0;
+    let clearIntervalId = null;
+
+    function startClear() {
+        if (clearIntervalId) return;
+
+        const popup = document.createElement("div");
+        popup.className = "clear-status";
+        popup.id = "clearStatusPopup";
+        popup.innerHTML = `
+            <div class="clear-status-text">Hold to delete chat…</div>
+            <div class="clear-progress"><div class="clear-progress-fill" id="clearFill"></div></div>
+            <div class="clear-spiral">
+                <div class="dot"></div><div class="dot d2"></div><div class="dot d3"></div>
+            </div>
+        `;
+
+        document.body.appendChild(popup);
+        requestAnimationFrame(() => popup.style.opacity = 1);
+
+        clearProgress = 0;
+        const fill = document.getElementById("clearFill");
+
+        clearIntervalId = setInterval(() => {
+            clearProgress += 2;
+            fill.style.width = clearProgress + "%";
+
+            if (clearProgress >= 100) finishClear();
+        }, 30);
+    }
+
+    function cancelClear() {
+        clearIntervalId && clearInterval(clearIntervalId);
+        clearIntervalId = null;
+        clearProgress = 0;
+
+        const popup = document.getElementById("clearStatusPopup");
+        if (popup) {
+            popup.style.opacity = 0;
+            setTimeout(() => popup.remove(), 250);
+        }
+    }
+
+    function finishClear() {
+        cancelClear();
+        messages.innerHTML = "";
+        localStorage.removeItem("leocore-chat");
+        addMessage("🗑 Chat cleared.", "ai");
+    }
+
+    clearBtn.addEventListener("mousedown", startClear);
+    clearBtn.addEventListener("touchstart", startClear);
+    clearBtn.addEventListener("mouseup", cancelClear);
+    clearBtn.addEventListener("mouseleave", cancelClear);
+    clearBtn.addEventListener("touchend", cancelClear);
 
 
     /* ============================================================
-       MODE SYSTEM (updated for modePill)
+       MODE SYSTEM
     ============================================================ */
     const modeThemes = {
         study: "#00aaff",
@@ -287,19 +356,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     updateModePill();
 
-    // Clicking pill returns user to mode selector
     modePill.addEventListener("click", () => {
         chatScreen.classList.remove("active");
         window.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // Mode buttons update pill + reopen chat
     document.querySelectorAll(".mode-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const mode = btn.dataset.mode;
 
             localStorage.setItem("leocore-mode", mode);
-
             updateModePill();
 
             document.querySelectorAll(".mode-btn")
@@ -330,13 +396,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-}); // end DOMLoaded
+}); // END DOM READY
 
 
 /* ============================================================
-   PARALLAX
+   PARALLAX (SUPER SMOOTH)
 ============================================================ */
 let pRaf = false;
+
 document.addEventListener("mousemove", (e) => {
     if (pRaf) return;
     pRaf = true;
