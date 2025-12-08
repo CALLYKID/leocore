@@ -18,7 +18,7 @@ body {
 }
 @keyframes fadeInSite { to { opacity: 1; } }
 
-/* Remove blue click flash on buttons */
+/* Remove blue flash */
 button, #sendBtn, .back-btn, .clear-btn {
     outline: none !important;
     -webkit-tap-highlight-color: transparent !important;
@@ -35,15 +35,17 @@ button, #sendBtn, .back-btn, .clear-btn {
     height: 100%;
     object-fit: cover;
     z-index: -5;
-    pointer-events: none; /* SO YOUR PAGE CLICKS STILL WORK */
+    pointer-events: none;
 }
 
+/* 🔥 FIX: overlay no longer blocks clicks */
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 25, 0.45);
-    backdrop-filter: blur(4px);
+    background: rgba(0,0,25,0.40);
+    backdrop-filter: blur(3px);
     z-index: -4;
+    pointer-events: none; /* ⭐ REQUIRED FIX */
 }
 
 
@@ -58,6 +60,8 @@ button, #sendBtn, .back-btn, .clear-btn {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    position: relative;
+    z-index: 5; /* ⭐ make clickable above overlay */
 }
 
 .fake-input {
@@ -111,6 +115,8 @@ button, #sendBtn, .back-btn, .clear-btn {
     display: flex;
     justify-content: center;
     padding-top: 6vh;
+    position: relative;
+    z-index: 5; /* ⭐ fix clicking issue */
 }
 
 .info-card {
@@ -133,13 +139,13 @@ button, #sendBtn, .back-btn, .clear-btn {
     display: flex;
     justify-content: center;
     gap: 18px;
-    font-size: 16px;
+    font-size: 15.5px;
     opacity: 0.85;
 }
 
 
 /* ============================================================
-   CHAT SCREEN (MATCHING HTML)
+   CHAT SCREEN
 ============================================================ */
 .chat-screen {
     position: fixed;
@@ -148,7 +154,7 @@ button, #sendBtn, .back-btn, .clear-btn {
     backdrop-filter: blur(10px);
     display: none;
     flex-direction: column;
-    z-index: 20;
+    z-index: 20; /* ⭐ sits above everything */
     opacity: 0;
 }
 
@@ -177,13 +183,13 @@ button, #sendBtn, .back-btn, .clear-btn {
     padding: 10px 14px;
     border-radius: 50px;
     font-size: 20px;
-    color: #dffaff;
     border: none;
+    color: #dffaff;
     cursor: pointer;
 }
 
 .chat-title {
-    font-family: 'Montserrat';
+    font-family: Montserrat, sans-serif;
     font-size: 22px;
     font-weight: 700;
     background: linear-gradient(90deg,#00eaff,#9d4bff);
@@ -197,10 +203,10 @@ button, #sendBtn, .back-btn, .clear-btn {
     padding: 8px 14px;
     border-radius: 12px;
     font-size: 15px;
+    color: #dffaff;
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #dffaff;
 }
 
 
@@ -219,24 +225,18 @@ button, #sendBtn, .back-btn, .clear-btn {
 .bubble {
     max-width: 92%;
     padding: 14px 18px;
-    font-size: 16px;
+    background: rgba(255,255,255,0.12);
     border-radius: 14px;
+    font-size: 16px;
     line-height: 1.48;
     white-space: pre-wrap;
 }
 
-.ai-msg { justify-content: flex-start; display: flex; }
-.user-msg { justify-content: flex-end; display: flex; }
+.user-msg { display: flex; justify-content: flex-end; }
+.user-msg .bubble { background: #008cff; color: #fff; }
 
-.ai-msg .bubble {
-    background: #222b45;
-    color: #fff;
-}
-
-.user-msg .bubble {
-    background: #008cff;
-    color: #fff;
-}
+.ai-msg { display: flex; justify-content: flex-start; }
+.ai-msg .bubble { background: #222b45; color: #fff; }
 
 
 /* ============================================================
@@ -254,25 +254,25 @@ button, #sendBtn, .back-btn, .clear-btn {
     flex: 1;
     height: 56px;
     padding: 0 18px;
+    font-size: 16px;
     border-radius: 16px;
     border: 2px solid rgba(0,200,255,0.35);
     background: rgba(255,255,255,0.1);
     color: #fff;
-    font-size: 16px;
 }
 
 /* SEND BUTTON */
 #sendBtn {
     width: 56px;
     height: 56px;
-    background: radial-gradient(circle,#00eaff,#0088ff);
-    border: none;
     border-radius: 16px;
+    border: none;
+    background: radial-gradient(circle,#00eaff,#0088ff);
+    color: white;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     font-size: 22px;
-    color: #fff;
     box-shadow: 0 0 12px #00eaffaa;
     transition: 0.25s ease;
 }
@@ -298,16 +298,14 @@ button, #sendBtn, .back-btn, .clear-btn {
     height: 18px;
     background: #00eaff;
     border-radius: 2px;
-    animation: blinkCursor 0.7s infinite alternate;
+    animation: blinkCur 0.7s infinite alternate;
 }
-@keyframes blinkCursor { 100% { opacity: 0.2; } }
+@keyframes blinkCur { 100% { opacity: 0.2; } }
 
 .neon-cursor.fade-out {
-    animation: fadeCursor 0.35s forwards;
+    animation: fadeOutCur 0.35s forwards;
 }
-@keyframes fadeCursor {
-    to { opacity: 0; transform: scale(2); }
-}
+@keyframes fadeOutCur { to { opacity: 0; transform: scale(2); } }
 
 
 /* ============================================================
@@ -316,16 +314,14 @@ button, #sendBtn, .back-btn, .clear-btn {
 .typing-holder {
     display: flex !important;
     align-items: center !important;
-    background: none !important;
 }
 
 .spiral-bubble {
     width: 48px;
     height: 48px;
-    border-radius: 50%;
     background: rgba(0,200,255,0.15);
     border: 2px solid rgba(0,200,255,0.4);
-    box-shadow: 0 0 14px #00eaff55 inset, 0 0 12px #00eaff33;
+    border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -335,15 +331,15 @@ button, #sendBtn, .back-btn, .clear-btn {
 .spiral-core {
     width: 10px;
     height: 10px;
-    border-radius: 50%;
     background: #00eaff;
-    animation: pulseCore 1.3s infinite;
+    border-radius: 50%;
+    animation: corePulse 1.4s infinite;
 }
 
-@keyframes pulseCore {
-    0% { transform: scale(0.8); opacity: 0.6; }
+@keyframes corePulse {
+    0% { transform: scale(0.8); opacity: .6; }
     50% { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(0.8); opacity: 0.6; }
+    100% { transform: scale(0.8); opacity: .6; }
 }
 
 .orbit {
@@ -352,90 +348,11 @@ button, #sendBtn, .back-btn, .clear-btn {
     background: #00eaff;
     border-radius: 50%;
     position: absolute;
-    animation: orbitSpin 2.5s linear infinite;
+    animation: orbitSpin 2.6s linear infinite;
 }
 @keyframes orbitSpin {
     0% { transform: rotate(0deg) translateX(18px); }
     100% { transform: rotate(360deg) translateX(18px); }
 }
-.o2 { animation-delay: .3s; }
-.o3 { animation-delay: .6s; }
-
-
-/* ============================================================
-   CLEAR SYSTEM UI
-============================================================ */
-.clear-status {
-    position: fixed;
-    bottom: 42%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 250px;
-    text-align: center;
-    opacity: 0;
-    z-index: 999999;
-    transition: opacity 0.25s ease;
-}
-
-.clear-status-text {
-    font-size: 16px;
-    color: #ff9c9c;
-    margin: 10px 0;
-    animation: textPulse 1.2s infinite;
-}
-@keyframes textPulse { 50% { opacity: 0.55; } }
-
-.clear-spiral {
-    width: 26px;
-    height: 26px;
-    margin: 0 auto 12px;
-    position: relative;
-}
-
-.clear-spiral .dot {
-    width: 7px;
-    height: 7px;
-    background: #ff5b5b;
-    border-radius: 50%;
-    position: absolute;
-    animation: spinDots 1.4s linear infinite;
-}
-.clear-spiral .d2 { animation-delay: .2s; }
-.clear-spiral .d3 { animation-delay: .4s; }
-
-@keyframes spinDots {
-    0% { transform: rotate(0deg) translateX(10px); }
-    100% { transform: rotate(360deg) translateX(10px); }
-}
-
-.clear-progress {
-    width: 100%;
-    height: 10px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 20px;
-    overflow: hidden;
-}
-
-.clear-progress-fill {
-    width: 0%;
-    height: 100%;
-    background: #ff3b3b;
-    transition: width linear;
-}
-
-.fullscreen-pulse {
-    position: fixed;
-    inset: 0;
-    background: rgba(255,0,0,0.18);
-    animation: flashScreen 0.35s forwards;
-}
-@keyframes flashScreen { to { opacity: 1; } }
-
-.clear-btn.holding {
-    background: rgba(255,0,0,0.3) !important;
-    border-color: rgba(255,60,60,0.9) !important;
-    box-shadow: 0 0 12px rgba(255,40,40,0.8),
-                0 0 18px rgba(255,0,0,0.9),
-                inset 0 0 12px rgba(255,80,80,0.7);
-    transform: scale(1.05);
-}
+.o2 { animation-delay: .35s; }
+.o3 { animation-delay: .7s; }
