@@ -440,3 +440,26 @@ document.addEventListener("mousemove", (e) => {
         pRaf = false;
     });
 });
+
+/* ============================================================
+   PARALLAX — Ultra Optimised (SAFE)
+============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+    let pRaf = false;
+
+    document.addEventListener("mousemove", (e) => {
+        if (pRaf) return;
+        pRaf = true;
+
+        requestAnimationFrame(() => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 10;
+            const y = (e.clientY / window.innerHeight - 0.5) * 10;
+
+            document.querySelectorAll(".parallax").forEach(el => {
+                el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+
+            pRaf = false;
+        });
+    });
+});
