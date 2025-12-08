@@ -7,7 +7,6 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent !important;
 }
-
 body {
     background: #000;
     font-family: 'Inter', sans-serif;
@@ -23,7 +22,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     -webkit-tap-highlight-color: transparent !important;
 }
 
-
 /* ============================================================
    BACKGROUND VIDEO
 ============================================================ */
@@ -36,19 +34,16 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: -5;
     pointer-events: none;
 }
-
 .overlay {
     position: fixed;
     inset: 0;
     background: rgba(0,0,25,0.40);
     backdrop-filter: blur(3px);
-    pointer-events: none;
     z-index: -4;
 }
 
-
 /* ============================================================
-   HERO SECTION
+   HERO / TITLE
 ============================================================ */
 .center-wrapper {
     text-align: center;
@@ -58,12 +53,11 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 5;
 }
 
-/* FINAL FIXED NEON INPUT */
 .fake-input {
     width: 85vw;
     max-width: 600px;
     height: 64px;
-    margin: 0 auto 28px auto;
+    margin: 0 auto 28px;
 
     display: flex;
     justify-content: center;
@@ -72,38 +66,45 @@ button, .clear-btn, .back-btn, #sendBtn {
     background: rgba(0,15,30,0.35);
     border-radius: 18px;
     border: 2px solid rgba(0,200,255,0.85);
-
-    box-shadow:
-        0 0 14px rgba(0,200,255,0.55),
-        0 0 40px rgba(0,200,255,0.25);
-
+    box-shadow: 0 0 22px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.25);
     backdrop-filter: blur(6px);
-    overflow: hidden;
     cursor: pointer;
 
-    opacity: 1 !important;
     animation: inputBreath 4s ease-in-out infinite;
 }
-
-/* Breathing neon */
 @keyframes inputBreath {
-    0% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.25); }
-    50% { box-shadow: 0 0 22px rgba(0,200,255,0.85), 0 0 65px rgba(0,200,255,0.35); }
-    100% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.25); }
+    0% { box-shadow: 0 0 14px rgba(0,200,255,0.55); }
+    50% { box-shadow: 0 0 22px rgba(0,200,255,0.85); }
+    100% { box-shadow: 0 0 14px rgba(0,200,255,0.55); }
 }
 
 .fake-text {
     font-size: 20px;
     color: #dffaff;
     white-space: nowrap;
-    letter-spacing: 0.3px;
-    pointer-events: none;
 }
 
 .main-title {
     font-size: 46px;
     font-weight: 800;
-    font-family: 'Montserrat', sans-serif;
+    font-family: Montserrat, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+.main-title::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 120%;
+    height: 100%;
+    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.6), transparent);
+    animation: shine 5s infinite ease-in-out;
+}
+@keyframes shine {
+    0% { left: -120%; }
+    60% { left: 120%; }
+    100% { left: 120%; }
 }
 
 .subtitle {
@@ -111,40 +112,102 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 19px;
 }
 
+/* ============================================================
+   SECTION TITLES
+============================================================ */
+.section-title {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 12px;
+    font-family: Montserrat;
+    font-weight: 700;
+    color: #dffaff;
+}
 
 /* ============================================================
-   INFO CARD
+   MODE SELECTOR
 ============================================================ */
-.info-section {
+.modes-wrapper { margin-top: 40px; padding: 20px 0; }
+.mode-selector {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    padding-top: 6vh;
-    position: relative;
-    z-index: 5;
+    gap: 12px;
+    padding: 0 16px;
 }
-
-.info-card {
-    width: 85%;
-    max-width: 650px;
-    padding: 26px;
-    border-radius: 22px;
-    text-align: center;
-
+.mode-btn {
+    padding: 12px 18px;
+    border-radius: 14px;
     background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.16);
+    border: 1px solid rgba(0,200,255,0.4);
+    color: #dffaff;
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.mode-btn:hover { background: rgba(0,200,255,0.25); }
+.mode-btn.active {
+    background: rgba(0,200,255,0.35);
+    border-color: #00eaff;
+    box-shadow: 0 0 18px var(--theme-glow);
+}
+
+/* ============================================================
+   QUICK TOOLS
+============================================================ */
+.tools-wrapper { margin-top: 40px; padding: 20px 0; }
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 0 22px;
+}
+.tool-btn {
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.25);
+    text-align: center;
+    color: #dffaff;
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition: 0.25s;
+}
+.tool-btn:hover { background: rgba(0,200,255,0.25); }
+
+/* ============================================================
+   CREATOR CARD / TESTIMONIALS
+============================================================ */
+.creator-card {
+    width: 85%;
+    margin: 45px auto 20px;
+    padding: 22px;
+    text-align: center;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(12px);
-
-    box-shadow: 0 0 28px rgba(0,200,255,0.25);
+    color: #dffaff;
 }
 
-.features {
-    margin-top: 15px;
+.testimonials {
+    margin-top: 35px;
+    padding: 20px;
     display: flex;
-    gap: 22px;
-    justify-content: center;
-    opacity: 0.85;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
 }
-
+.testimonial-bubble {
+    padding: 14px 18px;
+    background: rgba(0,200,255,0.15);
+    border-radius: 16px;
+    animation: floatUp 6s infinite ease-in-out;
+}
+@keyframes floatUp {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
 
 /* ============================================================
    CHAT SCREEN
@@ -158,45 +221,79 @@ button, .clear-btn, .back-btn, #sendBtn {
     flex-direction: column;
     z-index: 50;
 }
+.chat-screen.active { display: flex; }
 
-.chat-screen.active {
-    display: flex;
-    opacity: 1;
-}
-
-
-/* ============================================================
-   CHAT HEADER
-============================================================ */
-.chat-header {
-    padding: 14px 18px;
+/* HEADER */
+.glow-header {
+    padding: 14px 20px;
     background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0,255,255,0.15);
-
+    backdrop-filter: blur(14px);
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid rgba(0,255,255,0.12);
+    position: relative;
+    overflow: hidden;
 }
 
-.back-btn {
-    background: rgba(255,255,255,0.1);
-    padding: 10px 14px;
-    border-radius: 50px;
-    color: #fff;
-    font-size: 20px;
-    border: none;
+.glow-header::before {
+    content: "";
+    position: absolute;
+    inset: -30px;
+    background: radial-gradient(circle, rgba(0,200,255,0.20), transparent 70%);
+    animation: glowPulse 5s infinite ease-in-out;
+}
+@keyframes glowPulse {
+    0% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(1.15); }
+    100% { opacity: 0.4; transform: scale(1); }
 }
 
-.clear-btn {
-    background: rgba(255,255,255,0.1);
-    padding: 8px 14px;
+.glass-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e4faff;
+    font-size: 21px;
+    transition: 0.25s;
+}
+.glass-btn:active {
+    transform: scale(0.9);
+    background: rgba(0,200,255,0.25);
+    box-shadow: 0 0 16px rgba(0,200,255,0.55);
+}
+
+.chat-title-wrapper { text-align: center; }
+.chat-title {
+    font-family: Montserrat;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(90deg,#00eaff,#9d4bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.title-underline {
+    margin-top: 3px;
+    width: 80%;
+    height: 3px;
+    background: linear-gradient(90deg,#00eaff,#9400ff);
+}
+
+/* MODE BADGE (TOP) */
+.mode-badge {
+    margin-left: 8px;
+    padding: 4px 10px;
     border-radius: 12px;
-    border: none;
-    color: #fff;
-    font-size: 15px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    display: none;
 }
-
 
 /* ============================================================
    CHAT MESSAGES
@@ -214,65 +311,16 @@ button, .clear-btn, .back-btn, #sendBtn {
     max-width: 92%;
     padding: 14px 18px;
     border-radius: 14px;
-    white-space: pre-wrap;
     font-size: 16px;
+    white-space: pre-wrap;
 }
-
-.user-msg { display: flex; justify-content: flex-end; }
+.user-msg { justify-content: flex-end; display: flex; }
 .user-msg .bubble { background: #008cff; color: #fff; }
-
 .ai-msg { display: flex; justify-content: flex-start; }
-.ai-msg .bubble { background: #1e263f; color: #fff; }
+.ai-msg .bubble { background: #1e263f; }
 
-
-/* ============================================================
-   INPUT BAR
-============================================================ */
-.chat-input-area {
-    padding: 12px;
-    display: flex;
-    gap: 12px;
-    background: rgba(20,20,40,0.45);
-    backdrop-filter: blur(8px);
-}
-
-.chat-input-area input {
-    flex: 1;
-    height: 56px;
-    padding: 0 18px;
-    border-radius: 16px;
-    border: 2px solid rgba(0,200,255,0.35);
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-}
-
-
-/* SEND / STOP BUTTON */
-#sendBtn {
-    width: 56px;
-    height: 56px;
-    border-radius: 16px;
-    border: none;
-    background: radial-gradient(circle,#00eaff,#0088ff);
-    color: #fff;
-    font-size: 22px;
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: 0.25s ease;
-}
-
-#sendBtn.stop-mode {
-    background: #ff3b3b !important;
-    transform: scale(0.93);
-    box-shadow: 0 0 18px #ff3b3b;
-}
-
-
-/* STREAMING CURSOR */
+/* STREAM CURSOR */
 .ai-streaming { position: relative; }
-
 .neon-cursor {
     position: absolute;
     right: -8px;
@@ -280,8 +328,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 6px;
     height: 18px;
     background: #00eaff;
-    animation: blink 0.7s infinite alternate;
     border-radius: 2px;
+    animation: blink 0.7s infinite alternate;
 }
 @keyframes blink { 100% { opacity: 0.25; } }
 
@@ -292,368 +340,102 @@ button, .clear-btn, .back-btn, #sendBtn {
     to { opacity: 0; transform: scale(2); }
 }
 
-
 /* ============================================================
-   TYPING SPIRAL
+   INPUT BAR (FINAL CLEAN VERSION)
 ============================================================ */
-.typing-holder {
+.chat-input-area {
+    width: 100%;
     display: flex;
     align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
 }
 
-.spiral-bubble {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(0,200,255,0.15);
-    border: 2px solid rgba(0,200,255,0.45);
+/* MODE PILL (inside chat) */
+.mode-pill {
+    padding: 0 18px;
+    height: 46px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
-}
 
-.spiral-core {
-    width: 10px;
-    height: 10px;
-    background: #00eaff;
-    border-radius: 50%;
-    animation: corePulse 1.4s infinite ease-in-out;
-}
-
-@keyframes corePulse {
-    0% { transform: scale(0.8); opacity: 0.6; }
-    50% { transform: scale(1.1); opacity: 1; }
-    100% { transform: scale(0.8); opacity: 0.6; }
-}
-
-.orbit {
-    width: 8px;
-    height: 8px;
-    background: #00eaff;
-    border-radius: 50%;
-    position: absolute;
-    animation: orbit 2.6s linear infinite;
-}
-@keyframes orbit {
-    0% { transform: rotate(0deg) translateX(18px); }
-    100% { transform: rotate(360deg) translateX(18px); }
-}
-.o2 { animation-delay: .35s; }
-.o3 { animation-delay: .7s; }
-/* ============================================================
-   LEOCORE HEADER — ANIMATED GLASS + NEON SWIPE
-============================================================ */
-
-.glow-header {
-    position: relative;
-    padding: 14px 20px;
     background: rgba(0,0,0,0.35);
-    backdrop-filter: blur(14px);
-    border-bottom: 1px solid rgba(0,255,255,0.12);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    overflow: hidden;
-    animation: headerFade 0.6s ease forwards;
-}
+    border: 2px solid var(--theme-glow);
+    border-radius: 14px;
 
-@keyframes headerFade {
-    0% { opacity: 0; transform: translateY(-12px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 
-/* Soft glow behind header */
-.glow-header::before {
-    content: "";
-    position: absolute;
-    inset: -30px;
-    background: radial-gradient(circle, rgba(0,200,255,0.20), transparent 70%);
-    z-index: -1;
-    animation: glowPulse 5s infinite ease-in-out;
-}
-
-@keyframes glowPulse {
-    0% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 0.75; transform: scale(1.15); }
-    100% { opacity: 0.4; transform: scale(1); }
-}
-
-/* Glass icon buttons */
-.glass-btn {
-    width: 48px;
-    height: 48px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 21px;
-    color: #e4faff;
+    box-shadow: 0 0 12px var(--theme-glow);
     transition: 0.25s ease;
 }
 
-.glass-btn:active {
-    transform: scale(0.90);
-    background: rgba(0,200,255,0.25);
-    box-shadow: 0 0 16px rgba(0,200,255,0.55);
-}
-
-/* Title wrapper */
-.chat-title-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Main title */
-.chat-title {
-    font-family: Montserrat, sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    background: linear-gradient(90deg,#00eaff,#9d4bff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    opacity: 0;
-    animation: titleIn 0.8s ease forwards;
-}
-
-@keyframes titleIn {
-    0% { opacity: 0; transform: translateY(-8px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Neon underline swipe */
-.title-underline {
-    margin-top: 3px;
-    width: 0%;
-    height: 3px;
-    border-radius: 3px;
-    background: linear-gradient(90deg,#00eaff,#9400ff);
-    animation: underlineSwipe 1s ease forwards 0.4s;
-}
-
-@keyframes underlineSwipe {
-    0% { width: 0; opacity: 0; }
-    100% { width: 80%; opacity: 1; }
-}
-.clear-status {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 85%;
-    max-width: 350px;
-
-    background: rgba(0,0,0,0.75);
-    backdrop-filter: blur(12px);
-
-    padding: 20px;
-    border-radius: 18px;
-    border: 1px solid rgba(0,255,255,0.25);
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-
-    opacity: 0;
-    transition: 0.3s ease;
-    z-index: 9999;
-}
-
-.clear-status-text {
-    font-size: 16px;
-    opacity: 0.85;
-}
-
-.clear-progress {
-    width: 100%;
-    height: 6px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-.clear-progress-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg,#00eaff,#9400ff);
-    transition: width 0.3s linear;
-}
-
-.clear-spiral {
-    display: flex;
-    gap: 8px;
-}
-
-.dot {
-    width: 10px;
-    height: 10px;
-    background: #00eaff;
-    border-radius: 50%;
-    animation: dotPulse 0.8s infinite alternate;
-}
-
-.d2 { animation-delay: .2s; }
-.d3 { animation-delay: .4s; }
-
-@keyframes dotPulse {
-    from { transform: scale(0.6); opacity: 0.5; }
-    to   { transform: scale(1); opacity: 1; }
-}
-
-/* ============================================================
-   SECTION TITLES
-============================================================ */
-.section-title {
-    text-align: center;
-    font-size: 22px;
-    margin-bottom: 12px;
-    color: #dffaff;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
-}
-
-/* ============================================================
-   MODES
-============================================================ */
-.modes-wrapper {
-    margin-top: 40px;
-    padding: 20px 0;
-}
-
-.mode-selector {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    padding: 0 16px;
-}
-
-.mode-btn {
-    padding: 12px 18px;
+/* INPUT */
+.chat-input-area input {
+    flex: 1;
+    height: 46px;
+    padding: 0 14px;
+    background: rgba(0,0,0,0.35);
+    border: 2px solid rgba(255,255,255,0.25);
     border-radius: 14px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(0,200,255,0.4);
-    color: #dffaff;
-    backdrop-filter: blur(6px);
-    cursor: pointer;
-    transition: 0.2s;
+    color: #fff;
+    outline: none;
 }
 
-.mode-btn:hover {
-    background: rgba(0,200,255,0.25);
-}
+/* SEND BUTTON */
+#sendBtn {
+    width: 52px;
+    height: 46px;
 
-/* Selected mode */
-.mode-btn.active {
-    background: rgba(0,200,255,0.35);
-    border-color: #00eaff;
-}
+    border-radius: 14px;
+    background: var(--theme-glow);
+    border: none;
+    color: #000;
 
-/* ============================================================
-   QUICK TOOLS
-============================================================ */
-.tools-wrapper {
-    margin-top: 40px;
-    padding: 20px 0;
-}
+    font-size: 20px;
+    font-weight: bold;
 
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 0 22px;
-}
-
-.tool-btn {
-    padding: 14px;
-    border-radius: 16px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.25);
-    text-align: center;
-    color: #dffaff;
-    cursor: pointer;
-    backdrop-filter: blur(6px);
-    transition: 0.25s;
-}
-
-.tool-btn:hover {
-    background: rgba(0,200,255,0.25);
-}
-
-/* ============================================================
-   CREATOR CARD
-============================================================ */
-.creator-card {
-    width: 85%;
-    margin: 45px auto 20px auto;
-    padding: 22px;
-    text-align: center;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    color: #dffaff;
-}
-
-/* ============================================================
-   TESTIMONIALS
-============================================================ */
-.testimonials {
-    margin-top: 35px;
-    padding: 20px;
     display: flex;
-    flex-direction: column;
-    gap: 12px;
     align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 0 12px var(--theme-glow);
+}
+#sendBtn.stop-mode {
+    background: #ff3b3b !important;
+    transform: scale(0.93);
+    box-shadow: 0 0 18px #ff3b3b;
 }
 
-.testimonial-bubble {
-    padding: 14px 18px;
-    background: rgba(0,200,255,0.15);
-    border-radius: 16px;
-    font-size: 15px;
-    color: #dffaff;
-    backdrop-filter: blur(6px);
-    animation: floatUp 6s infinite ease-in-out;
-}
+/* ============================================================
+   ORBS / HOLO / PARALLAX GLOWS
+============================================================ */
+:root { --theme-glow: #00eaff; }
 
-@keyframes floatUp {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
-/* SIDE NEON GLOW */
-body::before,
-body::after {
+body::before, body::after {
     content: "";
     position: fixed;
     top: 0;
     width: 160px;
     height: 100%;
-    pointer-events: none;
-    z-index: -1;
     filter: blur(90px);
     opacity: 0.45;
+    pointer-events: none;
+    z-index: -1;
     animation: glowMove 12s infinite alternate ease-in-out;
 }
-
-body::before {
-    left: -40px;
-    background: var(--theme-glow);
-}
-
-body::after {
-    right: -40px;
-    background: #9400ff;
-}
+body::before { left: -40px; background: var(--theme-glow); }
+body::after { right: -40px; background: #9400ff; }
 
 @keyframes glowMove {
-    0%   { transform: translateY(0px); }
-    50%  { transform: translateY(80px); }
+    0% { transform: translateY(0); }
+    50% { transform: translateY(80px); }
     100% { transform: translateY(-20px); }
 }
 
@@ -667,24 +449,14 @@ body::after {
     z-index: -1;
     animation: orbFloat 14s infinite ease-in-out;
 }
-
-.orb1 { top: 20%; left: 10%; animation-delay: 0s; }
+.orb1 { top: 20%; left: 10%; }
 .orb2 { top: 60%; right: 12%; animation-delay: 3s; }
 .orb3 { top: 80%; left: 40%; animation-delay: 6s; }
 
 @keyframes orbFloat {
-    0%   { transform: translate(0, 0); }
-    50%  { transform: translate(30px, -40px); }
-    100% { transform: translate(-20px, 20px); }
-}
-
-:root {
-    --theme-glow: #00eaff;
-}
-
-.parallax {
-    transition: transform 0.25s ease-out;
-    will-change: transform;
+    0% { transform: translate(0,0); }
+    50% { transform: translate(30px,-40px); }
+    100% { transform: translate(-20px,20px); }
 }
 
 .neon-scan {
@@ -693,273 +465,27 @@ body::after {
     left: 0;
     width: 100%;
     height: 160px;
-    background: linear-gradient(
-        to bottom,
-        transparent,
-        rgba(0,255,255,0.25),
-        transparent
-    );
-    pointer-events: none;
+    background: linear-gradient(to bottom, transparent, rgba(0,255,255,0.25), transparent);
     animation: scanMove 6s infinite ease-in-out;
     z-index: -1;
 }
-
 @keyframes scanMove {
     0% { top: -100%; }
     50% { top: 120%; }
     100% { top: -100%; }
 }
 
-.mode-btn.active {
-    box-shadow: 0 0 18px var(--theme-glow);
-    background: rgba(0,200,255,0.35);
-}
-
 .holo-line {
     position: fixed;
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, #00eaff55, transparent);
+    background: linear-gradient(90deg, transparent,#00eaff55,transparent);
     opacity: 0.25;
     z-index: -1;
-    animation: holoFloat 8s infinite ease-in-out;
+    animation: holoFloat 8s infinite ease;
 }
-
 @keyframes holoFloat {
     0% { transform: translateY(10%); }
     50% { transform: translateY(80%); }
     100% { transform: translateY(10%); }
-}
-
-.testimonial-bubble:hover {
-    background: rgba(0,200,255,0.25);
-    transform: scale(1.03);
-    box-shadow: 0 0 16px rgba(0,200,255,0.4);
-}
-.main-title {
-    position: relative;
-    overflow: hidden;
-}
-
-.main-title::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -120%;
-    width: 120%;
-    height: 100%;
-    background: linear-gradient(
-        75deg,
-        transparent,
-        rgba(255,255,255,0.6),
-        transparent
-    );
-    animation: shine 5s infinite ease-in-out;
-}
-
-@keyframes shine {
-    0% { left: -120%; }
-    60% { left: 120%; }
-    100% { left: 120%; }
-}
-
-.mode-badge {
-    margin-left: 10px;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 12px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(8px);
-    display: none;
-}
-
-.chat-input-area {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px;
-    background: rgba(255,255,255,0.05);
-    border-top: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(12px);
-}
-
-.mode-pill {
-    padding: 6px 14px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.25);
-    color: #fff;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    text-transform: uppercase;
-    transition: 0.25s ease;
-}
-
-.mode-pill.glow {
-    box-shadow: 0 0 12px var(--theme-glow);
-    border-color: var(--theme-glow);
-}
-
-.chat-input-area input {
-    flex: 1;
-    padding: 12px 14px;
-    border-radius: 12px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    font-size: 15px;
-}
-
-.chat-input-area button {
-    padding: 12px 15px;
-    border-radius: 12px;
-    background: var(--theme-glow);
-    border: none;
-    color: #fff;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-/* ============================================================
-   MODE PILL (inside chat input)
-============================================================ */
-.mode-pill {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 6px 14px;
-    margin-right: 8px;
-
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-
-    color: white;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-
-    border-radius: 10px;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
-    transition: background 0.2s ease, border 0.2s ease;
-}
-
-/* Glow when mode active */
-.mode-pill.active {
-    border-color: var(--theme-glow, #00eaff);
-    box-shadow: 0 0 8px var(--theme-glow, #00eaff);
-}
-
-/* Positioning inside the chat bar */
-.chat-input-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-/* Ensure the input shrinks to fit beside the pill */
-.chat-input-area input {
-    flex: 1;
-}
-
-/* ============================================
-   MODE PILL (Glass + Neon Glow)
-============================================ */
-.mode-pill {
-    padding: 6px 16px;
-    border-radius: 30px;
-
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-
-    border: 1.5px solid var(--theme-glow, #00eaff);
-    box-shadow: 0 0 12px var(--theme-glow, #00eaff);
-
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-
-    margin-right: 8px;
-    cursor: pointer;
-
-    transition: 0.25s ease;
-    user-select: none;
-}
-
-.mode-pill:hover {
-    box-shadow: 0 0 18px var(--theme-glow, #00eaff);
-    transform: scale(1.05);
-}
-
-.chat-input-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-}
-
-#sendBtn {
-    width: 52px;
-
-    background: var(--theme-glow);
-    border-radius: 14px;
-    border: none;
-
-    color: #000;
-    font-size: 20px;
-    font-weight: bold;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    box-shadow: 0 0 12px var(--theme-glow);
-}.chat-input-area input {
-    flex: 1;
-    background: rgba(0,0,0,0.35);
-    border: 2px solid rgba(255,255,255,0.25);
-    padding: 0 14px;
-    color: #fff;
-
-    border-radius: 14px;
-    outline: none;
-}
-.mode-pill {
-    padding: 0 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(0, 0, 0, 0.35);
-    border: 2px solid var(--theme-glow);
-    border-radius: 14px;
-
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-
-    box-shadow: 0 0 12px var(--theme-glow);
-
-    transition: 0.25s ease;
-}
-.chat-input-area {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    gap: 10px;
-}
-
-.chat-input-area input,
-.mode-pill,
-#sendBtn {
-    height: 46px;
-    border-radius: 14px;
 }
