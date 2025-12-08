@@ -762,3 +762,14 @@ body::after {
     60% { left: 120%; }
     100% { left: 120%; }
 }
+
+.mode-badge {
+    margin-left: 10px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(8px);
+    display: none;
+}
