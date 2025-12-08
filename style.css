@@ -685,3 +685,8 @@ body.flame-glow .mode-pill {
 .glow-header::after {
     pointer-events: none !important;
 }
+
+.mode-pill {
+    width: 100px;
+    text-align: center;
+}
