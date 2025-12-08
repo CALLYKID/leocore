@@ -290,9 +290,9 @@ let holdActive = false;
 
 /* === TAP DELETE — Only wipe chat === */
 function clearChatInstant() {
-    messages.innerHTML = "";
-    localStorage.removeItem("leocore-chat");
-    saveChat(); // Save empty chat so nothing reappears
+    messages.innerHTML = "";        // wipe messages
+    localStorage.removeItem("leocore-chat"); 
+    saveChat();  // save empty chat state so nothing comes back
 }
 
 /* === HOLD DELETE — Full data wipe + animation === */
