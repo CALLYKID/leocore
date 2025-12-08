@@ -189,11 +189,22 @@ function scrollToBottom() {
         }
 
         sendBtn.classList.remove("stop-mode");
-        sendBtn.innerHTML = "➤";
-        input.disabled = false;
-        isStreaming = false;
+sendBtn.innerHTML = "➤";
+input.disabled = false;
 
-        saveChat();
+// ------------- CUT-OFF DETECTOR -------------
+let finalText = textSpan.innerHTML.trim();
+
+// If the answer ends weirdly (no punctuation)
+const seemsCut = !/[.!?]$/.test(finalText);
+
+// Add continuation hint
+if (seemsCut) {
+    textSpan.innerHTML += `<br><br><span class="continue-hint" style="opacity:0.7">…want me to keep going?</span>`;
+}
+
+isStreaming = false;
+saveChat();
     }
 
 async function sendContinuation() {
