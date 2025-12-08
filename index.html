@@ -1,108 +1,86 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEOCORE</title>
+    <title>LeoCore</title>
 
-    <!-- GOOGLE FONTS -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
-
-    <!-- MAIN STYLE -->
     <link rel="stylesheet" href="style.css">
-
-    <!-- GOOGLE ANALYTICS -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HJQL69N043"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-HJQL69N043');
-    </script>
 </head>
 
 <body>
 
-    <!-- BACKGROUND VIDEO -->
+    <!-- ============================================================
+         BACKGROUND VIDEO + OVERLAY
+    ============================================================ -->
     <video id="bgVideo" autoplay muted loop playsinline>
-        <source src="waves.mp4" type="video/mp4">
+        <source src="bg.mp4" type="video/mp4">
     </video>
+
     <div class="overlay"></div>
 
-    <!-- HERO SECTION -->
-    <div class="center-wrapper fade-in">
 
-        <div class="fake-input fade-in" id="fakeInput" onclick="openChat()" role="button" aria-label="Open LeoCore chat">
-            <span class="fake-text" id="fakeText"></span>
+    <!-- ============================================================
+         HERO SECTION (Dark Neon Version)
+    ============================================================ -->
+    <div class="center-wrapper">
+
+        <!-- Fake input bar (the one with animated text) -->
+        <div id="fakeInput" class="fake-input">
+            <span id="fakeText" class="fake-text"></span>
         </div>
 
-        <h1 class="main-title fade-in delay-1">LEOCORE</h1>
-        <div class="subtitle fade-in delay-2">Your AI. Your Vibe.</div>
+        <!-- Main Title -->
+        <h1 class="main-title">LEOCORE</h1>
+        <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-    <!-- INFO SECTION -->
-    <div class="info-section fade-in delay-3">
+
+    <!-- ============================================================
+         INFO CARD SECTION
+    ============================================================ -->
+    <div class="info-section">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
-
             <p>
-                LeoCore is a fast, personal AI built by <strong>Leo</strong> —
-                designed to speak your vibe, remember your preferences,
-                and stay private.
+                LeoCore is a fast, personal AI built by <b>Leo</b> —
+                designed to match your vibe, remember your preferences,
+                and always stay private.
             </p>
 
             <div class="features">
-                <span>⚡ Fast</span>
-                <span>🔒 Private</span>
-                <span>🧠 Remembers You</span>
+                ⚡ Fast &nbsp;&nbsp; 🔒 Private &nbsp;&nbsp; 🧠 Remembers You
             </div>
         </div>
     </div>
 
-    <!-- CHAT SCREEN -->
-    <div class="chat-screen" id="chatScreen">
+
+    <!-- ============================================================
+         CHAT SCREEN (Dark Neon)
+    ============================================================ -->
+    <div id="chatScreen" class="chat-screen">
 
         <!-- CHAT HEADER -->
         <div class="chat-header">
+            <button id="closeChat" class="back-btn">←</button>
 
-            <button class="back-btn" id="closeChat" aria-label="Close chat">←</button>
+            <div class="chat-title">LEOCORE</div>
 
-            <span class="chat-title">LEOCORE</span>
-
-            <button class="clear-btn" id="clearChat" aria-label="Clear chat history">
-                <span class="clear-icon">🗑</span> Clear
+            <button id="clearChat" class="clear-btn">
+                🗑 Clear
             </button>
-
         </div>
 
         <!-- CHAT MESSAGES -->
-        <div class="chat-messages" id="messages"></div>
+        <div id="messages" class="chat-messages"></div>
 
         <!-- INPUT BAR -->
         <div class="chat-input-area">
-
-            <input 
-                type="text" 
-                id="userInput" 
-                placeholder="Say something..." 
-                autocomplete="off"
-            >
-
-            <button id="sendBtn" aria-label="Send message">✦ Send</button>
+            <input id="userInput" type="text" placeholder="Say something...">
+            <button id="sendBtn">➤</button>
         </div>
     </div>
 
-    <!-- OPEN CHAT SCRIPT -->
-    <script>
-        function openChat() {
-            document.getElementById("chatScreen").classList.add("active");
-        }
-        document.getElementById("closeChat").onclick = () => {
-            document.getElementById("chatScreen").classList.remove("active");
-        };
-    </script>
-
-    <!-- MAIN APP -->
-    <script src="app.js?v=9999"></script>
+    <script src="chat.js"></script>
 </body>
 </html>
