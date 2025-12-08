@@ -420,3 +420,20 @@ document.querySelectorAll(".tool-btn").forEach(tool => {
         input.focus();
     });
 });
+const modeThemes = {
+    study: "#00aaff",
+    research: "#00ffc6",
+    reading: "#ffa840",
+    deep: "#ff0033",
+    chill: "#b400ff",
+    precision: "#00eaff"
+};
+
+document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        let mode = btn.dataset.mode;
+        let col = modeThemes[mode];
+
+        document.documentElement.style.setProperty("--theme-glow", col);
+    });
+});
