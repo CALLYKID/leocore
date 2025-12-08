@@ -558,3 +558,11 @@ body::after { right: -40px; background: #9400ff; }
     position: relative;
     z-index: 1 !important;
 }
+/* FIX — ensure header buttons always sit ABOVE everything */
+.glow-header,
+.glass-btn,
+.back-btn,
+.clear-btn {
+    position: relative;
+    z-index: 100000 !important;
+}
