@@ -282,67 +282,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       DELETE SYSTEM — TAP = CLEAR CHAT, HOLD = FULL WIPE
-    ============================================================ */
-    let holdTimer = null;
-    let holdActive = false;
+   DELETE SYSTEM — TAP = CLEAR CHAT, HOLD = FULL WIPE
+============================================================ */
 
-    function clearChatInstant() {
+let holdTimer = null;
+let holdActive = false;
+
+/* === TAP DELETE — Only wipe chat === */
+function clearChatInstant() {
+    messages.innerHTML = "";
+    localStorage.removeItem("leocore-chat");
+    saveChat(); // Save empty chat so nothing reappears
+}
+
+/* === HOLD DELETE — Full data wipe + animation === */
+function fullWipeAnimation() {
+    const overlay = document.createElement("div");
+    overlay.id = "wipeOverlay";
+    overlay.innerHTML = `
+        <div class="wipe-container">
+            <div class="wipe-loader"></div>
+            <div class="wipe-text">Clearing data...</div>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+
+    // Fade in
+    requestAnimationFrame(() => overlay.classList.add("show"));
+
+    setTimeout(() => {
+        // REAL DATA WIPE
+        localStorage.clear();
         messages.innerHTML = "";
-        localStorage.removeItem("leocore-chat");
-        addMessage("🗑 Chat cleared.", "ai");
-    }
+        saveChat();
 
-    function fullWipeAnimation() {
-        const overlay = document.createElement("div");
-        overlay.id = "wipeOverlay";
-        overlay.innerHTML = `
-            <div class="wipe-container">
-                <div class="wipe-loader"></div>
-                <div class="wipe-text">Clearing data...</div>
-            </div>
-        `;
-        document.body.appendChild(overlay);
+        // Close chat
+        chatScreen.classList.remove("active");
 
-        requestAnimationFrame(() => overlay.classList.add("show"));
+        // Fade out
+        overlay.classList.remove("show");
+        setTimeout(() => overlay.remove(), 500);
 
-        setTimeout(() => {
-            localStorage.clear();
-            chatScreen.classList.remove("active");
+    }, 1700);
+}
 
-            overlay.classList.remove("show");
-            setTimeout(() => overlay.remove(), 600);
-        }, 1700);
-    }
+/* === HOLD LOGIC CONTROLLER === */
+function startHold() {
+    if (holdTimer) return;
 
-    clearBtn.addEventListener("mousedown", startHold);
-    clearBtn.addEventListener("touchstart", startHold);
-    clearBtn.addEventListener("mouseup", cancelHold);
-    clearBtn.addEventListener("mouseleave", cancelHold);
-    clearBtn.addEventListener("touchend", cancelHold);
+    holdActive = false;
 
-    function startHold() {
-        if (holdTimer) return;
+    // If held for 1 second → full wipe
+    holdTimer = setTimeout(() => {
+        holdActive = true;
+        fullWipeAnimation();
+    }, 1000);
+}
 
-        holdActive = false;
-        holdTimer = setTimeout(() => {
-            holdActive = true;
-            fullWipeAnimation();
-        }, 1000);
-    }
+function cancelHold() {
+    if (!holdTimer) return;
 
-    function cancelHold() {
-        if (!holdTimer) return;
+    clearTimeout(holdTimer);
 
-        clearTimeout(holdTimer);
+    // Short tap → only clear chat
+    if (!holdActive) clearChatInstant();
 
-        if (!holdActive) {
-            clearChatInstant();
-        }
+    holdTimer = null;
+}
 
-        holdTimer = null;
-    }
+/* === EVENT LISTENERS === */
+clearBtn.addEventListener("mousedown", startHold);
+clearBtn.addEventListener("touchstart", startHold);
 
+clearBtn.addEventListener("mouseup", cancelHold);
+clearBtn.addEventListener("mouseleave", cancelHold);
+clearBtn.addEventListener("touchend", cancelHold);
 
     /* ============================================================
        MODE SYSTEM
