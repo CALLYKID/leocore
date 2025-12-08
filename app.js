@@ -27,11 +27,11 @@ document.addEventListener("DOMContentLoaded", () => {
     /* STREAM STATES */
     let isStreaming = false;
     let cancelStream = false;
-    let ignoreNextResponse = false; // ⭐ FIX STOP-MODE
+    let ignoreNextResponse = false;
 
     /* ============================================================
-       PERMANENT USER ID
-    ============================================================ */
+       USER ID
+    ============================================================= */
     const CREATOR_ID = "leo-official-001";
 
     function getCookie(name) {
@@ -131,7 +131,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return bubble;
     }
 
-
     /* ============================================================
        TYPING BUBBLE
     ============================================================ */
@@ -152,7 +151,6 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollToBottom();
         return wrap;
     }
-
 
     /* ============================================================
        STREAM MESSAGE
@@ -222,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 ignoreNextResponse = false;
                 cancelStream = false;
                 input.disabled = false;
-            }, 250); // ⭐ improved timing
+            }, 250);
 
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
@@ -279,7 +277,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fakeInput.addEventListener("click", () => {
-        if (isStreaming) return;
+        if (isStreaming) {
+            cancelStream = true;
+            ignoreNextResponse = true;
+        }
         chatScreen.classList.add("active");
         setTimeout(() => input.focus(), 200);
     });
@@ -291,7 +292,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       ⭐ RESTORE PREMIUM HOLD-TO-RESET WIPE SYSTEM
+       HOLD-TO-RESET SYSTEM
     ============================================================ */
     if (clearBtn) {
 
@@ -325,7 +326,6 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(() => statusBox.style.opacity = 1, 20);
         }
 
-        // Short tap → clear chat only
         clearBtn.addEventListener("click", () => {
             if (holdTriggered) return;
 
@@ -385,8 +385,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+
 /* ============================================================
-   MODE SELECTOR LOGIC (MERGED HANDLER ⭐)
+   MODE SELECTOR LOGIC
 ============================================================ */
 const modeThemes = {
     study: "#00aaff",
@@ -400,25 +401,30 @@ const modeThemes = {
 document.querySelectorAll(".mode-btn").forEach(btn => {
     btn.addEventListener("click", () => {
 
-        // highlight
         document.querySelectorAll(".mode-btn")
             .forEach(b => b.classList.remove("active"));
+
         btn.classList.add("active");
 
         const mode = btn.dataset.mode;
         localStorage.setItem("leocore-mode", mode);
 
-        // theme glow
         const col = modeThemes[mode];
         document.documentElement.style.setProperty("--theme-glow", col);
 
-        // AI message
         addMessage(`Mode switched to **${mode}**.`, "ai");
     });
 });
 
-// PARALLAX TILT EFFECT FOR BG + HERO
+
+/* ============================================================
+   PARALLAX BACKGROUND
+============================================================ */
 document.addEventListener("mousemove", (e) => {
+
+    // stop parallax when chat open
+    if (document.getElementById("chatScreen").classList.contains("active")) return;
+
     const x = (e.clientX / window.innerWidth - 0.5) * 10;
     const y = (e.clientY / window.innerHeight - 0.5) * 10;
 
@@ -427,9 +433,13 @@ document.addEventListener("mousemove", (e) => {
     });
 });
 
+
 /* ============================================================
-   QUICK TOOLS LOGIC (FIXED)
+   QUICK TOOLS LOGIC (FULLY FIXED)
 ============================================================ */
+const chatScreen = document.getElementById("chatScreen");
+const input = document.getElementById("userInput");
+
 document.querySelectorAll(".tool-btn").forEach(tool => {
     tool.addEventListener("click", () => {
         const task = tool.dataset.task;
@@ -443,7 +453,7 @@ document.querySelectorAll(".tool-btn").forEach(tool => {
 
         input.value = prompts[task];
 
-        if (!document.getElementById("chatScreen").classList.contains("active")) {
+        if (!chatScreen.classList.contains("active")) {
             chatScreen.classList.add("active");
             setTimeout(() => input.focus(), 200);
         } else {
