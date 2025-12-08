@@ -10,7 +10,7 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   MAIN APP
+   MAIN APP (EVERYTHING MUST LIVE INSIDE HERE)
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -29,9 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let cancelStream = false;
     let ignoreNextResponse = false;
 
-    /* ============================================================
-       USER ID
-    ============================================================= */
+    /* USER ID */
     const CREATOR_ID = "leo-official-001";
 
     function getCookie(name) {
@@ -51,8 +49,9 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-user", userId);
     }
 
+
     /* ============================================================
-       LOAD CHAT HISTORY
+       LOAD CHAT
     ============================================================ */
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(m => addMessage(m.text, m.sender));
@@ -69,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       AUTO SCROLL
+       SCROLL
     ============================================================ */
     function scrollToBottom() {
         setTimeout(() => {
@@ -78,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ============================================================
-       HERO AUTO TYPE
+       HERO AUTO-TYPE
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -131,8 +130,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return bubble;
     }
 
+
     /* ============================================================
-       TYPING BUBBLE
+       TYPING INDICATOR
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
@@ -152,8 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
+
     /* ============================================================
-       STREAM MESSAGE
+       STREAM REPLY
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
@@ -206,7 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SEND MESSAGE (STOP MODE FIXED)
+       SEND MESSAGE
     ============================================================ */
     async function sendMessage() {
 
@@ -243,7 +244,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: text, userId })
+                body: JSON.stringify({
+                    message: text,
+                    userId,
+                    mode: localStorage.getItem("leocore-mode") || "default"
+                })
             });
 
             const data = await res.json();
@@ -277,10 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fakeInput.addEventListener("click", () => {
-        if (isStreaming) {
-            cancelStream = true;
-            ignoreNextResponse = true;
-        }
+        if (isStreaming) return;
         chatScreen.classList.add("active");
         setTimeout(() => input.focus(), 200);
     });
@@ -292,7 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HOLD-TO-RESET SYSTEM
+       HOLD-TO-RESET WIPE (Premium)
     ============================================================ */
     if (clearBtn) {
 
@@ -383,81 +385,48 @@ document.addEventListener("DOMContentLoaded", () => {
         clearBtn.addEventListener("touchcancel", cancelHold);
     }
 
-});
 
+    /* ============================================================
+       ⭐ MODE SELECTOR (MOVED INSIDE DOM LOADED)
+    ============================================================ */
+    const modeThemes = {
+        study: "#00aaff",
+        research: "#00ffc6",
+        reading: "#ffa840",
+        deep: "#ff0033",
+        chill: "#b400ff",
+        precision: "#00eaff"
+    };
 
-/* ============================================================
-   MODE SELECTOR LOGIC
-============================================================ */
-const modeThemes = {
-    study: "#00aaff",
-    research: "#00ffc6",
-    reading: "#ffa840",
-    deep: "#ff0033",
-    chill: "#b400ff",
-    precision: "#00eaff"
-};
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
 
-document.querySelectorAll(".mode-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
+            document.querySelectorAll(".mode-btn")
+                .forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
 
-        document.querySelectorAll(".mode-btn")
-            .forEach(b => b.classList.remove("active"));
+            const mode = btn.dataset.mode;
+            localStorage.setItem("leocore-mode", mode);
 
-        btn.classList.add("active");
+            const col = modeThemes[mode];
+            document.documentElement.style.setProperty("--theme-glow", col);
 
-        const mode = btn.dataset.mode;
-        localStorage.setItem("leocore-mode", mode);
-
-        const col = modeThemes[mode];
-        document.documentElement.style.setProperty("--theme-glow", col);
-
-        addMessage(`Mode switched to **${mode}**.`, "ai");
+            addMessage(`Mode switched to **${mode}**.`, "ai");
+        });
     });
-});
+
+
+}); // END DOMContentLoaded
 
 
 /* ============================================================
-   PARALLAX BACKGROUND
+   PARALLAX (OUTSIDE DOM → LOW LATENCY)
 ============================================================ */
 document.addEventListener("mousemove", (e) => {
-
-    // stop parallax when chat open
-    if (document.getElementById("chatScreen").classList.contains("active")) return;
-
     const x = (e.clientX / window.innerWidth - 0.5) * 10;
     const y = (e.clientY / window.innerHeight - 0.5) * 10;
 
     document.querySelectorAll(".parallax").forEach(el => {
         el.style.transform = `translate(${x}px, ${y}px)`;
-    });
-});
-
-
-/* ============================================================
-   QUICK TOOLS LOGIC (FULLY FIXED)
-============================================================ */
-const chatScreen = document.getElementById("chatScreen");
-const input = document.getElementById("userInput");
-
-document.querySelectorAll(".tool-btn").forEach(tool => {
-    tool.addEventListener("click", () => {
-        const task = tool.dataset.task;
-
-        const prompts = {
-            summarise: "Summarise this text for me:",
-            plan: "Create a plan for my day:",
-            study: "Explain this homework to me:",
-            notes: "Generate study notes about:"
-        };
-
-        input.value = prompts[task];
-
-        if (!chatScreen.classList.contains("active")) {
-            chatScreen.classList.add("active");
-            setTimeout(() => input.focus(), 200);
-        } else {
-            input.focus();
-        }
     });
 });
