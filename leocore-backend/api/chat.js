@@ -25,26 +25,29 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       PERMANENT USER ID
-    ============================================================*/
-    let userId = localStorage.getItem("leocore-user");
+       PERMANENT USER ID (NEVER CHANGES)
+    ============================================================ */
+    let userId = localStorage.getItem("leocore-permanent-id");
     if (!userId) {
-        userId = "user-" + crypto.randomUUID().slice(0, 8);
-        localStorage.setItem("leocore-user", userId);
+        userId = "user-" + crypto.randomUUID();
+        localStorage.setItem("leocore-permanent-id", userId);
     }
 
     let savedName = localStorage.getItem("leocore-name") || null;
 
+    /* ============================================================
+       LOAD SAVED CHAT
+    ============================================================ */
     let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     savedChat.forEach(msg => addMessage(msg.text, msg.sender));
-
 
     function saveChat() {
         const arr = [];
         document.querySelectorAll(".bubble").forEach(b => {
             arr.push({
                 text: b.innerHTML,
-                sender: b.parentElement.classList.contains("user-msg") ? "user" : "ai"
+                sender:
+                    b.parentElement.classList.contains("user-msg") ? "user" : "ai"
             });
         });
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
@@ -62,8 +65,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HERO AUTO-TYPING PLACEHOLDER
-    ============================================================*/
+       HERO AUTO TYPE
+    ============================================================ */
     const prompts = [
         "Message Leocore…",
         "Give me a summer plan.",
@@ -76,6 +79,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
     function typeAnimation() {
         const cur = prompts[promptIndex];
+
         if (!deleting) {
             fakeText.innerText = cur.substring(0, charIndex++);
             if (charIndex > cur.length) {
@@ -96,8 +100,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       MESSAGE RENDERER
-============================================================ */
+       RENDER MESSAGE
+    ============================================================ */
     function addMessage(text, sender) {
         const wrap = document.createElement("div");
         wrap.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -116,12 +120,11 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       TYPING SPIRAL BUBBLE
-============================================================ */
+       SPIRAL TYPING BUBBLE
+    ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
         wrap.className = "ai-msg typing-holder";
-
         wrap.innerHTML = `
             <div class="spiral-bubble">
                 <div class="spiral-core"></div>
@@ -130,17 +133,15 @@ window.addEventListener("DOMContentLoaded", () => {
                 <div class="orbit o3"></div>
             </div>
         `;
-
         messages.appendChild(wrap);
         scrollToBottom();
-
         return wrap;
     }
 
 
     /* ============================================================
        BOOT BUBBLE
-============================================================ */
+    ============================================================ */
     function createBootBubble() {
         const wrap = document.createElement("div");
         wrap.className = "ai-msg";
@@ -155,11 +156,22 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAMING TYPEWRITER
-============================================================ */
-    async function streamMessage(fullText) {
+       STREAMING STATE + STOP SYSTEM
+    ============================================================ */
+    let aiIsStreaming = false;
+    let stopStreaming = false;
 
-        // Convert \n to <br>
+
+    /* ============================================================
+       STREAM MESSAGE (supports STOP)
+    ============================================================ */
+    async function streamMessage(fullText) {
+        aiIsStreaming = true;
+        stopStreaming = false;
+
+        sendBtn.innerText = "■";  
+        sendBtn.classList.add("stop-mode");
+
         fullText = fullText.replace(/\n/g, "<br>");
 
         const wrap = document.createElement("div");
@@ -176,15 +188,19 @@ window.addEventListener("DOMContentLoaded", () => {
 
         bubble.appendChild(textSpan);
         bubble.appendChild(cursor);
+
         wrap.appendChild(bubble);
         messages.appendChild(wrap);
-
         scrollToBottom();
 
         let i = 0;
+
         while (i < fullText.length) {
+            if (stopStreaming) break;
+
             textSpan.innerHTML = fullText.substring(0, i + 1);
             scrollToBottom();
+
             await new Promise(res => setTimeout(res, 10 + Math.random() * 20));
             i++;
         }
@@ -192,14 +208,22 @@ window.addEventListener("DOMContentLoaded", () => {
         cursor.classList.add("fade-out");
         setTimeout(() => cursor.remove(), 350);
 
+        aiIsStreaming = false;
+        stopStreaming = false;
+
+        sendBtn.innerText = "➤";
+        sendBtn.classList.remove("stop-mode");
+
         saveChat();
     }
 
 
     /* ============================================================
-       SEND MESSAGE LOGIC
-============================================================ */
+       SEND MESSAGE (BLOCKS while streaming)
+    ============================================================ */
     async function sendMessage() {
+        if (aiIsStreaming) return;  // BLOCK USER
+
         const text = input.value.trim();
         if (!text) return;
 
@@ -261,34 +285,43 @@ window.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
             typingBubble.remove();
             if (bootBubble) bootBubble.parentElement.remove();
-            addMessage("⚠️ Network error. Backend is still waking up.", "ai");
+
+            addMessage("⚠️ Network error. Backend isn't ready.", "ai");
         }
     }
 
 
     /* ============================================================
-       EVENTS
+       SEND BUTTON
 ============================================================ */
-    sendBtn.addEventListener("click", sendMessage);
+    sendBtn.addEventListener("click", () => {
+        if (aiIsStreaming) {
+            stopStreaming = true;
+            return;
+        }
+        sendMessage();
+    });
+
     input.addEventListener("keydown", e => {
+        if (aiIsStreaming) return;
         if (e.key === "Enter") sendMessage();
     });
 
 
     /* ============================================================
-       KEEP BACKEND ALIVE (10 min)
+       KEEPALIVE — 10 min
 ============================================================ */
     setInterval(() => {
         fetch("https://leocore.onrender.com/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: "__ping__", userId: "system-pinger" })
-        }).catch(() => {});
+        });
     }, 600000);
 
 
     /* ============================================================
-       PREMIUM HOLD-TO-RESET (unchanged)
+       PREMIUM HOLD-TO-RESET (UNCHANGED)
 ============================================================ */
     if (clearBtn) {
         let holdTimer = null;
@@ -356,9 +389,7 @@ window.addEventListener("DOMContentLoaded", () => {
                 messages.style.opacity = 0;
 
                 setTimeout(() => {
-                    localStorage.removeItem("leocore-chat");
-                    localStorage.removeItem("leocore-name");
-                    // ❗ DO NOT REMOVE USER ID — permanent ID stays
+                    localStorage.clear(); // permanent ID stays untouched?
                     location.reload();
                 }, 350);
             }, 3000);
@@ -381,14 +412,11 @@ window.addEventListener("DOMContentLoaded", () => {
         clearBtn.addEventListener("mouseleave", cancelHold);
         clearBtn.addEventListener("touchend", cancelHold);
         clearBtn.addEventListener("touchcancel", cancelHold);
-
-        clearBtn.addEventListener("contextmenu", e => e.preventDefault());
-        clearBtn.addEventListener("selectstart", e => e.preventDefault());
     }
 
 
     /* ============================================================
-       OPEN + CLOSE CHAT SCREEN
+       OPEN + CLOSE CHAT
 ============================================================ */
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
