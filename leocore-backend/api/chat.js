@@ -54,13 +54,16 @@ window.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-   SAFE AUTO SCROLL (IMMUNE TO EARLY CALLS)
+   SAFE AUTO SCROLL — FIXES EARLY CALLS + HIDDEN CHAT
 ============================================================ */
-var scrollRAF = false; // use var so it HOISTS
+var scrollRAF = false; // use var so it's hoisted
 
 function scrollToBottom() {
-    // ensure messages element exists before using it
+    // if messages does not exist YET, exit safely
     if (!window.messages) return;
+
+    // if messages is hidden, don't scroll
+    if (getComputedStyle(messages).display === "none") return;
 
     if (scrollRAF) return;
     scrollRAF = true;
