@@ -356,3 +356,13 @@ button, #sendBtn, .back-btn, .clear-btn {
 }
 .o2 { animation-delay: .35s; }
 .o3 { animation-delay: .7s; }
+
+.center-wrapper,
+.info-section {
+    position: relative;
+    z-index: 5;   /* this puts your homepage ABOVE the overlay */
+}
+.info-section { 
+    position: relative;
+    z-index: 5;
+}
