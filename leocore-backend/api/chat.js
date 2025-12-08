@@ -43,7 +43,7 @@ async function rateLimit(userRef) {
 }
 
 /* =====================================================
-   SAFE DATA INITIALIZER (prevents crashes, NaN, null, undefined)
+   SAFE DATA INITIALIZER
 ===================================================== */
 function initUserData(raw) {
     const base = {
@@ -54,7 +54,6 @@ function initUserData(raw) {
 
     if (!raw || typeof raw !== "object") return base;
 
-    // Fix corrupted or missing fields
     if (!raw.memory) raw.memory = base.memory;
     if (!raw.history) raw.history = [];
     if (typeof raw.boots !== "number" || isNaN(raw.boots)) raw.boots = 0;
@@ -126,9 +125,6 @@ export default async function handler(req, res) {
         const userRef = db.collection("users").doc(userId);
         const snap = await userRef.get();
 
-        /* =====================================================
-           SAFE USER DATA INIT
-        ====================================================== */
         let data = initUserData(snap.data());
 
 
@@ -144,11 +140,29 @@ export default async function handler(req, res) {
 
         data.boots++;
 
-
         /* =====================================================
-           CREATOR PROTECTION
-        ====================================================== */
+           CREATOR + ORIGIN PROTECTION
+===================================================== */
         const isCreator = userId === CREATOR_USER_ID;
+
+        // Any attempt to ask or talk about origins
+        const originTriggers = [
+            "who created you",
+            "who made you",
+            "who built you",
+            "your creator",
+            "your maker",
+            "who is your creator",
+            "who is your maker",
+            "who programmed you",
+            "your developers",
+            "your devs",
+            "engineers made you",
+            "openai",
+            "meta",
+            "team made you",
+            "development team"
+        ];
 
         const claiming =
             lower.includes("i made you") ||
@@ -159,6 +173,7 @@ export default async function handler(req, res) {
             lower.includes("i developed you") ||
             lower.includes("i own you");
 
+        // BLOCK impostor claims
         if (!isCreator && claiming) {
             return res.json({
                 reply: randomPunishment(),
@@ -166,6 +181,7 @@ export default async function handler(req, res) {
             });
         }
 
+        // CONFIRM real creator
         if (isCreator && claiming) {
             return res.json({
                 reply: "Identity verified. Hello Leonard — system creator.",
@@ -173,12 +189,24 @@ export default async function handler(req, res) {
             });
         }
 
+        // If user asks ANY question about origins
+        if (originTriggers.some(t => lower.includes(t))) {
+            if (!isCreator) {
+                return res.json({
+                    reply: "LeoCore was created solely by Leonard (Leo). External origin claims are invalid.",
+                    stream: true
+                });
+            } else {
+                return res.json({
+                    reply: "Creator identity confirmed — you built LeoCore.",
+                    stream: true
+                });
+            }
+        }
 
         /* =====================================================
            SECRET COMMANDS
-        ====================================================== */
-
-        // 1) Show own ID
+===================================================== */
         if (lower === "/myid") {
             return res.json({
                 reply: `🆔 Your LeoCore ID:\n\n${userId}`,
@@ -186,32 +214,28 @@ export default async function handler(req, res) {
             });
         }
 
-        // 2) Show total users
         if (lower === "/users" || lower === "/stats") {
             const allUsers = await db.collection("users").get();
-            const total = allUsers.size;
             return res.json({
                 reply:
                     `📊 **LeoCore Stats:**\n\n` +
-                    `• Total users: ${total}\n` +
+                    `• Total users: ${allUsers.size}\n` +
                     `• Boots: ${data.boots}`,
                 stream: false
             });
         }
 
-
         /* =====================================================
-           MEMORY PROCESSING
-        ====================================================== */
+           MEMORY + HISTORY
+===================================================== */
         data.memory = extractMemory(message, data.memory);
 
         data.history.push({ role: "user", content: message });
         if (data.history.length > 8) data.history.shift();
 
-
         /* =====================================================
            AI REQUEST
-        ====================================================== */
+===================================================== */
         const groqRes = await fetch(
             "https://api.groq.com/openai/v1/chat/completions",
             {
@@ -232,26 +256,20 @@ export default async function handler(req, res) {
         );
 
         const ai = await groqRes.json();
+
         let reply =
             ai?.choices?.[0]?.message?.content ||
             "LeoCore is cooling down — try again.";
 
-        // Fix lowercase start
         reply = reply.replace(/^\s*[a-z]/, m => m.toUpperCase());
 
-
-        /* =====================================================
-           SAVE AND RETURN
-        ====================================================== */
         data.history.push({ role: "assistant", content: reply });
         if (data.history.length > 8) data.history.shift();
 
         await userRef.set(data, { merge: true });
 
-        return res.json({
-            reply,
-            forceStatic: true
-        });
+        return res.json({ reply, forceStatic: true });
+
     } catch (err) {
         console.error("BACKEND ERROR:", err);
         return res.status(500).json({
