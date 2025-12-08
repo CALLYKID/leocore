@@ -1,5 +1,5 @@
 /* ============================================================
-   RESET + TOUCH FIXES
+   GLOBAL RESET / TOUCH FIXES
 ============================================================ */
 * {
     margin: 0;
@@ -18,8 +18,14 @@ body {
 }
 @keyframes fadeIn { to { opacity: 1; } }
 
+button, .clear-btn, .back-btn, #sendBtn {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent !important;
+}
+
+
 /* ============================================================
-   VIDEO BACKGROUND
+   BACKGROUND VIDEO
 ============================================================ */
 #bgVideo {
     position: fixed;
@@ -34,11 +40,12 @@ body {
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,25,0.4);
+    background: rgba(0,0,25,0.40);
     backdrop-filter: blur(3px);
     pointer-events: none;
     z-index: -4;
 }
+
 
 /* ============================================================
    HERO SECTION
@@ -47,18 +54,15 @@ body {
     text-align: center;
     padding-top: 18vh;
     padding-bottom: 10vh;
-    z-index: 5;
     position: relative;
+    z-index: 5;
 }
 
-/* ============================================================
-   LEOCORE NEON INPUT 2.0 — POLISHED + ANIMATED
-============================================================ */
+/* FINAL FIXED NEON INPUT */
 .fake-input {
     width: 85vw;
     max-width: 600px;
     height: 64px;
-
     margin: 0 auto 28px auto;
 
     display: flex;
@@ -67,48 +71,35 @@ body {
 
     background: rgba(0,15,30,0.35);
     border-radius: 18px;
+    border: 2px solid rgba(0,200,255,0.85);
 
-    /* Outer neon border */
-    border: 2px solid rgba(0,200,255,0.8);
-
-    /* Subtle glow */
     box-shadow:
-        0 0 12px rgba(0,200,255,0.55),
-        0 0 35px rgba(0,200,255,0.25);
+        0 0 14px rgba(0,200,255,0.55),
+        0 0 40px rgba(0,200,255,0.25);
 
     backdrop-filter: blur(6px);
-
     overflow: hidden;
     cursor: pointer;
 
-    /* Entrance animation */
-    opacity: 0;
-    animation: heroReveal 0.6s ease forwards, inputBreath 4s ease-in-out infinite;
+    opacity: 1 !important;
+    animation: inputBreath 4s ease-in-out infinite;
 }
 
-/* Smooth neon breathing animation */
+/* Breathing neon */
 @keyframes inputBreath {
-    0% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.2); }
-    50% { box-shadow: 0 0 22px rgba(0,200,255,0.75), 0 0 70px rgba(0,200,255,0.35); }
-    100% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.2); }
+    0% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.25); }
+    50% { box-shadow: 0 0 22px rgba(0,200,255,0.85), 0 0 65px rgba(0,200,255,0.35); }
+    100% { box-shadow: 0 0 14px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.25); }
 }
 
-/* Tap squeeze */
-.fake-input:active {
-    transform: scale(0.98);
-    box-shadow: 0 0 30px rgba(0,200,255,0.85);
-}
-
-/* Upgraded fake text */
 .fake-text {
     font-size: 20px;
-    color: #d8faff;
+    color: #dffaff;
     white-space: nowrap;
     letter-spacing: 0.3px;
-    transition: opacity 0.25s ease;
+    pointer-events: none;
 }
 
-/* Main Title */
 .main-title {
     font-size: 46px;
     font-weight: 800;
@@ -120,6 +111,7 @@ body {
     font-size: 19px;
 }
 
+
 /* ============================================================
    INFO CARD
 ============================================================ */
@@ -127,8 +119,8 @@ body {
     display: flex;
     justify-content: center;
     padding-top: 6vh;
-    z-index: 5;
     position: relative;
+    z-index: 5;
 }
 
 .info-card {
@@ -137,19 +129,22 @@ body {
     padding: 26px;
     border-radius: 22px;
     text-align: center;
+
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.16);
     backdrop-filter: blur(12px);
+
     box-shadow: 0 0 28px rgba(0,200,255,0.25);
 }
 
 .features {
-    margin-top: 16px;
-    opacity: 0.85;
+    margin-top: 15px;
     display: flex;
-    justify-content: center;
     gap: 22px;
+    justify-content: center;
+    opacity: 0.85;
 }
+
 
 /* ============================================================
    CHAT SCREEN
@@ -169,6 +164,7 @@ body {
     opacity: 1;
 }
 
+
 /* ============================================================
    CHAT HEADER
 ============================================================ */
@@ -177,21 +173,33 @@ body {
     background: rgba(0,0,0,0.35);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(0,255,255,0.15);
+
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 
-.back-btn,
-.clear-btn {
-    padding: 10px 14px;
-    border-radius: 12px;
+.back-btn {
     background: rgba(255,255,255,0.1);
+    padding: 10px 14px;
+    border-radius: 50px;
+    color: #fff;
+    font-size: 20px;
+    border: none;
+}
+
+.clear-btn {
+    background: rgba(255,255,255,0.1);
+    padding: 8px 14px;
+    border-radius: 12px;
     border: none;
     color: #fff;
+    font-size: 15px;
 }
 
+
 /* ============================================================
-   MESSAGES
+   CHAT MESSAGES
 ============================================================ */
 .chat-messages {
     flex: 1;
@@ -206,15 +214,16 @@ body {
     max-width: 92%;
     padding: 14px 18px;
     border-radius: 14px;
-    font-size: 16px;
     white-space: pre-wrap;
+    font-size: 16px;
 }
 
-.user-msg { justify-content: flex-end; display: flex; }
-.user-msg .bubble { background: #008cff; }
+.user-msg { display: flex; justify-content: flex-end; }
+.user-msg .bubble { background: #008cff; color: #fff; }
 
-.ai-msg { justify-content: flex-start; display: flex; }
-.ai-msg .bubble { background: #1e263f; }
+.ai-msg { display: flex; justify-content: flex-start; }
+.ai-msg .bubble { background: #1e263f; color: #fff; }
+
 
 /* ============================================================
    INPUT BAR
@@ -237,16 +246,98 @@ body {
     color: #fff;
 }
 
-/* SEND BUTTON */
+
+/* SEND / STOP BUTTON */
 #sendBtn {
     width: 56px;
     height: 56px;
     border-radius: 16px;
     border: none;
     background: radial-gradient(circle,#00eaff,#0088ff);
+    color: #fff;
+    font-size: 22px;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 22px;
-    color: #fff;
+    transition: 0.25s ease;
 }
+
+#sendBtn.stop-mode {
+    background: #ff3b3b !important;
+    transform: scale(0.93);
+    box-shadow: 0 0 18px #ff3b3b;
+}
+
+
+/* STREAMING CURSOR */
+.ai-streaming { position: relative; }
+
+.neon-cursor {
+    position: absolute;
+    right: -8px;
+    bottom: 0;
+    width: 6px;
+    height: 18px;
+    background: #00eaff;
+    animation: blink 0.7s infinite alternate;
+    border-radius: 2px;
+}
+@keyframes blink { 100% { opacity: 0.25; } }
+
+.neon-cursor.fade-out {
+    animation: fadeCursor 0.35s forwards;
+}
+@keyframes fadeCursor {
+    to { opacity: 0; transform: scale(2); }
+}
+
+
+/* ============================================================
+   TYPING SPIRAL
+============================================================ */
+.typing-holder {
+    display: flex;
+    align-items: center;
+}
+
+.spiral-bubble {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(0,200,255,0.15);
+    border: 2px solid rgba(0,200,255,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.spiral-core {
+    width: 10px;
+    height: 10px;
+    background: #00eaff;
+    border-radius: 50%;
+    animation: corePulse 1.4s infinite ease-in-out;
+}
+
+@keyframes corePulse {
+    0% { transform: scale(0.8); opacity: 0.6; }
+    50% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.6; }
+}
+
+.orbit {
+    width: 8px;
+    height: 8px;
+    background: #00eaff;
+    border-radius: 50%;
+    position: absolute;
+    animation: orbit 2.6s linear infinite;
+}
+@keyframes orbit {
+    0% { transform: rotate(0deg) translateX(18px); }
+    100% { transform: rotate(360deg) translateX(18px); }
+}
+.o2 { animation-delay: .35s; }
+.o3 { animation-delay: .7s; }
