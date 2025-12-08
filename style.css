@@ -513,3 +513,15 @@ body::after { right: -40px; background: #9400ff; }
     position: relative;
     z-index: 1;
    }
+/* FLAME MODE OVERRIDES */
+body.flame-mode::before {
+    background: radial-gradient(circle, rgba(255,0,120,0.55), transparent);
+}
+
+body.flame-mode::after {
+    background: radial-gradient(circle, rgba(255,120,200,0.45), transparent);
+}
+
+body.flame-mode .fake-input {
+    box-shadow: 0 0 24px #ff0088, 0 0 60px #ff55aa;
+}
