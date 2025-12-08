@@ -2,6 +2,7 @@
    GLOBAL FIXES
 ============================================================ */
 
+/* Remove blue tap flash */
 * {
     -webkit-tap-highlight-color: transparent !important;
     margin: 0;
@@ -19,47 +20,35 @@ body {
     overflow-x: hidden;
     font-family: 'Inter', sans-serif;
     color: white;
+
     opacity: 0;
-    animation: siteFadeIn 0.7s ease forwards;
+    animation: siteFadeIn 0.6s ease forwards;
 }
 @keyframes siteFadeIn { to { opacity: 1; } }
 
 /* ============================================================
-   Z-INDEX LAYERS (FIXED)
+   BACKGROUND VIDEO — FIXED FULLSCREEN + CLICK-THROUGH
 ============================================================ */
-
 #bgVideo {
     position: fixed;
-    inset: 0;
+    top: 0; left: 0;
+
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -10 !important;
-    pointer-events: none;
+
+    z-index: -3;   /* BELOW EVERYTHING */
+    pointer-events: none; /* stops blocking clicks */
 }
 
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,40,0.35);
-    z-index: -5 !important;
-    pointer-events: none;
-}
+    background: rgba(0,0,25,0.45);
 
-.center-wrapper,
-.info-section {
-    position: relative;
-    z-index: 10;
-}
+    backdrop-filter: blur(4px);
 
-#fakeInput {
-    position: relative;
-    z-index: 20;
-    cursor: pointer;
-}
-
-.fake-text {
-    pointer-events: none;
+    z-index: -2;
 }
 
 /* ============================================================
@@ -70,6 +59,7 @@ body {
     width: 100%;
     padding-top: 18vh;
     padding-bottom: 10vh;
+
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -81,23 +71,29 @@ body {
     max-width: 600px;
     height: 62px;
     margin-bottom: 32px;
+
     background: rgba(255,255,255,0.12);
-    border: 2px solid rgba(0,200,255,0.8);
+    border: 2px solid rgba(0,200,255,0.85);
     border-radius: 18px;
+
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(6px);
-    box-shadow: 0 0 25px rgba(0,180,255,0.4);
-    opacity: 0;
-    animation: heroFade 1s ease forwards;
-}
 
+    backdrop-filter: blur(6px);
+    box-shadow: 0 0 30px rgba(0,200,255,0.45);
+
+    cursor: pointer;
+    overflow: hidden;
+
+    opacity: 0;
+    animation: heroFade 0.6s ease forwards;
+}
 @keyframes heroFade { to { opacity: 1; } }
 
 .fake-text {
     font-size: 20px;
-    color: #dff9ff;
+    color: #dffaff;
     white-space: nowrap;
 }
 
@@ -105,16 +101,18 @@ body {
     font-family: 'Montserrat', sans-serif;
     font-size: 46px;
     font-weight: 800;
-    letter-spacing: 2px;
+    letter-spacing: 1.6px;
+
     opacity: 0;
-    animation: heroFade 1s ease 0.2s forwards;
+    animation: heroFade 0.7s ease 0.15s forwards;
 }
 
 .subtitle {
     margin-top: 8px;
-    font-size: 20px;
+    font-size: 19px;
+
     opacity: 0;
-    animation: heroFade 1s ease 0.4s forwards;
+    animation: heroFade 0.7s ease 0.3s forwards;
 }
 
 /* ============================================================
@@ -131,45 +129,47 @@ body {
 .info-card {
     width: 85%;
     max-width: 650px;
+
     padding: 26px;
     border-radius: 22px;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 0 25px rgba(0,180,255,0.25);
+
     text-align: center;
+
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    backdrop-filter: blur(12px);
+
+    box-shadow: 0 0 28px rgba(0,200,255,0.25);
+
     opacity: 0;
-    animation: cardAppear 0.9s ease 0.45s forwards;
+    animation: cardAppear 0.7s ease 0.35s forwards;
 }
 @keyframes cardAppear { to { opacity: 1; } }
 
-.info-card p {
-    margin-top: 8px;
-    font-size: 17px;
-    line-height: 1.45;
-}
-
 .features {
-    margin-top: 14px;
+    margin-top: 16px;
     display: flex;
     justify-content: center;
-    gap: 18px;
-    font-size: 16px;
+    gap: 22px;
+    font-size: 15.5px;
     opacity: 0.85;
 }
 
 /* ============================================================
-   CHAT SCREEN
+   CHAT SCREEN — FULLY FIXED
 ============================================================ */
 
 .chat-screen {
     position: fixed;
     inset: 0;
+
     display: none;
     flex-direction: column;
-    background: rgba(5,10,30,0.92);
+
+    background: rgba(5,10,25,0.92);
     backdrop-filter: blur(10px);
-    z-index: 9999 !important;
+
+    z-index: 20;
     opacity: 0;
 }
 
@@ -184,47 +184,51 @@ body {
 ============================================================ */
 
 .chat-header {
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(10px);
+
     padding: 14px 18px;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     border-bottom: 1px solid rgba(0,255,255,0.15);
+
+    box-shadow: 0 2px 20px rgba(0,255,255,0.05);
 }
 
 .back-btn {
-    background: rgba(255,255,255,0.08);
+    background: rgba(255,255,255,0.1);
     border: none;
     padding: 10px 14px;
     border-radius: 50px;
-    color: #dffaff;
-    font-size: 20px;
-    cursor: pointer;
-}
 
-.back-btn:hover {
-    background: rgba(0,255,255,0.25);
-    box-shadow: 0 0 12px rgba(0,255,255,0.65);
+    font-size: 20px;
+    color: #dffaff;
+
+    cursor: pointer;
 }
 
 .chat-title {
     font-family: 'Montserrat', sans-serif;
     font-size: 22px;
     font-weight: 700;
-    letter-spacing: 1.5px;
-    background: linear-gradient(90deg, #00eaff, #9d4bff);
+
+    background: linear-gradient(90deg,#00eaff,#9d4bff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .clear-btn {
-    background: rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.1);
     border: 1px solid rgba(255,255,255,0.15);
     padding: 8px 14px;
     border-radius: 12px;
+
     font-size: 15px;
     color: #dffaff;
+
     display: flex;
     align-items: center;
     gap: 6px;
@@ -236,169 +240,92 @@ body {
 
 .chat-messages {
     flex: 1;
-    padding: 15px;
+    padding: 14px;
+
     overflow-y: auto;
+
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.ai-msg, .user-msg {
-    width: 100%;
-    display: flex;
-}
-
 .bubble {
     max-width: 92%;
     padding: 14px 18px;
+
     border-radius: 14px;
     font-size: 16px;
     line-height: 1.48;
     white-space: pre-wrap;
 }
 
-.ai-msg { justify-content: flex-start; }
-.user-msg { justify-content: flex-end; }
+.ai-msg { display: flex; justify-content: flex-start; }
+.user-msg { display: flex; justify-content: flex-end; }
 
 .ai-msg .bubble {
-    background: #222b45;
+    background: #1e263f;
     color: #fff;
-    border-radius: 14px 14px 14px 6px;
 }
 
 .user-msg .bubble {
     background: #008cff;
     color: #fff;
-    border-radius: 14px 14px 6px 14px;
 }
 
 /* ============================================================
-   INPUT BAR
+   INPUT + SEND BUTTON
 ============================================================ */
 
 .chat-input-area {
     padding: 12px;
     display: flex;
     gap: 12px;
-    background: rgba(20,20,40,0.5);
+
+    background: rgba(20,20,40,0.45);
     backdrop-filter: blur(8px);
 }
 
 .chat-input-area input {
     flex: 1;
     height: 56px;
+
     padding: 0 18px;
-    background: rgba(255,255,255,0.1);
+    font-size: 16px;
+
+    background: rgba(255,255,255,0.11);
     border: 2px solid rgba(0,200,255,0.35);
     border-radius: 16px;
-    font-size: 16px;
+
     color: #fff;
 }
-
-.chat-input-area input:disabled {
-    opacity: 0.55;
-}
-
-.chat-input-area input:focus {
-    border-color: #00eaff;
-    animation: inputPulse 1.8s infinite ease-out;
-}
-
-@keyframes inputPulse {
-    50% { box-shadow: 0 0 22px #00eaff; }
-}
-
-/* ============================================================
-   SEND / STOP BUTTON
-============================================================ */
 
 #sendBtn {
     width: 56px;
     height: 56px;
+
+    background: radial-gradient(circle,#00eaff,#0088ff);
     border: none;
     border-radius: 16px;
-    background: radial-gradient(circle, #00eaff, #0088ff);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     color: #fff;
     font-size: 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+
     box-shadow: 0 0 12px #00eaffaa;
-    transition: 0.25s ease;
 }
 
+/* STOP MODE */
 #sendBtn.stop-mode {
     background: #ff3b3b !important;
-    box-shadow: 0 0 14px #ff4d4d, 0 0 24px #ff2222 inset;
-    transform: scale(0.96);
+    box-shadow: 0 0 14px #ff4d4d;
 }
-
-#sendBtn.stop-mode::after {
-    content: "";
-    width: 16px;
-    height: 16px;
-    background: white;
-    border-radius: 4px;
-}
-
-/* ============================================================
-   TYPING SPIRAL
-============================================================ */
-
-.typing-holder {
-    display: flex !important;
-    align-items: center !important;
-}
-
-.spiral-bubble {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: rgba(0,200,255,0.15);
-    border: 2px solid rgba(0,200,255,0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 14px #00eaff55, inset 0 0 10px #00eaff33;
-    position: relative;
-}
-
-.spiral-core {
-    width: 10px;
-    height: 10px;
-    background: #00eaff;
-    border-radius: 50%;
-    animation: coreBeat 1.4s infinite ease-in-out;
-}
-
-@keyframes coreBeat {
-    0% { transform: scale(0.8); opacity: .6; }
-    50% { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(0.8); opacity: .6; }
-}
-
-.orbit {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: #00eaff;
-    border-radius: 50%;
-    animation: orbitSpin 2.6s linear infinite;
-}
-
-@keyframes orbitSpin {
-    0% { transform: rotate(0deg) translateX(18px); }
-    100% { transform: rotate(360deg) translateX(18px); }
-}
-
-.o2 { animation-delay: .35s; }
-.o3 { animation-delay: .7s; }
 
 /* ============================================================
    STREAMING CURSOR
 ============================================================ */
-
 .ai-streaming {
     position: relative;
 }
@@ -410,108 +337,15 @@ body {
     width: 6px;
     height: 18px;
     background: #00eaff;
+
     border-radius: 2px;
     animation: cursorBlink 0.7s infinite alternate;
 }
-
-@keyframes cursorBlink { 
-    100% { opacity: 0.2; } 
-}
+@keyframes cursorBlink { 100% { opacity: 0.2; } }
 
 .neon-cursor.fade-out {
     animation: cursorFade 0.35s forwards;
 }
-
 @keyframes cursorFade {
-    0% { opacity: 1; transform: scale(1); }
-    100% { opacity: 0; transform: scale(2); }
-}
-
-/* ============================================================
-   PREMIUM DELETE SYSTEM
-============================================================ */
-
-.clear-status {
-    position: fixed;
-    bottom: 42%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 260px;
-    text-align: center;
-    opacity: 0;
-    z-index: 999999;
-    transition: opacity 0.25s ease;
-}
-
-.clear-status-text {
-    font-size: 16px;
-    margin: 10px 0;
-    color: #ff9c9c;
-    animation: textFade 1.2s infinite ease-in-out;
-}
-
-@keyframes textFade { 
-    50% { opacity: .55; } 
-}
-
-.clear-spiral {
-    width: 26px;
-    height: 26px;
-    margin: 0 auto 12px;
-    position: relative;
-}
-
-.clear-spiral .dot {
-    width: 7px;
-    height: 7px;
-    background: #ff5b5b;
-    position: absolute;
-    border-radius: 50%;
-    animation: spin 1.4s linear infinite;
-}
-
-.clear-spiral .d2 { animation-delay: .2s; }
-.clear-spiral .d3 { animation-delay: .4s; }
-
-@keyframes spin {
-    0% { transform: rotate(0deg) translateX(10px); }
-    100% { transform: rotate(360deg) translateX(10px); }
-}
-
-.clear-progress {
-    width: 100%;
-    height: 10px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 20px;
-    overflow: hidden;
-    margin-top: 6px;
-}
-
-.clear-progress-fill {
-    width: 0%;
-    height: 100%;
-    background: #ff3b3b;
-    transition: width linear;
-}
-
-.fullscreen-pulse {
-    position: fixed;
-    inset: 0;
-    background: rgba(255,0,0,0.18);
-    animation: pulseFlash 0.35s ease-out forwards;
-    pointer-events: none;
-}
-
-@keyframes pulseFlash { 
-    100% { opacity: 1; } 
-}
-
-.clear-btn.holding {
-    background: rgba(255, 0, 0, 0.25) !important;
-    border-color: rgba(255, 60, 60, 0.8) !important;
-    box-shadow:
-        0 0 12px rgba(255, 40, 40, 0.7),
-        0 0 22px rgba(255, 0, 0, 0.8),
-        inset 0 0 12px rgba(255, 80, 80, 0.6);
-    transform: scale(1.04);
+    to { opacity: 0; transform: scale(2); }
 }
