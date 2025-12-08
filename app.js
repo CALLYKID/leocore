@@ -385,3 +385,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
+
+/* ============================================================
+   MODE SELECTOR LOGIC
+============================================================ */
+document.querySelectorAll(".mode-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const mode = btn.dataset.mode;
+        localStorage.setItem("leocore-mode", mode);
+
+        addMessage(`Mode switched to **${mode}**.`, "ai");
+    });
+});
+
+/* ============================================================
+   QUICK TOOLS LOGIC
+============================================================ */
+document.querySelectorAll(".tool-btn").forEach(tool => {
+    tool.addEventListener("click", () => {
+        const task = tool.dataset.task;
+
+        const prompts = {
+            summarise: "Summarise this text for me:",
+            plan: "Create a plan for my day:",
+            study: "Explain this homework to me:",
+            notes: "Generate study notes about:"
+        };
+
+        input.value = prompts[task];
+        chatScreen.classList.add("active");
+        input.focus();
+    });
+});
