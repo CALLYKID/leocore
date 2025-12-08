@@ -390,9 +390,21 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 function updateModePill() {
     const mode = localStorage.getItem("leocore-mode") || "default";
-    modePill.textContent = mode.toUpperCase();
-    document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
 
+    // Clean abbreviations so pill never stretches UI
+    const modeLabels = {
+        study: "STUDY",
+        research: "RSRCH",
+        deep: "DEEP",
+        precision: "PRCN",
+        chill: "CHILL",
+        reading: "READ",
+        flame: "FLAME"
+    };
+
+    modePill.textContent = modeLabels[mode] || mode.toUpperCase();
+
+    document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
     document.body.classList.toggle("flame-mode", mode === "flame");
 }
     
