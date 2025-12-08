@@ -10,35 +10,23 @@
 
 <body>
 
-    <!-- ============================================================
-         BACKGROUND VIDEO + OVERLAY
-    ============================================================ -->
+    <!-- BACKGROUND VIDEO -->
     <video id="bgVideo" autoplay muted loop playsinline>
         <source src="waves.mp4" type="video/mp4">
     </video>
-
     <div class="overlay"></div>
 
-
-    <!-- ============================================================
-         HERO SECTION (Dark Neon Version)
-    ============================================================ -->
-    <section><div class="center-wrapper">
-
-        <!-- Fake input bar (the one with animated text) -->
+    <!-- HERO -->
+    <div class="center-wrapper">
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
         </div>
 
-        <!-- Main Title -->
         <h1 class="main-title">LEOCORE</h1>
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-
-    <!-- ============================================================
-         INFO CARD SECTION
-    ============================================================ -->
+    <!-- INFO CARD -->
     <div class="info-section">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -54,33 +42,23 @@
         </div>
     </div>
 
-
-    <!-- ============================================================
-         CHAT SCREEN (Dark Neon)
-    ============================================================ -->
+    <!-- CHAT -->
     <div id="chatScreen" class="chat-screen">
 
-        <!-- CHAT HEADER -->
         <div class="chat-header">
             <button id="closeChat" class="back-btn">←</button>
-
             <div class="chat-title">LEOCORE</div>
-
-            <button id="clearChat" class="clear-btn">
-                🗑 Clear
-            </button>
+            <button id="clearChat" class="clear-btn">🗑 Clear</button>
         </div>
 
-        <!-- CHAT MESSAGES -->
         <div id="messages" class="chat-messages"></div>
 
-        <!-- INPUT BAR -->
         <div class="chat-input-area">
             <input id="userInput" type="text" placeholder="Say something...">
             <button id="sendBtn">➤</button>
         </div>
     </div>
 
-    <script src="chat.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
