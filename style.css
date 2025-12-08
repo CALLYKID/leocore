@@ -823,3 +823,47 @@ body::after {
     font-size: 20px;
     font-weight: bold;
 }
+
+/* ============================================================
+   MODE PILL (inside chat input)
+============================================================ */
+.mode-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 14px;
+    margin-right: 8px;
+
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+
+    color: white;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+
+    border-radius: 10px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    transition: background 0.2s ease, border 0.2s ease;
+}
+
+/* Glow when mode active */
+.mode-pill.active {
+    border-color: var(--theme-glow, #00eaff);
+    box-shadow: 0 0 8px var(--theme-glow, #00eaff);
+}
+
+/* Positioning inside the chat bar */
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Ensure the input shrinks to fit beside the pill */
+.chat-input-area input {
+    flex: 1;
+}
