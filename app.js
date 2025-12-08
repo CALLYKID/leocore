@@ -25,14 +25,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ELEMENTS (UPDATED TO MATCH YOUR HTML) */
     const chatScreen = document.getElementById("chatScreen");
-    const closeChat = document.getElementById("backBtn");   // FIXED
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
-    const clearBtn = document.getElementById("deleteBtn");   // FIXED
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
     const modePill = document.getElementById("modePill");
+   const closeChat = document.getElementById("closeChat");
+const clearBtn  = document.getElementById("clearChat");
 
     /* ============================================================
        USER ID SYSTEM
