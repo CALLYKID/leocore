@@ -23,16 +23,16 @@ let ignoreNextResponse = false;
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENTS (UPDATED TO MATCH YOUR HTML) */
+    /* ELEMENTS — MATCHING YOUR HTML EXACTLY */
     const chatScreen = document.getElementById("chatScreen");
+    const closeChat = document.getElementById("closeChat");   // FIXED
+    const clearBtn = document.getElementById("clearChat");    // FIXED
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
     const modePill = document.getElementById("modePill");
-   const closeChat = document.getElementById("closeChat");
-const clearBtn  = document.getElementById("clearChat");
 
     /* ============================================================
        USER ID SYSTEM
@@ -73,7 +73,7 @@ const clearBtn  = document.getElementById("clearChat");
 
 
     /* ============================================================
-       SCROLL
+       SMOOTH SCROLL
     ============================================================ */
     function scrollToBottom() {
         if (scrollRAF) return;
@@ -87,7 +87,7 @@ const clearBtn  = document.getElementById("clearChat");
 
 
     /* ============================================================
-       HERO AUTO-TYPER
+       HERO AUTO TYPER
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -116,7 +116,7 @@ const clearBtn  = document.getElementById("clearChat");
             }
         }
 
-        setTimeout(typeAnimation, deleting ? 45 : 70);
+        setTimeout(typeAnimation, deleting ? 50 : 70);
     }
     typeAnimation();
 
@@ -143,12 +143,12 @@ const clearBtn  = document.getElementById("clearChat");
 
 
     /* ============================================================
-       TYPING BUBBLE
+       AI TYPING BUBBLE
     ============================================================ */
     function createTypingBubble() {
-        const wrap = document.createElement("div");
-        wrap.className = "ai-msg typing-holder";
-        wrap.innerHTML = `
+        const holder = document.createElement("div");
+        holder.className = "ai-msg typing-holder";
+        holder.innerHTML = `
             <div class="spiral-bubble">
                 <div class="spiral-core"></div>
                 <div class="orbit o1"></div>
@@ -156,9 +156,9 @@ const clearBtn  = document.getElementById("clearChat");
                 <div class="orbit o3"></div>
             </div>
         `;
-        messages.appendChild(wrap);
+        messages.appendChild(holder);
         scrollToBottom();
-        return wrap;
+        return holder;
     }
 
 
@@ -187,11 +187,10 @@ const clearBtn  = document.getElementById("clearChat");
         bubble.appendChild(cursor);
         wrap.appendChild(bubble);
         messages.appendChild(wrap);
-
         scrollToBottom();
 
         let i = 0;
-        const speed = () => isFlame ? (6 + Math.random() * 9) : (14 + Math.random() * 18);
+        const speed = () => isFlame ? (5 + Math.random() * 10) : (15 + Math.random() * 15);
 
         while (i < full.length) {
             if (cancelStream) break;
@@ -234,7 +233,7 @@ const clearBtn  = document.getElementById("clearChat");
         const loader = createTypingBubble();
 
         const mode = localStorage.getItem("leocore-mode") || "default";
-        const isFlameMode = mode === "flame";
+        const isFlame = mode === "flame";
 
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
@@ -244,7 +243,7 @@ const clearBtn  = document.getElementById("clearChat");
                     message: text,
                     userId,
                     mode,
-                    boost: isFlameMode ? "🔥 FLAME TONE" : ""
+                    boost: isFlame ? "🔥 FLAME TONE" : ""
                 })
             });
 
@@ -252,8 +251,9 @@ const clearBtn  = document.getElementById("clearChat");
             loader.remove();
 
             if (!ignoreNextResponse) {
-                await streamMessage(data.reply, isFlameMode);
+                await streamMessage(data.reply, isFlame);
             }
+
             ignoreNextResponse = false;
 
         } catch {
@@ -269,94 +269,80 @@ const clearBtn  = document.getElementById("clearChat");
 
     /* BUTTON EVENTS */
     sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", e => { if (e.key === "Enter") sendMessage(); });
+    input.addEventListener("keydown", e => {
+        if (e.key === "Enter") sendMessage();
+    });
 
     fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
         setTimeout(() => input.focus(), 150);
     });
 
-    closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-    });
+    closeChat.addEventListener("click", () =>
+        chatScreen.classList.remove("active")
+    );
 
 
     /* ============================================================
-   DELETE SYSTEM — TAP = CLEAR CHAT, HOLD = FULL WIPE
-============================================================ */
+       DELETE SYSTEM — TAP = CLEAR CHAT / HOLD = FULL WIPE
+    ============================================================ */
 
-let holdTimer = null;
-let holdActive = false;
+    let holdTimer = null;
+    let holdActive = false;
 
-/* === TAP DELETE — Only wipe chat === */
-function clearChatInstant() {
-    messages.innerHTML = "";        // wipe messages
-    localStorage.removeItem("leocore-chat"); 
-    saveChat();  // save empty chat state so nothing comes back
-}
-
-/* === HOLD DELETE — Full data wipe + animation === */
-function fullWipeAnimation() {
-    const overlay = document.createElement("div");
-    overlay.id = "wipeOverlay";
-    overlay.innerHTML = `
-        <div class="wipe-container">
-            <div class="wipe-loader"></div>
-            <div class="wipe-text">Clearing data...</div>
-        </div>
-    `;
-    document.body.appendChild(overlay);
-
-    // Fade in
-    requestAnimationFrame(() => overlay.classList.add("show"));
-
-    setTimeout(() => {
-        // REAL DATA WIPE
-        localStorage.clear();
+    function clearChatInstant() {
         messages.innerHTML = "";
+        localStorage.removeItem("leocore-chat");
         saveChat();
+    }
 
-        // Close chat
-        chatScreen.classList.remove("active");
+    function fullWipeAnimation() {
+        const overlay = document.createElement("div");
+        overlay.id = "wipeOverlay";
+        overlay.innerHTML = `
+            <div class="wipe-container">
+                <div class="wipe-loader"></div>
+                <div class="wipe-text">Clearing data...</div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
 
-        // Fade out
-        overlay.classList.remove("show");
-        setTimeout(() => overlay.remove(), 500);
+        requestAnimationFrame(() => overlay.classList.add("show"));
 
-    }, 1700);
-}
+        setTimeout(() => {
+            localStorage.clear();
+            messages.innerHTML = "";
+            saveChat();
+            chatScreen.classList.remove("active");
 
-/* === HOLD LOGIC CONTROLLER === */
-function startHold() {
-    if (holdTimer) return;
+            overlay.classList.remove("show");
+            setTimeout(() => overlay.remove(), 500);
+        }, 1700);
+    }
 
-    holdActive = false;
+    function startHold() {
+        if (holdTimer) return;
+        holdActive = false;
+        holdTimer = setTimeout(() => {
+            holdActive = true;
+            fullWipeAnimation();
+        }, 1000);
+    }
 
-    // If held for 1 second → full wipe
-    holdTimer = setTimeout(() => {
-        holdActive = true;
-        fullWipeAnimation();
-    }, 1000);
-}
+    function cancelHold() {
+        if (!holdTimer) return;
+        clearTimeout(holdTimer);
+        if (!holdActive) clearChatInstant();
+        holdTimer = null;
+    }
 
-function cancelHold() {
-    if (!holdTimer) return;
+    clearBtn.addEventListener("mousedown", startHold);
+    clearBtn.addEventListener("touchstart", startHold);
 
-    clearTimeout(holdTimer);
+    clearBtn.addEventListener("mouseup", cancelHold);
+    clearBtn.addEventListener("mouseleave", cancelHold);
+    clearBtn.addEventListener("touchend", cancelHold);
 
-    // Short tap → only clear chat
-    if (!holdActive) clearChatInstant();
-
-    holdTimer = null;
-}
-
-/* === EVENT LISTENERS === */
-clearBtn.addEventListener("mousedown", startHold);
-clearBtn.addEventListener("touchstart", startHold);
-
-clearBtn.addEventListener("mouseup", cancelHold);
-clearBtn.addEventListener("mouseleave", cancelHold);
-clearBtn.addEventListener("touchend", cancelHold);
 
     /* ============================================================
        MODE SYSTEM
@@ -373,18 +359,12 @@ clearBtn.addEventListener("touchend", cancelHold);
 
     function updateModePill() {
         const mode = localStorage.getItem("leocore-mode") || "default";
-
         modePill.textContent = mode.toUpperCase();
         document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
 
-        if (mode === "flame") {
-            modePill.classList.add("flame-active");
-            document.body.classList.add("flame-glow");
-        } else {
-            modePill.classList.remove("flame-active");
-            document.body.classList.remove("flame-glow");
-        }
+        document.body.classList.toggle("flame-mode", mode === "flame");
     }
+
     updateModePill();
 
     modePill.addEventListener("click", () => {
@@ -427,7 +407,6 @@ clearBtn.addEventListener("touchend", cancelHold);
     });
 
 }); // END DOM READY
-
 
 
 /* ============================================================
