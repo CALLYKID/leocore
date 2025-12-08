@@ -208,6 +208,24 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 /* ============================================================
+   INFO CARD (What is LeoCore section)
+============================================================ */
+.info-card {
+    width: 90%;
+    margin: 40px auto;
+    padding: 22px;
+
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
+
+    border-radius: 18px;
+    color: #dffaff;
+    font-size: 17px;
+    line-height: 1.45;
+}
+
+/* ============================================================
    CHAT SCREEN
 ============================================================ */
 .chat-screen {
