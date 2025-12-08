@@ -2,7 +2,6 @@
    GLOBAL FIXES
 ============================================================ */
 
-/* Remove blue tap flash */
 * {
     -webkit-tap-highlight-color: transparent !important;
     margin: 0;
@@ -26,15 +25,16 @@ body {
 @keyframes siteFadeIn { to { opacity: 1; } }
 
 /* ============================================================
-   BACKGROUND VIDEO
+   Z-INDEX LAYERS (FIXED)
 ============================================================ */
+
 #bgVideo {
     position: fixed;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -10;
+    z-index: -10 !important;
     pointer-events: none;
 }
 
@@ -42,7 +42,24 @@ body {
     position: fixed;
     inset: 0;
     background: rgba(0,0,40,0.35);
-    z-index: -5;
+    z-index: -5 !important;
+    pointer-events: none;
+}
+
+.center-wrapper,
+.info-section {
+    position: relative;
+    z-index: 10;
+}
+
+#fakeInput {
+    position: relative;
+    z-index: 20;
+    cursor: pointer;
+}
+
+.fake-text {
+    pointer-events: none;
 }
 
 /* ============================================================
@@ -72,10 +89,10 @@ body {
     justify-content: center;
     backdrop-filter: blur(6px);
     box-shadow: 0 0 25px rgba(0,180,255,0.4);
-    cursor: pointer;
     opacity: 0;
     animation: heroFade 1s ease forwards;
 }
+
 @keyframes heroFade { to { opacity: 1; } }
 
 .fake-text {
@@ -152,9 +169,10 @@ body {
     flex-direction: column;
     background: rgba(5,10,30,0.92);
     backdrop-filter: blur(10px);
-    z-index: 20;
+    z-index: 9999 !important;
     opacity: 0;
 }
+
 .chat-screen.active {
     display: flex;
     opacity: 1;
@@ -173,7 +191,6 @@ body {
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid rgba(0,255,255,0.15);
-    box-shadow: 0 2px 20px rgba(0,255,255,0.05);
 }
 
 .back-btn {
@@ -185,6 +202,7 @@ body {
     font-size: 20px;
     cursor: pointer;
 }
+
 .back-btn:hover {
     background: rgba(0,255,255,0.25);
     box-shadow: 0 0 12px rgba(0,255,255,0.65);
@@ -255,7 +273,7 @@ body {
 }
 
 /* ============================================================
-   INPUT BAR + SEND / STOP BUTTON (UPDATED)
+   INPUT BAR
 ============================================================ */
 
 .chat-input-area {
@@ -285,9 +303,15 @@ body {
     border-color: #00eaff;
     animation: inputPulse 1.8s infinite ease-out;
 }
-@keyframes inputPulse { 50% { box-shadow: 0 0 22px #00eaff; } }
 
-/* SEND BUTTON */
+@keyframes inputPulse {
+    50% { box-shadow: 0 0 22px #00eaff; }
+}
+
+/* ============================================================
+   SEND / STOP BUTTON
+============================================================ */
+
 #sendBtn {
     width: 56px;
     height: 56px;
@@ -304,14 +328,12 @@ body {
     transition: 0.25s ease;
 }
 
-/* STOP MODE (red button) */
 #sendBtn.stop-mode {
     background: #ff3b3b !important;
     box-shadow: 0 0 14px #ff4d4d, 0 0 24px #ff2222 inset;
     transform: scale(0.96);
 }
 
-/* When STOP MODE → show square icon */
 #sendBtn.stop-mode::after {
     content: "";
     width: 16px;
@@ -327,7 +349,6 @@ body {
 .typing-holder {
     display: flex !important;
     align-items: center !important;
-    background: none !important;
 }
 
 .spiral-bubble {
@@ -350,6 +371,7 @@ body {
     border-radius: 50%;
     animation: coreBeat 1.4s infinite ease-in-out;
 }
+
 @keyframes coreBeat {
     0% { transform: scale(0.8); opacity: .6; }
     50% { transform: scale(1.15); opacity: 1; }
@@ -364,10 +386,12 @@ body {
     border-radius: 50%;
     animation: orbitSpin 2.6s linear infinite;
 }
+
 @keyframes orbitSpin {
     0% { transform: rotate(0deg) translateX(18px); }
     100% { transform: rotate(360deg) translateX(18px); }
 }
+
 .o2 { animation-delay: .35s; }
 .o3 { animation-delay: .7s; }
 
@@ -375,7 +399,10 @@ body {
    STREAMING CURSOR
 ============================================================ */
 
-.ai-streaming { position: relative; }
+.ai-streaming {
+    position: relative;
+}
+
 .neon-cursor {
     position: absolute;
     right: -8px;
@@ -386,18 +413,22 @@ body {
     border-radius: 2px;
     animation: cursorBlink 0.7s infinite alternate;
 }
-@keyframes cursorBlink { 100% { opacity: 0.2; } }
+
+@keyframes cursorBlink { 
+    100% { opacity: 0.2; } 
+}
 
 .neon-cursor.fade-out {
     animation: cursorFade 0.35s forwards;
 }
+
 @keyframes cursorFade {
-    0% { opacity: 1; transform: scale(1);}
-    100% { opacity: 0; transform: scale(2);}
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(2); }
 }
 
 /* ============================================================
-   PREMIUM DELETE SYSTEM (unchanged)
+   PREMIUM DELETE SYSTEM
 ============================================================ */
 
 .clear-status {
@@ -418,7 +449,10 @@ body {
     color: #ff9c9c;
     animation: textFade 1.2s infinite ease-in-out;
 }
-@keyframes textFade { 50% { opacity: .55; } }
+
+@keyframes textFade { 
+    50% { opacity: .55; } 
+}
 
 .clear-spiral {
     width: 26px;
@@ -435,6 +469,7 @@ body {
     border-radius: 50%;
     animation: spin 1.4s linear infinite;
 }
+
 .clear-spiral .d2 { animation-delay: .2s; }
 .clear-spiral .d3 { animation-delay: .4s; }
 
@@ -466,7 +501,10 @@ body {
     animation: pulseFlash 0.35s ease-out forwards;
     pointer-events: none;
 }
-@keyframes pulseFlash { 100% { opacity: 1; } }
+
+@keyframes pulseFlash { 
+    100% { opacity: 1; } 
+}
 
 .clear-btn.holding {
     background: rgba(255, 0, 0, 0.25) !important;
@@ -476,4 +514,4 @@ body {
         0 0 22px rgba(255, 0, 0, 0.8),
         inset 0 0 12px rgba(255, 80, 80, 0.6);
     transform: scale(1.04);
-       }
+}
