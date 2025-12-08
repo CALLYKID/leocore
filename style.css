@@ -489,3 +489,20 @@ body::after { right: -40px; background: #9400ff; }
     50% { transform: translateY(80%); }
     100% { transform: translateY(10%); }
 }
+
+/* FIX: Ensure chat overlay is always on top */
+.chat-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999 !important;
+}
+
+/* Prevent home cards from overlapping the chat */
+.info-card,
+.creator-card,
+.testimonial-bubble,
+.modes-wrapper,
+.tools-wrapper {
+    position: relative;
+    z-index: 1;
+}
