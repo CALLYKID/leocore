@@ -586,3 +586,14 @@ body.flame-mode .mode-pill {
     pointer-events: auto;
     z-index: 1;
 }
+
+/* 💀 REMOVE BROKEN OLD DELETE POPUP */
+.clear-status,
+.clear-status-text,
+.clear-progress,
+.clear-progress-fill,
+.clear-spiral {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
