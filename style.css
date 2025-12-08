@@ -506,3 +506,55 @@ body::after { right: -40px; background: #9400ff; }
     position: relative;
     z-index: 1;
 }
+
+/* ============================================================
+   FINAL FIX — OVERRIDE DUPLICATES & PREVENT UI BUGS
+============================================================ */
+
+/* Force chat overlay to ALWAYS stay on top */
+.chat-screen {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 999999 !important;
+    display: none;
+}
+.chat-screen.active {
+    display: flex !important;
+}
+
+/* Fix input bar overrides (clean version) */
+.chat-input-area {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px !important;
+    background: rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(12px);
+}
+
+/* Mode pill final override */
+.mode-pill {
+    height: 46px !important;
+    padding: 0 18px !important;
+    border-radius: 14px !important;
+}
+
+/* Send button override */
+#sendBtn {
+    height: 46px !important;
+    width: 52px !important;
+}
+
+/* Prevent homepage content from ever overlapping chat */
+.creator-card,
+.testimonial-bubble,
+.modes-wrapper,
+.tools-wrapper,
+.section-title,
+.fake-input,
+.center-wrapper {
+    position: relative;
+    z-index: 1 !important;
+}
