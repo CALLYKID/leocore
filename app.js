@@ -12,7 +12,7 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   GLOBAL SCROLL FLAG (MUST BE GLOBAL!)
+   GLOBAL SCROLL FLAG (FIXED — MUST BE GLOBAL)
 ============================================================ */
 let scrollRAF = false;
 
@@ -31,6 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const clearBtn = document.getElementById("clearChat");
     const fakeInput = document.getElementById("fakeInput");
     const fakeText = document.getElementById("fakeText");
+    const modeBadge = document.getElementById("modeBadge");
 
     /* ---------------- STREAM FLAGS ---------------- */
     let isStreaming = false;
@@ -59,8 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-user", userId);
     }
 
-    const IS_CREATOR = userId === CREATOR_ID;
-
 
     /* ============================================================
        LOAD & SAVE CHAT
@@ -76,12 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
-    let savedChat = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
-    savedChat.forEach(m => addMessage(m.text, m.sender));
+    JSON.parse(localStorage.getItem("leocore-chat") || "[]")
+        .forEach(m => addMessage(m.text, m.sender));
 
 
     /* ============================================================
-       SCROLL (THROTTLED + NO ERRORS)
+       SAFE AUTO SCROLL (FIXED)
     ============================================================ */
     function scrollToBottom() {
         if (scrollRAF) return;
@@ -95,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HERO AUTO-TYPE
+       HERO AUTO-TYPER
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -151,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AI TYPING INDICATOR
+       AI TYPING BUBBLE
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
@@ -174,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAMING ENGINE (Stable + Smooth)
+       STREAMING ENGINE
     ============================================================ */
     async function streamMessage(full) {
         isStreaming = true;
@@ -215,17 +214,17 @@ document.addEventListener("DOMContentLoaded", () => {
         cursor.classList.add("fade-out");
         setTimeout(() => cursor.remove(), 250);
 
-        setTimeout(saveChat, 60);
+        setTimeout(saveChat, 50);
         isStreaming = false;
     }
 
 
     /* ============================================================
-       SEND MESSAGE + STOP STREAM
+       SEND MESSAGE
     ============================================================ */
     async function sendMessage() {
 
-        /* Stop streaming if user clicks during stream */
+        // STOP stream first
         if (isStreaming) {
             cancelStream = true;
             isStreaming = false;
@@ -239,11 +238,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
             sendBtn.innerHTML = "➤";
             sendBtn.classList.remove("stop-mode");
-
             return;
         }
 
-        /* Normal send */
         const text = input.value.trim();
         if (!text) return;
 
@@ -251,8 +248,8 @@ document.addEventListener("DOMContentLoaded", () => {
         input.value = "";
 
         input.disabled = true;
-        sendBtn.classList.add("stop-mode");
         sendBtn.innerHTML = "■";
+        sendBtn.classList.add("stop-mode");
 
         const loader = createTypingBubble();
 
@@ -289,7 +286,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       EVENT LISTENERS
+       CHAT EVENTS
     ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", e => {
@@ -297,17 +294,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fakeInput.addEventListener("click", () => {
-        if (!isStreaming) chatScreen.classList.add("active");
-        setTimeout(() => input.focus(), 200);
+        chatScreen.classList.add("active");
+        setTimeout(() => input.focus(), 150);
     });
 
     closeChat.addEventListener("click", () => {
-        if (!isStreaming) chatScreen.classList.remove("active");
+        chatScreen.classList.remove("active");
     });
 
 
     /* ============================================================
-       HOLD-TO-RESET (Premium)
+       HOLD TO RESET
     ============================================================ */
     if (clearBtn) {
 
@@ -397,7 +394,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       MODE SELECTOR
+       MODE SYSTEM — NEW BEHAVIOUR
+       - Open chat instantly
+       - Update badge
+       - NO "mode switched" messages
     ============================================================ */
     const modeThemes = {
         study: "#00aaff",
@@ -408,31 +408,70 @@ document.addEventListener("DOMContentLoaded", () => {
         precision: "#00eaff"
     };
 
-    const savedMode = localStorage.getItem("leocore-mode") || "default";
+    const savedMode = localStorage.getItem("leocore-mode");
+
+    if (savedMode) {
+        modeBadge.style.display = "inline-block";
+        modeBadge.textContent = savedMode.toUpperCase();
+        document.documentElement.style.setProperty("--theme-glow", modeThemes[savedMode]);
+    }
 
     document.querySelectorAll(".mode-btn").forEach(btn => {
-        if (btn.dataset.mode === savedMode) btn.classList.add("active");
 
         btn.addEventListener("click", () => {
-            document.querySelectorAll(".mode-btn")
-                .forEach(b => b.classList.remove("active"));
-
-            btn.classList.add("active");
 
             const mode = btn.dataset.mode;
+
+            // Save mode
             localStorage.setItem("leocore-mode", mode);
 
+            // Update badge
+            modeBadge.style.display = "inline-block";
+            modeBadge.textContent = mode.toUpperCase();
+
+            // Highlight active
+            document.querySelectorAll(".mode-btn")
+                .forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            // Apply colour glow
             document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
 
-            addMessage(`Mode switched to **${mode}**.`, "ai");
+            // Open chat instantly
+            chatScreen.classList.add("active");
+            setTimeout(() => input.focus(), 150);
         });
     });
 
-}); // END main app
+
+    /* ============================================================
+       QUICK TOOLS — Prefill & Open Chat
+    ============================================================ */
+    const toolPrompts = {
+        summarise: "Summarise this text:",
+        plan: "Plan my day:",
+        study: "Explain this homework:",
+        notes: "Generate notes about:"
+    };
+
+    document.querySelectorAll(".tool-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+
+            const task = btn.dataset.task;
+
+            input.value = toolPrompts[task] || "";
+            chatScreen.classList.add("active");
+
+            setTimeout(() => input.focus(), 150);
+        });
+    });
+
+}); // END DOMContentLoaded
+
 
 
 /* ============================================================
-   PARALLAX — Global + Ultra Smooth
+   PARALLAX — Smooth
 ============================================================ */
 let pRaf = false;
 
