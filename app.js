@@ -288,6 +288,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
+   // 💀 Clean any old leftover popups on load
+document.querySelectorAll(".clear-status").forEach(e => e.remove());
+   
     /* ============================================================
        HOLD TO DELETE (fixed)
     ============================================================ */
