@@ -867,3 +867,41 @@ body::after {
 .chat-input-area input {
     flex: 1;
 }
+
+/* ============================================
+   MODE PILL (Glass + Neon Glow)
+============================================ */
+.mode-pill {
+    padding: 6px 16px;
+    border-radius: 30px;
+
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1.5px solid var(--theme-glow, #00eaff);
+    box-shadow: 0 0 12px var(--theme-glow, #00eaff);
+
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+
+    margin-right: 8px;
+    cursor: pointer;
+
+    transition: 0.25s ease;
+    user-select: none;
+}
+
+.mode-pill:hover {
+    box-shadow: 0 0 18px var(--theme-glow, #00eaff);
+    transform: scale(1.05);
+}
+
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+}
