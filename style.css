@@ -642,3 +642,46 @@ body.flame-mode .mode-pill {
     font-weight: 600;
     text-shadow: 0 0 10px var(--theme-glow);
 }
+
+/* ============================================================
+   🔥 FLAME MODE — FINAL CORRECT VERSION
+   (Matches JS: class="flame-glow")
+============================================================ */
+body.flame-glow::before {
+    background: radial-gradient(circle, rgba(255,60,0,0.55), transparent);
+}
+
+body.flame-glow::after {
+    background: radial-gradient(circle, rgba(255,120,0,0.45), transparent);
+}
+
+body.flame-glow .fake-input {
+    box-shadow: 0 0 26px #ff5500, 0 0 70px #ff2200;
+}
+
+body.flame-glow #sendBtn {
+    background: #ff3b00 !important;
+    box-shadow: 0 0 18px #ff3b00 !important;
+    color: #fff !important;
+}
+
+body.flame-glow .mode-pill {
+    border-color: #ff3b00 !important;
+    box-shadow: 0 0 12px #ff3b00 !important;
+}
+
+/* ============================================================
+   🛠 CLICK FIX — ENSURES HEADER BUTTONS ALWAYS WORK
+============================================================ */
+#backBtn,
+#deleteBtn,
+.glass-btn {
+    pointer-events: auto !important;
+    z-index: 999999 !important;
+}
+
+/* Header glow must not block taps */
+.glow-header::before,
+.glow-header::after {
+    pointer-events: none !important;
+}
