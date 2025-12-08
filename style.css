@@ -1,6 +1,4 @@
-/* ============================================================
-   GLOBAL RESET / TOUCH FIXES
-============================================================ */
+/* RESET + TOUCH FIXES */
 * {
     margin: 0;
     padding: 0;
@@ -9,25 +7,16 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
     background: #000;
+    font-family: 'Inter', sans-serif;
     color: #fff;
     overflow-x: hidden;
     opacity: 0;
-    animation: fadeInSite 0.6s ease forwards;
+    animation: fadeIn 0.6s ease forwards;
 }
-@keyframes fadeInSite { to { opacity: 1; } }
+@keyframes fadeIn { to { opacity: 1; } }
 
-/* Remove blue flash */
-button, #sendBtn, .back-btn, .clear-btn {
-    outline: none !important;
-    -webkit-tap-highlight-color: transparent !important;
-}
-
-
-/* ============================================================
-   BACKGROUND VIDEO (FULLSCREEN + CLICK-THROUGH)
-============================================================ */
+/* VIDEO BACKGROUND */
 #bgVideo {
     position: fixed;
     inset: 0;
@@ -38,37 +27,28 @@ button, #sendBtn, .back-btn, .clear-btn {
     pointer-events: none;
 }
 
-/* 🔥 FIX: overlay no longer blocks clicks */
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,25,0.40);
+    background: rgba(0,0,25,0.4);
     backdrop-filter: blur(3px);
+    pointer-events: none; /* IMPORTANT */
     z-index: -4;
-    pointer-events: none; /* ⭐ REQUIRED FIX */
 }
 
-
-/* ============================================================
-   HERO SECTION
-============================================================ */
+/* HERO */
 .center-wrapper {
-    width: 100%;
+    text-align: center;
     padding-top: 18vh;
     padding-bottom: 10vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
+    z-index: 5;
     position: relative;
-    z-index: 5; /* ⭐ make clickable above overlay */
 }
 
 .fake-input {
     width: 85vw;
     max-width: 600px;
     height: 62px;
-    margin-bottom: 32px;
     background: rgba(255,255,255,0.12);
     border: 2px solid rgba(0,200,255,0.85);
     border-radius: 18px;
@@ -78,45 +58,33 @@ button, #sendBtn, .back-btn, .clear-btn {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    overflow: hidden;
-    opacity: 0;
-    animation: heroReveal 0.7s ease forwards;
+    margin-bottom: 32px;
 }
-@keyframes heroReveal { to { opacity: 1; } }
 
 .fake-text {
-    font-size: 20px;
     color: #dffaff;
+    font-size: 20px;
     white-space: nowrap;
 }
 
 .main-title {
-    font-family: 'Montserrat', sans-serif;
     font-size: 46px;
     font-weight: 800;
-    letter-spacing: 2px;
-    opacity: 0;
-    animation: heroReveal 0.7s ease 0.2s forwards;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .subtitle {
-    font-size: 20px;
     margin-top: 8px;
-    opacity: 0;
-    animation: heroReveal 0.7s ease 0.35s forwards;
+    font-size: 19px;
 }
 
-
-/* ============================================================
-   INFO CARD
-============================================================ */
+/* INFO CARD */
 .info-section {
-    width: 100%;
     display: flex;
     justify-content: center;
     padding-top: 6vh;
+    z-index: 5;
     position: relative;
-    z-index: 5; /* ⭐ fix clicking issue */
 }
 
 .info-card {
@@ -124,50 +92,38 @@ button, #sendBtn, .back-btn, .clear-btn {
     max-width: 650px;
     padding: 26px;
     border-radius: 22px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 0 25px rgba(0,180,255,0.25);
     text-align: center;
-    opacity: 0;
-    animation: cardAppear 0.8s ease 0.3s forwards;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 28px rgba(0,200,255,0.25);
 }
-@keyframes cardAppear { to { opacity: 1; } }
 
 .features {
-    margin-top: 14px;
+    margin-top: 16px;
+    opacity: 0.85;
     display: flex;
     justify-content: center;
-    gap: 18px;
-    font-size: 15.5px;
-    opacity: 0.85;
+    gap: 22px;
 }
 
-
-/* ============================================================
-   CHAT SCREEN
-============================================================ */
+/* CHAT SCREEN */
 .chat-screen {
     position: fixed;
     inset: 0;
-    background: rgba(5,10,30,0.92);
+    background: rgba(5,10,25,0.92);
     backdrop-filter: blur(10px);
     display: none;
     flex-direction: column;
-    z-index: 20; /* ⭐ sits above everything */
-    opacity: 0;
+    z-index: 50;
 }
 
 .chat-screen.active {
     display: flex;
     opacity: 1;
-    transition: opacity 0.25s ease;
 }
 
-
-/* ============================================================
-   CHAT HEADER
-============================================================ */
+/* CHAT HEADER */
 .chat-header {
     padding: 14px 18px;
     background: rgba(0,0,0,0.35);
@@ -175,47 +131,21 @@ button, #sendBtn, .back-btn, .clear-btn {
     border-bottom: 1px solid rgba(0,255,255,0.15);
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
-.back-btn {
-    background: rgba(255,255,255,0.08);
-    padding: 10px 14px;
-    border-radius: 50px;
-    font-size: 20px;
-    border: none;
-    color: #dffaff;
-    cursor: pointer;
-}
-
-.chat-title {
-    font-family: Montserrat, sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    background: linear-gradient(90deg,#00eaff,#9d4bff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
+.back-btn,
 .clear-btn {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 8px 14px;
+    padding: 10px 14px;
     border-radius: 12px;
-    font-size: 15px;
-    color: #dffaff;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: #fff;
 }
 
-
-/* ============================================================
-   CHAT MESSAGES
-============================================================ */
+/* MESSAGES */
 .chat-messages {
     flex: 1;
-    padding: 15px;
+    padding: 14px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -225,28 +155,23 @@ button, #sendBtn, .back-btn, .clear-btn {
 .bubble {
     max-width: 92%;
     padding: 14px 18px;
-    background: rgba(255,255,255,0.12);
     border-radius: 14px;
     font-size: 16px;
-    line-height: 1.48;
     white-space: pre-wrap;
 }
 
-.user-msg { display: flex; justify-content: flex-end; }
-.user-msg .bubble { background: #008cff; color: #fff; }
+.user-msg { justify-content: flex-end; display: flex; }
+.user-msg .bubble { background: #008cff; }
 
-.ai-msg { display: flex; justify-content: flex-start; }
-.ai-msg .bubble { background: #222b45; color: #fff; }
+.ai-msg { justify-content: flex-start; display: flex; }
+.ai-msg .bubble { background: #1e263f; }
 
-
-/* ============================================================
-   INPUT BAR
-============================================================ */
+/* INPUT BAR */
 .chat-input-area {
     padding: 12px;
     display: flex;
     gap: 12px;
-    background: rgba(20,20,40,0.5);
+    background: rgba(20,20,40,0.45);
     backdrop-filter: blur(8px);
 }
 
@@ -254,7 +179,6 @@ button, #sendBtn, .back-btn, .clear-btn {
     flex: 1;
     height: 56px;
     padding: 0 18px;
-    font-size: 16px;
     border-radius: 16px;
     border: 2px solid rgba(0,200,255,0.35);
     background: rgba(255,255,255,0.1);
@@ -268,101 +192,9 @@ button, #sendBtn, .back-btn, .clear-btn {
     border-radius: 16px;
     border: none;
     background: radial-gradient(circle,#00eaff,#0088ff);
-    color: white;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
     font-size: 22px;
-    box-shadow: 0 0 12px #00eaffaa;
-    transition: 0.25s ease;
-}
-
-/* STOP MODE */
-#sendBtn.stop-mode {
-    background: #ff3b3b !important;
-    box-shadow: 0 0 14px #ff4d4d;
-    transform: scale(0.95);
-}
-
-
-/* ============================================================
-   STREAMING CURSOR
-============================================================ */
-.ai-streaming { position: relative; }
-
-.neon-cursor {
-    position: absolute;
-    right: -8px;
-    bottom: 0;
-    width: 6px;
-    height: 18px;
-    background: #00eaff;
-    border-radius: 2px;
-    animation: blinkCur 0.7s infinite alternate;
-}
-@keyframes blinkCur { 100% { opacity: 0.2; } }
-
-.neon-cursor.fade-out {
-    animation: fadeOutCur 0.35s forwards;
-}
-@keyframes fadeOutCur { to { opacity: 0; transform: scale(2); } }
-
-
-/* ============================================================
-   TYPING SPIRAL
-============================================================ */
-.typing-holder {
-    display: flex !important;
-    align-items: center !important;
-}
-
-.spiral-bubble {
-    width: 48px;
-    height: 48px;
-    background: rgba(0,200,255,0.15);
-    border: 2px solid rgba(0,200,255,0.4);
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-}
-
-.spiral-core {
-    width: 10px;
-    height: 10px;
-    background: #00eaff;
-    border-radius: 50%;
-    animation: corePulse 1.4s infinite;
-}
-
-@keyframes corePulse {
-    0% { transform: scale(0.8); opacity: .6; }
-    50% { transform: scale(1.15); opacity: 1; }
-    100% { transform: scale(0.8); opacity: .6; }
-}
-
-.orbit {
-    width: 8px;
-    height: 8px;
-    background: #00eaff;
-    border-radius: 50%;
-    position: absolute;
-    animation: orbitSpin 2.6s linear infinite;
-}
-@keyframes orbitSpin {
-    0% { transform: rotate(0deg) translateX(18px); }
-    100% { transform: rotate(360deg) translateX(18px); }
-}
-.o2 { animation-delay: .35s; }
-.o3 { animation-delay: .7s; }
-
-.center-wrapper,
-.info-section {
-    position: relative;
-    z-index: 5;   /* this puts your homepage ABOVE the overlay */
-}
-.info-section { 
-    position: relative;
-    z-index: 5;
+    color: #fff;
 }
