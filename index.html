@@ -12,24 +12,13 @@
 
     <!-- BACKGROUND VIDEO -->
     <video id="bgVideo" class="parallax" autoplay muted loop playsinline>
-    <source src="waves.mp4" type="video/mp4">
-</video>
+        <source src="waves.mp4" type="video/mp4">
+    </video>
 
-<div class="overlay"></div>
+    <div class="overlay"></div>
 
-<div class="center-wrapper parallax">
-
-    <div id="fakeInput" class="fake-input">
-        <span id="fakeText" class="fake-text"></span>
-    </div>
-
-    <h1 class="main-title">LEOCORE</h1>
-    <p class="subtitle">Your AI. Your Vibe.</p>
-
-</div>
-
-    <!-- HERO -->
-    <div class="center-wrapper">
+    <!-- HERO (ONLY ONE VERSION) -->
+    <div class="center-wrapper parallax">
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
         </div>
@@ -38,59 +27,48 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-    <!-- ============================================================
-     AI MODE SELECTOR
-============================================================ -->
-<section class="modes-wrapper">
-    <h2 class="section-title">Choose Your Mode</h2>
+    <!-- AI MODE SELECTOR -->
+    <section class="modes-wrapper">
+        <h2 class="section-title">Choose Your Mode</h2>
 
-    <div class="mode-selector">
-        <div class="mode-btn" data-mode="study">📘 Study</div>
-        <div class="mode-btn" data-mode="research">🔬 Research</div>
-        <div class="mode-btn" data-mode="reading">📖 Reading</div>
-        <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
-        <div class="mode-btn" data-mode="chill">😎 Chill</div>
-        <div class="mode-btn" data-mode="precision">🎯 Precision</div>
-    </div>
-</section>
+        <div class="mode-selector">
+            <div class="mode-btn" data-mode="study">📘 Study</div>
+            <div class="mode-btn" data-mode="research">🔬 Research</div>
+            <div class="mode-btn" data-mode="reading">📖 Reading</div>
+            <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
+            <div class="mode-btn" data-mode="chill">😎 Chill</div>
+            <div class="mode-btn" data-mode="precision">🎯 Precision</div>
+        </div>
+    </section>
 
+    <!-- QUICK TOOLS -->
+    <section class="tools-wrapper">
+        <h2 class="section-title">Quick Tools</h2>
 
-<!-- ============================================================
-     QUICK TOOLS
-============================================================ -->
-<section class="tools-wrapper">
-    <h2 class="section-title">Quick Tools</h2>
+        <div class="tools-grid">
+            <div class="tool-btn" data-task="summarise">📝 Summarise Text</div>
+            <div class="tool-btn" data-task="plan">📅 Plan My Day</div>
+            <div class="tool-btn" data-task="study">📚 Explain Homework</div>
+            <div class="tool-btn" data-task="notes">✍️ Generate Notes</div>
+        </div>
+    </section>
 
-    <div class="tools-grid">
-        <div class="tool-btn" data-task="summarise">📝 Summarise Text</div>
-        <div class="tool-btn" data-task="plan">📅 Plan My Day</div>
-        <div class="tool-btn" data-task="study">📚 Explain Homework</div>
-        <div class="tool-btn" data-task="notes">✍️ Generate Notes</div>
-    </div>
-</section>
+    <!-- ABOUT CREATOR -->
+    <section class="creator-card">
+        <h2>About the Creator</h2>
+        <p>
+            LeoCore was built by <b>Leo</b>, a 15-year-old developer designing
+            the future of personal AI — fast, aesthetic and private.
+        </p>
+    </section>
 
+    <!-- TESTIMONIALS -->
+    <section class="testimonials">
+        <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
+        <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
+        <div class="testimonial-bubble">“Can’t believe this was built on a phone.”</div>
+    </section>
 
-<!-- ============================================================
-     ABOUT THE CREATOR (LEO)
-============================================================ -->
-<section class="creator-card">
-    <h2>About the Creator</h2>
-    <p>
-        LeoCore was built by <b>Leo</b>, a 15-year-old developer designing
-        the future of personal AI — fast, aesthetic and private.
-    </p>
-</section>
-
-
-<!-- ============================================================
-     TESTIMONIAL / SOCIAL PROOF
-============================================================ -->
-<section class="testimonials">
-    <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
-    <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
-    <div class="testimonial-bubble">“Can’t believe this was built on a phone.”</div>
-</section>
-    
     <!-- INFO CARD -->
     <div class="info-section">
         <div class="info-card">
@@ -111,21 +89,15 @@
     <div id="chatScreen" class="chat-screen">
 
         <div class="chat-header glow-header">
-    
-    <button id="closeChat" class="back-btn glass-btn">
-        <span class="icon">←</span>
-    </button>
+            <button id="closeChat" class="back-btn glass-btn"><span>←</span></button>
 
-    <div class="chat-title-wrapper">
-        <div class="chat-title">LEOCORE</div>
-        <div class="title-underline"></div>
-    </div>
+            <div class="chat-title-wrapper">
+                <div class="chat-title">LEOCORE</div>
+                <div class="title-underline"></div>
+            </div>
 
-    <button id="clearChat" class="clear-btn glass-btn">
-        <span class="icon">🗑</span>
-    </button>
-
-</div>
+            <button id="clearChat" class="clear-btn glass-btn"><span>🗑</span></button>
+        </div>
 
         <div id="messages" class="chat-messages"></div>
 
@@ -135,19 +107,18 @@
         </div>
     </div>
 
-    <div class="orb orb1"></div>
-    <div class="orb orb2"></div>
-    <div class="orb orb3"></div>
+    <!-- ORBS (PARALLAX ONLY) -->
     <div class="orb orb1 parallax"></div>
-<div class="orb orb2 parallax"></div>
-<div class="orb orb3 parallax"></div>
-    
+    <div class="orb orb2 parallax"></div>
+    <div class="orb orb3 parallax"></div>
 
+    <!-- EXTRA FX -->
     <div class="neon-scan"></div>
     <div class="holo-line" style="animation-delay: 0s;"></div>
-<div class="holo-line" style="animation-delay: 2s;"></div>
-<div class="holo-line" style="animation-delay: 4s;"></div>
-    
+    <div class="holo-line" style="animation-delay: 2s;"></div>
+    <div class="holo-line" style="animation-delay: 4s;"></div>
+
     <script src="app.js"></script>
+
 </body>
 </html>
