@@ -23,10 +23,10 @@ let ignoreNextResponse = false;
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENTS — MATCHING YOUR HTML EXACTLY */
+    /* ELEMENTS — EXACT MATCH TO HTML */
     const chatScreen = document.getElementById("chatScreen");
-    const closeChat = document.getElementById("closeChat");   // FIXED
-    const clearBtn = document.getElementById("clearChat");    // FIXED
+    const closeChat = document.getElementById("closeChat");
+    const clearBtn = document.getElementById("clearChat");
     const messages = document.getElementById("messages");
     const input = document.getElementById("userInput");
     const sendBtn = document.getElementById("sendBtn");
@@ -35,8 +35,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const modePill = document.getElementById("modePill");
 
     /* ============================================================
+       SAFETY CHECK — Detect Missing Elements Immediately
+============================================================ */
+    const required = {
+        chatScreen,
+        closeChat,
+        clearBtn,
+        messages,
+        input,
+        sendBtn,
+        fakeInput,
+        fakeText,
+        modePill
+    };
+
+    for (const [name, el] of Object.entries(required)) {
+        if (!el) {
+            console.error(`❌ Missing element: ${name}`);
+        }
+    }
+
+    /* ============================================================
        USER ID SYSTEM
-    ============================================================ */
+============================================================ */
     function getCookie(name) {
         const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
         return v ? v[2] : null;
@@ -56,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        CHAT SAVE / LOAD
-    ============================================================ */
+============================================================ */
     function saveChat() {
         const arr = [];
         document.querySelectorAll(".bubble").forEach(b => {
@@ -74,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        SMOOTH SCROLL
-    ============================================================ */
+============================================================ */
     function scrollToBottom() {
         if (scrollRAF) return;
         scrollRAF = true;
@@ -88,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        HERO AUTO TYPER
-    ============================================================ */
+============================================================ */
     const prompts = [
         "Message LeoCore…",
         "Give me a task.",
@@ -123,7 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        MESSAGE BUILDER
-    ============================================================ */
+============================================================ */
     function addMessage(text, sender) {
         const wrap = document.createElement("div");
         wrap.className = sender === "user" ? "user-msg" : "ai-msg";
@@ -144,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        AI TYPING BUBBLE
-    ============================================================ */
+============================================================ */
     function createTypingBubble() {
         const holder = document.createElement("div");
         holder.className = "ai-msg typing-holder";
@@ -164,7 +185,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        STREAMING ENGINE
-    ============================================================ */
+============================================================ */
     async function streamMessage(full, isFlame = false) {
         isStreaming = true;
         cancelStream = false;
@@ -212,8 +233,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
        SEND MESSAGE
-    ============================================================ */
+============================================================ */
     async function sendMessage() {
+        if (!input || !sendBtn) return;  
         if (isStreaming) {
             cancelStream = true;
             ignoreNextResponse = true;
@@ -267,26 +289,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* BUTTON EVENTS */
-    sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", e => {
-        if (e.key === "Enter") sendMessage();
-    });
+    /* ============================================================
+       BUTTON EVENTS (SAFE)
+============================================================ */
+    if (sendBtn) sendBtn.addEventListener("click", sendMessage);
 
-    fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-        setTimeout(() => input.focus(), 150);
-    });
+    if (input) {
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter") sendMessage();
+        });
+    }
 
-    closeChat.addEventListener("click", () =>
-        chatScreen.classList.remove("active")
-    );
+    if (fakeInput) {
+        fakeInput.addEventListener("click", () => {
+            chatScreen.classList.add("active");
+            setTimeout(() => input?.focus(), 150);
+        });
+    }
+
+    if (closeChat) {
+        closeChat.addEventListener("click", () =>
+            chatScreen.classList.remove("active")
+        );
+    }
 
 
     /* ============================================================
-       DELETE SYSTEM — TAP = CLEAR CHAT / HOLD = FULL WIPE
-    ============================================================ */
-
+       DELETE SYSTEM — SAFE VERSION
+============================================================ */
     let holdTimer = null;
     let holdActive = false;
 
@@ -306,7 +336,6 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
         document.body.appendChild(overlay);
-
         requestAnimationFrame(() => overlay.classList.add("show"));
 
         setTimeout(() => {
@@ -314,7 +343,6 @@ document.addEventListener("DOMContentLoaded", () => {
             messages.innerHTML = "";
             saveChat();
             chatScreen.classList.remove("active");
-
             overlay.classList.remove("show");
             setTimeout(() => overlay.remove(), 500);
         }, 1700);
@@ -336,17 +364,21 @@ document.addEventListener("DOMContentLoaded", () => {
         holdTimer = null;
     }
 
-    clearBtn.addEventListener("mousedown", startHold);
-    clearBtn.addEventListener("touchstart", startHold);
+    if (clearBtn) {
+        clearBtn.addEventListener("mousedown", startHold);
+        clearBtn.addEventListener("touchstart", startHold);
 
-    clearBtn.addEventListener("mouseup", cancelHold);
-    clearBtn.addEventListener("mouseleave", cancelHold);
-    clearBtn.addEventListener("touchend", cancelHold);
+        clearBtn.addEventListener("mouseup", cancelHold);
+        clearBtn.addEventListener("mouseleave", cancelHold);
+        clearBtn.addEventListener("touchend", cancelHold);
+    } else {
+        console.error("❌ clearChat not found in DOM");
+    }
 
 
     /* ============================================================
        MODE SYSTEM
-    ============================================================ */
+============================================================ */
     const modeThemes = {
         study: "#00aaff",
         research: "#00ffc6",
@@ -359,38 +391,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateModePill() {
         const mode = localStorage.getItem("leocore-mode") || "default";
-        modePill.textContent = mode.toUpperCase();
+        if (modePill) modePill.textContent = mode.toUpperCase();
         document.documentElement.style.setProperty("--theme-glow", modeThemes[mode] || "#00eaff");
-
         document.body.classList.toggle("flame-mode", mode === "flame");
     }
 
     updateModePill();
 
-    modePill.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
+    if (modePill) {
+        modePill.addEventListener("click", () => {
+            chatScreen.classList.remove("active");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
 
     document.querySelectorAll(".mode-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             const mode = btn.dataset.mode;
             localStorage.setItem("leocore-mode", mode);
-
-            document.querySelectorAll(".mode-btn")
-                .forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
-
             updateModePill();
             chatScreen.classList.add("active");
-            setTimeout(() => input.focus(), 150);
+            setTimeout(() => input?.focus(), 150);
         });
     });
 
 
     /* ============================================================
        QUICK TOOLS
-    ============================================================ */
+============================================================ */
     const toolPrompts = {
         summarise: "Summarise this text:",
         plan: "Plan my day:",
@@ -402,19 +432,20 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.addEventListener("click", () => {
             input.value = toolPrompts[btn.dataset.task] || "";
             chatScreen.classList.add("active");
-            setTimeout(() => input.focus(), 150);
+            setTimeout(() => input?.focus(), 150);
         });
     });
 
 }); // END DOM READY
 
 
+
 /* ============================================================
-   PARALLAX
+   PARALLAX EFFECT
 ============================================================ */
 let pRaf = false;
 
-document.addEventListener("mousemove", (e) => {
+document.addEventListener("mousemove", e => {
     if (pRaf) return;
     pRaf = true;
 
