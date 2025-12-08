@@ -473,3 +473,8 @@ body {
         inset 0 0 12px rgba(255, 80, 80, 0.6);
     transform: scale(1.04);
 }
+
+.stop-mode {
+    background: #ff3b3b !important;
+    box-shadow: 0 0 12px #ff3b3b;
+}
