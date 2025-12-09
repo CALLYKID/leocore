@@ -537,3 +537,30 @@ setInterval(() => {
     fetch("https://leocore.onrender.com/ping")
         .catch(() => {});
 }, 45000);
+
+/* ============================================================
+   TAP DEBUGGER — SHOWS WHICH ELEMENT IS BLOCKING CLICKS
+============================================================ */
+document.addEventListener("click", (e) => {
+    // Remove old debug boxes
+    document.querySelectorAll(".tap-debug").forEach(el => el.remove());
+
+    const box = document.createElement("div");
+    box.className = "tap-debug";
+
+    const rect = e.target.getBoundingClientRect();
+
+    box.style.position = "fixed";
+    box.style.left = rect.left + "px";
+    box.style.top = rect.top + "px";
+    box.style.width = rect.width + "px";
+    box.style.height = rect.height + "px";
+    box.style.border = "2px solid red";
+    box.style.zIndex = "999999999";
+    box.style.pointerEvents = "none";
+    box.style.background = "rgba(255,0,0,0.15)";
+
+    document.body.appendChild(box);
+
+    console.log("TAP on element:", e.target);
+});
