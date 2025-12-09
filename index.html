@@ -27,7 +27,6 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-
     <!-- ============================================================
          AI MODE SELECTOR — WITH EMOJIS + NEW FLAME MODE 🔥
     ============================================================ -->
@@ -36,24 +35,20 @@
 
         <div class="mode-selector">
 
-    <div class="mode-btn" data-mode="default">⚡ Default</div>
-    <div class="mode-btn" data-mode="study">📘 Study</div>
-
-    <div class="mode-btn" data-mode="research">🔬 Research</div>
-    <div class="mode-btn" data-mode="reading">📖 Reading</div>
-
-    <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
-    <div class="mode-btn" data-mode="chill">😎 Chill</div>
-
-    <div class="mode-btn" data-mode="precision">🎯 Precision</div>
-    <div class="mode-btn" data-mode="flame">🔥 Flame Mode</div>
+            <div class="mode-btn" data-mode="default">⚡ Default</div>
+            <div class="mode-btn" data-mode="study">📘 Study</div>
+            <div class="mode-btn" data-mode="research">🔬 Research</div>
+            <div class="mode-btn" data-mode="reading">📖 Reading</div>
+            <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
+            <div class="mode-btn" data-mode="chill">😎 Chill</div>
+            <div class="mode-btn" data-mode="precision">🎯 Precision</div>
+            <div class="mode-btn" data-mode="flame">🔥 Flame Mode</div>
 
         </div>
     </section>
 
-
     <!-- ============================================================
-         QUICK TOOLS (with emojis)
+         QUICK TOOLS
     ============================================================ -->
     <section class="tools-wrapper">
         <h2 class="section-title">Quick Tools</h2>
@@ -66,7 +61,6 @@
         </div>
     </section>
 
-
     <!-- ABOUT CREATOR -->
     <section class="creator-card">
         <h2>About the Creator</h2>
@@ -76,7 +70,6 @@
         </p>
     </section>
 
-
     <!-- TESTIMONIALS -->
     <section class="testimonials">
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
@@ -85,7 +78,6 @@
 
         <div class="testimonial-separator"></div>
     </section>
-
 
     <!-- INFO SECTION -->
     <section class="info-section">
@@ -103,14 +95,13 @@
         </div>
     </section>
 
-
     <!-- ============================================================
-         CHAT SCREEN
+         CHAT SCREEN (WITH BUILT-IN ORBIT LOADER)
     ============================================================ -->
     <div id="chatScreen" class="chat-screen">
 
+        <!-- Header -->
         <div class="chat-header glow-header">
-
             <button id="closeChat" class="back-btn glass-btn"><span>←</span></button>
 
             <div class="chat-title-wrapper">
@@ -122,30 +113,35 @@
             <button id="clearChat" class="clear-btn glass-btn"><span>🗑</span></button>
         </div>
 
+        <!-- ORBIT LOADER HUD -->
+        <div id="orbitLoader" class="spiral-bubble" style="display:none;">
+            <div class="spiral-core"></div>
+
+            <div class="orbit-wrapper">
+                <div class="orbit o1"></div>
+                <div class="orbit o2"></div>
+                <div class="orbit o3"></div>
+            </div>
+        </div>
+
+        <!-- Messages -->
         <div id="messages" class="chat-messages"></div>
 
+        <!-- Input -->
         <div class="chat-input-area">
             <div id="modePill" class="mode-pill">MODE</div>
             <input id="userInput" type="text" placeholder="Say something...">
             <button id="sendBtn">➤</button>
         </div>
+
     </div>
 
-<div class="spiral-bubble">
-    <div class="spiral-core"></div>
-
-    <div class="orbit-wrapper">
-        <div class="orbit o1"></div>
-        <div class="orbit o2"></div>
-        <div class="orbit o3"></div>
-    </div>
-</div>
     <!-- PARALLAX ORBS -->
     <div class="orb orb1 parallax"></div>
     <div class="orb orb2 parallax"></div>
     <div class="orb orb3 parallax"></div>
 
-    <!-- SCAN + HOLO FX -->
+    <!-- HOLO FX -->
     <div class="neon-scan"></div>
     <div class="holo-line" style="animation-delay: 0s;"></div>
     <div class="holo-line" style="animation-delay: 2s;"></div>
