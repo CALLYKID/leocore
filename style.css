@@ -31,24 +31,27 @@ button, .clear-btn, .back-btn, #sendBtn {
 .bg-soft-glow {
     position: fixed;
     inset: 0;
-    z-index: -5 !important;
+    z-index: -10 !important;
     pointer-events: none !important;
 }
 
+/* FIXED VIDEO SCALE (prevents zoom-in bug) */
 #bgVideo {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.75) saturate(1.2);
+    object-position: center center;
+    transform: scale(1.05); /* perfect match to your older screenshot */
+    filter: brightness(0.78) saturate(1.2);
 }
 
 .overlay {
-    background: rgba(0, 10, 35, 0.45);
+    background: rgba(0, 10, 35, 0.50);
     backdrop-filter: blur(4px);
 }
 
 .bg-soft-glow {
-    background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.2), transparent 60%);
+    background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.20), transparent 60%);
     mix-blend-mode: screen;
     animation: softGlow 12s ease-in-out infinite;
 }
@@ -67,7 +70,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     padding-top: 12vh;
     padding-bottom: 2vh;
     position: relative;
-    z-index: 2 !important;
+    z-index: 5 !important;
     pointer-events: none !important;
 }
 
@@ -145,10 +148,10 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-weight: 700;
     color: #dffaff;
     position: relative;
-    z-index: 5;
+    z-index: 10;
 }
 
-/* Ensure homepage elements are clickable */
+/* Ensure homepage elements clickable */
 .modes-wrapper,
 .tools-wrapper,
 .creator-card,
@@ -158,7 +161,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 .tool-btn,
 .mode-btn {
     position: relative;
-    z-index: 10 !important;
+    z-index: 15 !important;
     pointer-events: auto !important;
 }
 
@@ -199,7 +202,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     box-shadow: 0 0 25px var(--theme-glow);
 }
 
-/* Mode badge in chat header */
+/* Mode badge */
 .mode-badge {
     font-size: 12px;
     padding: 4px 10px;
@@ -293,43 +296,46 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 /* ============================================================
-   CHAT SCREEN (OPTION A — PREMIUM FROSTED BLUR)
+   CHAT SCREEN — FIXED STACKING & BACKGROUND ISOLATION
 ============================================================ */
 #chatScreen {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.28);
-    backdrop-filter: blur(28px) saturate(1.2);
+    background: rgba(0,0,0,0.35) !important; /* stronger background */
+    backdrop-filter: blur(32px) saturate(1.3);
     display: flex;
     flex-direction: column;
     overflow: hidden;
     opacity: 0;
     transform: translateY(40px);
     transition: opacity 0.35s ease, transform 0.35s ease;
-    z-index: 99999 !important;
+    z-index: 999999 !important; /* ABOVE EVERYTHING */
     pointer-events: none;
 }
 
+/* CHAT ON */
 #chatScreen.active {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
 }
 
-/* Dedicated blurred background for Chat Screen */
+/* Dedicated blurred wallpaper ONLY for chat */
 #chatScreen::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: url("waves-blur.jpg") center/cover no-repeat;
-    filter: blur(22px) brightness(0.65) saturate(1.35);
-    opacity: 0.9;
-    z-index: -1;
+    background: url("waves-blur.jpg?v=9999") center/cover no-repeat;
+    filter: blur(26px) brightness(0.70) saturate(1.3);
+    opacity: 1;
+    z-index: -1 !important;
 }
 
-/* Header */
+/* ------------------------------------------------------------
+   CHAT HEADER
+------------------------------------------------------------ */
 .chat-header {
     padding: 14px 20px;
     display: flex;
@@ -339,7 +345,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     border-bottom: 1px solid rgba(0,255,255,0.12);
 }
 
-/* Chat title */
+/* Title */
 .chat-title {
     font-size: 22px;
     font-weight: 700;
@@ -348,7 +354,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     -webkit-text-fill-color: transparent;
 }
 
-/* Messages */
+/* ------------------------------------------------------------
+   MESSAGES
+------------------------------------------------------------ */
 .chat-messages {
     flex: 1;
     padding: 14px;
@@ -377,13 +385,15 @@ button, .clear-btn, .back-btn, #sendBtn {
     word-break: break-word;
 }
 
-/* Input area */
+/* ------------------------------------------------------------
+   INPUT AREA — FIXED TRANSPARENCY
+------------------------------------------------------------ */
 .chat-input-area {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 12px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.40) !important; /* FIXED */
     border-top: 1px solid rgba(255,255,255,0.12);
 }
 
@@ -391,7 +401,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     flex: 1;
     height: 46px;
     padding: 0 14px;
-    background: rgba(0,0,0,0.35);
+    background: rgba(0,0,0,0.40);
     border: 2px solid rgba(255,255,255,0.25);
     border-radius: 14px;
     color: #fff !important;
@@ -402,6 +412,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     opacity: 1 !important;
 }
 
+/* Send button */
 #sendBtn {
     width: 52px;
     height: 46px;
@@ -431,7 +442,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: var(--theme-glow);
 }
 
-/* Typing cursor */
+/* Cursor */
 .neon-cursor {
     width: 6px;
     height: 18px;
@@ -454,4 +465,4 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 #wipeOverlay.show {
     opacity: 1;
-}
+       }
