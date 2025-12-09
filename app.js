@@ -22,6 +22,34 @@ let ignoreNextResponse = false;
    MAIN APP
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
+   /* ============================================================
+   QUICKSTART PING — instantly wake Render backend
+============================================================ */
+(function warmBackend() {
+    fetch("https://leocore.onrender.com/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            message: "ping",
+            userId: "warmup",
+            name: "warmup"
+        })
+    }).catch(() => {});
+
+    // backup ping 2 seconds later
+    setTimeout(() => {
+        fetch("https://leocore.onrender.com/api/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                message: "ping2",
+                userId: "warmup",
+                name: "warmup"
+            })
+        }).catch(() => {});
+    }, 2000);
+})();
+   
    // FORCE MODE RESET ON PAGE LOAD
 localStorage.setItem("leocore-mode", "default");
 
