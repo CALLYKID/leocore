@@ -10,41 +10,50 @@
 
 <body>
 
-<!-- MAIN WRAPPER -->
-<div class="app-wrapper">
-
-    <!-- BACKGROUND VIDEO -->
-    <video id="bgVideo" class="parallax" autoplay muted loop playsinline>
+<!-- ======================================
+     TRUE BACKGROUND LAYER WRAPPER
+======================================= -->
+<div id="bgLayer">
+    <video id="bgVideo" autoplay muted loop playsinline>
         <source src="waves.mp4" type="video/mp4">
     </video>
 
     <div class="overlay"></div>
     <div class="bg-soft-glow"></div>
 
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
 
-    <!-- ================================
-         HERO SECTION
-    ================================= -->
+    <div class="neon-scan"></div>
+
+    <div class="holo-line" style="animation-delay:0s;"></div>
+    <div class="holo-line" style="animation-delay:2s;"></div>
+    <div class="holo-line" style="animation-delay:4s;"></div>
+</div>
+
+
+<!-- ======================================
+     FRONT UI WRAPPER
+======================================= -->
+<div class="app-wrapper">
+
+    <!-- HERO SECTION -->
     <div class="center-wrapper fade-in">
-
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
         </div>
 
         <h1 class="main-title">LEOCORE</h1>
         <p class="subtitle">Your AI. Your Vibe.</p>
-
     </div>
 
 
-    <!-- ================================
-         MODE SELECTOR
-    ================================= -->
+    <!-- MODE SELECTOR -->
     <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
 
         <div class="mode-selector">
-
             <div class="mode-btn" data-mode="default">⚡ Default</div>
             <div class="mode-btn" data-mode="study">📘 Study</div>
 
@@ -56,14 +65,11 @@
 
             <div class="mode-btn" data-mode="precision">🎯 Precision</div>
             <div class="mode-btn" data-mode="flame">🔥 Flame Mode</div>
-
         </div>
     </section>
 
 
-    <!-- ================================
-         QUICK TOOLS
-    ================================= -->
+    <!-- QUICK TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
 
@@ -76,9 +82,7 @@
     </section>
 
 
-    <!-- ================================
-         CREATOR CARD
-    ================================= -->
+    <!-- CREATOR CARD -->
     <section class="creator-card fade-in">
         <h2>About the Creator</h2>
         <p>
@@ -88,21 +92,16 @@
     </section>
 
 
-    <!-- ================================
-         TESTIMONIALS
-    ================================= -->
+    <!-- TESTIMONIALS -->
     <section class="testimonials fade-in">
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
         <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
         <div class="testimonial-bubble">“Can’t believe this was built on a phone.”</div>
-
         <div class="testimonial-separator"></div>
     </section>
 
 
-    <!-- ================================
-         INFO CARD
-    ================================= -->
+    <!-- INFO CARD -->
     <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -119,13 +118,10 @@
     </section>
 
 
-    <!-- ================================
-         CHAT SCREEN
-    ================================= -->
+    <!-- CHAT SCREEN -->
     <div id="chatScreen" class="chat-screen">
 
         <div class="chat-header glow-header">
-
             <button id="closeChat" class="back-btn glass-btn"><span>←</span></button>
 
             <div class="chat-title-wrapper">
@@ -137,21 +133,17 @@
             <button id="clearChat" class="clear-btn glass-btn"><span>🗑</span></button>
         </div>
 
-        <!-- Messages -->
         <div id="messages" class="chat-messages"></div>
 
-        <!-- Input Area -->
         <div class="chat-input-area">
             <div id="modePill" class="mode-pill">DEF</div>
             <input id="userInput" type="text" placeholder="Say something...">
             <button id="sendBtn">➤</button>
         </div>
 
-        <!-- AI LOADER (Hidden until streaming) -->
         <div id="aiLoader" style="display:none;">
             <div class="spiral-bubble">
                 <div class="spiral-core"></div>
-
                 <div class="orbit-wrapper">
                     <div class="o1"></div>
                     <div class="o2"></div>
@@ -159,24 +151,10 @@
                 </div>
             </div>
         </div>
-
     </div>
 
-
-    <!-- PARALLAX ELEMENTS -->
-    <div class="orb orb1 parallax"></div>
-    <div class="orb orb2 parallax"></div>
-    <div class="orb orb3 parallax"></div>
-
-    <div class="neon-scan"></div>
-
-    <div class="holo-line" style="animation-delay:0s;"></div>
-    <div class="holo-line" style="animation-delay:2s;"></div>
-    <div class="holo-line" style="animation-delay:4s;"></div>
-
-</div>
+</div> <!-- END app-wrapper -->
 
 <script src="app.js" defer></script>
-
 </body>
 </html>
