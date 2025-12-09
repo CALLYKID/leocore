@@ -10,7 +10,7 @@
 
 <body>
 
-<!-- MAIN WRAPPER (NO ANIMATION HERE — FIXES ZOOM BUG) -->
+<!-- MAIN WRAPPER -->
 <div class="app-wrapper">
 
     <!-- BACKGROUND VIDEO -->
@@ -48,7 +48,7 @@
             <div class="mode-btn" data-mode="default">⚡ Default</div>
             <div class="mode-btn" data-mode="study">📘 Study</div>
 
-            <div class="mode-btn" data-mode="research">🔬 Research</div>
+            <div classmode="research" data-mode="research">🔬 Research</div>
             <div class="mode-btn" data-mode="reading">📖 Reading</div>
 
             <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
@@ -137,22 +137,39 @@
             <button id="clearChat" class="clear-btn glass-btn"><span>🗑</span></button>
         </div>
 
+        <!-- Messages -->
         <div id="messages" class="chat-messages"></div>
 
+        <!-- Input Area -->
         <div class="chat-input-area">
             <div id="modePill" class="mode-pill">DEF</div>
             <input id="userInput" type="text" placeholder="Say something...">
             <button id="sendBtn">➤</button>
         </div>
+
+        <!-- AI LOADER (Hidden until streaming) -->
+        <div id="aiLoader" style="display:none;">
+            <div class="spiral-bubble">
+                <div class="spiral-core"></div>
+
+                <div class="orbit-wrapper">
+                    <div class="o1"></div>
+                    <div class="o2"></div>
+                    <div class="o3"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
 
-    <!-- PARALLAX EFFECT ELEMENTS -->
+    <!-- PARALLAX ELEMENTS -->
     <div class="orb orb1 parallax"></div>
     <div class="orb orb2 parallax"></div>
     <div class="orb orb3 parallax"></div>
 
     <div class="neon-scan"></div>
+
     <div class="holo-line" style="animation-delay:0s;"></div>
     <div class="holo-line" style="animation-delay:2s;"></div>
     <div class="holo-line" style="animation-delay:4s;"></div>
