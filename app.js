@@ -331,17 +331,27 @@ localStorage.setItem("leocore-mode", "default");
     }
 
     if (fakeInput) {
-        fakeInput.addEventListener("click", () => {
-            chatScreen.classList.add("active");
-            setTimeout(() => input?.focus(), 150);
-        });
-    }
+    fakeInput.addEventListener("click", () => {
+        chatScreen.classList.add("active");
+        document.body.classList.add("chat-open");
 
-    if (closeChat) {
-        closeChat.addEventListener("click", () =>
-            chatScreen.classList.remove("active")
-        );
-    }
+        setTimeout(() => {
+            document.body.classList.add("show-blur");
+            input?.focus();
+        }, 10);
+    });
+}
+
+if (closeChat) {
+    closeChat.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+        document.body.classList.remove("show-blur");
+
+        setTimeout(() => {
+            document.body.classList.remove("chat-open");
+        }, 300);
+    });
+}
 
 
     /* ============================================================
