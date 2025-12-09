@@ -725,3 +725,31 @@ html, body {
 #chatScreen.active * {
     pointer-events: auto !important;
 }
+
+/* ============================================================
+   ANDROID VIEWPORT STABILITY FIXES — MATCHES YOUR LAYOUT
+============================================================ */
+
+html, body {
+    height: 100%;
+    overscroll-behavior: none;
+}
+
+#bgLayer {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    transform: translateZ(0);
+}
+
+#bgVideo {
+    transform: translateZ(0) scale(1.05);
+    backface-visibility: hidden;
+}
+
+@supports (-webkit-touch-callout: none) {
+    /* iOS/Android GPU rendering path */
+    #bgVideo {
+        transform: translateZ(0) scale(1.05);
+    }
+}
