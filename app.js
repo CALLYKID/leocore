@@ -507,7 +507,7 @@ document.querySelectorAll(".tool-btn").forEach(btn => {
 
 
 /* ============================================================
-   PARALLAX FIX — KEEP ORIGINAL SCALE
+   PARALLAX FIX — CLEAN + CORRECT + NO DISTORTION
 ============================================================ */
 let pRaf = false;
 
@@ -516,12 +516,14 @@ document.addEventListener("mousemove", e => {
     pRaf = true;
 
     requestAnimationFrame(() => {
-        const x = (e.clientX / innerWidth - 0.5) * 12;
-        const y = (e.clientY / innerHeight - 0.5) * 12;
+        const x = (e.clientX / innerWidth - 0.5) * 6; 
+        const y = (e.clientY / innerHeight - 0.5) * 6;
 
-        document.querySelectorAll("#bgVideo, .orb").forEach(el => {
-    el.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
-});
+        // Move ALL layers that create your background
+        document.querySelectorAll("#bgVideo, .overlay, .bg-soft-glow, .orb")
+            .forEach(el => {
+                el.style.transform = `translate(${x}px, ${y}px)`;
+            });
 
         pRaf = false;
     });
