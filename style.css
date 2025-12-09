@@ -525,3 +525,33 @@ html, body {
     border-color: var(--theme-glow) !important;
     color: #fff !important;
 }
+
+/* Make homepage content always taller than screen */
+.app-wrapper {
+    min-height: 140vh !important;
+    padding-bottom: 80px !important;
+}
+
+/* Prevent video from moving when scrolling */
+html, body {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#bgLayer {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -10 !important;
+    pointer-events: none !important;
+}
+
+#bgVideo {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
