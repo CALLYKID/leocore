@@ -140,20 +140,19 @@ body::after {
     position: relative;
     overflow: hidden;
     display: inline-block;
-    pointer-events: none; /* ensures FX can't block */
+    pointer-events: none;
 }
 
 .main-title::after {
     content: "";
     position: absolute;
     inset: 0;
-    pointer-events: none; /* CRITICAL FIX */
+    pointer-events: none;
     
     background: linear-gradient(75deg, transparent, rgba(255,255,255,0.45), transparent);
     
     width: 100%;
     height: 100%;
-
     transform: translateX(-130%);
     animation: shine 4.6s infinite ease-in-out;
 }
@@ -169,6 +168,7 @@ body::after {
     font-size: 18px;
     color: #e0faff;
 }
+
 /* ============================================================
    SECTION TITLES
 ============================================================ */
@@ -233,7 +233,6 @@ body::after {
     transition: 0.25s ease;
     cursor: pointer;
 }
-
 .mode-btn::before {
     content: "";
     width: 12px;
@@ -395,6 +394,7 @@ body::after {
     text-align: center;
     font-size: 18px;
 }
+
 /* ============================================================
    CHAT SCREEN — FULL VIEWPORT
 ============================================================ */
@@ -554,7 +554,7 @@ body.chat-open.show-blur::before {
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.2);
 
-    display: none; /* optional */
+    display: none;
     color: #fff;
 }
 
@@ -815,7 +815,7 @@ body.chat-open.show-blur::before {
     height: 28px;
     border-color: rgba(0,255,255,0.18);
     animation: orbitCW 1s linear infinite;
-}
+   }
 
 @keyframes orbitCW {
     from { transform: rotateZ(0deg); }
@@ -825,7 +825,7 @@ body.chat-open.show-blur::before {
 @keyframes orbitCCW {
     from { transform: rotateZ(360deg); }
     to   { transform: rotateZ(0deg); }
-       }
+}
 
 /* ============================================================
    ROOT VARIABLES
@@ -837,8 +837,6 @@ body.chat-open.show-blur::before {
 /* ============================================================
    PARALLAX ELEMENTS — BACKGROUND FX
 ============================================================ */
-
-/* Force all FX behind content */
 #bgVideo,
 .overlay,
 .bg-soft-glow,
@@ -872,8 +870,8 @@ body::after {
 .orb3 { top: 80%; left: 40%; animation-delay: 6s; }
 
 @keyframes orbFloat {
-    0%   { transform: translate(0,0); }
-    50%  { transform: translate(30px,-40px); }
+    0% { transform: translate(0,0); }
+    50% { transform: translate(30px,-40px); }
     100% { transform: translate(-20px,20px); }
 }
 
@@ -905,8 +903,8 @@ body::after {
 }
 
 @keyframes sideGlowMove {
-    0%   { transform: translateY(0); }
-    50%  { transform: translateY(80px); }
+    0% { transform: translateY(0); }
+    50% { transform: translateY(80px); }
     100% { transform: translateY(-20px); }
 }
 
@@ -932,7 +930,7 @@ body::after {
     100% { top: -100%; }
 }
 
-/* Horizontal holo lines */
+/* Floating holo lines */
 .holo-line {
     position: fixed;
     width: 100%;
@@ -945,8 +943,8 @@ body::after {
 }
 
 @keyframes holoDrift {
-    0%   { transform: translateY(10%); }
-    50%  { transform: translateY(80%); }
+    0% { transform: translateY(10%); }
+    50% { transform: translateY(80%); }
     100% { transform: translateY(10%); }
 }
 
@@ -1056,7 +1054,6 @@ body.flame-mode .mode-pill {
     z-index: 20;
 }
 
-/* FX never block clicks */
 .overlay,
 .bg-soft-glow,
 .neon-scan,
