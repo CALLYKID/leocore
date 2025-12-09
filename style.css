@@ -1036,26 +1036,3 @@ body.flame-glow .mode-pill {
     z-index: 9999999;
     animation: logoFloat 5s ease-in-out infinite;
 }
-
-.logo-floating img {
-    width: 65%;
-    height: 65%;
-    filter: drop-shadow(0 0 8px #00eaff);
-}
-
-/* smooth breathing float */
-@keyframes logoFloat {
-    0%   { transform: translateY(0px); }
-    50%  { transform: translateY(6px); }
-    100% { transform: translateY(0px); }
-}
-
-/* Phone scaling */
-@media (max-width: 420px) {
-    .logo-floating {
-        width: 60px;
-        height: 60px;
-        top: 14px;
-        left: 14px;
-    }
-}
