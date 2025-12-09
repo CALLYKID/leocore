@@ -1,11 +1,16 @@
 /* ============================================================
-   GLOBAL RESET / TOUCH FIXES
+   GLOBAL RESET + TOUCH FIXES
 ============================================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent !important;
+}
+
+html, body {
+    height: 100%;
+    overscroll-behavior: none;
 }
 
 body {
@@ -16,8 +21,7 @@ body {
     position: relative;
 }
 
-
-/* Buttons always clickable */
+/* Universal button fixes */
 button, .clear-btn, .back-btn, #sendBtn {
     outline: none !important;
     pointer-events: auto !important;
@@ -26,14 +30,15 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   BACKGROUND ELEMENTS — TRUE STATIC LAYER
+   BACKGROUND LAYER — NEVER MOVES, NEVER BREAKS
 ============================================================ */
 #bgLayer {
     position: fixed;
     inset: 0;
-    z-index: -10 !important;
+    z-index: -10;
     overflow: hidden;
     pointer-events: none !important;
+    transform: translateZ(0);
 }
 
 #bgVideo {
@@ -43,8 +48,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     height: 100%;
     object-fit: cover;
     object-position: center;
-    transform: scale(1.05);
     filter: brightness(0.78) saturate(1.2);
+    transform: translateZ(0) scale(1.05);
+    backface-visibility: hidden;
 }
 
 .overlay {
@@ -77,12 +83,11 @@ button, .clear-btn, .back-btn, #sendBtn {
     padding-top: 12vh;
     padding-bottom: 2vh;
     position: relative;
-    z-index: 5 !important;
+    z-index: 5;
     pointer-events: none;
 }
 
 .fake-input {
-    pointer-events: auto !important;
     width: 85vw;
     max-width: 600px;
     height: 64px;
@@ -90,11 +95,14 @@ button, .clear-btn, .back-btn, #sendBtn {
     display: flex;
     justify-content: center;
     align-items: center;
+
     background: rgba(0, 15, 30, 0.35);
     border-radius: 18px;
     border: 2px solid #00eaff;
     box-shadow: 0 0 24px #00eaff88;
+
     cursor: pointer;
+    pointer-events: auto !important;
 }
 
 .fake-text {
@@ -131,7 +139,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 
-/* Fade-in */
+/* Fade-in animation */
 .fade-in {
     opacity: 0;
     transform: translateY(8px);
@@ -142,8 +150,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
-
 /* ============================================================
    SECTION TITLES
 ============================================================ */
@@ -157,8 +163,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 20;
 }
 
-
-/* Clickable homepage items */
+/* Homepage items clickable */
 .modes-wrapper,
 .tools-wrapper,
 .creator-card,
@@ -168,7 +173,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 .tool-btn,
 .mode-btn {
     position: relative;
-    z-index: 30 !important;
+    z-index: 30;
     pointer-events: auto !important;
 }
 
@@ -191,16 +196,20 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-btn {
     padding: 22px;
     border-radius: 18px;
+
     background: rgba(255,255,255,0.08);
     border: 2px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(14px);
+
     display: flex;
     align-items: center;
     gap: 14px;
+
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
     transition: 0.25s;
+
     color: #dffaff;
 }
 
@@ -216,6 +225,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     background: rgba(255,255,255,0.1);
     border-radius: 8px;
     margin-left: 8px;
+
     border: 1px solid var(--theme-glow);
     color: var(--theme-glow);
 }
@@ -239,12 +249,15 @@ button, .clear-btn, .back-btn, #sendBtn {
 .tool-btn {
     padding: 16px;
     border-radius: 18px;
+
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(0,255,255,0.25);
     backdrop-filter: blur(6px);
+
     text-align: center;
     font-size: 16px;
     font-weight: 600;
+
     cursor: pointer;
     transition: 0.2s ease;
 }
@@ -261,10 +274,12 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 85%;
     margin: 42px auto 24px;
     padding: 24px;
+
     border-radius: 20px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(12px);
+
     text-align: center;
     font-size: 16px;
     color: #eafaff;
@@ -277,6 +292,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 .testimonials {
     margin-top: 32px;
     padding: 20px;
+
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -287,6 +303,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     padding: 14px 20px;
     background: rgba(0,200,255,0.15);
     border-radius: 18px;
+
     font-size: 14px;
     color: #dffaff;
 }
@@ -299,17 +316,42 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 90%;
     margin: 40px auto;
     padding: 26px;
+
     border-radius: 20px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
+
     color: #dffaff;
     font-size: 17px;
 }
 
 
 /* ============================================================
-   CHAT SCREEN — FIXED OVERLAY + PATCHED ALIGNMENT
+   RESPONSIVE FIXES (MOBILE)
+============================================================ */
+@media (max-width: 600px) {
+
+    .fake-input {
+        height: 58px;
+        font-size: 17px;
+    }
+
+    .main-title {
+        font-size: 40px;
+    }
+
+    .mode-selector {
+        gap: 14px;
+    }
+
+    .bubble {
+        font-size: 15px;
+        padding: 12px 14px;
+    }
+}
+/* ============================================================
+   CHAT SCREEN — TRUE FIXED OVERLAY
 ============================================================ */
 #chatScreen {
     position: fixed;
@@ -324,12 +366,13 @@ button, .clear-btn, .back-btn, #sendBtn {
     flex-direction: column;
 
     overflow: hidden;
+    pointer-events: none;
+
     opacity: 0;
     transform: translateY(40px);
     transition: opacity 0.35s ease, transform 0.35s ease;
 
-    z-index: 999999 !important;
-    pointer-events: none;
+    z-index: 999999;  /* Always above everything */
 }
 
 #chatScreen.active {
@@ -339,14 +382,17 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 
-/* Chat wallpaper */
+/* ============================================================
+   FIX CHAT BACKGROUND LAYER
+============================================================ */
 #chatScreen::before {
     content: "";
     position: absolute;
     inset: 0;
+
     background: url("waves-blur.jpg?v=9999") center/cover no-repeat;
     filter: blur(26px) brightness(0.72) saturate(1.25);
-    opacity: 1;
+
     z-index: -1;
 }
 
@@ -355,80 +401,56 @@ button, .clear-btn, .back-btn, #sendBtn {
    CHAT HEADER
 ============================================================ */
 .chat-header {
+    flex-shrink: 0;
+
     padding: 14px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     background: rgba(0,0,0,0.35);
     border-bottom: 1px solid rgba(0,255,255,0.12);
 }
 
-.back-btn,
-.clear-btn {
-    background: rgba(0,0,0,0.25);
-    padding: 8px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.18);
-    color: #dffaff;
-    font-size: 18px;
-    cursor: pointer;
-    backdrop-filter: blur(6px);
-}
-
-.back-btn:active,
-.clear-btn:active {
-    transform: scale(0.92);
-}
-
-.chat-title-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.chat-title {
-    font-size: 22px;
-    font-weight: 700;
-    background: linear-gradient(90deg, #00eaff, #9d4bff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
 
 /* ============================================================
-   CHAT MESSAGES — FULL PATCH
+   CHAT MESSAGE AREA — THE BROKEN PART YOU SENT A PHOTO OF
 ============================================================ */
 .chat-messages {
-    flex: 1;
-    min-height: 0;
+    flex: 1;                     /* takes remaining height */
+    width: 100%;
+    min-height: 0;               /* required for flex scroll */
     max-height: calc(100vh - 140px);
+
+    padding: 14px;
+    overflow-y: auto;
+
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 14px;
-    overflow-y: auto;
+
     background: rgba(0,0,0,0.22);
     backdrop-filter: blur(6px);
 }
 
+
+/* ============================================================
+   PERFECT BUBBLE ALIGNMENT
+============================================================ */
 .user-msg,
 .ai-msg {
-    width: 100%;
     display: flex;
+    width: 100%;
 }
 
-.user-msg {
-    justify-content: flex-end;
-}
-
-.ai-msg {
-    justify-content: flex-start;
-}
+.user-msg { justify-content: flex-end; }
+.ai-msg { justify-content: flex-start; }
 
 .bubble {
+    max-width: 85%;
     padding: 14px 18px;
     border-radius: 14px;
-    max-width: 85%;
+
     word-break: break-word;
     line-height: 1.45;
 }
@@ -452,10 +474,9 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 @keyframes fadeInText {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
-
 
 .neon-cursor {
     width: 6px;
@@ -471,45 +492,48 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   INPUT BAR (PATCHED)
+   INPUT BAR — FIXED AT THE BOTTOM TO PREVENT FLOATING
 ============================================================ */
 .chat-input-area {
+    flex-shrink: 0;
+    width: 100%;
+
+    padding: 12px;
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px;
+
     background: rgba(0,0,0,0.40);
     border-top: 1px solid rgba(255,255,255,0.12);
-    flex-shrink: 0;
+
     position: relative;
-    z-index: 99;
+    z-index: 2000000; /* Always above messages */
 }
 
 .chat-input-area input {
     flex: 1;
     height: 46px;
     padding: 0 14px;
+
     background: rgba(0,0,0,0.45);
     border: 2px solid rgba(255,255,255,0.25);
     border-radius: 14px;
-    color: #fff !important;
-    outline: none;
-}
 
-.chat-input-area input::placeholder {
-    color: #9fdfff;
+    color: #fff;
 }
 
 #sendBtn {
     width: 52px;
     height: 46px;
-    border-radius: 14px;
+
     border: none;
+    border-radius: 14px;
+
     background: var(--theme-glow);
     color: #000;
     font-weight: 700;
+
     box-shadow: 0 0 12px var(--theme-glow);
-    cursor: pointer;
 }
 
 #sendBtn.stop-mode {
@@ -522,84 +546,34 @@ button, .clear-btn, .back-btn, #sendBtn {
    MODE PILL
 ============================================================ */
 .mode-pill {
-    padding: 0 12px;
     height: 40px;
+    padding: 0 12px;
+
     display: flex;
     align-items: center;
+
+    border-radius: 12px;
+
     background: rgba(0,0,0,0.35);
     border: 2px solid var(--theme-glow);
-    border-radius: 12px;
+
     font-size: 12px;
     font-weight: 600;
+
     color: var(--theme-glow);
 }
 
 
 /* ============================================================
-   WIPE OVERLAY
-============================================================ */
-#wipeOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 999999999;
-    background: rgba(5, 0, 20, 0.92);
-    backdrop-filter: blur(12px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s ease;
-}
-
-#wipeOverlay.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.wipe-container { text-align: center; }
-
-.wipe-text {
-    margin-top: 18px;
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    color: #dfe9ff;
-}
-
-.wipe-loader {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 4px solid rgba(255,255,255,0.25);
-    border-top-color: var(--theme-glow);
-    animation: wipeSpin 1s linear infinite;
-}
-
-@keyframes wipeSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-
-/* ============================================================
-   ANDROID VIEWPORT STABILITY FIXES
+   ANDROID HEIGHT + OVERSCROLL FIX
 ============================================================ */
 html, body {
     height: 100%;
     overscroll-behavior: none;
 }
 
-#bgLayer {
-    transform: translateZ(0);
-}
-
-#bgVideo {
-    transform: translateZ(0) scale(1.05);
-    backface-visibility: hidden;
-}
-
-@supports (-webkit-touch-callout: none) {
-    #bgVideo {
-        transform: translateZ(0) scale(1.05);
-    }
+#chatScreen,
+.chat-messages,
+.chat-input-area {
+    contain: layout paint size style;
 }
