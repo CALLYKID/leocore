@@ -412,6 +412,20 @@ button, .clear-btn, .back-btn, #sendBtn {
     outline: none;
 }
 
+.chat-input-area input {
+    flex: 1;
+    height: 46px;
+    padding: 0 14px;
+
+    background: rgba(0,0,0,0.35) !important;
+    border: 2px solid var(--theme-glow) !important;
+    border-radius: 14px;
+
+    color: #fff !important;
+    font-size: 16px;
+    outline: none;
+}
+
 #sendBtn {
     width: 52px;
     height: 46px;
