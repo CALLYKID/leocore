@@ -297,15 +297,20 @@ button, .clear-btn, .back-btn, #sendBtn {
     background: rgba(5,10,25,0.92);
     backdrop-filter: blur(10px);
     overflow: hidden;
+
     opacity: 0;
     transform: translateY(40px);
     transition: opacity 0.35s ease, transform 0.35s ease;
+
     z-index: 99999 !important;
+
+    pointer-events: none; /* IMPORTANT */
 }
 
 #chatScreen.active {
     opacity: 1;
     transform: translateY(0);
+    pointer-events: auto;
 }
 
 /* Header */
