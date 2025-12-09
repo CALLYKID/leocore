@@ -1,9 +1,11 @@
-/* RESET */
+/* ============================================================
+   GLOBAL RESET / TOUCH FIXES
+============================================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-tap-highlight-color: transparent !important;
 }
 
 body {
@@ -11,79 +13,314 @@ body {
     font-family: 'Inter', sans-serif;
     color: #fff;
     overflow-x: hidden;
+    position: relative;
+}
+
+/* Buttons always clickable */
+button, .clear-btn, .back-btn, #sendBtn {
+    outline: none !important;
+    pointer-events: auto !important;
+    z-index: 999999;
 }
 
 /* ============================================================
-   HOME BACKGROUND LAYER
+   BACKGROUND ELEMENTS — TRUE STATIC LAYER
 ============================================================ */
 #bgLayer {
     position: fixed;
     inset: 0;
-    z-index: -20;
+    z-index: -10 !important;
     overflow: hidden;
+    pointer-events: none !important;
 }
 
 #bgVideo {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
-    transform: scale(1.03);
+    transform: scale(1.05);
     filter: brightness(0.78) saturate(1.2);
 }
 
 .overlay {
     position: absolute;
     inset: 0;
-    background: rgba(0,10,35,0.45);
+    background: rgba(0, 10, 35, 0.55);
+    backdrop-filter: blur(3px);
 }
 
 .bg-soft-glow {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 40% 30%, rgba(0,124,255,0.25), transparent 60%);
+    background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.20), transparent 60%);
     mix-blend-mode: screen;
     animation: softGlow 12s ease-in-out infinite;
 }
 
 @keyframes softGlow {
-    0% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 0.8; transform: scale(1.1); }
-    100% { opacity: 0.4; transform: scale(1); }
+    0% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.08); }
+    100% { opacity: 0.55; transform: scale(1); }
 }
 
 /* ============================================================
-   CHAT BACKGROUND (STATIC IMAGE ONLY)
+   HERO SECTION
 ============================================================ */
-#chatScreen::before {
+.center-wrapper {
+    text-align: center;
+    padding-top: 12vh;
+    padding-bottom: 2vh;
+    position: relative;
+    z-index: 5 !important;
+    pointer-events: none;
+}
+
+.fake-input {
+    pointer-events: auto !important;
+    width: 85vw;
+    max-width: 600px;
+    height: 64px;
+    margin: 0 auto 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 15, 30, 0.35);
+    border-radius: 18px;
+    border: 2px solid #00eaff;
+    box-shadow: 0 0 24px #00eaff88;
+    cursor: pointer;
+}
+
+.fake-text {
+    font-size: 20px;
+    color: #dffaff;
+    white-space: nowrap;
+}
+
+.main-title {
+    font-size: 46px;
+    font-weight: 800;
+    position: relative;
+}
+
+.main-title::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: url("waves-blur.jpg") center/cover no-repeat;
-    filter: blur(26px) brightness(0.75);
-    z-index: -1;
+    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.45), transparent);
+    transform: translateX(-130%);
+    animation: shine 5s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-130%); }
+    55% { transform: translateX(130%); }
+    100% { transform: translateX(130%); }
+}
+
+.subtitle {
+    margin-top: 8px;
+    font-size: 18px;
+    color: #e2fbff;
+}
+
+/* Fade-in */
+.fade-in {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeInReal 0.8s ease-out forwards;
+}
+
+@keyframes fadeInReal {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* ============================================================
+   SECTION TITLES
+============================================================ */
+.section-title {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 14px;
+    font-weight: 700;
+    color: #dffaff;
+    position: relative;
+    z-index: 20;
+}
+
+/* Make all homepage items clickable */
+.modes-wrapper,
+.tools-wrapper,
+.creator-card,
+.testimonials,
+.info-card,
+.mode-selector,
+.tool-btn,
+.mode-btn {
+    position: relative;
+    z-index: 30 !important;
+    pointer-events: auto !important;
 }
 
 /* ============================================================
-   CHAT SCREEN
+   MODE BUTTONS
+============================================================ */
+.modes-wrapper {
+    margin-top: 32px;
+    padding: 22px 0;
+}
+
+.mode-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    padding: 0 24px;
+}
+
+.mode-btn {
+    padding: 22px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(14px);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.25s;
+    color: #dffaff;
+}
+
+.mode-btn.active {
+    background: rgba(255,255,255,0.15);
+    border-color: var(--theme-glow);
+    box-shadow: 0 0 25px var(--theme-glow);
+}
+
+/* Mode badge in chat header */
+.mode-badge {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 8px;
+    margin-left: 8px;
+    border: 1px solid var(--theme-glow);
+    color: var(--theme-glow);
+}
+
+/* ============================================================
+   QUICK TOOLS
+============================================================ */
+.tools-wrapper {
+    margin-top: 32px;
+    padding: 18px 0;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 0 22px;
+}
+
+.tool-btn {
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.25);
+    backdrop-filter: blur(6px);
+    text-align: center;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.tool-btn:active {
+    transform: scale(0.95);
+}
+
+/* ============================================================
+   CREATOR CARD
+============================================================ */
+.creator-card {
+    width: 85%;
+    margin: 42px auto 24px;
+    padding: 24px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+    text-align: center;
+    font-size: 16px;
+    color: #eafaff;
+}
+
+/* ============================================================
+   TESTIMONIALS
+============================================================ */
+.testimonials {
+    margin-top: 32px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+}
+
+.testimonial-bubble {
+    padding: 14px 20px;
+    background: rgba(0,200,255,0.15);
+    border-radius: 18px;
+    font-size: 14px;
+    color: #dffaff;
+}
+
+/* ============================================================
+   INFO CARD
+============================================================ */
+.info-card {
+    width: 90%;
+    margin: 40px auto;
+    padding: 26px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
+    color: #dffaff;
+    font-size: 17px;
+}
+
+/* ============================================================
+   CHAT SCREEN — FIXED OVERLAY, NEVER MOVES BACKGROUND
 ============================================================ */
 #chatScreen {
     position: fixed;
     inset: 0;
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(0,0,0,0.45); /* stronger dark layer */
+    backdrop-filter: blur(32px) saturate(1.3);
+
     display: flex;
     flex-direction: column;
 
+    overflow: hidden;
     opacity: 0;
     transform: translateY(40px);
-    transition: opacity 0.45s ease, transform 0.45s ease;
+    transition: opacity 0.35s ease, transform 0.35s ease;
 
-    backdrop-filter: blur(32px) saturate(1.3);
-    background: rgba(0,0,0,0.35);
-
-    pointer-events: none;
-    z-index: 999999;
+    z-index: 999999 !important; /* Above EVERYTHING */
+    pointer-events: none; /* Off until opened */
 }
 
+/* Chat Active */
 #chatScreen.active {
     opacity: 1;
     transform: translateY(0);
@@ -91,52 +328,130 @@ body {
 }
 
 /* ============================================================
-   HEADER
+   CHAT DEDICATED WALLPAPER (prevent bg-video conflict)
+============================================================ */
+#chatScreen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    /* Your blurred wallpaper */
+    background: url("waves-blur.jpg?v=9999") center/cover no-repeat;
+    filter: blur(26px) brightness(0.72) saturate(1.25);
+
+    opacity: 1;
+    z-index: -1; /* Behind chat content */
+}
+
+/* ============================================================
+   CHAT HEADER
 ============================================================ */
 .chat-header {
     padding: 14px 20px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
+
     background: rgba(0,0,0,0.35);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(0,255,255,0.12);
+}
+
+.back-btn,
+.clear-btn {
+    background: rgba(0,0,0,0.25);
+    padding: 8px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #dffaff;
+    font-size: 18px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+}
+
+.back-btn:active,
+.clear-btn:active {
+    transform: scale(0.92);
+}
+
+.chat-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .chat-title {
     font-size: 22px;
     font-weight: 700;
-    background: linear-gradient(90deg,#9d4bff,#00eaff);
+    background: linear-gradient(90deg, #00eaff, #9d4bff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 /* ============================================================
-   MESSAGE AREA
+   CHAT MESSAGES
 ============================================================ */
 .chat-messages {
     flex: 1;
-    overflow-y: auto;
     padding: 14px;
+    overflow-y: auto;
+
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    background: rgba(0,0,0,0.22);
+    backdrop-filter: blur(6px);
 }
 
+/* message bubbles */
 .user-msg .bubble {
     background: #008cff;
     color: #fff;
 }
 
 .ai-msg .bubble {
-    background: rgba(20,25,50,0.75);
-    color: #dff6ff;
+    background: #1e263f;
+    color: #e9f4ff;
 }
 
 .bubble {
     padding: 14px 18px;
-    border-radius: 16px;
+    border-radius: 14px;
     max-width: 92%;
     word-break: break-word;
+    line-height: 1.45;
+}
+
+/* streaming effect */
+.ai-streaming .stream-text {
+    animation: fadeInText 0.2s ease;
+}
+
+@keyframes fadeInText {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Cursor blink */
+.neon-cursor {
+    width: 6px;
+    height: 18px;
+    background: var(--theme-glow);
+    animation: blink 0.7s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Typing loader (spiral) */
+.typing-holder {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 6px 0;
 }
 
 /* ============================================================
@@ -144,71 +459,269 @@ body {
 ============================================================ */
 .chat-input-area {
     display: flex;
+    align-items: center;
     gap: 10px;
+
     padding: 12px;
-    background: rgba(0,0,0,0.45);
+    background: rgba(0,0,0,0.40);
     border-top: 1px solid rgba(255,255,255,0.12);
 }
+
+.chat-input-area input {
+    flex: 1;
+    height: 46px;
+    padding: 0 14px;
+
+    background: rgba(0,0,0,0.45);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+
+    color: #fff !important;
+    outline: none;
+}
+
+.chat-input-area input::placeholder {
+    color: #9fdfff;
+    opacity: 1;
+}
+
+#sendBtn {
+    width: 52px;
+    height: 46px;
+
+    border-radius: 14px;
+    border: none;
+
+    background: var(--theme-glow);
+    color: #000;
+    font-weight: 700;
+
+    box-shadow: 0 0 12px var(--theme-glow);
+    cursor: pointer;
+}
+
+#sendBtn.stop-mode {
+    background: #ff3b3b !important;
+    color: #fff !important;
+}
+
 /* ============================================================
-   CHAT BUBBLE ANIMATION (FADE)
+   MODE PILL (inside input bar)
 ============================================================ */
-@keyframes bubbleFade {
-    from {
-        opacity: 0;
-        transform: translateY(6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.bubble,
-.typing-holder {
-    animation: bubbleFade 0.35s ease forwards;
-}
-
-/* ============================================================
-   MODE PILL / BUTTON THEMES
-============================================================ */
-:root {
-    --theme-glow: #9d4bff;
-}
-
 .mode-pill {
     padding: 0 12px;
     height: 40px;
+
     display: flex;
     align-items: center;
+
     background: rgba(0,0,0,0.35);
     border: 2px solid var(--theme-glow);
     border-radius: 12px;
+
     font-size: 12px;
     font-weight: 600;
     color: var(--theme-glow);
 }
 
-#sendBtn {
-    background: var(--theme-glow);
-    box-shadow: 0 0 12px var(--theme-glow);
+/* ============================================================
+   WIPE OVERLAY (Hold to Clear All Data)
+============================================================ */
+#wipeOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999999; /* Above everything */
+    background: rgba(5, 0, 20, 0.92);
+    backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
 }
+
+#wipeOverlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.wipe-container {
+    text-align: center;
+}
+
+.wipe-text {
+    margin-top: 18px;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: #dfe9ff;
+}
+
+/* Loader circle */
+.wipe-loader {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.25);
+    border-top-color: var(--theme-glow);
+    animation: wipeSpin 1s linear infinite;
+}
+
+@keyframes wipeSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
 
 /* ============================================================
-   BACK / CLEAR BUTTON STYLES
+   AI TYPING SPIRAL LOADER
 ============================================================ */
-.back-btn,
-.clear-btn {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.25);
-    padding: 8px 14px;
-    border-radius: 12px;
-    color: #fff;
-    font-size: 15px;
-    cursor: pointer;
-    transition: 0.2s;
+.spiral-bubble {
+    width: 36px;
+    height: 36px;
+    position: relative;
 }
 
-.back-btn:active,
-.clear-btn:active {
-    transform: scale(0.9);
+.spiral-core {
+    width: 12px;
+    height: 12px;
+    background: var(--theme-glow);
+    border-radius: 50%;
+    position: absolute;
+    top: 12px;
+    left: 12px;
+}
+
+.orbit-wrapper {
+    position: absolute;
+    inset: 0;
+    animation: orbitSpin 1.8s linear infinite;
+}
+
+.orbit-wrapper div {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--theme-glow);
+    border-radius: 50%;
+}
+
+.orbit-wrapper .o1 { top: 0; left: 15px; }
+.orbit-wrapper .o2 { top: 15px; left: 30px; }
+.orbit-wrapper .o3 { top: 30px; left: 15px; }
+
+@keyframes orbitSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
+
+/* ============================================================
+   GLOBAL UTILITY FIXES
+============================================================ */
+
+/* Prevent pulling homepage when chat open */
+body.chat-open {
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Prevent ghost-clicks from layers */
+.app-wrapper,
+.center-wrapper,
+.mode-selector,
+.tools-grid,
+.tool-btn,
+.mode-btn {
+    position: relative;
+    pointer-events: auto;
+    z-index: 20;
+}
+
+/* Subtle fade animation used by multiple components */
+@keyframes fadeSmooth {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+
+/* ============================================================
+   RESPONSIVE FIXES (Mobile)
+============================================================ */
+@media (max-width: 600px) {
+
+    .fake-input {
+        height: 58px;
+        font-size: 17px;
+    }
+
+    .main-title {
+        font-size: 40px;
+    }
+
+    .mode-selector {
+        gap: 14px;
+    }
+
+    #chatScreen {
+        backdrop-filter: blur(28px) saturate(1.1);
+    }
+
+    .chat-input-area input {
+        font-size: 15px;
+    }
+
+    .bubble {
+        font-size: 15px;
+        padding: 12px 14px;
+    }
+}
+
+
+/* ============================================================
+   HARDENING FIXES — ZERO CLICKS BLOCKED ANYWHERE
+============================================================ */
+#bgLayer,
+#bgVideo,
+.overlay,
+.bg-soft-glow {
+    pointer-events: none !important;
+}
+
+.fake-input,
+.mode-btn,
+.tool-btn,
+.back-btn,
+.clear-btn,
+#sendBtn,
+.chat-input-area input {
+    pointer-events: auto !important;
+    z-index: 99999;
+}
+
+/* Ensure chat always OVER homepage */
+#chatScreen {
+    z-index: 999999 !important;
+}
+
+/* Ensure homepage never covers chat */
+.app-wrapper {
+    z-index: 50 !important;
+    position: relative;
+}
+
+
+/* ============================================================
+   SAFETY CATCH: IF ANYTHING SPIKES, CHAT STILL WINS
+============================================================ */
+html, body {
+    scroll-behavior: smooth;
+}
+
+#chatScreen.active * {
+    pointer-events: auto !important;
 }
