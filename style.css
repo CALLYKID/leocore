@@ -67,10 +67,15 @@ button, .clear-btn, .back-btn, #sendBtn {
 ============================================================ */
 .center-wrapper {
     text-align: center;
-    padding-top: 16vh;
-    padding-bottom: 4vh;
+    padding-top: 12vh;
+    padding-bottom: 2vh;
     position: relative;
-    z-index: 10;
+    z-index: 1 !important;
+    pointer-events: none !important;
+}
+
+.fake-input {
+    pointer-events: auto !important;
 }
 
 .fade-in {
