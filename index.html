@@ -26,6 +26,10 @@
 ============================================================ -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+
+    // Force fade-in system to WORK on Samsung Internet
+    document.body.style.opacity = "0";
+
     const vid = document.getElementById("bgVideo");
     const layer = document.getElementById("bgLayer");
 
@@ -34,18 +38,20 @@ document.addEventListener("DOMContentLoaded", () => {
     function showVideo() {
         if (hasShown) return;
         hasShown = true;
+
         vid.style.display = "block";
         layer.style.background = "none";
         document.body.style.opacity = "1";
     }
 
-    // If video loads → show it
+    // If video successfully loads
     vid.addEventListener("loadeddata", showVideo);
 
-    // True fallback after 1200ms if video completely fails
+    // Fallback after 1200ms
     setTimeout(() => {
         if (vid.readyState < 2) {
             vid.style.display = "none";
+
             layer.style.background =
                 "url('waves-blur.jpg') center/cover no-repeat";
         }
