@@ -310,19 +310,25 @@ document.addEventListener("DOMContentLoaded", () => {
        CHAT OPEN / CLOSE (no keyboard auto-open)
     ============================================================ */
     fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-        document.body.classList.add("chat-open");
+    chatScreen.classList.add("active");
+    document.body.classList.add("chat-open");
 
-        setTimeout(() => {
-            document.body.classList.add("show-blur");
-        }, 50);
-    });
+    // HIDE HOMEPAGE
+    document.querySelector(".app-wrapper").style.display = "none";
 
+    setTimeout(() => {
+        document.body.classList.add("show-blur");
+    }, 50);
+});
     closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-        document.body.classList.remove("show-blur");
-        setTimeout(() => document.body.classList.remove("chat-open"), 280);
-    });
+    chatScreen.classList.remove("active");
+    document.body.classList.remove("show-blur");
+
+    // SHOW HOMEPAGE AGAIN
+    document.querySelector(".app-wrapper").style.display = "block";
+
+    setTimeout(() => document.body.classList.remove("chat-open"), 280);
+});
 
 
     /* ============================================================
@@ -412,26 +418,29 @@ document.addEventListener("DOMContentLoaded", () => {
     updateModePill();
 
     document.querySelectorAll(".mode-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const mode = btn.dataset.mode;
-            localStorage.setItem("leocore-mode", mode);
+    btn.addEventListener("click", () => {
+        const mode = btn.dataset.mode;
+        localStorage.setItem("leocore-mode", mode);
 
-            document
-                .querySelectorAll(".mode-btn")
-                .forEach((b) => b.classList.remove("active"));
+        document
+            .querySelectorAll(".mode-btn")
+            .forEach((b) => b.classList.remove("active"));
 
-            btn.classList.add("active");
+        btn.classList.add("active");
 
-            updateModePill();
+        updateModePill();
 
-            chatScreen.classList.add("active");
-            document.body.classList.add("chat-open");
+        chatScreen.classList.add("active");
+        document.body.classList.add("chat-open");
 
-            setTimeout(() => {
-                document.body.classList.add("show-blur");
-            }, 70);
-        });
+        // HIDE HOMEPAGE
+        document.querySelector(".app-wrapper").style.display = "none";
+
+        setTimeout(() => {
+            document.body.classList.add("show-blur");
+        }, 70);
     });
+});
 
 
     /* ============================================================
