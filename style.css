@@ -426,3 +426,16 @@ button, .clear-btn, .back-btn, #sendBtn {
 #wipeOverlay.show {
     opacity: 1;
 }
+
+#chatScreen {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    pointer-events: none; /* FIX */
+}
+
+#chatScreen.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto; /* FIX */
+}
