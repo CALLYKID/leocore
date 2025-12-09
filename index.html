@@ -1,1 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LeoCore</title>
+
+    <!-- 🔥 CACHE-BREAKER: Forces Cloudflare + browser to load NEW CSS -->
+    <link rel="stylesheet" href="style.css?v=9999" />
+</head>
+
+<body>
+
+<!-- ============================================================
+     TRUE BACKGROUND LAYER — FIXED BELOW CONTENT
+============================================================ -->
+<div id="bgLayer">
+
+    <video id="bgVideo" autoplay muted loop playsinline>
+        <source src="waves.mp4" type="video/mp4" />
+    </video>
+
+    <div class="overlay"></div>
+    <div class="bg-soft-glow"></div>
+
+    <div class="orb orb1"></div>
+    <div class="orb orb2"></div>
+    <div class="orb orb3"></div>
+
+    <div class="neon-scan"></div>
+
+    <div class="holo-line" style="animation-delay:0s;"></div>
+    <div class="holo-line" style="animation-delay:2s;"></div>
+    <div class="holo-line" style="animation-delay:4s;"></div>
+
+</div>
+
+<!-- ============================================================
+     MAIN CONTENT
+============================================================ -->
+<div class="app-wrapper">
+
+    <!-- HERO -->
+    <div class="center-wrapper fade-in">
+
+        <div id="fakeInput" class="fake-input">
+            <span id="fakeText" class="fake-text"></span>
+        </div>
+
+        <h1 class="main-title">LEOCORE</h1>
+        <p class="subtitle">Your AI. Your Vibe.</p>
+    </div>
+
+    <!-- MODES -->
+    <section class="modes-wrapper fade-in">
+        <h2 class="section-title">Choose Your Mode</h2>
+
+        <div class="mode-selector">
+            <div class="mode-btn" data-mode="default">⚡ Default</div>
+            <div class="mode-btn" data-mode="study">📘 Study</div>
+            <div class="mode-btn" data-mode="research">🔬 Research</div>
+            <div class="mode-btn" data-mode="reading">📖 Reading</div>
+            <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
+            <div class="mode-btn" data-mode="chill">😎 Chill</div>
+            <div class="mode-btn" data-mode="precision">🎯 Precision</div>
+            <div class="mode-btn" data-mode="flame">🔥 Flame Mode</div>
+        </div>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="tools-wrapper fade-in">
+        <h2 class="section-title">Quick Tools</h2>
+
+        <div class="tools-grid">
+            <div class="tool-btn" data-task="summarise">📝 Summarise Text</div>
+            <div class="tool-btn" data-task="plan">📅 Plan My Day</div>
+            <div class="tool-btn" data-task="study">📚 Explain Homework</div>
+            <div class="tool-btn" data-task="notes">✍️ Generate Notes</div>
+        </div>
+    </section>
+
+    <!-- CREATOR CARD -->
+    <section class="creator-card fade-in">
+        <h2>About the Creator</h2>
+        <p>
+            LeoCore was built by <b>Leo</b>, a 15-year-old developer creating
+            the future of personal AI — fast, aesthetic and private.
+        </p>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials fade-in">
+        <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
+        <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
+        <div class="testimonial-bubble">“Can’t believe this was built on a phone.”</div>
+        <div class="testimonial-separator"></div>
+    </section>
+
+    <!-- INFO -->
+    <section class="info-section fade-in">
+        <div class="info-card">
+            <h2>What is LeoCore?</h2>
+            <p>
+                LeoCore is a fast, personal AI built by <b>Leo</b> —
+                designed to match your vibe, remember your preferences,
+                and always stay private.
+            </p>
+
+            <div class="features">
+                ⚡ Fast &nbsp;&nbsp; 🔒 Private &nbsp;&nbsp; 🧠 Remembers You
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         CHAT SCREEN
+    ============================================================ -->
+    <div id="chatScreen" class="chat-screen">
+
+        <div class="chat-header glow-header">
+
+            <button id="closeChat" class="back-btn glass-btn">←</button>
+
+            <div class="chat-title-wrapper">
+                <div class="chat-title">LEOCORE</div>
+                <div id="modeBadge" class="mode-badge"></div>
+                <div class="title-underline"></div>
+            </div>
+
+            <button id="clearChat" class="clear-btn glass-btn">🗑</button>
+        </div>
+
+        <div id="messages" class="chat-messages"></div>
+
+        <div class="chat-input-area">
+            <div id="modePill" class="mode-pill">DEF</div>
+            <input id="userInput" type="text" placeholder="Say something..." />
+            <button id="sendBtn">➤</button>
+        </div>
+
+        <div id="aiLoader" style="display:none;">
+            <div class="spiral-bubble">
+                <div class="spiral-core"></div>
+                <div class="orbit-wrapper">
+                    <div class="o1"></div>
+                    <div class="o2"></div>
+                    <div class="o3"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- 🔥 CACHE-BREAKER FOR JS TOO -->
+<script src="app.js?v=9999" defer></script>
+
+</body>
+</html>
 
