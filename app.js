@@ -315,7 +315,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTimeout(() => {
             document.body.classList.add("show-blur");
-            input?.focus();
+            // NO input.focus() — keyboard stays
         }, 40);
     });
 
