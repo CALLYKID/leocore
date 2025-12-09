@@ -519,9 +519,9 @@ document.addEventListener("mousemove", e => {
         const x = (e.clientX / innerWidth - 0.5) * 12;
         const y = (e.clientY / innerHeight - 0.5) * 12;
 
-        document.querySelectorAll(".parallax").forEach(el => {
-            el.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
-        });
+        document.querySelectorAll("#bgVideo, .orb").forEach(el => {
+    el.style.transform = `translate(${x}px, ${y}px) scale(1.05)`;
+});
 
         pRaf = false;
     });
