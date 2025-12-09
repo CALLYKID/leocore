@@ -22,6 +22,8 @@ let ignoreNextResponse = false;
    MAIN APP
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
+   // FORCE MODE RESET ON PAGE LOAD
+localStorage.setItem("leocore-mode", "default");
 
     /* ELEMENTS — EXACT MATCH TO HTML */
     const chatScreen = document.getElementById("chatScreen");
