@@ -21,29 +21,29 @@ let ignoreNextResponse = false;
 
 
 /* ============================================================
-   MAIN APP
+   DOM READY
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
     /* ============================================================
-       BACKEND WAKE-UP (Safe, single fire)
+       BACKEND AUTO WAKE (safe)
     ============================================================ */
     if (!window.__leocoreWarm__) {
         window.__leocoreWarm__ = true;
 
-        const ping = (p) =>
+        const ping = (msg) =>
             fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    message: p,
+                    message: msg,
                     userId: "warmup",
                     name: "warmup"
                 })
             }).catch(() => {});
 
-        ping("ping");
-        setTimeout(() => ping("ping2"), 1100);
+        ping("w1");
+        setTimeout(() => ping("w2"), 1100);
     }
 
 
@@ -51,26 +51,26 @@ document.addEventListener("DOMContentLoaded", () => {
        ELEMENTS
     ============================================================ */
     const chatScreen = document.getElementById("chatScreen");
-    const closeChat  = document.getElementById("closeChat");
-    const clearBtn   = document.getElementById("clearChat");
-    const messages   = document.getElementById("messages");
-    const input      = document.getElementById("userInput");
-    const sendBtn    = document.getElementById("sendBtn");
-    const fakeInput  = document.getElementById("fakeInput");
-    const fakeText   = document.getElementById("fakeText");
-    const modePill   = document.getElementById("modePill");
+    const closeChat = document.getElementById("closeChat");
+    const clearBtn = document.getElementById("clearChat");
+    const messages = document.getElementById("messages");
+    const input = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const fakeInput = document.getElementById("fakeInput");
+    const fakeText = document.getElementById("fakeText");
+    const modePill = document.getElementById("modePill");
 
 
     /* ============================================================
        USER ID SYSTEM
     ============================================================ */
-    function getCookie(n) {
-        const m = document.cookie.match("(^|;) ?" + n + "=([^;]*)(;|$)");
+    function getCookie(name) {
+        const m = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
         return m ? m[2] : null;
     }
 
-    function setCookie(n, v) {
-        document.cookie = `${n}=${v}; path=/; max-age=31536000`;
+    function setCookie(name, value) {
+        document.cookie = `${name}=${value}; path=/; max-age=31536000`;
     }
 
     let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
@@ -83,21 +83,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       CHAT SAVE / RESTORE
+       RESTORE CHAT HISTORY
     ============================================================ */
     function saveChat() {
-        const arr = [];
-        document.querySelectorAll(".bubble").forEach(b => {
-            arr.push({
+        const chatArr = [];
+        document.querySelectorAll(".bubble").forEach((b) => {
+            chatArr.push({
                 text: b.innerHTML,
-                sender: b.parentElement.classList.contains("user-msg") ? "user" : "ai"
+                sender: b.parentElement.classList.contains("user-msg")
+                    ? "user"
+                    : "ai"
             });
         });
-        localStorage.setItem("leocore-chat", JSON.stringify(arr));
+        localStorage.setItem("leocore-chat", JSON.stringify(chatArr));
     }
 
-    JSON.parse(localStorage.getItem("leocore-chat") || "[]")
-        .forEach(m => addMessage(m.text, m.sender));
+    const saved = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
+    saved.forEach((m) => addMessage(m.text, m.sender));
 
 
     /* ============================================================
@@ -105,7 +107,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ============================================================ */
     function scrollToBottom() {
         if (scrollRAF) return;
-
         scrollRAF = true;
         requestAnimationFrame(() => {
             messages.scrollTop = messages.scrollHeight;
@@ -115,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       HERO AUTO-TYPER
+       HERO AUTO TYPER
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -125,7 +126,9 @@ document.addEventListener("DOMContentLoaded", () => {
         "Let's work."
     ];
 
-    let pi = 0, ci = 0, deleting = false;
+    let pi = 0,
+        ci = 0,
+        deleting = false;
 
     function typeAnimation() {
         const txt = prompts[pi];
@@ -150,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       ADD MESSAGE
+       ADD MESSAGE (unified)
     ============================================================ */
     function addMessage(text, sender) {
         const wrap = document.createElement("div");
@@ -174,18 +177,16 @@ document.addEventListener("DOMContentLoaded", () => {
     function createTypingBubble() {
         const hold = document.createElement("div");
         hold.className = "ai-msg typing-holder";
-
         hold.innerHTML = `
             <div class="spiral-bubble">
                 <div class="spiral-core"></div>
                 <div class="orbit-wrapper">
-                    <div class="o1"></div>
-                    <div class="o2"></div>
-                    <div class="o3"></div>
+                   <div class="o1"></div>
+                   <div class="o2"></div>
+                   <div class="o3"></div>
                 </div>
             </div>
         `;
-
         messages.appendChild(hold);
         scrollToBottom();
         return hold;
@@ -193,7 +194,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAM RESPONSE
+       STREAM MESSAGE
     ============================================================ */
     async function streamMessage(full, isFlame = false) {
         isStreaming = true;
@@ -222,16 +223,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let i = 0;
         const speed = () =>
-            isFlame ? (5 + Math.random() * 10) : (15 + Math.random() * 18);
+            isFlame ? 5 + Math.random() * 9 : 15 + Math.random() * 18;
 
         while (i < full.length) {
             if (cancelStream) break;
-
             span.innerHTML = full.substring(0, i + 1);
             i++;
-
             scrollToBottom();
-            await new Promise(r => setTimeout(r, speed()));
+            await new Promise((r) => setTimeout(r, speed()));
         }
 
         cursor.remove();
@@ -269,7 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const res = await fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: text,
                     userId,
@@ -280,14 +279,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await res.json();
 
-            if (typing && typing.remove) typing.remove();
+            if (typing?.remove) typing.remove();
 
             if (!ignoreNextResponse) {
                 await streamMessage(data.reply, flame);
             }
 
             ignoreNextResponse = false;
-
         } catch {
             typing.remove();
             addMessage("⚠️ Network issue. Try again.", "ai");
@@ -300,26 +298,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       EVENT LISTENERS
+       LISTENERS
     ============================================================ */
-    sendBtn?.addEventListener("click", sendMessage);
-    input?.addEventListener("keydown", e => (e.key === "Enter" ? sendMessage() : null));
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", (e) =>
+        e.key === "Enter" ? sendMessage() : null
+    );
 
 
     /* ============================================================
-       OPEN / CLOSE CHAT
+       CHAT OPEN / CLOSE (no keyboard auto-open)
     ============================================================ */
-    fakeInput?.addEventListener("click", () => {
+    fakeInput.addEventListener("click", () => {
         chatScreen.classList.add("active");
         document.body.classList.add("chat-open");
 
         setTimeout(() => {
             document.body.classList.add("show-blur");
-            // NO input.focus() — keyboard stays
-        }, 40);
+        }, 50);
     });
 
-    closeChat?.addEventListener("click", () => {
+    closeChat.addEventListener("click", () => {
         chatScreen.classList.remove("active");
         document.body.classList.remove("show-blur");
         setTimeout(() => document.body.classList.remove("chat-open"), 280);
@@ -327,19 +326,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       FIXED WIPE SYSTEM (pointer events)
+       WIPE SYSTEM (hold to wipe)
     ============================================================ */
     let holdTimer = null;
     let holdActive = false;
 
-    clearBtn?.addEventListener("pointerdown", () => {
+    clearBtn.addEventListener("pointerdown", () => {
         holdTimer = setTimeout(() => {
             holdActive = true;
             fullWipeAnimation();
         }, 850);
     });
 
-    clearBtn?.addEventListener("pointerup", () => {
+    clearBtn.addEventListener("pointerup", () => {
         if (!holdActive) {
             messages.innerHTML = "";
             localStorage.removeItem("leocore-chat");
@@ -347,7 +346,6 @@ document.addEventListener("DOMContentLoaded", () => {
         holdActive = false;
         clearTimeout(holdTimer);
     });
-
 
     function fullWipeAnimation() {
         const overlay = document.createElement("div");
@@ -369,7 +367,7 @@ document.addEventListener("DOMContentLoaded", () => {
             chatScreen.classList.remove("active");
 
             overlay.classList.remove("show");
-            setTimeout(() => overlay.remove(), 350);
+            setTimeout(() => overlay.remove(), 300);
         }, 1500);
     }
 
@@ -403,18 +401,25 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         modePill.textContent = labels[mode];
-        document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
+        document.documentElement.style.setProperty(
+            "--theme-glow",
+            modeThemes[mode]
+        );
+
         document.body.classList.toggle("flame-mode", mode === "flame");
     }
 
     updateModePill();
 
-    document.querySelectorAll(".mode-btn").forEach(btn => {
+    document.querySelectorAll(".mode-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             const mode = btn.dataset.mode;
-
             localStorage.setItem("leocore-mode", mode);
-            document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+
+            document
+                .querySelectorAll(".mode-btn")
+                .forEach((b) => b.classList.remove("active"));
+
             btn.classList.add("active");
 
             updateModePill();
@@ -424,8 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             setTimeout(() => {
                 document.body.classList.add("show-blur");
-                input?.focus();
-            }, 60);
+            }, 70);
         });
     });
 
@@ -440,19 +444,19 @@ document.addEventListener("DOMContentLoaded", () => {
         notes: "Generate notes about:"
     };
 
-    document.querySelectorAll(".tool-btn").forEach(btn => {
+    document.querySelectorAll(".tool-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             input.value = toolPrompts[btn.dataset.task] || "";
             chatScreen.classList.add("active");
-            setTimeout(() => input?.focus(), 100);
+
+            setTimeout(() => {}, 100);
         });
     });
-
-}); // DOM READY END
+}); // DOM END
 
 
 /* ============================================================
-   BACKEND KEEP-ALIVE — SAFE
+   BACKEND KEEP ALIVE
 ============================================================ */
 setInterval(() => {
     fetch("https://leocore.onrender.com/ping").catch(() => {});
