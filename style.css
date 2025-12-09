@@ -13,12 +13,6 @@ body {
     font-family: 'Inter', sans-serif;
     color: #fff;
     overflow-x: hidden;
-    opacity: 0;
-    animation: fadeIn 0.6s ease forwards;
-}
-
-@keyframes fadeIn { 
-    to { opacity: 1; } 
 }
 
 button, .clear-btn, .back-btn, #sendBtn {
@@ -74,10 +68,6 @@ button, .clear-btn, .back-btn, #sendBtn {
         opacity: 1;
         transform: translateY(0);
     }
-}
-@appFade {
-    0% { opacity: 0; transform: translateY(8px) scale(0.995); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .fake-input {
