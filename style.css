@@ -942,3 +942,69 @@ body.flame-glow .mode-pill {
     0%   { transform: rotateZ(360deg); }
     100% { transform: rotateZ(0deg); }
 }
+
+/* ============================================================
+   LEOCORE LOGO — HERO VERSION
+============================================================ */
+.leocore-logo {
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 20px;
+    opacity: 0;
+    animation: logoFadeIn 1.2s ease forwards;
+    filter: drop-shadow(0 0 18px rgba(0,238,255,0.55))
+            drop-shadow(0 0 28px rgba(148,0,255,0.35));
+}
+
+@keyframes logoFadeIn {
+    0% { opacity: 0; transform: translateY(10px) scale(0.92); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Make the SVG always scale cleanly */
+.leocore-logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ============================================================
+   CHAT HEADER — MINI LOGO
+============================================================ */
+.chat-logo-mini {
+    width: 40px;
+    height: 40px;
+    margin-right: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    filter: drop-shadow(0 0 6px #00eaff55);
+}
+
+.chat-logo-mini svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* Keep it aligned with the title */
+.chat-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ============================================================
+   RESPONSIVE — Small phones
+============================================================ */
+@media (max-width: 420px) {
+    .leocore-logo {
+        width: 130px;
+        height: 130px;
+    }
+
+    .chat-logo-mini {
+        width: 34px;
+        height: 34px;
+        margin-right: 4px;
+    }
+}
