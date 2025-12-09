@@ -79,14 +79,20 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 5;
 }
 
-/* Smooth fade without scaling your UI */
+/* WRAPPER SHOULD NOT MOVE OR RESIZE ANYTHING */
 .app-wrapper {
-    opacity: 0;
-    transform: translateY(8px);
-    animation: appFade 0.85s ease-out forwards;
+    opacity: 1; /* default visible */
+    transform: none; 
 }
 
-@keyframes appFade {
+/* Fade only the hero + content, NOT the structural wrapper */
+.fade-in {
+    opacity: 0;
+    transform: translateY(8px);
+    animation: fadeReal 0.8s ease-out forwards;
+}
+
+@keyframes fadeReal {
     0% {
         opacity: 0;
         transform: translateY(8px);
