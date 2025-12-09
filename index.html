@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeoCore</title>
-    
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
     <!-- BACKGROUND VIDEO -->
     <video id="bgVideo" class="parallax" autoplay muted loop playsinline>
         <source src="waves.mp4" type="video/mp4">
@@ -14,8 +19,6 @@
 
     <!-- HERO -->
     <div class="center-wrapper parallax">
-        
-
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
         </div>
@@ -25,9 +28,8 @@
     </div>
 
 
-
     <!-- ============================================================
-         AI MODE SELECTOR 
+         AI MODE SELECTOR — WITH EMOJIS + FLAME MODE 🔥
     ============================================================ -->
     <section class="modes-wrapper">
         <h2 class="section-title">Choose Your Mode</h2>
@@ -50,7 +52,6 @@
     </section>
 
 
-
     <!-- ============================================================
          QUICK TOOLS
     ============================================================ -->
@@ -66,7 +67,6 @@
     </section>
 
 
-
     <!-- ABOUT CREATOR -->
     <section class="creator-card">
         <h2>About the Creator</h2>
@@ -77,7 +77,6 @@
     </section>
 
 
-
     <!-- TESTIMONIALS -->
     <section class="testimonials">
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
@@ -86,7 +85,6 @@
 
         <div class="testimonial-separator"></div>
     </section>
-
 
 
     <!-- INFO SECTION -->
@@ -106,7 +104,6 @@
     </section>
 
 
-
     <!-- ============================================================
          CHAT SCREEN
     ============================================================ -->
@@ -117,21 +114,6 @@
             <button id="closeChat" class="back-btn glass-btn"><span>←</span></button>
 
             <div class="chat-title-wrapper">
-
-                <!-- 🔹 MINI LC LOGO FOR CHAT HEADER -->
-                <div class="chat-logo-mini">
-                    <svg width="40" height="40" viewBox="0 0 200 200">
-                        <circle cx="100" cy="100" r="70" stroke="#00eaff" stroke-width="4"
-                                fill="none" opacity="0.35"/>
-                        <path d="M70 70 L70 130 L115 130"
-                              stroke="#00eaff" stroke-width="9"
-                              stroke-linecap="round" fill="none"/>
-                        <path d="M140 80 A40 40 0 1 0 140 120"
-                              stroke="#00eaff" stroke-width="9"
-                              stroke-linecap="round" fill="none"/>
-                    </svg>
-                </div>
-
                 <div class="chat-title">LEOCORE</div>
                 <div id="modeBadge" class="mode-badge"></div>
                 <div class="title-underline"></div>
@@ -143,24 +125,11 @@
         <div id="messages" class="chat-messages"></div>
 
         <div class="chat-input-area">
-            <div id="modePill" class="mode-pill">MODE</div>
+            <div id="modePill" class="mode-pill">DEF</div>
             <input id="userInput" type="text" placeholder="Say something...">
             <button id="sendBtn">➤</button>
         </div>
     </div>
-
-
-
-    <!-- ORBIT LOADER -->
-    <div class="spiral-bubble">
-        <div class="spiral-core"></div>
-        <div class="orbit-wrapper">
-            <div class="orbit o1"></div>
-            <div class="orbit o2"></div>
-            <div class="orbit o3"></div>
-        </div>
-    </div>
-
 
 
     <!-- PARALLAX ORBS -->
@@ -178,4 +147,3 @@
 
 </body>
 </html>
-
