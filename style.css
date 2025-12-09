@@ -582,11 +582,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     .bubble { font-size: 15px; padding: 12px 14px; }
 }
 
-/* ==== HARD FIX FOR ANDROID BLACK BACKGROUND BUG ==== */
-body {
-    isolation: isolate;
-}
-
 /* ==== FIX FOR ANDROID BLACK BACKGROUND BUG ==== */
 body {
     isolation: isolate;
