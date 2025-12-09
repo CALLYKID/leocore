@@ -845,11 +845,12 @@ body.flame-glow .mode-pill {
 }
 
 /* ============================================================
-   ORBIT LOADER — RESTORED
+   LEOCORE ORBIT LOADER — OG CHAOTIC ANIMATION RESTORED
 ============================================================ */
+
 .spiral-bubble {
-    width: 54px;
-    height: 54px;
+    width: 58px;
+    height: 58px;
     position: relative;
     margin-left: 6px;
 
@@ -857,33 +858,63 @@ body.flame-glow .mode-pill {
     justify-content: center;
     align-items: center;
 
-    filter: drop-shadow(0 0 12px var(--theme-glow));
+    filter: drop-shadow(0 0 14px var(--theme-glow));
 }
 
 .spiral-core {
     width: 14px;
     height: 14px;
-
     background: var(--theme-glow);
     border-radius: 50%;
-
-    box-shadow: 0 0 10px var(--theme-glow), 0 0 20px var(--theme-glow);
+    box-shadow:
+        0 0 10px var(--theme-glow),
+        0 0 25px var(--theme-glow),
+        0 0 40px var(--theme-glow);
 }
 
-.orbit {
+/* OUTER RING — slow, clockwise */
+.o1 {
     position: absolute;
-    width: 100%;
-    height: 100%;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
-    border: 2px solid rgba(0,255,255,0.35);
-
-    animation: orbitSpin 1.8s linear infinite;
+    border: 2px solid rgba(0,255,255,0.32);
+    animation: orbitCW 2.4s linear infinite;
+    transform-origin: center;
+    animation-delay: -0.3s;
 }
 
-.o1 { width: 54px; height: 54px; }
-.o2 { width: 40px; height: 40px; animation-duration: 1.4s; border-color: rgba(0,255,255,0.25); }
-.o3 { width: 28px; height: 28px; animation-duration: 1s;   border-color: rgba(0,255,255,0.18); }
+/* MIDDLE RING — medium, counter-clockwise */
+.o2 {
+    position: absolute;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,255,255,0.22);
+    animation: orbitCCW 1.6s linear infinite;
+    transform-origin: center;
+    animation-delay: -0.7s;
+}
 
-@keyframes orbitSpin {
-    to { transform: rotate(360deg); }
-       }
+/* INNER RING — fastest, clockwise */
+.o3 {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid rgba(0,255,255,0.18);
+    animation: orbitCW 0.9s linear infinite;
+    transform-origin: center;
+    animation-delay: -1.1s;
+}
+
+/* Spin directions */
+@keyframes orbitCW {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes orbitCCW {
+    0%   { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
