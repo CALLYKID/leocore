@@ -1,11 +1,12 @@
 {
   "name": "leocore-backend",
   "version": "1.0.0",
+  "description": "LeoCore AI Backend",
   "type": "module",
   "main": "server.js",
-  
+
   "engines": {
-    "node": "18.x"
+    "node": ">=18"
   },
 
   "scripts": {
