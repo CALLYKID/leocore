@@ -18,3 +18,10 @@ const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log("LeoCore backend running on port " + PORT);
 });
+/* ============================================================
+   BACKEND KEEP-ALIVE PING (PREVENT SERVER SLEEP)
+============================================================ */
+setInterval(() => {
+    fetch("https://<YOUR-BACKEND-URL>/ping")
+        .catch(() => {});
+}, 45000); // every 45s
