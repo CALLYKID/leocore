@@ -509,6 +509,5 @@ document.addEventListener("mousemove", e => {
    BACKEND KEEP-ALIVE PING (PREVENT SERVER SLEEP)
 ============================================================ */
 setInterval(() => {
-    fetch("https://<YOUR-BACKEND-URL>/ping")
-        .catch(() => {});
-}, 45000); // every 45s
+    fetch("https://leocore.onrender.com/ping").catch(() => {});
+}, 45000);
