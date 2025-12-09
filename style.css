@@ -7,6 +7,7 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent !important;
 }
+
 body {
     background: #000;
     font-family: 'Inter', sans-serif;
@@ -15,7 +16,10 @@ body {
     opacity: 0;
     animation: fadeIn 0.6s ease forwards;
 }
-@keyframes fadeIn { to { opacity: 1; } }
+
+@keyframes fadeIn { 
+    to { opacity: 1; } 
+}
 
 button, .clear-btn, .back-btn, #sendBtn {
     outline: none !important;
@@ -34,6 +38,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: -5;
     pointer-events: none;
 }
+
 .overlay {
     position: fixed;
     inset: 0;
@@ -52,28 +57,38 @@ button, .clear-btn, .back-btn, #sendBtn {
     position: relative;
     z-index: 5;
 }
+
 .fake-input {
     width: 85vw;
     max-width: 600px;
     height: 64px;
     margin: 0 auto 28px;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     background: rgba(0,15,30,0.35);
     border-radius: 18px;
-    border: 2px solid rgba(0,200,255,0.85);
-    box-shadow: 0 0 22px rgba(0,200,255,0.55), 0 0 40px rgba(0,200,255,0.25);
+    border: 2px solid #00eaff;
+    box-shadow: 0 0 22px #00eaff88, 0 0 40px #00eaff44;
     backdrop-filter: blur(6px);
     cursor: pointer;
+
     animation: inputBreath 4s ease-in-out infinite;
 }
+
 @keyframes inputBreath {
-    0% { box-shadow: 0 0 14px rgba(0,200,255,0.55); }
-    50% { box-shadow: 0 0 22px rgba(0,200,255,0.85); }
-    100% { box-shadow: 0 0 14px rgba(0,200,255,0.55); }
+    0% { box-shadow: 0 0 14px #00eaff55; }
+    50% { box-shadow: 0 0 26px #00eaffdd; }
+    100% { box-shadow: 0 0 14px #00eaff55; }
 }
-.fake-text { font-size: 20px; color: #dffaff; white-space: nowrap; }
+
+.fake-text {
+    font-size: 20px;
+    color: #dffaff;
+    white-space: nowrap;
+}
 
 .main-title {
     font-size: 46px;
@@ -82,6 +97,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     position: relative;
     overflow: hidden;
 }
+
 .main-title::after {
     content: "";
     position: absolute;
@@ -92,28 +108,49 @@ button, .clear-btn, .back-btn, #sendBtn {
     background: linear-gradient(75deg, transparent, rgba(255,255,255,0.6), transparent);
     animation: shine 5s infinite ease-in-out;
 }
+
 @keyframes shine {
     0% { left: -120%; }
     60% { left: 120%; }
     100% { left: 120%; }
 }
-.subtitle { margin-top: 8px; font-size: 19px; }
+
+.subtitle {
+    margin-top: 8px;
+    font-size: 19px;
+    color: #e0faff;
+}
 
 /* ============================================================
-   MODE SELECTOR — FINAL (B3 S1 C3 G1 P2)
+   SECTION TITLES
 ============================================================ */
-.modes-wrapper { margin-top: 40px; padding: 20px 0; }
+.section-title {
+    text-align: center;
+    font-size: 22px;
+    margin-bottom: 12px;
+    font-family: Montserrat;
+    font-weight: 700;
+    color: #dffaff;
+}
+/* ============================================================
+   MODE SELECTOR — FINAL VERSION (B3 S1 C3 G1 P2)
+============================================================ */
+.modes-wrapper { 
+    margin-top: 40px; 
+    padding: 20px 0; 
+}
 
 .mode-selector {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* G1 = 2 per row */
+    grid-template-columns: repeat(2, 1fr); /* G1 = 2 columns */
     gap: 20px;
     padding: 0 26px;
 }
 
+/* MAIN MODE BUTTON */
 .mode-btn {
-    padding: 24px 24px; /* B3 — BIG */
-    border-radius: 18px; /* S1 */
+    padding: 24px 24px;   /* B3 = Big */
+    border-radius: 18px;  /* S1 = Smooth */
     background: rgba(255,255,255,0.08);
     border: 2px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
@@ -130,7 +167,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     position: relative;
 }
 
-/* Glow dot */
+/* DOT GLOW */
 .mode-btn::before {
     content: "";
     width: 12px;
@@ -140,94 +177,19 @@ button, .clear-btn, .back-btn, #sendBtn {
     box-shadow: 0 0 12px currentColor;
 }
 
-/* Hover */
-.mode-btn:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 0 30px currentColor; /* stronger glow */
-}
-
-/* Active button — C3 insane glow + P2 pulsing */
-.mode-btn.active {
-    background: rgba(255,255,255,0.12);
-    box-shadow: 0 0 35px currentColor, inset 0 0 22px currentColor;
-    border-color: currentColor;
-    animation: modePulse 1.4s infinite ease-in-out;
-}
-@keyframes modePulse {
-    0%   { box-shadow: 0 0 25px currentColor; }
-    50%  { box-shadow: 0 0 45px currentColor; }
-    100% { box-shadow: 0 0 25px currentColor; }
-}
-
-/* Color-coded themes */
-.mode-btn[data-mode="default"]    { color: #00eaff; }
-.mode-btn[data-mode="study"]      { color: #4da3ff; }
-.mode-btn[data-mode="research"]   { color: #00ffc8; }
-.mode-btn[data-mode="reading"]    { color: #ffb039; }
-.mode-btn[data-mode="deep"]       { color: #ff0055; }
-.mode-btn[data-mode="chill"]      { color: #c44dff; }
-.mode-btn[data-mode="precision"]  { color: #00eaff; }
-.mode-btn[data-mode="flame"]      { color: #ff5500; }
-
-/* ============================================================
-   LEOCORE MODE BUTTONS — FINAL CLEAN VERSION (B3 S1 C3 G1 P2)
-============================================================ */
-
-.modes-wrapper {
-    margin-top: 40px;
-    padding: 20px 0;
-}
-
-/* 2 per row ALWAYS (G1) */
-.mode-selector {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    padding: 0 26px;
-}
-
-/* BIG BUTTONS (B3) + ROUND 18PX (S1) */
-.mode-btn {
-    padding: 24px 24px;
-    border-radius: 18px;
-
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    border: 2px solid rgba(255,255,255,0.18);
-
-    display: flex;
-    align-items: center;
-    gap: 14px;
-
-    font-size: 18px;
-    font-weight: 800;
-    color: #e5faff;
-
-    transition: 0.25s ease;
-    position: relative;
-}
-
-/* Glow Dot */
-.mode-btn::before {
-    content: "";
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: currentColor;
-    box-shadow: 0 0 12px currentColor;
-}
-
-/* Hover Glow (C3 enhanced) */
+/* Hover Effect */
 .mode-btn:hover {
     transform: translateY(-4px);
     box-shadow: 0 0 30px currentColor;
 }
 
-/* Active Glow + Pulse (C3 + P2) */
+/* ACTIVE MODE — P2 pulse + C3 strong glow */
 .mode-btn.active {
     background: rgba(255,255,255,0.12);
+    box-shadow: 
+        0 0 35px currentColor, 
+        inset 0 0 22px currentColor;
     border-color: currentColor;
-    box-shadow: 0 0 35px currentColor, inset 0 0 22px currentColor;
     animation: modePulse 1.4s infinite ease-in-out;
 }
 
@@ -246,3 +208,682 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-btn[data-mode="chill"]      { color: #c44dff; }
 .mode-btn[data-mode="precision"]  { color: #00eaff; }
 .mode-btn[data-mode="flame"]      { color: #ff5500; }
+
+/* Make "Flame Mode" glow harder */
+.mode-btn[data-mode="flame"].active {
+    box-shadow: 
+        0 0 40px #ff5500, 
+        inset 0 0 26px #ff5500 !important;
+}
+
+
+/* ============================================================
+   QUICK TOOLS
+============================================================ */
+.tools-wrapper { 
+    margin-top: 40px; 
+    padding: 20px 0; 
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    padding: 0 22px;
+}
+
+.tool-btn {
+    padding: 16px;
+    border-radius: 18px;
+    text-align: center;
+
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.25);
+    color: #dffaff;
+
+    cursor: pointer;
+    transition: 0.25s;
+    backdrop-filter: blur(6px);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.tool-btn:hover {
+    background: rgba(0,200,255,0.25);
+}
+
+
+/* ============================================================
+   CREATOR CARD
+============================================================ */
+.creator-card {
+    width: 85%;
+    margin: 45px auto 20px;
+    padding: 24px;
+
+    text-align: center;
+
+    border-radius: 20px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
+
+    color: #eafaff;
+    line-height: 1.45;
+}
+
+
+/* ============================================================
+   TESTIMONIALS
+============================================================ */
+.testimonials {
+    margin-top: 35px;
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    align-items: center;
+}
+
+.testimonial-bubble {
+    padding: 14px 20px;
+    border-radius: 18px;
+    background: rgba(0,200,255,0.15);
+    font-size: 15px;
+    animation: floatUp 6s infinite ease-in-out;
+}
+
+@keyframes floatUp {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.testimonial-separator {
+    width: 60%;
+    height: 1px;
+    background: rgba(0,255,255,0.18);
+    border-radius: 50px;
+    margin-top: 10px;
+}
+
+
+/* ============================================================
+   INFO CARD (What is LeoCore?)
+============================================================ */
+.info-card {
+    width: 90%;
+    margin: 40px auto;
+    padding: 26px;
+
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
+
+    border-radius: 20px;
+    color: #dffaff;
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+.info-card h2 {
+    font-size: 22px;
+    margin-bottom: 10px;
+    color: #eafaff;
+}
+
+.features {
+    margin-top: 12px;
+    font-size: 18px;
+    text-align: center;
+}
+/* ============================================================
+   CHAT SCREEN — FULL MODULE
+============================================================ */
+.chat-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999 !important;
+
+    background: rgba(5,10,25,0.92);
+    backdrop-filter: blur(10px);
+
+    display: none;
+    flex-direction: column;
+
+    pointer-events: auto !important;
+}
+
+.chat-screen.active {
+    display: flex;
+}
+
+/* ============================================================
+   CHAT HEADER
+============================================================ */
+.glow-header {
+    padding: 14px 20px;
+    background: rgba(0,0,0,0.35);
+
+    backdrop-filter: blur(14px);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    border-bottom: 1px solid rgba(0,255,255,0.12);
+
+    position: relative;
+    overflow: hidden;
+
+    pointer-events: auto;
+}
+
+/* Header Glow FX */
+.glow-header::before {
+    content: "";
+    position: absolute;
+    inset: -30px;
+
+    background: radial-gradient(circle, rgba(0,200,255,0.20), transparent 70%);
+    animation: glowPulse 5s infinite ease-in-out;
+}
+
+@keyframes glowPulse {
+    0% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(1.15); }
+    100% { opacity: 0.4; transform: scale(1); }
+}
+
+/* Header Buttons */
+.glass-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-size: 21px;
+    color: #e4faff;
+    transition: 0.25s ease;
+}
+
+.glass-btn:active {
+    transform: scale(0.9);
+    background: rgba(0,200,255,0.25);
+    box-shadow: 0 0 16px rgba(0,200,255,0.55);
+}
+
+/* Title block */
+.chat-title-wrapper {
+    text-align: center;
+}
+
+.chat-title {
+    font-family: Montserrat;
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(90deg,#00eaff,#9d4bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Underline */
+.title-underline {
+    width: 80%;
+    height: 3px;
+    background: linear-gradient(90deg,#00eaff,#9400ff);
+    margin: 3px auto 0;
+}
+
+/* MODE BADGE UNDER TITLE */
+.mode-badge {
+    margin-top: 4px;
+    padding: 4px 10px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    border-radius: 12px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+
+    display: none;
+    color: #fff;
+}
+
+/* ============================================================
+   CHAT MESSAGES
+============================================================ */
+.chat-messages {
+    flex: 1;
+
+    padding: 14px;
+
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    scroll-behavior: smooth;
+}
+
+/* USER MESSAGE BUBBLE */
+.user-msg {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.user-msg .bubble {
+    background: #008cff;
+    color: #fff;
+}
+
+/* AI MESSAGE BUBBLE */
+.ai-msg {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.ai-msg .bubble {
+    background: #1e263f;
+    color: #e9f4ff;
+}
+
+/* Shared bubble styling */
+.bubble {
+    max-width: 92%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 16px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ============================================================
+   STREAMING CURSOR (AI typing indicator)
+============================================================ */
+.ai-streaming {
+    position: relative;
+}
+
+.neon-cursor {
+    position: absolute;
+    right: -8px;
+    bottom: 0;
+
+    width: 6px;
+    height: 18px;
+
+    background: var(--theme-glow);
+    border-radius: 2px;
+
+    animation: blink 0.7s infinite alternate;
+}
+
+@keyframes blink {
+    100% { opacity: 0.25; }
+}
+
+/* Remove cursor at end */
+.neon-cursor.fade-out {
+    animation: fadeCursor 0.35s forwards;
+}
+
+@keyframes fadeCursor {
+    to { opacity: 0; transform: scale(2); }
+}
+
+/* ============================================================
+   INPUT BAR
+============================================================ */
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px;
+
+    background: rgba(255,255,255,0.05);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(12px);
+}
+
+/* MODE PILL (left inside input) */
+.mode-pill {
+    padding: 0 18px;
+    height: 46px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: rgba(0,0,0,0.35);
+    border: 2px solid var(--theme-glow);
+
+    border-radius: 14px;
+
+    font-size: 14px;
+    color: #fff;
+    font-weight: 600;
+
+    box-shadow: 0 0 12px var(--theme-glow);
+    transition: 0.25s ease;
+
+    width: 90px;
+    min-width: 90px;
+}
+
+/* INPUT FIELD */
+.chat-input-area input {
+    flex: 1;
+    height: 46px;
+    padding: 0 14px;
+
+    background: rgba(0,0,0,0.35);
+    border: 2px solid rgba(255,255,255,0.25);
+    border-radius: 14px;
+
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+}
+
+/* SEND BUTTON */
+#sendBtn {
+    width: 52px;
+    height: 46px;
+
+    background: var(--theme-glow);
+    border-radius: 14px;
+    border: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+
+    box-shadow: 0 0 12px var(--theme-glow);
+    transition: 0.25s ease;
+}
+
+/* "STOP" STREAM MODE */
+#sendBtn.stop-mode {
+    background: #ff3b3b !important;
+    transform: scale(0.93);
+    box-shadow: 0 0 18px #ff3b3b !important;
+    color: #fff !important;
+}
+
+/* Make sure header buttons always click */
+#backBtn,
+#deleteBtn,
+.glass-btn {
+    pointer-events: auto !important;
+    z-index: 999999 !important;
+}
+
+.glow-header::before,
+.glow-header::after {
+    pointer-events: none !important;
+   }
+/* ============================================================
+   ORBS / PARALLAX / HOLOGRAPHIC FX
+============================================================ */
+:root {
+    --theme-glow: #00eaff;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    width: 160px;
+    height: 100%;
+    opacity: 0.45;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: -1;
+    animation: glowMove 12s infinite alternate ease-in-out;
+}
+
+body::before { left: -40px; background: var(--theme-glow); }
+body::after  { right: -40px; background: #9400ff; }
+
+@keyframes glowMove {
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(80px); }
+    100% { transform: translateY(-20px); }
+}
+
+/* Floating neon ORBS */
+.orb {
+    position: fixed;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+
+    background: radial-gradient(circle, #00eaff55, #00eaff00);
+    filter: blur(25px);
+
+    pointer-events: none;
+    z-index: -1;
+
+    animation: orbFloat 14s infinite ease-in-out;
+}
+
+.orb1 { top: 20%; left: 10%; }
+.orb2 { top: 60%; right: 12%; animation-delay: 3s; }
+.orb3 { top: 80%; left: 40%; animation-delay: 6s; }
+
+@keyframes orbFloat {
+    0%   { transform: translate(0,0); }
+    50%  { transform: translate(30px,-40px); }
+    100% { transform: translate(-20px,20px); }
+}
+
+/* Neon scan line */
+.neon-scan {
+    position: fixed;
+    top: -100%;
+    width: 100%;
+    height: 160px;
+
+    background: linear-gradient(to bottom, transparent, rgba(0,255,255,0.25), transparent);
+
+    animation: scanMove 6s infinite ease-in-out;
+    z-index: -1;
+}
+
+@keyframes scanMove {
+    0%   { top: -100%; }
+    50%  { top: 120%; }
+    100% { top: -100%; }
+}
+
+/* Floating holo lines */
+.holo-line {
+    position: fixed;
+    width: 100%;
+    height: 2px;
+
+    background: linear-gradient(90deg, transparent, #00eaff55, transparent);
+    opacity: 0.25;
+
+    animation: holoFloat 8s infinite ease-in-out;
+    z-index: -1;
+}
+
+@keyframes holoFloat {
+    0%   { transform: translateY(10%); }
+    50%  { transform: translateY(80%); }
+    100% { transform: translateY(10%); }
+}
+
+/* Ensure home elements stay above FX */
+.creator-card,
+.testimonial-bubble,
+.modes-wrapper,
+.tools-wrapper,
+.info-card {
+    position: relative;
+    z-index: 1;
+}
+
+/* ============================================================
+   FLAME MODE — VISUAL OVERRIDES
+============================================================ */
+body.flame-glow::before {
+    background: radial-gradient(circle, rgba(255,60,0,0.55), transparent);
+}
+
+body.flame-glow::after {
+    background: radial-gradient(circle, rgba(255,120,0,0.45), transparent);
+}
+
+body.flame-glow .fake-input {
+    box-shadow: 0 0 26px #ff5500, 0 0 70px #ff2200;
+}
+
+body.flame-glow #sendBtn {
+    background: #ff3b00 !important;
+    color: #fff !important;
+    box-shadow: 0 0 18px #ff3b00 !important;
+}
+
+body.flame-glow .mode-pill {
+    border-color: #ff3b00 !important;
+    box-shadow: 0 0 12px #ff3b00 !important;
+}
+
+/* ============================================================
+   CLICK FIXES — HEADER, BUTTONS ALWAYS CLICKABLE
+============================================================ */
+.chat-header,
+.back-btn,
+.clear-btn,
+#closeChat,
+#clearChat {
+    pointer-events: auto !important;
+    z-index: 999999 !important;
+}
+
+.chat-header::before,
+.chat-header::after {
+    pointer-events: none !important;
+}
+
+.chat-screen {
+    pointer-events: auto !important;
+}
+
+/* ============================================================
+   FULL WIPE ANIMATION (when clearing chat)
+============================================================ */
+#wipeOverlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(5, 0, 20, 0.9);
+    backdrop-filter: blur(10px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    transition: 0.4s ease;
+
+    z-index: 999999;
+}
+
+#wipeOverlay.show {
+    opacity: 1;
+}
+
+.wipe-container {
+    text-align: center;
+}
+
+.wipe-loader {
+    width: 70px;
+    height: 70px;
+
+    border: 5px solid rgba(0,255,255,0.25);
+    border-top-color: var(--theme-glow);
+
+    border-radius: 50%;
+    animation: wipeSpin 1s linear infinite;
+
+    margin: 0 auto 18px;
+}
+
+@keyframes wipeSpin {
+    to { transform: rotate(360deg); }
+}
+
+.wipe-text {
+    color: #dffaff;
+    font-size: 18px;
+    font-weight: 600;
+    text-shadow: 0 0 10px var(--theme-glow);
+}
+
+/* ============================================================
+   ORBIT LOADER — RESTORED
+============================================================ */
+.spiral-bubble {
+    width: 54px;
+    height: 54px;
+    position: relative;
+    margin-left: 6px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    filter: drop-shadow(0 0 12px var(--theme-glow));
+}
+
+.spiral-core {
+    width: 14px;
+    height: 14px;
+
+    background: var(--theme-glow);
+    border-radius: 50%;
+
+    box-shadow: 0 0 10px var(--theme-glow), 0 0 20px var(--theme-glow);
+}
+
+.orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid rgba(0,255,255,0.35);
+
+    animation: orbitSpin 1.8s linear infinite;
+}
+
+.o1 { width: 54px; height: 54px; }
+.o2 { width: 40px; height: 40px; animation-duration: 1.4s; border-color: rgba(0,255,255,0.25); }
+.o3 { width: 28px; height: 28px; animation-duration: 1s;   border-color: rgba(0,255,255,0.18); }
+
+@keyframes orbitSpin {
+    to { transform: rotate(360deg); }
+       }
