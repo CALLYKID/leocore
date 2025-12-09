@@ -323,13 +323,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     content: "";
     position: absolute;
     inset: 0;
-
     background: url("waves-blur.jpg") center/cover no-repeat;
-
-    /* smooth premium blur */
     filter: blur(22px) brightness(0.65) saturate(1.35);
     opacity: 0.9;
-
     z-index: -1;
 }
 
