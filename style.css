@@ -23,24 +23,51 @@ button, .clear-btn, .back-btn, #sendBtn {
 /* ============================================================
    BACKGROUND VIDEO
 ============================================================ */
+/* ============================================================
+   CLEAN NEON BACKGROUND — VERSION C-A
+   Fixes zoom, adds depth, smooth parallax
+============================================================ */
+
 #bgVideo {
     position: fixed;
     inset: 0;
-    width: 100%;
-    height: 100%;
+    width: 110%;          /* slightly bigger to avoid edges */
+    height: 110%;
     object-fit: cover;
+    transform: scale(1.05);       /* correct zoom balance */
+    filter: brightness(0.72) saturate(1.2) contrast(1.05);
+    opacity: 0.92;       /* softer look instead of harsh */
     z-index: -5;
-    pointer-events: none;
 }
 
+/* Soft neon wash layer */
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,25,0.40);
-    backdrop-filter: blur(3px);
+    background: rgba(0, 10, 35, 0.45);
+    backdrop-filter: blur(5px);
     z-index: -4;
 }
 
+/* Subtle moving glow layer */
+.bg-soft-glow {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 40% 30%,
+        rgba(0, 234, 255, 0.22),
+        transparent 60%
+    );
+    mix-blend-mode: screen;
+    animation: slowGlow 14s ease-in-out infinite;
+    z-index: -3;
+    pointer-events: none;
+}
+
+@keyframes slowGlow {
+    0%   { transform: translate(0px, 0px) scale(1); }
+    50%  { transform: translate(20px, -30px) scale(1.06); }
+    100% { transform: translate(0px, 0px) scale(1); }
+}
 /* ============================================================
    HERO / TITLE
 ============================================================ */
