@@ -1,5 +1,5 @@
 /* ============================================================
-   GLOBAL RESET + TOUCH FIXES
+   GLOBAL RESET
 ============================================================ */
 * {
     margin: 0;
@@ -10,35 +10,28 @@
 
 html, body {
     height: 100%;
-    overscroll-behavior: none;
-}
-
-body {
     background: #000;
     font-family: 'Inter', sans-serif;
     color: #fff;
-    overflow-x: hidden;
-    position: relative;
+    overscroll-behavior: none;
 }
 
-/* Universal button fixes */
+/* Buttons always clickable */
 button, .clear-btn, .back-btn, #sendBtn {
-    outline: none !important;
     pointer-events: auto !important;
     z-index: 999999;
 }
 
 
 /* ============================================================
-   BACKGROUND LAYER — NEVER MOVES, NEVER BREAKS
+   TRUE BACKGROUND LAYER — FIXED & STABLE
 ============================================================ */
 #bgLayer {
     position: fixed;
     inset: 0;
-    z-index: -10;
     overflow: hidden;
+    z-index: -10 !important;
     pointer-events: none !important;
-    transform: translateZ(0);
 }
 
 #bgVideo {
@@ -48,9 +41,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     height: 100%;
     object-fit: cover;
     object-position: center;
-    filter: brightness(0.78) saturate(1.2);
     transform: translateZ(0) scale(1.05);
     backface-visibility: hidden;
+    filter: brightness(0.78) saturate(1.2);
 }
 
 .overlay {
@@ -88,6 +81,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 .fake-input {
+    pointer-events: auto !important;
     width: 85vw;
     max-width: 600px;
     height: 64px;
@@ -95,14 +89,11 @@ button, .clear-btn, .back-btn, #sendBtn {
     display: flex;
     justify-content: center;
     align-items: center;
-
     background: rgba(0, 15, 30, 0.35);
     border-radius: 18px;
     border: 2px solid #00eaff;
     box-shadow: 0 0 24px #00eaff88;
-
     cursor: pointer;
-    pointer-events: auto !important;
 }
 
 .fake-text {
@@ -137,19 +128,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 18px;
     color: #e2fbff;
 }
-
-
-/* Fade-in animation */
-.fade-in {
-    opacity: 0;
-    transform: translateY(8px);
-    animation: fadeInReal 0.8s ease-out forwards;
-}
-
-@keyframes fadeInReal {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
 /* ============================================================
    SECTION TITLES
 ============================================================ */
@@ -163,7 +141,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 20;
 }
 
-/* Homepage items clickable */
+/* Clickable homepage items */
 .modes-wrapper,
 .tools-wrapper,
 .creator-card,
@@ -173,7 +151,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 .tool-btn,
 .mode-btn {
     position: relative;
-    z-index: 30;
+    z-index: 30 !important;
     pointer-events: auto !important;
 }
 
@@ -196,20 +174,16 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-btn {
     padding: 22px;
     border-radius: 18px;
-
     background: rgba(255,255,255,0.08);
     border: 2px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(14px);
-
     display: flex;
     align-items: center;
     gap: 14px;
-
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
     transition: 0.25s;
-
     color: #dffaff;
 }
 
@@ -225,7 +199,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     background: rgba(255,255,255,0.1);
     border-radius: 8px;
     margin-left: 8px;
-
     border: 1px solid var(--theme-glow);
     color: var(--theme-glow);
 }
@@ -249,15 +222,12 @@ button, .clear-btn, .back-btn, #sendBtn {
 .tool-btn {
     padding: 16px;
     border-radius: 18px;
-
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(0,255,255,0.25);
     backdrop-filter: blur(6px);
-
     text-align: center;
     font-size: 16px;
     font-weight: 600;
-
     cursor: pointer;
     transition: 0.2s ease;
 }
@@ -274,12 +244,10 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 85%;
     margin: 42px auto 24px;
     padding: 24px;
-
     border-radius: 20px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(12px);
-
     text-align: center;
     font-size: 16px;
     color: #eafaff;
@@ -292,7 +260,6 @@ button, .clear-btn, .back-btn, #sendBtn {
 .testimonials {
     margin-top: 32px;
     padding: 20px;
-
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -303,7 +270,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     padding: 14px 20px;
     background: rgba(0,200,255,0.15);
     border-radius: 18px;
-
     font-size: 14px;
     color: #dffaff;
 }
@@ -316,42 +282,15 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 90%;
     margin: 40px auto;
     padding: 26px;
-
     border-radius: 20px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
-
     color: #dffaff;
     font-size: 17px;
 }
-
-
 /* ============================================================
-   RESPONSIVE FIXES (MOBILE)
-============================================================ */
-@media (max-width: 600px) {
-
-    .fake-input {
-        height: 58px;
-        font-size: 17px;
-    }
-
-    .main-title {
-        font-size: 40px;
-    }
-
-    .mode-selector {
-        gap: 14px;
-    }
-
-    .bubble {
-        font-size: 15px;
-        padding: 12px 14px;
-    }
-}
-/* ============================================================
-   CHAT SCREEN — TRUE FIXED OVERLAY
+   CHAT SCREEN — FIXED + NO LAYOUT BUGS
 ============================================================ */
 #chatScreen {
     position: fixed;
@@ -366,13 +305,12 @@ button, .clear-btn, .back-btn, #sendBtn {
     flex-direction: column;
 
     overflow: hidden;
-    pointer-events: none;
-
     opacity: 0;
     transform: translateY(40px);
     transition: opacity 0.35s ease, transform 0.35s ease;
 
-    z-index: 999999;  /* Always above everything */
+    z-index: 999999 !important;
+    pointer-events: none;
 }
 
 #chatScreen.active {
@@ -381,18 +319,13 @@ button, .clear-btn, .back-btn, #sendBtn {
     pointer-events: auto;
 }
 
-
-/* ============================================================
-   FIX CHAT BACKGROUND LAYER
-============================================================ */
+/* Background wallpaper */
 #chatScreen::before {
     content: "";
     position: absolute;
     inset: 0;
-
     background: url("waves-blur.jpg?v=9999") center/cover no-repeat;
     filter: blur(26px) brightness(0.72) saturate(1.25);
-
     z-index: -1;
 }
 
@@ -401,58 +334,52 @@ button, .clear-btn, .back-btn, #sendBtn {
    CHAT HEADER
 ============================================================ */
 .chat-header {
-    flex-shrink: 0;
-
     padding: 14px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     background: rgba(0,0,0,0.35);
     border-bottom: 1px solid rgba(0,255,255,0.12);
 }
 
-
-/* ============================================================
-   CHAT MESSAGE AREA — THE BROKEN PART YOU SENT A PHOTO OF
-============================================================ */
-.chat-messages {
-    flex: 1;                     /* takes remaining height */
-    width: 100%;
-    min-height: 0;               /* required for flex scroll */
-    max-height: calc(100vh - 140px);
-
-    padding: 14px;
-    overflow-y: auto;
-
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    background: rgba(0,0,0,0.22);
-    backdrop-filter: blur(6px);
+.chat-title {
+    font-size: 22px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00eaff, #9d4bff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 
 /* ============================================================
-   PERFECT BUBBLE ALIGNMENT
+   CHAT MESSAGES (FULL ALIGNMENT FIXED)
 ============================================================ */
+.chat-messages {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.22);
+    backdrop-filter: blur(6px);
+}
+
 .user-msg,
 .ai-msg {
-    display: flex;
     width: 100%;
+    display: flex;
 }
 
 .user-msg { justify-content: flex-end; }
 .ai-msg { justify-content: flex-start; }
 
 .bubble {
-    max-width: 85%;
     padding: 14px 18px;
     border-radius: 14px;
-
+    max-width: 85%;
     word-break: break-word;
-    line-height: 1.45;
 }
 
 .user-msg .bubble {
@@ -467,113 +394,103 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   STREAMING EFFECT
-============================================================ */
-.ai-streaming .stream-text {
-    animation: fadeInText 0.2s ease;
-}
-
-@keyframes fadeInText {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
-
-.neon-cursor {
-    width: 6px;
-    height: 18px;
-    background: var(--theme-glow);
-    animation: blink 0.7s infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-}
-
-
-/* ============================================================
-   INPUT BAR — FIXED AT THE BOTTOM TO PREVENT FLOATING
+   INPUT BAR
 ============================================================ */
 .chat-input-area {
-    flex-shrink: 0;
-    width: 100%;
-
-    padding: 12px;
     display: flex;
     align-items: center;
     gap: 10px;
-
+    padding: 12px;
     background: rgba(0,0,0,0.40);
     border-top: 1px solid rgba(255,255,255,0.12);
-
-    position: relative;
-    z-index: 2000000; /* Always above messages */
 }
 
 .chat-input-area input {
     flex: 1;
     height: 46px;
     padding: 0 14px;
-
     background: rgba(0,0,0,0.45);
     border: 2px solid rgba(255,255,255,0.25);
     border-radius: 14px;
-
     color: #fff;
 }
 
 #sendBtn {
     width: 52px;
     height: 46px;
-
-    border: none;
     border-radius: 14px;
-
+    border: none;
     background: var(--theme-glow);
     color: #000;
     font-weight: 700;
-
     box-shadow: 0 0 12px var(--theme-glow);
 }
-
-#sendBtn.stop-mode {
-    background: #ff3b3b !important;
-    color: #fff !important;
-}
-
-
 /* ============================================================
    MODE PILL
 ============================================================ */
 .mode-pill {
-    height: 40px;
     padding: 0 12px;
-
+    height: 40px;
     display: flex;
     align-items: center;
-
-    border-radius: 12px;
-
     background: rgba(0,0,0,0.35);
     border: 2px solid var(--theme-glow);
-
+    border-radius: 12px;
     font-size: 12px;
     font-weight: 600;
-
     color: var(--theme-glow);
 }
 
 
 /* ============================================================
-   ANDROID HEIGHT + OVERSCROLL FIX
+   FULL WIPE OVERLAY
 ============================================================ */
-html, body {
-    height: 100%;
-    overscroll-behavior: none;
+#wipeOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999999;
+    background: rgba(5, 0, 20, 0.92);
+    backdrop-filter: blur(12px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
 }
 
-#chatScreen,
-.chat-messages,
-.chat-input-area {
-    contain: layout paint size style;
+#wipeOverlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.wipe-loader {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 4px solid rgba(255,255,255,0.25);
+    border-top-color: var(--theme-glow);
+    animation: wipeSpin 1s linear infinite;
+}
+
+@keyframes wipeSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
+/* ============================================================
+   ANDROID FIXES (FINAL)
+============================================================ */
+@supports (-webkit-touch-callout: none) {
+    #bgVideo {
+        transform: translateZ(0) scale(1.05);
+    }
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+    .fake-input { height: 58px; font-size: 17px; }
+    .main-title { font-size: 40px; }
+    .bubble { font-size: 15px; padding: 12px 14px; }
 }
