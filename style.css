@@ -1,44 +1,40 @@
-html, body {
-    background: #000 !important;
-}
-
-* {
-    background-color: transparent !important;
-}
 /* ============================================================
-   GLOBAL RESET
+   0. GLOBAL RESET
 ============================================================ */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent !important;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
     height: 100%;
     background: #000;
-    font-family: 'Inter', sans-serif;
     color: #fff;
+    font-family: 'Inter', sans-serif;
     overscroll-behavior: none;
+    overflow-x: hidden;
 }
 
 /* Buttons always clickable */
 button, .clear-btn, .back-btn, #sendBtn {
-    pointer-events: auto !important;
-    z-index: 999999;
+    pointer-events: auto;
+    z-index: 9999;
 }
 
 
 /* ============================================================
-   TRUE BACKGROUND LAYER — FIXED & STABLE
+   1. TRUE BACKGROUND LAYER (Never Moves, Never Breaks)
 ============================================================ */
 #bgLayer {
     position: fixed;
     inset: 0;
+    width: 100vw;
+    height: 100vh;
     overflow: hidden;
-    z-index: -10 !important;
-    pointer-events: none !important;
+    z-index: -10;
+    pointer-events: none;
 }
 
 #bgVideo {
@@ -49,46 +45,55 @@ button, .clear-btn, .back-btn, #sendBtn {
     object-fit: cover;
     object-position: center;
     transform: translateZ(0) scale(1.05);
-    backface-visibility: hidden;
-    filter: brightness(0.78) saturate(1.2);
+    filter: brightness(0.75) saturate(1.2);
 }
 
 .overlay {
     position: absolute;
     inset: 0;
     background: rgba(0, 10, 35, 0.55);
-    backdrop-filter: blur(3px);
+    backdrop-filter: blur(4px);
 }
 
 .bg-soft-glow {
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.20), transparent 60%);
+    background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.18), transparent 60%);
     mix-blend-mode: screen;
     animation: softGlow 12s ease-in-out infinite;
 }
 
 @keyframes softGlow {
-    0% { opacity: 0.55; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.08); }
-    100% { opacity: 0.55; transform: scale(1); }
+    0% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.06); }
+    100% { opacity: 0.5; transform: scale(1); }
 }
 
 
 /* ============================================================
-   HERO SECTION
+   2. HOME WRAPPER
+============================================================ */
+.app-wrapper {
+    width: 100%;
+    min-height: 140vh;
+    padding-bottom: 100px;
+    position: relative;
+    z-index: 5;
+}
+
+
+/* ============================================================
+   3. HERO SECTION
 ============================================================ */
 .center-wrapper {
     text-align: center;
     padding-top: 12vh;
     padding-bottom: 2vh;
-    position: relative;
-    z-index: 5;
     pointer-events: none;
 }
 
 .fake-input {
-    pointer-events: auto !important;
+    pointer-events: auto;
     width: 85vw;
     max-width: 600px;
     height: 64px;
@@ -96,7 +101,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: rgba(0, 15, 30, 0.35);
+    background: rgba(0, 15, 30, 0.40);
     border-radius: 18px;
     border: 2px solid #00eaff;
     box-shadow: 0 0 24px #00eaff88;
@@ -113,62 +118,50 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 46px;
     font-weight: 800;
     position: relative;
+    margin-top: 10px;
 }
 
 .main-title::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.45), transparent);
-    transform: translateX(-130%);
-    animation: shine 5s infinite;
+    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.3), transparent);
+    transform: translateX(-140%);
+    animation: shine 4s infinite;
 }
 
 @keyframes shine {
-    0% { transform: translateX(-130%); }
-    55% { transform: translateX(130%); }
-    100% { transform: translateX(130%); }
+    0% { transform: translateX(-140%); }
+    50% { transform: translateX(140%); }
+    100% { transform: translateX(140%); }
 }
 
 .subtitle {
     margin-top: 8px;
     font-size: 18px;
-    color: #e2fbff;
+    color: #dffaff;
 }
+
+
 /* ============================================================
-   SECTION TITLES
+   4. SECTION TITLES
 ============================================================ */
 .section-title {
     text-align: center;
     font-size: 22px;
-    margin-bottom: 14px;
     font-weight: 700;
+    margin-bottom: 14px;
     color: #dffaff;
-    position: relative;
     z-index: 20;
 }
-
-/* Clickable homepage items */
-.modes-wrapper,
-.tools-wrapper,
-.creator-card,
-.testimonials,
-.info-card,
-.mode-selector,
-.tool-btn,
-.mode-btn {
-    position: relative;
-    z-index: 30 !important;
-    pointer-events: auto !important;
-}
-
-
 /* ============================================================
-   MODE BUTTONS
+   5. MODES SECTION
 ============================================================ */
 .modes-wrapper {
     margin-top: 32px;
     padding: 22px 0;
+    position: relative;
+    z-index: 30;
 }
 
 .mode-selector {
@@ -182,41 +175,42 @@ button, .clear-btn, .back-btn, #sendBtn {
     padding: 22px;
     border-radius: 18px;
     background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.18);
-    backdrop-filter: blur(14px);
+    border: 2px solid rgba(255,255,255,0.15);
+    backdrop-filter: blur(12px);
     display: flex;
     align-items: center;
     gap: 14px;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
-    transition: 0.25s;
+    transition: .25s;
     color: #dffaff;
 }
 
 .mode-btn.active {
-    background: rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.18);
     border-color: var(--theme-glow);
-    box-shadow: 0 0 25px var(--theme-glow);
+    box-shadow: 0 0 20px var(--theme-glow);
 }
 
 .mode-badge {
     font-size: 12px;
     padding: 4px 10px;
-    background: rgba(255,255,255,0.1);
     border-radius: 8px;
-    margin-left: 8px;
+    background: rgba(255,255,255,0.10);
     border: 1px solid var(--theme-glow);
     color: var(--theme-glow);
+    margin-left: 8px;
 }
 
 
 /* ============================================================
-   QUICK TOOLS
+   6. QUICK TOOLS
 ============================================================ */
 .tools-wrapper {
     margin-top: 32px;
     padding: 18px 0;
+    z-index: 30;
 }
 
 .tools-grid {
@@ -236,33 +230,34 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    transition: 0.2s ease;
+    transition: .15s;
 }
 
 .tool-btn:active {
-    transform: scale(0.95);
+    transform: scale(0.96);
 }
 
 
 /* ============================================================
-   CREATOR CARD
+   7. CREATOR CARD
 ============================================================ */
 .creator-card {
     width: 85%;
-    margin: 42px auto 24px;
-    padding: 24px;
+    margin: 40px auto 24px;
+    padding: 26px;
     border-radius: 20px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(12px);
+    color: #dffaff;
     text-align: center;
     font-size: 16px;
-    color: #eafaff;
+    z-index: 30;
 }
 
 
 /* ============================================================
-   TESTIMONIALS
+   8. TESTIMONIALS
 ============================================================ */
 .testimonials {
     margin-top: 32px;
@@ -271,6 +266,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     flex-direction: column;
     gap: 14px;
     align-items: center;
+    z-index: 30;
 }
 
 .testimonial-bubble {
@@ -279,25 +275,29 @@ button, .clear-btn, .back-btn, #sendBtn {
     border-radius: 18px;
     font-size: 14px;
     color: #dffaff;
+    text-align: center;
 }
 
 
 /* ============================================================
-   INFO CARD
+   9. INFO CARD
 ============================================================ */
 .info-card {
     width: 90%;
     margin: 40px auto;
-    padding: 26px;
+    padding: 28px;
     border-radius: 20px;
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
     color: #dffaff;
     font-size: 17px;
+    z-index: 30;
 }
+
+
 /* ============================================================
-   CHAT SCREEN — FIXED + NO LAYOUT BUGS
+   10. CHAT SCREEN — FIXED
 ============================================================ */
 #chatScreen {
     position: fixed;
@@ -311,13 +311,12 @@ button, .clear-btn, .back-btn, #sendBtn {
     display: flex;
     flex-direction: column;
 
-    overflow: hidden;
     opacity: 0;
     transform: translateY(40px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-
-    z-index: 999999 !important;
     pointer-events: none;
+    transition: opacity .35s ease, transform .35s ease;
+
+    z-index: 999999;
 }
 
 #chatScreen.active {
@@ -326,19 +325,18 @@ button, .clear-btn, .back-btn, #sendBtn {
     pointer-events: auto;
 }
 
-/* Background wallpaper */
 #chatScreen::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: url("waves-blur.jpg?v=9999") center/cover no-repeat;
-    filter: blur(26px) brightness(0.72) saturate(1.25);
+    background: url("waves-blur.jpg") center/cover no-repeat;
+    filter: blur(26px) brightness(.72) saturate(1.2);
     z-index: -1;
 }
 
 
 /* ============================================================
-   CHAT HEADER
+   11. CHAT HEADER
 ============================================================ */
 .chat-header {
     padding: 14px 20px;
@@ -359,17 +357,17 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   CHAT MESSAGES (FULL ALIGNMENT FIXED)
+   12. CHAT MESSAGES
 ============================================================ */
 .chat-messages {
     flex: 1;
-    min-height: 0;         /* 🚀 prevents overflow eating the input bar */
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 14px;
-    overflow-y: auto;
-    background: rgba(0,0,0,0.22);
+    background: rgba(0,0,0,0.20);
     backdrop-filter: blur(6px);
 }
 
@@ -391,7 +389,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 .user-msg .bubble {
     background: #008cff;
-    color: #fff;
+    color: white;
 }
 
 .ai-msg .bubble {
@@ -401,21 +399,34 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   INPUT BAR
+   13. INPUT BAR
 ============================================================ */
+.chat-input-area {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: rgba(0,0,0,0.40);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    z-index: 9999999;
+}
 
 .chat-input-area input {
     flex: 1;
     height: 46px;
     padding: 0 14px;
-
-    background: rgba(0,0,0,0.35) !important;
-    border: 2px solid var(--theme-glow) !important;
+    font-size: 16px;
     border-radius: 14px;
 
-    color: #fff !important;
-    font-size: 16px;
-
+    background: rgba(0,0,0,0.35);
+    border: 2px solid var(--theme-glow);
+    color: #fff;
     outline: none;
 }
 
@@ -423,23 +434,27 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 52px;
     height: 46px;
     border-radius: 14px;
-    border: none;
     background: var(--theme-glow);
+    border: none;
     color: #000;
     font-weight: 700;
     box-shadow: 0 0 12px var(--theme-glow);
 }
+
+
 /* ============================================================
-   MODE PILL
+   14. MODE PILL
 ============================================================ */
 .mode-pill {
     padding: 0 12px;
     height: 40px;
     display: flex;
     align-items: center;
-    background: rgba(0,0,0,0.35);
-    border: 2px solid var(--theme-glow);
+
     border-radius: 12px;
+    border: 2px solid var(--theme-glow);
+    background: rgba(0,0,0,0.35);
+
     font-size: 12px;
     font-weight: 600;
     color: var(--theme-glow);
@@ -447,20 +462,22 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   FULL WIPE OVERLAY
+   15. FULL WIPE OVERLAY
 ============================================================ */
 #wipeOverlay {
     position: fixed;
     inset: 0;
-    z-index: 999999999;
     background: rgba(5, 0, 20, 0.92);
     backdrop-filter: blur(12px);
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.35s ease;
+    transition: opacity .35s;
+    z-index: 999999999;
 }
 
 #wipeOverlay.show {
@@ -469,22 +486,21 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 .wipe-loader {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
+    width: 50px;
+    height: 50px;
     border: 4px solid rgba(255,255,255,0.25);
     border-top-color: var(--theme-glow);
+    border-radius: 50%;
     animation: wipeSpin 1s linear infinite;
 }
 
 @keyframes wipeSpin {
-    from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
 
 
 /* ============================================================
-   ANDROID FIXES (FINAL)
+   16. MOBILE FIXES
 ============================================================ */
 @supports (-webkit-touch-callout: none) {
     #bgVideo {
@@ -492,53 +508,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     }
 }
 
-/* Mobile adjustments */
 @media (max-width: 600px) {
     .fake-input { height: 58px; font-size: 17px; }
     .main-title { font-size: 40px; }
     .bubble { font-size: 15px; padding: 12px 14px; }
-}
-
-
-.chat-input-area input {
-    background: rgba(0,0,0,0.35) !important;
-    border-color: var(--theme-glow) !important;
-    color: #fff !important;
-}
-
-/* Make homepage content always taller than screen */
-.app-wrapper {
-    min-height: 140vh !important;
-    padding-bottom: 80px !important;
-}
-
-/* Prevent video from moving when scrolling */
-html, body {
-    overflow-x: hidden;
-    overflow-y: auto;
-}
-
-#bgLayer {
-    position: fixed !important;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: -10 !important;
-    pointer-events: none !important;
-}
-
-#bgVideo {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-/* Ensure chat layout NEVER compresses the input bar out of view */
-#chatScreen {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
+    }
