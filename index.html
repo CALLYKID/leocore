@@ -25,27 +25,33 @@
      VIDEO PRELOAD FIX — NO FLASH, NO BLACK SCREEN
 ============================================================ -->
 <script>
-    document.documentElement.style.background = "#000";
-    document.body.style.opacity = "0";
+document.addEventListener("DOMContentLoaded", () => {
+    const vid = document.getElementById("bgVideo");
+    const layer = document.getElementById("bgLayer");
 
-    window.addEventListener("DOMContentLoaded", () => {
-        const vid = document.getElementById("bgVideo");
+    let hasShown = false;
 
-        // When video loads normally → show page
-        vid.addEventListener("loadeddata", () => {
-            document.body.style.opacity = "1";
-        });
+    function showVideo() {
+        if (hasShown) return;
+        hasShown = true;
+        vid.style.display = "block";
+        layer.style.background = "none";
+        document.body.style.opacity = "1";
+    }
 
-        // Fallback: if video doesn't load → use blur image
-        setTimeout(() => {
-            if (vid.readyState < 2) {
-                vid.style.display = "none";
-                document.getElementById("bgLayer").style.background =
-                    "url('waves-blur.jpg') center/cover no-repeat";
-            }
-            document.body.style.opacity = "1";
-        }, 300);
-    });
+    // If video loads → show it
+    vid.addEventListener("loadeddata", showVideo);
+
+    // True fallback after 1200ms if video completely fails
+    setTimeout(() => {
+        if (vid.readyState < 2) {
+            vid.style.display = "none";
+            layer.style.background =
+                "url('waves-blur.jpg') center/cover no-repeat";
+        }
+        document.body.style.opacity = "1";
+    }, 1200);
+});
 </script>
 
 
