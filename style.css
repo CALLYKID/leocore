@@ -388,26 +388,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 18px;
     text-align: center;
 }
-/* ============================================================
-   CHAT SCREEN — FULL MODULE
-============================================================ */
-.chat-screen {
-    position: fixed;
-    inset: 0;
-    z-index: 99999 !important;
-
-    background: rgba(5,10,25,0.92);
-    backdrop-filter: blur(10px);
-
-    display: none;
-    flex-direction: column;
-
-    pointer-events: auto !important;
-}
-
-.chat-screen.active {
-    display: flex;
-}
 
 /* ============================================================
    CHAT HEADER
