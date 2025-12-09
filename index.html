@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LeoCore</title>
 
-    <link rel="stylesheet" href="style.css?v=2001">
+    <!-- Cache breaker -->
+    <link rel="stylesheet" href="style.css?v=9999">
 </head>
 
 <body>
 
-<!-- HOME BACKGROUND (VIDEO) -->
+<!-- ============================================================
+     TRUE BACKGROUND LAYER
+============================================================ -->
 <div id="bgLayer">
     <video id="bgVideo" autoplay muted loop playsinline>
         <source src="waves.mp4" type="video/mp4">
@@ -20,9 +23,12 @@
     <div class="bg-soft-glow"></div>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- ============================================================
+     HOME SCREEN CONTENT
+============================================================ -->
 <div class="app-wrapper">
 
+    <!-- HERO -->
     <div class="center-wrapper fade-in">
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
@@ -32,9 +38,10 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-    <!-- MODE PICKER -->
+    <!-- MODES -->
     <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
+
         <div class="mode-selector">
             <div class="mode-btn" data-mode="default">⚡ Default</div>
             <div class="mode-btn" data-mode="study">📘 Study</div>
@@ -47,14 +54,15 @@
         </div>
     </section>
 
-    <!-- QUICK TOOLS -->
+    <!-- TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
+
         <div class="tools-grid">
-            <div class="tool-btn" data-task="summarise">📝 Summarise</div>
-            <div class="tool-btn" data-task="plan">📅 Plan Day</div>
-            <div class="tool-btn" data-task="study">📚 Explain</div>
-            <div class="tool-btn" data-task="notes">✍️ Notes</div>
+            <div class="tool-btn" data-task="summarise">📝 Summarise Text</div>
+            <div class="tool-btn" data-task="plan">📅 Plan My Day</div>
+            <div class="tool-btn" data-task="study">📚 Explain Homework</div>
+            <div class="tool-btn" data-task="notes">✍️ Generate Notes</div>
         </div>
     </section>
 
@@ -62,36 +70,63 @@
     <section class="creator-card fade-in">
         <h2>About the Creator</h2>
         <p>
-            LeoCore was built by <b>Leo</b>, a 15-year-old developer creating
-            the future of personal AI — fast, aesthetic and private.
+            LeoCore was built by <b>Leo</b>, a 15-year-old developer building
+            the future of personal AI — fast, aesthetic, and private.
         </p>
     </section>
 
-</div>
+    <!-- TESTIMONIALS -->
+    <section class="testimonials fade-in">
+        <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
+        <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
+        <div class="testimonial-bubble">“Built on a phone. Unreal.”</div>
+    </section>
 
-<!-- CHAT SCREEN -->
+    <!-- INFO SECTION-->
+    <section class="info-section fade-in">
+        <div class="info-card">
+            <h2>What is LeoCore?</h2>
+            <p>
+                LeoCore is a personal AI built by <b>Leo</b> —
+                designed to match your vibe and stay private.
+            </p>
+        </div>
+    </section>
+
+</div> <!-- END HOME WRAPPER -->
+    <!-- ============================================================
+     CHAT SCREEN (OUTSIDE HOMEPAGE)
+============================================================ -->
 <div id="chatScreen">
+
     <div class="chat-header">
-        <button id="closeChat" class="back-btn">←</button>
+        <button id="closeChat" class="back-btn glass-btn">←</button>
 
         <div class="chat-title-wrapper">
             <div class="chat-title">LEOCORE</div>
             <div id="modeBadge" class="mode-badge"></div>
         </div>
 
-        <button id="clearChat" class="clear-btn">🗑</button>
+        <button id="clearChat" class="clear-btn glass-btn">🗑</button>
     </div>
 
+    <!-- CHAT MESSAGES -->
     <div id="messages" class="chat-messages"></div>
 
+    <!-- INPUT AREA -->
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
-        <input id="userInput" type="text" placeholder="Say something...">
+        <input id="userInput" type="text" placeholder="Say something..." autocomplete="off" />
         <button id="sendBtn">➤</button>
     </div>
-</div>
 
-<script src="app.js?v=2001" defer></script>
+</div>
+<!-- END CHAT -->
+
+<!-- ============================================================
+     MAIN SCRIPT
+============================================================ -->
+<script src="app.js?v=9999" defer></script>
 
 </body>
 </html>
