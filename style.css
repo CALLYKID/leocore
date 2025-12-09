@@ -719,17 +719,72 @@ body.flame-glow .mode-pill {
     opacity: 0.8;
 }
 
+/* ============================================================
+   🚀 NEXT-GEN MODE BUTTONS (LeoCore Vibe)
+============================================================ */
+.mode-selector {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 18px;
+    padding: 0 22px;
+    margin-top: 30px;
+}
+
+/* Bigger, smoother, neon-reactive buttons */
+.mode-btn {
+    padding: 18px 20px;
+    border-radius: 18px;
+
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+
+    border: 2px solid rgba(255,255,255,0.15);
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+
+    font-size: 16px;
+    font-weight: 700;
+    color: #e5faff;
+
+    transition: 0.25s ease;
+    position: relative;
+}
+
+/* Dot indicator stays but glows now */
+.mode-btn::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 10px currentColor;
+}
+
+/* Hover glow */
+.mode-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 22px currentColor;
+}
+
+/* Active glow */
+.mode-btn.active {
+    background: rgba(255,255,255,0.12);
+    box-shadow: 0 0 28px currentColor, inset 0 0 18px currentColor;
+    border-color: currentColor;
+}
+
 /* color-coded accents */
-.mode-btn[data-mode="study"]      { color: #00aaff; }
-.mode-btn[data-mode="research"]   { color: #00ffc6; }
-.mode-btn[data-mode="reading"]    { color: #ffa840; }
-.mode-btn[data-mode="deep"]       { color: #ff0033; }
-.mode-btn[data-mode="chill"]      { color: #b400ff; }
+.mode-btn[data-mode="default"]    { color: #00eaff; }
+.mode-btn[data-mode="study"]      { color: #4da3ff; }
+.mode-btn[data-mode="research"]   { color: #00ffc8; }
+.mode-btn[data-mode="reading"]    { color: #ffb039; }
+.mode-btn[data-mode="deep"]       { color: #ff0055; }
+.mode-btn[data-mode="chill"]      { color: #c44dff; }
 .mode-btn[data-mode="precision"]  { color: #00eaff; }
 .mode-btn[data-mode="flame"]      { color: #ff5500; }
-.mode-btn[data-mode="default"] {
-    color: #00eaff; /* Cyan glow */
-}
 
 .mode-btn.active {
     box-shadow: 0 0 18px currentColor !important;
