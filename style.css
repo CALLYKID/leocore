@@ -1107,3 +1107,38 @@ body::after {
     z-index: -10 !important;
     pointer-events: none !important;
 }
+/* ============================================================
+   TRUE BACKGROUND CONTAINER
+   (ALL FX LIVE INSIDE THIS ONLY)
+============================================================ */
+#bgLayer {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+
+    z-index: -10 !important;
+    pointer-events: none !important;
+}
+
+/* Every background effect inside bgLayer is ALWAYS behind */
+#bgLayer * {
+    position: absolute;
+    pointer-events: none !important;
+    z-index: -10 !important;
+}
+
+/* FORCE RESET — remove background FX from normal stacking */
+#bgVideo,
+.overlay,
+.bg-soft-glow,
+.orb,
+.neon-scan,
+.holo-line,
+body::before,
+body::after {
+    position: absolute !important;
+    z-index: -10 !important;
+    pointer-events: none !important;
+}
