@@ -58,29 +58,26 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 5;
 }
 
-/* ============================================================
-   FULL APP ENTRANCE FADE — CLEAN, SMOOTH, PROFESSIONAL
-============================================================ */
-
-body {
+/* Smooth fade without scaling your UI */
+.app-wrapper {
     opacity: 0;
-    transform: translateY(10px) scale(0.98);
-    animation: appFadeIn 0.9s ease-out forwards;
+    transform: translateY(8px);
+    animation: appFade 0.85s ease-out forwards;
 }
 
-@keyframes appFadeIn {
+@keyframes appFade {
     0% {
         opacity: 0;
-        transform: translateY(10px) scale(0.98);
-    }
-    60% {
-        opacity: 0.8;
-        transform: translateY(0px) scale(1);
+        transform: translateY(8px);
     }
     100% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
     }
+}
+@appFade {
+    0% { opacity: 0; transform: translateY(8px) scale(0.995); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .fake-input {
