@@ -32,13 +32,16 @@ button, .clear-btn, .back-btn, #sendBtn {
 .bg-soft-glow,
 .orb,
 .neon-scan,
-.holo-line,
-body::before,
-body::after {
+.holo-line {
     z-index: -5 !important;
     pointer-events: none !important;
 }
 
+body::before,
+body::after {
+    z-index: -1 !important; /* never negative */
+    pointer-events: none !important;
+}
 /* ============================================================
    BACKGROUND VIDEO + GLOWS
 ============================================================ */
