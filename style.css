@@ -500,3 +500,28 @@ button, .clear-btn, .back-btn, #sendBtn {
 .modes-wrapper {
     background: transparent !important;
 }
+
+html, body {
+    background: transparent !important;
+}
+
+.app-wrapper {
+    background: transparent !important;
+}
+
+.center-wrapper {
+    background: transparent !important;
+}
+
+.modes-wrapper,
+.tools-wrapper,
+.creator-card,
+.testimonials,
+.info-section {
+    background: transparent !important;
+}
+.chat-input-area input {
+    background: rgba(0,0,0,0.35) !important;
+    border-color: var(--theme-glow) !important;
+    color: #fff !important;
+}
