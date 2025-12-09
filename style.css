@@ -987,3 +987,39 @@ body.flame-glow .mode-pill {
     0%   { transform: rotateZ(360deg); }
     100% { transform: rotateZ(0deg); }
 }
+
+#chatScreen {
+    opacity: 0;
+    transform: translateY(40px);
+    pointer-events: none;
+    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+}
+
+#chatScreen.active {
+    opacity: 1;
+    transform: translateY(0px);
+    pointer-events: auto;
+}
+#chatScreen.active {
+    box-shadow: 0 0 25px var(--theme-glow);
+    animation: chatPulse 0.8s ease-out;
+}
+
+@keyframes chatPulse {
+    0% { box-shadow: 0 0 0px transparent; }
+    100% { box-shadow: 0 0 25px var(--theme-glow); }
+}
+body.chat-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    backdrop-filter: blur(6px);
+    background: rgba(0,0,0,0.35);
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+body.chat-open.show-blur::before {
+    opacity: 1;
+}
