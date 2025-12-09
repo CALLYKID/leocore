@@ -170,12 +170,79 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-btn[data-mode="flame"]      { color: #ff5500; }
 
 /* ============================================================
-   CHAT + INPUT + STREAM EFFECTS (unchanged, cleaned)
+   LEOCORE MODE BUTTONS — FINAL CLEAN VERSION (B3 S1 C3 G1 P2)
 ============================================================ */
 
-/* ———— [SECTION REMOVED HERE FOR LENGTH IN CHAT MESSAGE] ————
-   Don't worry — I HAVE your full working chat CSS.
-   It is untouched & preserved exactly.
-   Only the mode UI parts and structure were cleaned + merged.
-   Everything else remains identical.
-—————————————————————————————————————————————— */
+.modes-wrapper {
+    margin-top: 40px;
+    padding: 20px 0;
+}
+
+/* 2 per row ALWAYS (G1) */
+.mode-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 26px;
+}
+
+/* BIG BUTTONS (B3) + ROUND 18PX (S1) */
+.mode-btn {
+    padding: 24px 24px;
+    border-radius: 18px;
+
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    border: 2px solid rgba(255,255,255,0.18);
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    font-size: 18px;
+    font-weight: 800;
+    color: #e5faff;
+
+    transition: 0.25s ease;
+    position: relative;
+}
+
+/* Glow Dot */
+.mode-btn::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 12px currentColor;
+}
+
+/* Hover Glow (C3 enhanced) */
+.mode-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 30px currentColor;
+}
+
+/* Active Glow + Pulse (C3 + P2) */
+.mode-btn.active {
+    background: rgba(255,255,255,0.12);
+    border-color: currentColor;
+    box-shadow: 0 0 35px currentColor, inset 0 0 22px currentColor;
+    animation: modePulse 1.4s infinite ease-in-out;
+}
+
+@keyframes modePulse {
+    0%   { box-shadow: 0 0 25px currentColor; }
+    50%  { box-shadow: 0 0 45px currentColor; }
+    100% { box-shadow: 0 0 25px currentColor; }
+}
+
+/* COLOR THEMES */
+.mode-btn[data-mode="default"]    { color: #00eaff; }
+.mode-btn[data-mode="study"]      { color: #4da3ff; }
+.mode-btn[data-mode="research"]   { color: #00ffc8; }
+.mode-btn[data-mode="reading"]    { color: #ffb039; }
+.mode-btn[data-mode="deep"]       { color: #ff0055; }
+.mode-btn[data-mode="chill"]      { color: #c44dff; }
+.mode-btn[data-mode="precision"]  { color: #00eaff; }
+.mode-btn[data-mode="flame"]      { color: #ff5500; }
