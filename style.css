@@ -845,7 +845,7 @@ body.flame-glow .mode-pill {
 }
 
 /* ============================================================
-   LEOCORE ORBIT LOADER — OG CHAOTIC ANIMATION RESTORED
+   LEOCORE GYRO-REACTOR ORBIT LOADER — 3D WOBBLE UPGRADE
 ============================================================ */
 
 .spiral-bubble {
@@ -858,63 +858,86 @@ body.flame-glow .mode-pill {
     justify-content: center;
     align-items: center;
 
+    perspective: 600px; /* enables real 3D wobble */
     filter: drop-shadow(0 0 14px var(--theme-glow));
 }
 
+/* CORE */
 .spiral-core {
-    width: 14px;
-    height: 14px;
-    background: var(--theme-glow);
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
+    background: var(--theme-glow);
     box-shadow:
-        0 0 10px var(--theme-glow),
-        0 0 25px var(--theme-glow),
-        0 0 40px var(--theme-glow);
+        0 0 12px var(--theme-glow),
+        0 0 28px var(--theme-glow),
+        0 0 45px var(--theme-glow);
+    animation: corePulse 2.2s ease-in-out infinite;
 }
 
-/* OUTER RING — slow, clockwise */
+@keyframes corePulse {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.18); }
+    100% { transform: scale(1); }
+}
+
+/* ORBITS CONTAINER WITH WOBBLE */
+.orbit-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    animation: gyroWobble 3.8s ease-in-out infinite;
+    transform-style: preserve-3d;
+}
+
+@keyframes gyroWobble {
+    0%   { transform: rotateX(0deg) rotateY(0deg); }
+    25%  { transform: rotateX(14deg) rotateY(-8deg); }
+    50%  { transform: rotateX(-10deg) rotateY(10deg); }
+    75%  { transform: rotateX(6deg) rotateY(-14deg); }
+    100% { transform: rotateX(0deg) rotateY(0deg); }
+}
+
+/* OUTER RING — slow CW */
 .o1 {
     position: absolute;
     width: 58px;
     height: 58px;
     border-radius: 50%;
     border: 2px solid rgba(0,255,255,0.32);
-    animation: orbitCW 2.4s linear infinite;
-    transform-origin: center;
-    animation-delay: -0.3s;
+    animation: orbitCW 2.5s linear infinite;
+    animation-delay: -0.25s;
 }
 
-/* MIDDLE RING — medium, counter-clockwise */
+/* MIDDLE RING — faster CCW */
 .o2 {
     position: absolute;
     width: 42px;
     height: 42px;
     border-radius: 50%;
     border: 2px solid rgba(0,255,255,0.22);
-    animation: orbitCCW 1.6s linear infinite;
-    transform-origin: center;
-    animation-delay: -0.7s;
+    animation: orbitCCW 1.7s linear infinite;
+    animation-delay: -0.8s;
 }
 
-/* INNER RING — fastest, clockwise */
+/* INNER RING — fastest CW */
 .o3 {
     position: absolute;
     width: 28px;
     height: 28px;
     border-radius: 50%;
     border: 2px solid rgba(0,255,255,0.18);
-    animation: orbitCW 0.9s linear infinite;
-    transform-origin: center;
-    animation-delay: -1.1s;
+    animation: orbitCW 1s linear infinite;
+    animation-delay: -1.2s;
 }
 
-/* Spin directions */
+/* ROTATION DIRECTIONS */
 @keyframes orbitCW {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0%   { transform: rotateZ(0deg); }
+    100% { transform: rotateZ(360deg); }
 }
 
 @keyframes orbitCCW {
-    0%   { transform: rotate(360deg); }
-    100% { transform: rotate(0deg); }
+    0%   { transform: rotateZ(360deg); }
+    100% { transform: rotateZ(0deg); }
 }
