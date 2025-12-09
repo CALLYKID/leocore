@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>LeoCore</title>
-    <link rel="stylesheet" href="style.css">
+
+    <!-- 🔥 CACHE-BREAKER: Forces Cloudflare + browser to load NEW CSS -->
+    <link rel="stylesheet" href="style.css?v=202" />
 </head>
 
 <body>
 
 <!-- ============================================================
-     TRUE BACKGROUND LAYER — FIXED BELOW ALL CONTENT
+     TRUE BACKGROUND LAYER — FIXED BELOW CONTENT
 ============================================================ -->
 <div id="bgLayer">
 
-    <!-- BACKGROUND VIDEO -->
     <video id="bgVideo" autoplay muted loop playsinline>
-        <source src="waves.mp4" type="video/mp4">
+        <source src="waves.mp4" type="video/mp4" />
     </video>
 
     <div class="overlay"></div>
@@ -35,12 +36,13 @@
 </div>
 
 <!-- ============================================================
-     MAIN APP CONTENT
+     MAIN CONTENT
 ============================================================ -->
 <div class="app-wrapper">
 
-    <!-- HERO SECTION -->
+    <!-- HERO -->
     <div class="center-wrapper fade-in">
+
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
         </div>
@@ -49,7 +51,7 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-    <!-- MODE SELECTOR -->
+    <!-- MODES -->
     <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
 
@@ -65,7 +67,7 @@
         </div>
     </section>
 
-    <!-- QUICK TOOLS -->
+    <!-- TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
 
@@ -91,11 +93,10 @@
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
         <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
         <div class="testimonial-bubble">“Can’t believe this was built on a phone.”</div>
-
         <div class="testimonial-separator"></div>
     </section>
 
-    <!-- INFO CARD -->
+    <!-- INFO -->
     <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -118,9 +119,7 @@
 
         <div class="chat-header glow-header">
 
-            <button id="closeChat" class="back-btn glass-btn">
-                ←
-            </button>
+            <button id="closeChat" class="back-btn glass-btn">←</button>
 
             <div class="chat-title-wrapper">
                 <div class="chat-title">LEOCORE</div>
@@ -135,7 +134,7 @@
 
         <div class="chat-input-area">
             <div id="modePill" class="mode-pill">DEF</div>
-            <input id="userInput" type="text" placeholder="Say something...">
+            <input id="userInput" type="text" placeholder="Say something..." />
             <button id="sendBtn">➤</button>
         </div>
 
@@ -151,10 +150,10 @@
         </div>
 
     </div>
+</div>
 
-</div> <!-- END APP WRAPPER -->
-
-<script src="app.js" defer></script>
+<!-- 🔥 CACHE-BREAKER FOR JS TOO -->
+<script src="app.js?v=202" defer></script>
 
 </body>
 </html>
