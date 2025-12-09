@@ -16,12 +16,14 @@ body {
     position: relative;
 }
 
+
 /* Buttons always clickable */
 button, .clear-btn, .back-btn, #sendBtn {
     outline: none !important;
     pointer-events: auto !important;
     z-index: 999999;
 }
+
 
 /* ============================================================
    BACKGROUND ELEMENTS — TRUE STATIC LAYER
@@ -65,6 +67,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     50% { opacity: 0.85; transform: scale(1.08); }
     100% { opacity: 0.55; transform: scale(1); }
 }
+
 
 /* ============================================================
    HERO SECTION
@@ -127,6 +130,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #e2fbff;
 }
 
+
 /* Fade-in */
 .fade-in {
     opacity: 0;
@@ -138,6 +142,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
 }
+
+
 /* ============================================================
    SECTION TITLES
 ============================================================ */
@@ -151,7 +157,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 20;
 }
 
-/* Make all homepage items clickable */
+
+/* Clickable homepage items */
 .modes-wrapper,
 .tools-wrapper,
 .creator-card,
@@ -164,6 +171,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 30 !important;
     pointer-events: auto !important;
 }
+
 
 /* ============================================================
    MODE BUTTONS
@@ -202,7 +210,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     box-shadow: 0 0 25px var(--theme-glow);
 }
 
-/* Mode badge in chat header */
 .mode-badge {
     font-size: 12px;
     padding: 4px 10px;
@@ -212,6 +219,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     border: 1px solid var(--theme-glow);
     color: var(--theme-glow);
 }
+
 
 /* ============================================================
    QUICK TOOLS
@@ -245,6 +253,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     transform: scale(0.95);
 }
 
+
 /* ============================================================
    CREATOR CARD
 ============================================================ */
@@ -260,6 +269,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 16px;
     color: #eafaff;
 }
+
 
 /* ============================================================
    TESTIMONIALS
@@ -281,6 +291,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #dffaff;
 }
 
+
 /* ============================================================
    INFO CARD
 ============================================================ */
@@ -296,8 +307,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 17px;
 }
 
+
 /* ============================================================
-   CHAT SCREEN — FIXED OVERLAY, NEVER MOVES BACKGROUND
+   CHAT SCREEN — FIXED OVERLAY + PATCHED ALIGNMENT
 ============================================================ */
 #chatScreen {
     position: fixed;
@@ -305,7 +317,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 100vw;
     height: 100vh;
 
-    background: rgba(0,0,0,0.45); /* stronger dark layer */
+    background: rgba(0,0,0,0.45);
     backdrop-filter: blur(32px) saturate(1.3);
 
     display: flex;
@@ -316,32 +328,28 @@ button, .clear-btn, .back-btn, #sendBtn {
     transform: translateY(40px);
     transition: opacity 0.35s ease, transform 0.35s ease;
 
-    z-index: 999999 !important; /* Above EVERYTHING */
-    pointer-events: none; /* Off until opened */
+    z-index: 999999 !important;
+    pointer-events: none;
 }
 
-/* Chat Active */
 #chatScreen.active {
     opacity: 1;
     transform: translateY(0);
     pointer-events: auto;
 }
 
-/* ============================================================
-   CHAT DEDICATED WALLPAPER (prevent bg-video conflict)
-============================================================ */
+
+/* Chat wallpaper */
 #chatScreen::before {
     content: "";
     position: absolute;
     inset: 0;
-
-    /* Your blurred wallpaper */
     background: url("waves-blur.jpg?v=9999") center/cover no-repeat;
     filter: blur(26px) brightness(0.72) saturate(1.25);
-
     opacity: 1;
-    z-index: -1; /* Behind chat content */
+    z-index: -1;
 }
+
 
 /* ============================================================
    CHAT HEADER
@@ -351,7 +359,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     background: rgba(0,0,0,0.35);
     border-bottom: 1px solid rgba(0,255,255,0.12);
 }
@@ -387,23 +394,45 @@ button, .clear-btn, .back-btn, #sendBtn {
     -webkit-text-fill-color: transparent;
 }
 
+
 /* ============================================================
-   CHAT MESSAGES
+   CHAT MESSAGES — FULL PATCH
 ============================================================ */
 .chat-messages {
     flex: 1;
-    padding: 14px;
-    overflow-y: auto;
-
+    min-height: 0;
+    max-height: calc(100vh - 140px);
     display: flex;
     flex-direction: column;
     gap: 12px;
-
+    padding: 14px;
+    overflow-y: auto;
     background: rgba(0,0,0,0.22);
     backdrop-filter: blur(6px);
 }
 
-/* message bubbles */
+.user-msg,
+.ai-msg {
+    width: 100%;
+    display: flex;
+}
+
+.user-msg {
+    justify-content: flex-end;
+}
+
+.ai-msg {
+    justify-content: flex-start;
+}
+
+.bubble {
+    padding: 14px 18px;
+    border-radius: 14px;
+    max-width: 85%;
+    word-break: break-word;
+    line-height: 1.45;
+}
+
 .user-msg .bubble {
     background: #008cff;
     color: #fff;
@@ -414,15 +443,10 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #e9f4ff;
 }
 
-.bubble {
-    padding: 14px 18px;
-    border-radius: 14px;
-    max-width: 92%;
-    word-break: break-word;
-    line-height: 1.45;
-}
 
-/* streaming effect */
+/* ============================================================
+   STREAMING EFFECT
+============================================================ */
 .ai-streaming .stream-text {
     animation: fadeInText 0.2s ease;
 }
@@ -432,7 +456,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     to { opacity: 1; }
 }
 
-/* Cursor blink */
+
 .neon-cursor {
     width: 6px;
     height: 18px;
@@ -441,61 +465,49 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 @keyframes blink {
-    0% { opacity: 1; }
+    0%, 100% { opacity: 1; }
     50% { opacity: 0; }
-    100% { opacity: 1; }
 }
 
-/* Typing loader (spiral) */
-.typing-holder {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    padding: 6px 0;
-}
 
 /* ============================================================
-   INPUT BAR
+   INPUT BAR (PATCHED)
 ============================================================ */
 .chat-input-area {
     display: flex;
     align-items: center;
     gap: 10px;
-
     padding: 12px;
     background: rgba(0,0,0,0.40);
     border-top: 1px solid rgba(255,255,255,0.12);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 99;
 }
 
 .chat-input-area input {
     flex: 1;
     height: 46px;
     padding: 0 14px;
-
     background: rgba(0,0,0,0.45);
     border: 2px solid rgba(255,255,255,0.25);
     border-radius: 14px;
-
     color: #fff !important;
     outline: none;
 }
 
 .chat-input-area input::placeholder {
     color: #9fdfff;
-    opacity: 1;
 }
 
 #sendBtn {
     width: 52px;
     height: 46px;
-
     border-radius: 14px;
     border: none;
-
     background: var(--theme-glow);
     color: #000;
     font-weight: 700;
-
     box-shadow: 0 0 12px var(--theme-glow);
     cursor: pointer;
 }
@@ -505,38 +517,36 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #fff !important;
 }
 
+
 /* ============================================================
-   MODE PILL (inside input bar)
+   MODE PILL
 ============================================================ */
 .mode-pill {
     padding: 0 12px;
     height: 40px;
-
     display: flex;
     align-items: center;
-
     background: rgba(0,0,0,0.35);
     border: 2px solid var(--theme-glow);
     border-radius: 12px;
-
     font-size: 12px;
     font-weight: 600;
     color: var(--theme-glow);
 }
 
+
 /* ============================================================
-   WIPE OVERLAY (Hold to Clear All Data)
+   WIPE OVERLAY
 ============================================================ */
 #wipeOverlay {
     position: fixed;
     inset: 0;
-    z-index: 999999999; /* Above everything */
+    z-index: 999999999;
     background: rgba(5, 0, 20, 0.92);
     backdrop-filter: blur(12px);
     display: flex;
     justify-content: center;
     align-items: center;
-
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.35s ease;
@@ -547,9 +557,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     pointer-events: auto;
 }
 
-.wipe-container {
-    text-align: center;
-}
+.wipe-container { text-align: center; }
 
 .wipe-text {
     margin-top: 18px;
@@ -558,7 +566,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #dfe9ff;
 }
 
-/* Loader circle */
 .wipe-loader {
     width: 52px;
     height: 52px;
@@ -574,171 +581,15 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 
-
 /* ============================================================
-   AI TYPING SPIRAL LOADER
+   ANDROID VIEWPORT STABILITY FIXES
 ============================================================ */
-.spiral-bubble {
-    width: 36px;
-    height: 36px;
-    position: relative;
-}
-
-.spiral-core {
-    width: 12px;
-    height: 12px;
-    background: var(--theme-glow);
-    border-radius: 50%;
-    position: absolute;
-    top: 12px;
-    left: 12px;
-}
-
-.orbit-wrapper {
-    position: absolute;
-    inset: 0;
-    animation: orbitSpin 1.8s linear infinite;
-}
-
-.orbit-wrapper div {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: var(--theme-glow);
-    border-radius: 50%;
-}
-
-.orbit-wrapper .o1 { top: 0; left: 15px; }
-.orbit-wrapper .o2 { top: 15px; left: 30px; }
-.orbit-wrapper .o3 { top: 30px; left: 15px; }
-
-@keyframes orbitSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-
-
-/* ============================================================
-   GLOBAL UTILITY FIXES
-============================================================ */
-
-/* Prevent pulling homepage when chat open */
-body.chat-open {
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* Prevent ghost-clicks from layers */
-.app-wrapper,
-.center-wrapper,
-.mode-selector,
-.tools-grid,
-.tool-btn,
-.mode-btn {
-    position: relative;
-    pointer-events: auto;
-    z-index: 20;
-}
-
-/* Subtle fade animation used by multiple components */
-@keyframes fadeSmooth {
-    from { opacity: 0; transform: translateY(6px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-
-
-/* ============================================================
-   RESPONSIVE FIXES (Mobile)
-============================================================ */
-@media (max-width: 600px) {
-
-    .fake-input {
-        height: 58px;
-        font-size: 17px;
-    }
-
-    .main-title {
-        font-size: 40px;
-    }
-
-    .mode-selector {
-        gap: 14px;
-    }
-
-    #chatScreen {
-        backdrop-filter: blur(28px) saturate(1.1);
-    }
-
-    .chat-input-area input {
-        font-size: 15px;
-    }
-
-    .bubble {
-        font-size: 15px;
-        padding: 12px 14px;
-    }
-}
-
-
-/* ============================================================
-   HARDENING FIXES — ZERO CLICKS BLOCKED ANYWHERE
-============================================================ */
-#bgLayer,
-#bgVideo,
-.overlay,
-.bg-soft-glow {
-    pointer-events: none !important;
-}
-
-.fake-input,
-.mode-btn,
-.tool-btn,
-.back-btn,
-.clear-btn,
-#sendBtn,
-.chat-input-area input {
-    pointer-events: auto !important;
-    z-index: 99999;
-}
-
-/* Ensure chat always OVER homepage */
-#chatScreen {
-    z-index: 999999 !important;
-}
-
-/* Ensure homepage never covers chat */
-.app-wrapper {
-    z-index: 50 !important;
-    position: relative;
-}
-
-
-/* ============================================================
-   SAFETY CATCH: IF ANYTHING SPIKES, CHAT STILL WINS
-============================================================ */
-html, body {
-    scroll-behavior: smooth;
-}
-
-#chatScreen.active * {
-    pointer-events: auto !important;
-}
-
-/* ============================================================
-   ANDROID VIEWPORT STABILITY FIXES — MATCHES YOUR LAYOUT
-============================================================ */
-
 html, body {
     height: 100%;
     overscroll-behavior: none;
 }
 
 #bgLayer {
-    position: fixed;
-    inset: 0;
-    overflow: hidden;
     transform: translateZ(0);
 }
 
@@ -748,7 +599,6 @@ html, body {
 }
 
 @supports (-webkit-touch-callout: none) {
-    /* iOS/Android GPU rendering path */
     #bgVideo {
         transform: translateZ(0) scale(1.05);
     }
