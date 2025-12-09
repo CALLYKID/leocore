@@ -1,30 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LeoCore</title>
 
-    <link rel="stylesheet" href="style.css?v=9999" />
+    <link rel="stylesheet" href="style.css?v=2001">
 </head>
 
 <body>
 
-<!-- ============================================================
-     TRUE BACKGROUND LAYER — ALWAYS BEHIND
-============================================================ -->
+<!-- HOME BACKGROUND (VIDEO) -->
 <div id="bgLayer">
     <video id="bgVideo" autoplay muted loop playsinline>
-        <source src="waves.mp4" type="video/mp4" />
+        <source src="waves.mp4" type="video/mp4">
     </video>
 
     <div class="overlay"></div>
     <div class="bg-soft-glow"></div>
 </div>
 
-<!-- ============================================================
-     MAIN CONTENT (HOMEPAGE ONLY)
-============================================================ -->
+<!-- MAIN CONTENT -->
 <div class="app-wrapper">
 
     <div class="center-wrapper fade-in">
@@ -36,6 +32,7 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
+    <!-- MODE PICKER -->
     <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
         <div class="mode-selector">
@@ -43,23 +40,25 @@
             <div class="mode-btn" data-mode="study">📘 Study</div>
             <div class="mode-btn" data-mode="research">🔬 Research</div>
             <div class="mode-btn" data-mode="reading">📖 Reading</div>
-            <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
+            <div class="mode-btn" data-mode="deep">🧠 Deep</div>
             <div class="mode-btn" data-mode="chill">😎 Chill</div>
             <div class="mode-btn" data-mode="precision">🎯 Precision</div>
-            <div class="mode-btn" data-mode="flame">🔥 Flame Mode</div>
+            <div class="mode-btn" data-mode="flame">🔥 Flame</div>
         </div>
     </section>
 
+    <!-- QUICK TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
         <div class="tools-grid">
-            <div class="tool-btn" data-task="summarise">📝 Summarise Text</div>
-            <div class="tool-btn" data-task="plan">📅 Plan My Day</div>
-            <div class="tool-btn" data-task="study">📚 Explain Homework</div>
-            <div class="tool-btn" data-task="notes">✍️ Generate Notes</div>
+            <div class="tool-btn" data-task="summarise">📝 Summarise</div>
+            <div class="tool-btn" data-task="plan">📅 Plan Day</div>
+            <div class="tool-btn" data-task="study">📚 Explain</div>
+            <div class="tool-btn" data-task="notes">✍️ Notes</div>
         </div>
     </section>
 
+    <!-- CREATOR CARD -->
     <section class="creator-card fade-in">
         <h2>About the Creator</h2>
         <p>
@@ -68,51 +67,31 @@
         </p>
     </section>
 
-    <section class="testimonials fade-in">
-        <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
-        <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
-        <div class="testimonial-bubble">“Can’t believe this was built on a phone.”</div>
-    </section>
+</div>
 
-    <section class="info-section fade-in">
-        <div class="info-card">
-            <h2>What is LeoCore?</h2>
-            <p>
-                LeoCore is a personal AI built by <b>Leo</b> —
-                designed to match your vibe and stay private.
-            </p>
-        </div>
-    </section>
-
-</div> <!-- END OF APP WRAPPER (CLOSED PROPERLY NOW) -->
-
-<!-- ============================================================
-     CHAT SCREEN (NOW OUTSIDE HOMEPAGE)
-============================================================ -->
+<!-- CHAT SCREEN -->
 <div id="chatScreen">
-
-    <div class="chat-header glow-header">
-        <button id="closeChat" class="back-btn glass-btn">←</button>
+    <div class="chat-header">
+        <button id="closeChat" class="back-btn">←</button>
 
         <div class="chat-title-wrapper">
             <div class="chat-title">LEOCORE</div>
             <div id="modeBadge" class="mode-badge"></div>
         </div>
 
-        <button id="clearChat" class="clear-btn glass-btn">🗑</button>
+        <button id="clearChat" class="clear-btn">🗑</button>
     </div>
 
     <div id="messages" class="chat-messages"></div>
 
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
-        <input id="userInput" type="text" placeholder="Say something..." />
+        <input id="userInput" type="text" placeholder="Say something...">
         <button id="sendBtn">➤</button>
     </div>
+</div>
 
-</div> <!-- END CHAT -->
-
-<script src="app.js?v=9999" defer></script>
+<script src="app.js?v=2001" defer></script>
 
 </body>
 </html>
