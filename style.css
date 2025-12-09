@@ -71,7 +71,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     padding-bottom: 2vh;
     position: relative;
     z-index: 1 !important;
-    pointer-events: none !important;
+    /* pointer-events REMOVED: this was breaking all clicks */
 }
 
 .fake-input {
@@ -139,6 +139,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 18px;
     color: #e2fbff;
 }
+
 /* ============================================================
    SECTION TITLES
 ============================================================ */
@@ -152,7 +153,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     position: relative;
 }
 
-/* Make all homepage elements clickable + always above bg */
+/* Ensure homepage elements stay clickable */
 .modes-wrapper,
 .tools-wrapper,
 .creator-card,
@@ -249,7 +250,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     text-align: center;
     color: #eafaff;
     font-size: 16px;
-   }
+}
+
 /* ============================================================
    TESTIMONIALS
 ============================================================ */
@@ -297,20 +299,17 @@ button, .clear-btn, .back-btn, #sendBtn {
     background: rgba(5,10,25,0.92);
     backdrop-filter: blur(10px);
     overflow: hidden;
-
     opacity: 0;
     transform: translateY(40px);
     transition: opacity 0.35s ease, transform 0.35s ease;
-
     z-index: 99999 !important;
-
-    pointer-events: none; /* IMPORTANT */
+    pointer-events: none; /* only inactive state */
 }
 
 #chatScreen.active {
     opacity: 1;
     transform: translateY(0);
-    pointer-events: auto;
+    pointer-events: auto; /* clickable when open */
 }
 
 /* Header */
@@ -357,6 +356,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     max-width: 92%;
     word-break: break-word;
 }
+
 /* ============================================================
    CHAT INPUT AREA
 ============================================================ */
@@ -430,17 +430,4 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 #wipeOverlay.show {
     opacity: 1;
-}
-
-#chatScreen {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-    pointer-events: none; /* FIX */
-}
-
-#chatScreen.active {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto; /* FIX */
 }
