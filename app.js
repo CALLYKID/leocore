@@ -24,6 +24,8 @@ let ignoreNextResponse = false;
    DOM READY
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
+   // Always show homepage on load in case chat was left open before
+document.querySelector(".app-wrapper").style.display = "block";
 
     /* ============================================================
        BACKEND AUTO WAKE (safe)
