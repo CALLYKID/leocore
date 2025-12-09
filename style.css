@@ -560,10 +560,15 @@ button, .clear-btn, .back-btn, #sendBtn {
     backdrop-filter: blur(12px);
 }
 
-/* MODE PILL (left inside input) */
+/* FIXED MODE PILL — smaller, auto-shrinks, never pushes send button */
 .mode-pill {
-    padding: 0 18px;
-    height: 46px;
+    padding: 0 12px;      /* tighter padding */
+    height: 40px;         /* smaller height */
+    max-width: 72px;      /* was too wide before */
+    min-width: 60px;      /* prevent collapsing too far */
+    overflow: hidden;     
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     display: flex;
     justify-content: center;
@@ -571,18 +576,14 @@ button, .clear-btn, .back-btn, #sendBtn {
 
     background: rgba(0,0,0,0.35);
     border: 2px solid var(--theme-glow);
+    border-radius: 12px;
 
-    border-radius: 14px;
-
-    font-size: 14px;
-    color: #fff;
+    font-size: 12px;      /* smaller, fits everything */
     font-weight: 600;
+    color: #fff;
 
-    box-shadow: 0 0 12px var(--theme-glow);
-    transition: 0.25s ease;
-
-    width: 90px;
-    min-width: 90px;
+    box-shadow: 0 0 8px var(--theme-glow);
+    flex-shrink: 0;       /* prevents weird squeezing */
 }
 
 /* INPUT FIELD */
