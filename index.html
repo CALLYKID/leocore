@@ -3,27 +3,30 @@
 <head>
     <meta charset="UTF-8" />
 
-    <!-- FIXED VIEWPORT — stops zooming & layout stretch -->
+    <!-- Prevent zoom bugs, overscroll bugs, Android scaling bugs -->
     <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
-<meta name="HandheldFriendly" content="true">
+        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+
+    <meta name="HandheldFriendly" content="true">
+
     <title>LeoCore</title>
-    
-<style>
-  body { background:#000; }
-</style>
-    
-    <!-- Cache breaker -->
+
+    <!-- Safety to avoid flash of white -->
+    <style>
+        body { background: #000; }
+    </style>
+
+    <!-- Your main CSS -->
     <link rel="stylesheet" href="style.css?v=9999">
 </head>
 
 <body>
 
 <!-- ============================================================
-     TRUE BACKGROUND LAYER — NEVER MOVES, NEVER SCALES WRONG
+     TRUE BACKGROUND LAYER — FIXED & NEVER MOVES
 ============================================================ -->
 <div id="bgLayer">
-    <video id="bgVideo" autoplay muted loop playsinline>
+    <video id="bgVideo" autoplay muted loop playsinline preload="auto">
         <source src="waves.mp4" type="video/mp4">
     </video>
 
@@ -31,8 +34,9 @@
     <div class="bg-soft-glow"></div>
 </div>
 
+
 <!-- ============================================================
-     HOME SCREEN CONTENT
+     APP WRAPPER (HOMEPAGE)
 ============================================================ -->
 <div class="app-wrapper">
 
@@ -45,6 +49,7 @@
         <h1 class="main-title">LEOCORE</h1>
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
+
 
     <!-- MODES -->
     <section class="modes-wrapper fade-in">
@@ -62,7 +67,8 @@
         </div>
     </section>
 
-    <!-- TOOLS -->
+
+    <!-- QUICK TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
 
@@ -74,6 +80,7 @@
         </div>
     </section>
 
+
     <!-- CREATOR CARD -->
     <section class="creator-card fade-in">
         <h2>About the Creator</h2>
@@ -83,6 +90,7 @@
         </p>
     </section>
 
+
     <!-- TESTIMONIALS -->
     <section class="testimonials fade-in">
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
@@ -90,24 +98,28 @@
         <div class="testimonial-bubble">“Built on a phone. Unreal.”</div>
     </section>
 
+
     <!-- INFO SECTION -->
     <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
             <p>
-                LeoCore is a personal AI built by <b>Leo</b> —
-                designed to match your vibe and stay private.
+                LeoCore is your personal AI — designed to match your vibe, think fast,
+                stay private, and feel alive.
             </p>
         </div>
     </section>
 
 </div> <!-- END HOME WRAPPER -->
 
+
+
 <!-- ============================================================
-     CHAT SCREEN
+     CHAT SCREEN (ENTIRE OVERLAY)
 ============================================================ -->
 <div id="chatScreen">
 
+    <!-- CHAT HEADER -->
     <div class="chat-header">
         <button id="closeChat" class="back-btn glass-btn">←</button>
 
@@ -119,20 +131,24 @@
         <button id="clearChat" class="clear-btn glass-btn">🗑</button>
     </div>
 
+    <!-- MESSAGES -->
     <div id="messages" class="chat-messages"></div>
 
+    <!-- INPUT BAR -->
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
         <input id="userInput" type="text" placeholder="Say something..." autocomplete="off" />
         <button id="sendBtn">➤</button>
     </div>
 
-</div>
+</div> <!-- END CHAT SCREEN -->
+
+
 
 <!-- ============================================================
-     MAIN SCRIPT
+     SCRIPTS
 ============================================================ -->
 <script src="app.js?v=9999" defer></script>
-<script src="android-fix.js?v=9999" defer></script>
+
 </body>
 </html>
