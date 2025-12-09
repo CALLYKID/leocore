@@ -396,14 +396,6 @@ button, .clear-btn, .back-btn, #sendBtn {
 /* ============================================================
    INPUT BAR
 ============================================================ */
-.chat-input-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: rgba(0,0,0,0.40);
-    border-top: 1px solid rgba(255,255,255,0.12);
-}
 
 .chat-input-area input {
     flex: 1;
@@ -558,9 +550,22 @@ html, body {
 
 /* Fix input bar disappearing under Android navbar */
 .chat-input-area {
-    padding-bottom: env(safe-area-inset-bottom, 18px);
-    position: relative;
-    z-index: 10;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+
+    background: rgba(0,0,0,0.40);
+    border-top: 1px solid rgba(255,255,255,0.12);
+
+    z-index: 9999999;
 }
 
 /* Ensure chat layout NEVER compresses the input bar out of view */
