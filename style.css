@@ -494,3 +494,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     .main-title { font-size: 40px; }
     .bubble { font-size: 15px; padding: 12px 14px; }
 }
+
+.app-wrapper,
+.center-wrapper,
+.modes-wrapper {
+    background: transparent !important;
+}
