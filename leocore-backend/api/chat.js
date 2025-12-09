@@ -242,67 +242,130 @@ Personality Rules:
 - No stiff sentences. No corporate tone.
 - Use slang lightly: confident, playful, but still smart.
 - Adapt tone to the mode.
-- Flame stays flame. Chill stays chill. Study stays organised.
-- DO NOT repeat identity every message.
-- DO NOT sound robotic or formal.
+// ============================================================
+//  MAIN HANDLER — POST ONLY
+// ============================================================
 
-Tone:
+async function handler(req, res) {
+
+    if (req.method !== "POST") {
+        return res.status(405).json({ error: "POST only" });
+    }
+
+    try {
+        const { message, userId, mode, boost } = req.body;
+
+        if (!message || !userId) {
+            return res.status(400).json({ reply: "Invalid request." });
+        }
+
+        // RATE LIMIT
+        const now = Date.now();
+        if (now - (cooldowns[userId] || 0) < 1200) {
+            return res.json({
+                reply: "⚠️ Slow down — LeoCore is processing your last message."
+            });
+        }
+        cooldowns[userId] = now;
+
+        // INIT MEMORY
+        if (!memory[userId]) {
+            memory[userId] = {
+                boots: 0,
+                history: [],
+                lastAssistant: "",
+                lastUser: ""
+            };
+        }
+
+        const mem = memory[userId];
+        mem.boots++;
+        mem.lastUser = message;
+
+        let warmup = "";
+
+        // IDENTITY BLOCK
+        if (detectOverride(message)) {
+            return res.json({
+                reply: warmup + 
+                "⛔ Identity Override Attempt Blocked.<br>Leonard built me — that does not change."
+            });
+        }
+
+        // CONTINUE HANDLER
+        if (message.trim().toLowerCase() === "continue") {
+            if (!mem.lastAssistant) {
+                return res.json({ reply: warmup + "There is nothing to continue." });
+            }
+
+            const continuationPrompt = `
+Continue the previous response with the SAME tone, style, and mode.
+Mode: ${mode}
+"${mem.lastAssistant}"
+`;
+
+            const continuationCall = await client.chat.completions.create({
+                model: "llama-3.1-8b-instant",
+                messages: [
+                    { role: "system", content: MODE_PERSONALITY[mode] || MODE_PERSONALITY.default },
+                    { role: "user", content: continuationPrompt }
+                ]
+            });
+
+            const contReply = continuationCall.choices?.[0]?.message?.content || "";
+            mem.lastAssistant = contReply;
+
+            return res.json({ reply: warmup + contReply });
+        }
+
+        // PERSONALITY
+        const persona = MODE_PERSONALITY[mode] || MODE_PERSONALITY.default;
+        let toneBoost = mode === "flame" && boost ? 
+            "Increase aggression by 20%, still controlled." : "";
+
+        const SYSTEM = `
+${persona}
+
+Rules:
+- Speak casual, natural, Gen-Z confident.
+- No corporate tone.
+- Uphold identity but don't repeat it every message.
+- Mode determines vibe.
 ${toneBoost}
 `;
 
-
-        // ====================================================
-        //  BUILD MESSAGE CONTEXT
-        // ====================================================
         const fullMessages = [
             { role: "system", content: SYSTEM },
             ...mem.history,
             { role: "user", content: message }
         ];
 
-
-        // ====================================================
-        //  GROQ COMPLETION CALL
-        // ====================================================
         const completion = await client.chat.completions.create({
             model: "llama-3.1-8b-instant",
             messages: fullMessages
         });
 
-        let reply = completion.choices?.[0]?.message?.content || "…";
+        let reply = completion.choices?.[0]?.message?.content || "...";
 
-
-        // ====================================================
-        //  CUT-OFF DETECTION + HINT
-        // ====================================================
         if (isCutOff(reply)) {
             reply += `<br><br><span style="opacity:0.65">…want me to continue?</span>`;
         }
 
-
-        // ====================================================
-        //  SAVE TO MEMORY
-        // ====================================================
         mem.lastAssistant = reply;
         mem.history.push({ role: "assistant", content: reply });
         mem.history.push({ role: "user", content: message });
-
         if (mem.history.length > 22) mem.history.shift();
 
-
-        // ====================================================
-        //  SEND FINAL OUTPUT
-        // ====================================================
-        return res.status(200).json({
-            reply: warmup + reply
-        });
-
+        return res.json({ reply: warmup + reply });
 
     } catch (err) {
         console.error("LEOCORE BACKEND ERROR:", err);
-
-        return res.status(500).json({
-            reply: "⚠️ Server Error — Try again."
-        });
+        return res.status(500).json({ reply: "⚠️ Server Error — Try again." });
     }
-            }
+}
+
+// ============================================================
+//  EXPORT FIX (Express compatible)
+// ============================================================
+
+export default handler;
