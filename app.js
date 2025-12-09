@@ -479,29 +479,3 @@ document.addEventListener("DOMContentLoaded", () => {
 setInterval(() => {
     fetch("https://leocore.onrender.com/ping").catch(() => {});
 }, 45000);
-
-
-/* ============================================================
-   TAP DEBUGGER (SAFE + LIGHT)
-============================================================ */
-document.addEventListener("click", (e) => {
-    document.querySelectorAll(".tap-debug").forEach(el => el.remove());
-
-    const el = document.createElement("div");
-    el.className = "tap-debug";
-
-    const r = e.target.getBoundingClientRect();
-    el.style.position = "fixed";
-    el.style.left = r.left + "px";
-    el.style.top = r.top + "px";
-    el.style.width = r.width + "px";
-    el.style.height = r.height + "px";
-    el.style.border = "2px solid red";
-    el.style.zIndex = "999999999";
-    el.style.pointerEvents = "none";
-
-    document.body.appendChild(el);
-
-    setTimeout(() => el.remove(), 600);
-    console.log("TAP:", e.target);
-});
