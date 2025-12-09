@@ -21,9 +21,6 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 /* ============================================================
-   BACKGROUND VIDEO
-============================================================ */
-/* ============================================================
    CLEAN NEON BACKGROUND — VERSION C-A
    Fixes zoom, adds depth, smooth parallax
 ============================================================ */
@@ -31,16 +28,16 @@ button, .clear-btn, .back-btn, #sendBtn {
 #bgVideo {
     position: fixed;
     inset: 0;
-    width: 110%;          /* slightly bigger to avoid edges */
+    width: 110%;
     height: 110%;
     object-fit: cover;
-    transform: scale(1.05);       /* correct zoom balance */
+    transform: scale(1.05);
     filter: brightness(0.72) saturate(1.2) contrast(1.05);
-    opacity: 0.92;       /* softer look instead of harsh */
+    opacity: 0.92;
     z-index: -5;
 }
 
-/* Soft neon wash layer */
+/* Neon wash */
 .overlay {
     position: fixed;
     inset: 0;
@@ -49,14 +46,11 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: -4;
 }
 
-/* Subtle moving glow layer */
+/* Subtle motion glow */
 .bg-soft-glow {
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at 40% 30%,
-        rgba(0, 234, 255, 0.22),
-        transparent 60%
-    );
+    background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.22), transparent 60%);
     mix-blend-mode: screen;
     animation: slowGlow 14s ease-in-out infinite;
     z-index: -3;
@@ -68,6 +62,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     50%  { transform: translate(20px, -30px) scale(1.06); }
     100% { transform: translate(0px, 0px) scale(1); }
 }
+
 /* ============================================================
    HERO / TITLE
 ============================================================ */
@@ -79,13 +74,11 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 5;
 }
 
-/* WRAPPER SHOULD NOT MOVE OR RESIZE ANYTHING */
 .app-wrapper {
-    opacity: 1; /* default visible */
-    transform: none; 
+    opacity: 1;
+    transform: none;
 }
 
-/* Fade only the hero + content, NOT the structural wrapper */
 .fade-in {
     opacity: 0;
     transform: translateY(8px);
@@ -93,14 +86,8 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 @keyframes fadeReal {
-    0% {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    0% { opacity: 0; transform: translateY(8px); }
+    100% { opacity: 1; transform: translateY(0); }
 }
 
 .fake-input {
@@ -177,8 +164,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-weight: 700;
     color: #dffaff;
 }
+
 /* ============================================================
-   MODE SELECTOR — FINAL VERSION (B3 S1 C3 G1 P2)
+   MODE SELECTOR (B3 S1 C3 G1 P2)
 ============================================================ */
 .modes-wrapper { 
     margin-top: 40px; 
@@ -187,15 +175,14 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 .mode-selector {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* G1 = 2 columns */
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     padding: 0 26px;
 }
 
-/* MAIN MODE BUTTON */
 .mode-btn {
-    padding: 24px 24px;   /* B3 = Big */
-    border-radius: 18px;  /* S1 = Smooth */
+    padding: 24px;
+    border-radius: 18px;
     background: rgba(255,255,255,0.08);
     border: 2px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
@@ -212,7 +199,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     position: relative;
 }
 
-/* DOT GLOW */
 .mode-btn::before {
     content: "";
     width: 12px;
@@ -222,29 +208,24 @@ button, .clear-btn, .back-btn, #sendBtn {
     box-shadow: 0 0 12px currentColor;
 }
 
-/* Hover Effect */
 .mode-btn:hover {
     transform: translateY(-4px);
     box-shadow: 0 0 30px currentColor;
 }
 
-/* ACTIVE MODE — P2 pulse + C3 strong glow */
 .mode-btn.active {
     background: rgba(255,255,255,0.12);
-    box-shadow: 
-        0 0 35px currentColor, 
-        inset 0 0 22px currentColor;
     border-color: currentColor;
+    box-shadow: 0 0 35px currentColor, inset 0 0 22px currentColor;
     animation: modePulse 1.4s infinite ease-in-out;
 }
 
 @keyframes modePulse {
-    0%   { box-shadow: 0 0 25px currentColor; }
-    50%  { box-shadow: 0 0 45px currentColor; }
-    100% { box-shadow: 0 0 25px currentColor; }
+    0%,100% { box-shadow: 0 0 25px currentColor; }
+    50% { box-shadow: 0 0 45px currentColor; }
 }
 
-/* COLOR THEMES */
+/* Mode Colors */
 .mode-btn[data-mode="default"]    { color: #00eaff; }
 .mode-btn[data-mode="study"]      { color: #4da3ff; }
 .mode-btn[data-mode="research"]   { color: #00ffc8; }
@@ -254,13 +235,9 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-btn[data-mode="precision"]  { color: #00eaff; }
 .mode-btn[data-mode="flame"]      { color: #ff5500; }
 
-/* Make "Flame Mode" glow harder */
 .mode-btn[data-mode="flame"].active {
-    box-shadow: 
-        0 0 40px #ff5500, 
-        inset 0 0 26px #ff5500 !important;
+    box-shadow: 0 0 40px #ff5500, inset 0 0 26px #ff5500 !important;
 }
-
 
 /* ============================================================
    QUICK TOOLS
@@ -303,7 +280,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     background: rgba(0,200,255,0.25);
 }
 
-
 /* ============================================================
    CREATOR CARD
 ============================================================ */
@@ -322,7 +298,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #eafaff;
     line-height: 1.45;
 }
-
 
 /* ============================================================
    TESTIMONIALS
@@ -347,7 +322,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 @keyframes floatUp {
     0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+    50%    { transform: translateY(-8px); }
 }
 
 .testimonial-separator {
@@ -358,9 +333,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     margin-top: 10px;
 }
 
-
 /* ============================================================
-   INFO CARD (What is LeoCore?)
+   INFO CARD — "What is LeoCore?"
 ============================================================ */
 .info-card {
     width: 90%;
@@ -388,29 +362,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 18px;
     text-align: center;
 }
-
 /* ============================================================
    CHAT SCREEN — FULL VIEWPORT + BASE LAYOUT
-============================================================ */
-.chat-screen {
-    position: fixed;
-    top: 0;
-    left: 0;
-
-    width: 100vw;
-    height: 100vh;
-
-    background: rgba(5,10,25,0.92);
-    backdrop-filter: blur(10px);
-
-    display: flex;
-    flex-direction: column;
-
-    z-index: 99999 !important;
-    pointer-events: auto !important;
-}
-/* ============================================================
-   CHAT SCREEN LAYOUT — FIXES LEFT SLIDE BUG + FULLSCREEN MODE
 ============================================================ */
 #chatScreen {
     position: fixed;
@@ -443,13 +396,33 @@ button, .clear-btn, .back-btn, #sendBtn {
     animation: chatPulse 0.8s ease-out;
 }
 
+@keyframes chatPulse {
+    0% { box-shadow: 0 0 0 transparent; }
+    100% { box-shadow: 0 0 25px var(--theme-glow); }
+}
+
+/* BG blur behind chat (fade-in) */
+body.chat-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
+    opacity: 0;
+    z-index: 5;
+    transition: opacity 0.35s ease;
+}
+
+body.chat-open.show-blur::before {
+    opacity: 1;
+}
+
 /* ============================================================
    CHAT HEADER
 ============================================================ */
 .glow-header {
     padding: 14px 20px;
     background: rgba(0,0,0,0.35);
-
     backdrop-filter: blur(14px);
 
     display: flex;
@@ -461,15 +434,14 @@ button, .clear-btn, .back-btn, #sendBtn {
     position: relative;
     overflow: hidden;
 
-    pointer-events: auto;
+    pointer-events: auto !important;
 }
 
-/* Header Glow FX */
+/* Animated glow */
 .glow-header::before {
     content: "";
     position: absolute;
     inset: -30px;
-
     background: radial-gradient(circle, rgba(0,200,255,0.20), transparent 70%);
     animation: glowPulse 5s infinite ease-in-out;
 }
@@ -480,7 +452,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     100% { opacity: 0.4; transform: scale(1); }
 }
 
-/* Header Buttons */
+/* Header buttons */
 .glass-btn {
     width: 48px;
     height: 48px;
@@ -496,6 +468,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 21px;
     color: #e4faff;
     transition: 0.25s ease;
+    pointer-events: auto !important;
 }
 
 .glass-btn:active {
@@ -504,7 +477,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     box-shadow: 0 0 16px rgba(0,200,255,0.55);
 }
 
-/* Title block */
+/* Title */
 .chat-title-wrapper {
     text-align: center;
 }
@@ -518,19 +491,17 @@ button, .clear-btn, .back-btn, #sendBtn {
     -webkit-text-fill-color: transparent;
 }
 
-/* Underline */
 .title-underline {
     width: 80%;
     height: 3px;
-    background: linear-gradient(90deg,#00eaff,#9400ff);
     margin: 3px auto 0;
+    background: linear-gradient(90deg,#00eaff,#9400ff);
 }
 
-/* MODE BADGE UNDER TITLE */
+/* MODE BADGE */
 .mode-badge {
     margin-top: 4px;
     padding: 4px 10px;
-
     font-size: 12px;
     font-weight: 600;
 
@@ -547,7 +518,6 @@ button, .clear-btn, .back-btn, #sendBtn {
 ============================================================ */
 .chat-messages {
     flex: 1;
-
     padding: 14px;
 
     overflow-y: auto;
@@ -558,7 +528,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     scroll-behavior: smooth;
 }
 
-/* USER MESSAGE BUBBLE */
+/* USER bubble */
 .user-msg {
     display: flex;
     justify-content: flex-end;
@@ -569,7 +539,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #fff;
 }
 
-/* AI MESSAGE BUBBLE */
+/* AI bubble */
 .ai-msg {
     display: flex;
     justify-content: flex-start;
@@ -580,12 +550,13 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #e9f4ff;
 }
 
-/* Shared bubble styling */
+/* Shared bubble style */
 .bubble {
     max-width: 92%;
     padding: 14px 18px;
     border-radius: 14px;
     font-size: 16px;
+
     white-space: pre-wrap;
     word-break: break-word;
 }
@@ -615,7 +586,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     100% { opacity: 0.25; }
 }
 
-/* Remove cursor at end */
 .neon-cursor.fade-out {
     animation: fadeCursor 0.35s forwards;
 }
@@ -639,13 +609,15 @@ button, .clear-btn, .back-btn, #sendBtn {
     backdrop-filter: blur(12px);
 }
 
-/* FIXED MODE PILL — smaller, auto-shrinks, never pushes send button */
+/* MODE PILL (left side) */
 .mode-pill {
-    padding: 0 12px;      /* tighter padding */
-    height: 40px;         /* smaller height */
-    max-width: 72px;      /* was too wide before */
-    min-width: 60px;      /* prevent collapsing too far */
-    overflow: hidden;     
+    padding: 0 12px;
+    height: 40px;
+
+    max-width: 72px;
+    min-width: 60px;
+
+    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 
@@ -657,15 +629,16 @@ button, .clear-btn, .back-btn, #sendBtn {
     border: 2px solid var(--theme-glow);
     border-radius: 12px;
 
-    font-size: 12px;      /* smaller, fits everything */
+    font-size: 12px;
     font-weight: 600;
     color: #fff;
 
     box-shadow: 0 0 8px var(--theme-glow);
-    flex-shrink: 0;       /* prevents weird squeezing */
+
+    flex-shrink: 0;
 }
 
-/* INPUT FIELD */
+/* Input field */
 .chat-input-area input {
     flex: 1;
     height: 46px;
@@ -680,7 +653,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     outline: none;
 }
 
-/* SEND BUTTON */
+/* Send button */
 #sendBtn {
     width: 52px;
     height: 46px;
@@ -690,29 +663,33 @@ button, .clear-btn, .back-btn, #sendBtn {
     border: none;
 
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
 
     font-size: 20px;
     font-weight: bold;
     color: #000;
 
-    box-shadow: 0 0 12px var(--theme-glow);
     transition: 0.25s ease;
+    box-shadow: 0 0 12px var(--theme-glow);
 }
 
-/* "STOP" STREAM MODE */
+/* Stop mode */
 #sendBtn.stop-mode {
     background: #ff3b3b !important;
+    color: #fff !important;
     transform: scale(0.93);
     box-shadow: 0 0 18px #ff3b3b !important;
-    color: #fff !important;
 }
 
-/* Make sure header buttons always click */
+/* ============================================================
+   CLICK FIXES — ENSURE BUTTONS ALWAYS CLICKABLE
+============================================================ */
 #backBtn,
 #deleteBtn,
-.glass-btn {
+.glass-btn,
+#clearChat,
+#closeChat {
     pointer-events: auto !important;
     z-index: 999999 !important;
 }
@@ -721,13 +698,15 @@ button, .clear-btn, .back-btn, #sendBtn {
 .glow-header::after {
     pointer-events: none !important;
    }
+
 /* ============================================================
-   ORBS / PARALLAX / HOLOGRAPHIC FX
+   NEON ORBS / PARALLAX GLOW / HOLOGRAPHIC FX
 ============================================================ */
 :root {
     --theme-glow: #00eaff;
 }
 
+/* Side glow beams */
 body::before,
 body::after {
     content: "";
@@ -751,19 +730,18 @@ body::after  { right: -40px; background: #9400ff; }
     100% { transform: translateY(-20px); }
 }
 
-/* Floating neon ORBS */
+/* Floating orbs */
 .orb {
     position: fixed;
     width: 140px;
     height: 140px;
     border-radius: 50%;
+    pointer-events: none;
 
     background: radial-gradient(circle, #00eaff55, #00eaff00);
     filter: blur(25px);
 
-    pointer-events: none;
     z-index: -1;
-
     animation: orbFloat 14s infinite ease-in-out;
 }
 
@@ -785,7 +763,6 @@ body::after  { right: -40px; background: #9400ff; }
     height: 160px;
 
     background: linear-gradient(to bottom, transparent, rgba(0,255,255,0.25), transparent);
-
     animation: scanMove 6s infinite ease-in-out;
     z-index: -1;
 }
@@ -796,7 +773,7 @@ body::after  { right: -40px; background: #9400ff; }
     100% { top: -100%; }
 }
 
-/* Floating holo lines */
+/* Holographic horizontal lines */
 .holo-line {
     position: fixed;
     width: 100%;
@@ -804,9 +781,9 @@ body::after  { right: -40px; background: #9400ff; }
 
     background: linear-gradient(90deg, transparent, #00eaff55, transparent);
     opacity: 0.25;
+    z-index: -1;
 
     animation: holoFloat 8s infinite ease-in-out;
-    z-index: -1;
 }
 
 @keyframes holoFloat {
@@ -815,7 +792,7 @@ body::after  { right: -40px; background: #9400ff; }
     100% { transform: translateY(10%); }
 }
 
-/* Ensure home elements stay above FX */
+/* Keep homepage content above FX */
 .creator-card,
 .testimonial-bubble,
 .modes-wrapper,
@@ -826,7 +803,7 @@ body::after  { right: -40px; background: #9400ff; }
 }
 
 /* ============================================================
-   FLAME MODE — VISUAL OVERRIDES
+   FLAME MODE — SPECIAL VISUAL THEME OVERRIDES
 ============================================================ */
 body.flame-glow::before {
     background: radial-gradient(circle, rgba(255,60,0,0.55), transparent);
@@ -852,28 +829,7 @@ body.flame-glow .mode-pill {
 }
 
 /* ============================================================
-   CLICK FIXES — HEADER, BUTTONS ALWAYS CLICKABLE
-============================================================ */
-.chat-header,
-.back-btn,
-.clear-btn,
-#closeChat,
-#clearChat {
-    pointer-events: auto !important;
-    z-index: 999999 !important;
-}
-
-.chat-header::before,
-.chat-header::after {
-    pointer-events: none !important;
-}
-
-.chat-screen {
-    pointer-events: auto !important;
-}
-
-/* ============================================================
-   FULL WIPE ANIMATION (when clearing chat)
+   WIPE ANIMATION (Clear Chat)
 ============================================================ */
 #wipeOverlay {
     position: fixed;
@@ -925,9 +881,8 @@ body.flame-glow .mode-pill {
 }
 
 /* ============================================================
-   LEOCORE GYRO-REACTOR ORBIT LOADER — 3D WOBBLE UPGRADE
+   LEOCORE 3D GYRO-REACTOR ORBIT LOADER
 ============================================================ */
-
 .spiral-bubble {
     width: 58px;
     height: 58px;
@@ -938,11 +893,11 @@ body.flame-glow .mode-pill {
     justify-content: center;
     align-items: center;
 
-    perspective: 600px; /* enables real 3D wobble */
+    perspective: 600px;
     filter: drop-shadow(0 0 14px var(--theme-glow));
 }
 
-/* CORE */
+/* Core glow */
 .spiral-core {
     width: 16px;
     height: 16px;
@@ -961,7 +916,7 @@ body.flame-glow .mode-pill {
     100% { transform: scale(1); }
 }
 
-/* ORBITS CONTAINER WITH WOBBLE */
+/* Orbit wobble container */
 .orbit-wrapper {
     position: absolute;
     width: 100%;
@@ -978,40 +933,37 @@ body.flame-glow .mode-pill {
     100% { transform: rotateX(0deg) rotateY(0deg); }
 }
 
-/* OUTER RING — slow CW */
-.o1 {
+/* Orbit rings */
+.o1, .o2, .o3 {
     position: absolute;
-    width: 58px;
-    height: 58px;
     border-radius: 50%;
     border: 2px solid rgba(0,255,255,0.32);
-    animation: orbitCW 2.5s linear infinite;
-    animation-delay: -0.25s;
 }
 
-/* MIDDLE RING — faster CCW */
+/* Outer */
+.o1 {
+    width: 58px;
+    height: 58px;
+    animation: orbitCW 2.5s linear infinite;
+}
+
+/* Middle */
 .o2 {
-    position: absolute;
     width: 42px;
     height: 42px;
-    border-radius: 50%;
-    border: 2px solid rgba(0,255,255,0.22);
+    border-color: rgba(0,255,255,0.22);
     animation: orbitCCW 1.7s linear infinite;
-    animation-delay: -0.8s;
 }
 
-/* INNER RING — fastest CW */
+/* Inner */
 .o3 {
-    position: absolute;
     width: 28px;
     height: 28px;
-    border-radius: 50%;
-    border: 2px solid rgba(0,255,255,0.18);
+    border-color: rgba(0,255,255,0.18);
     animation: orbitCW 1s linear infinite;
-    animation-delay: -1.2s;
 }
 
-/* ROTATION DIRECTIONS */
+/* Rotation directions */
 @keyframes orbitCW {
     0%   { transform: rotateZ(0deg); }
     100% { transform: rotateZ(360deg); }
@@ -1022,38 +974,22 @@ body.flame-glow .mode-pill {
     100% { transform: rotateZ(0deg); }
 }
 
-#chatScreen {
-    opacity: 0;
-    transform: translateY(40px);
-    pointer-events: none;
-    transition: opacity 0.35s ease-out, transform 0.35s ease-out;
+/* ============================================================
+   FINAL OVERRIDES — SAFETY + INTERACTION FIXES
+============================================================ */
+
+/* Ensure chat header, back, and clear buttons always clickable */
+#backBtn,
+#deleteBtn,
+#closeChat,
+#clearChat,
+.glass-btn {
+    pointer-events: auto !important;
+    z-index: 999999 !important;
 }
 
-#chatScreen.active {
-    opacity: 1;
-    transform: translateY(0px);
-    pointer-events: auto;
-}
-#chatScreen.active {
-    box-shadow: 0 0 25px var(--theme-glow);
-    animation: chatPulse 0.8s ease-out;
-}
-
-@keyframes chatPulse {
-    0% { box-shadow: 0 0 0px transparent; }
-    100% { box-shadow: 0 0 25px var(--theme-glow); }
-}
-body.chat-open::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    backdrop-filter: blur(6px);
-    background: rgba(0,0,0,0.35);
-    z-index: 5;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-}
-
-body.chat-open.show-blur::before {
-    opacity: 1;
+/* Prevent header glows from blocking input */
+.glow-header::before,
+.glow-header::after {
+    pointer-events: none !important;
 }
