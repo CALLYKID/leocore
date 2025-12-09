@@ -1,605 +1,459 @@
 /* ============================================================
-   GLOBAL RESET / TOUCH FIXES
+   DEV ERROR POPUP — DEBUG ONLY
 ============================================================ */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent !important;
-}
-
-body {
-    background: #000;
-    font-family: 'Inter', sans-serif;
-    color: #fff;
-    overflow-x: hidden;
-    position: relative;
-}
-
-
-/* Buttons always clickable */
-button, .clear-btn, .back-btn, #sendBtn {
-    outline: none !important;
-    pointer-events: auto !important;
-    z-index: 999999;
-}
+window.onerror = function (msg, src, line) {
+    document.body.insertAdjacentHTML(
+        "beforeend",
+        `<div style="position:fixed;bottom:10px;left:10px;color:red;background:#000;padding:8px;border:1px solid red;z-index:999999">
+            ${msg}<br>Line: ${line}
+        </div>`
+    );
+};
 
 
 /* ============================================================
-   BACKGROUND ELEMENTS — TRUE STATIC LAYER
+   GLOBAL STATE
 ============================================================ */
-#bgLayer {
-    position: fixed;
-    inset: 0;
-    z-index: -10 !important;
-    overflow: hidden;
-    pointer-events: none !important;
-}
-
-#bgVideo {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-    transform: scale(1.05);
-    filter: brightness(0.78) saturate(1.2);
-}
-
-.overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0, 10, 35, 0.55);
-    backdrop-filter: blur(3px);
-}
-
-.bg-soft-glow {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.20), transparent 60%);
-    mix-blend-mode: screen;
-    animation: softGlow 12s ease-in-out infinite;
-}
-
-@keyframes softGlow {
-    0% { opacity: 0.55; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.08); }
-    100% { opacity: 0.55; transform: scale(1); }
-}
+let scrollRAF = false;
+let isStreaming = false;
+let cancelStream = false;
+let ignoreNextResponse = false;
 
 
 /* ============================================================
-   HERO SECTION
+   MAIN APP
 ============================================================ */
-.center-wrapper {
-    text-align: center;
-    padding-top: 12vh;
-    padding-bottom: 2vh;
-    position: relative;
-    z-index: 5 !important;
-    pointer-events: none;
-}
-
-.fake-input {
-    pointer-events: auto !important;
-    width: 85vw;
-    max-width: 600px;
-    height: 64px;
-    margin: 0 auto 22px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0, 15, 30, 0.35);
-    border-radius: 18px;
-    border: 2px solid #00eaff;
-    box-shadow: 0 0 24px #00eaff88;
-    cursor: pointer;
-}
-
-.fake-text {
-    font-size: 20px;
-    color: #dffaff;
-    white-space: nowrap;
-}
-
-.main-title {
-    font-size: 46px;
-    font-weight: 800;
-    position: relative;
-}
-
-.main-title::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.45), transparent);
-    transform: translateX(-130%);
-    animation: shine 5s infinite;
-}
-
-@keyframes shine {
-    0% { transform: translateX(-130%); }
-    55% { transform: translateX(130%); }
-    100% { transform: translateX(130%); }
-}
-
-.subtitle {
-    margin-top: 8px;
-    font-size: 18px;
-    color: #e2fbff;
-}
-
-
-/* Fade-in */
-.fade-in {
-    opacity: 0;
-    transform: translateY(8px);
-    animation: fadeInReal 0.8s ease-out forwards;
-}
-
-@keyframes fadeInReal {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-
-/* ============================================================
-   SECTION TITLES
-============================================================ */
-.section-title {
-    text-align: center;
-    font-size: 22px;
-    margin-bottom: 14px;
-    font-weight: 700;
-    color: #dffaff;
-    position: relative;
-    z-index: 20;
-}
-
-
-/* Clickable homepage items */
-.modes-wrapper,
-.tools-wrapper,
-.creator-card,
-.testimonials,
-.info-card,
-.mode-selector,
-.tool-btn,
-.mode-btn {
-    position: relative;
-    z-index: 30 !important;
-    pointer-events: auto !important;
-}
-
-
-/* ============================================================
-   MODE BUTTONS
-============================================================ */
-.modes-wrapper {
-    margin-top: 32px;
-    padding: 22px 0;
-}
-
-.mode-selector {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-    padding: 0 24px;
-}
-
-.mode-btn {
-    padding: 22px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.18);
-    backdrop-filter: blur(14px);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 18px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.25s;
-    color: #dffaff;
-}
-
-.mode-btn.active {
-    background: rgba(255,255,255,0.15);
-    border-color: var(--theme-glow);
-    box-shadow: 0 0 25px var(--theme-glow);
-}
-
-.mode-badge {
-    font-size: 12px;
-    padding: 4px 10px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 8px;
-    margin-left: 8px;
-    border: 1px solid var(--theme-glow);
-    color: var(--theme-glow);
-}
-
-
-/* ============================================================
-   QUICK TOOLS
-============================================================ */
-.tools-wrapper {
-    margin-top: 32px;
-    padding: 18px 0;
-}
-
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    padding: 0 22px;
-}
-
-.tool-btn {
-    padding: 16px;
-    border-radius: 18px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.25);
-    backdrop-filter: blur(6px);
-    text-align: center;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-
-.tool-btn:active {
-    transform: scale(0.95);
-}
-
-
-/* ============================================================
-   CREATOR CARD
-============================================================ */
-.creator-card {
-    width: 85%;
-    margin: 42px auto 24px;
-    padding: 24px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(12px);
-    text-align: center;
-    font-size: 16px;
-    color: #eafaff;
-}
-
-
-/* ============================================================
-   TESTIMONIALS
-============================================================ */
-.testimonials {
-    margin-top: 32px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    align-items: center;
-}
-
-.testimonial-bubble {
-    padding: 14px 20px;
-    background: rgba(0,200,255,0.15);
-    border-radius: 18px;
-    font-size: 14px;
-    color: #dffaff;
-}
-
-
-/* ============================================================
-   INFO CARD
-============================================================ */
-.info-card {
-    width: 90%;
-    margin: 40px auto;
-    padding: 26px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.18);
-    backdrop-filter: blur(12px);
-    color: #dffaff;
-    font-size: 17px;
-}
-
-
-/* ============================================================
-   CHAT SCREEN — FIXED OVERLAY + PATCHED ALIGNMENT
-============================================================ */
-#chatScreen {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-
-    background: rgba(0,0,0,0.45);
-    backdrop-filter: blur(32px) saturate(1.3);
-
-    display: flex;
-    flex-direction: column;
-
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.35s ease, transform 0.35s ease;
-
-    z-index: 999999 !important;
-    pointer-events: none;
-}
-
-#chatScreen.active {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-
-
-/* Chat wallpaper */
-#chatScreen::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: url("waves-blur.jpg?v=9999") center/cover no-repeat;
-    filter: blur(26px) brightness(0.72) saturate(1.25);
-    opacity: 1;
-    z-index: -1;
-}
-
-
-/* ============================================================
-   CHAT HEADER
-============================================================ */
-.chat-header {
-    padding: 14px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0,0,0,0.35);
-    border-bottom: 1px solid rgba(0,255,255,0.12);
-}
-
-.back-btn,
-.clear-btn {
-    background: rgba(0,0,0,0.25);
-    padding: 8px 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.18);
-    color: #dffaff;
-    font-size: 18px;
-    cursor: pointer;
-    backdrop-filter: blur(6px);
-}
-
-.back-btn:active,
-.clear-btn:active {
-    transform: scale(0.92);
-}
-
-.chat-title-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.chat-title {
-    font-size: 22px;
-    font-weight: 700;
-    background: linear-gradient(90deg, #00eaff, #9d4bff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-
-/* ============================================================
-   CHAT MESSAGES — FULL PATCH
-============================================================ */
-.chat-messages {
-    flex: 1;
-    min-height: 0;
-    max-height: calc(100vh - 140px);
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 14px;
-    overflow-y: auto;
-    background: rgba(0,0,0,0.22);
-    backdrop-filter: blur(6px);
-}
-
-.user-msg,
-.ai-msg {
-    width: 100%;
-    display: flex;
-}
-
-.user-msg {
-    justify-content: flex-end;
-}
-
-.ai-msg {
-    justify-content: flex-start;
-}
-
-.bubble {
-    padding: 14px 18px;
-    border-radius: 14px;
-    max-width: 85%;
-    word-break: break-word;
-    line-height: 1.45;
-}
-
-.user-msg .bubble {
-    background: #008cff;
-    color: #fff;
-}
-
-.ai-msg .bubble {
-    background: #1e263f;
-    color: #e9f4ff;
-}
-
-
-/* ============================================================
-   STREAMING EFFECT
-============================================================ */
-.ai-streaming .stream-text {
-    animation: fadeInText 0.2s ease;
-}
-
-@keyframes fadeInText {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-
-.neon-cursor {
-    width: 6px;
-    height: 18px;
-    background: var(--theme-glow);
-    animation: blink 0.7s infinite;
-}
-
-@keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
-}
-
-
-/* ============================================================
-   INPUT BAR (PATCHED)
-============================================================ */
-.chat-input-area {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: rgba(0,0,0,0.40);
-    border-top: 1px solid rgba(255,255,255,0.12);
-    flex-shrink: 0;
-    position: relative;
-    z-index: 99;
-}
-
-.chat-input-area input {
-    flex: 1;
-    height: 46px;
-    padding: 0 14px;
-    background: rgba(0,0,0,0.45);
-    border: 2px solid rgba(255,255,255,0.25);
-    border-radius: 14px;
-    color: #fff !important;
-    outline: none;
-}
-
-.chat-input-area input::placeholder {
-    color: #9fdfff;
-}
-
-#sendBtn {
-    width: 52px;
-    height: 46px;
-    border-radius: 14px;
-    border: none;
-    background: var(--theme-glow);
-    color: #000;
-    font-weight: 700;
-    box-shadow: 0 0 12px var(--theme-glow);
-    cursor: pointer;
-}
-
-#sendBtn.stop-mode {
-    background: #ff3b3b !important;
-    color: #fff !important;
-}
-
-
-/* ============================================================
-   MODE PILL
-============================================================ */
-.mode-pill {
-    padding: 0 12px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    background: rgba(0,0,0,0.35);
-    border: 2px solid var(--theme-glow);
-    border-radius: 12px;
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--theme-glow);
-}
-
-
-/* ============================================================
-   WIPE OVERLAY
-============================================================ */
-#wipeOverlay {
-    position: fixed;
-    inset: 0;
-    z-index: 999999999;
-    background: rgba(5, 0, 20, 0.92);
-    backdrop-filter: blur(12px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s ease;
-}
-
-#wipeOverlay.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.wipe-container { text-align: center; }
-
-.wipe-text {
-    margin-top: 18px;
-    font-size: 18px;
-    letter-spacing: 0.5px;
-    color: #dfe9ff;
-}
-
-.wipe-loader {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    border: 4px solid rgba(255,255,255,0.25);
-    border-top-color: var(--theme-glow);
-    animation: wipeSpin 1s linear infinite;
-}
-
-@keyframes wipeSpin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-
-/* ============================================================
-   ANDROID VIEWPORT STABILITY FIXES
-============================================================ */
-html, body {
-    height: 100%;
-    overscroll-behavior: none;
-}
-
-#bgLayer {
-    transform: translateZ(0);
-}
-
-#bgVideo {
-    transform: translateZ(0) scale(1.05);
-    backface-visibility: hidden;
-}
-
-@supports (-webkit-touch-callout: none) {
-    #bgVideo {
-        transform: translateZ(0) scale(1.05);
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ============================================================
+       BACKEND WAKE-UP (Safe, single fire)
+    ============================================================ */
+    if (!window.__leocoreWarm__) {
+        window.__leocoreWarm__ = true;
+
+        const ping = (p) =>
+            fetch("https://leocore.onrender.com/api/chat", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    message: p,
+                    userId: "warmup",
+                    name: "warmup"
+                })
+            }).catch(() => {});
+
+        ping("ping");
+        setTimeout(() => ping("ping2"), 1100);
     }
-}
+
+
+    /* ============================================================
+       ELEMENTS
+    ============================================================ */
+    const chatScreen = document.getElementById("chatScreen");
+    const closeChat  = document.getElementById("closeChat");
+    const clearBtn   = document.getElementById("clearChat");
+    const messages   = document.getElementById("messages");
+    const input      = document.getElementById("userInput");
+    const sendBtn    = document.getElementById("sendBtn");
+    const fakeInput  = document.getElementById("fakeInput");
+    const fakeText   = document.getElementById("fakeText");
+    const modePill   = document.getElementById("modePill");
+
+
+    /* ============================================================
+       USER ID SYSTEM
+    ============================================================ */
+    function getCookie(n) {
+        const m = document.cookie.match("(^|;) ?" + n + "=([^;]*)(;|$)");
+        return m ? m[2] : null;
+    }
+
+    function setCookie(n, v) {
+        document.cookie = `${n}=${v}; path=/; max-age=31536000`;
+    }
+
+    let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
+
+    if (!userId) {
+        userId = "user-" + Math.random().toString(36).slice(2);
+        setCookie("leocore-user", userId);
+        localStorage.setItem("leocore-user", userId);
+    }
+
+
+    /* ============================================================
+       CHAT SAVE / RESTORE
+    ============================================================ */
+    function saveChat() {
+        const arr = [];
+        document.querySelectorAll(".bubble").forEach(b => {
+            arr.push({
+                text: b.innerHTML,
+                sender: b.parentElement.classList.contains("user-msg") ? "user" : "ai"
+            });
+        });
+        localStorage.setItem("leocore-chat", JSON.stringify(arr));
+    }
+
+    JSON.parse(localStorage.getItem("leocore-chat") || "[]")
+        .forEach(m => addMessage(m.text, m.sender));
+
+
+    /* ============================================================
+       SAFE SCROLL
+    ============================================================ */
+    function scrollToBottom() {
+        if (scrollRAF) return;
+
+        scrollRAF = true;
+        requestAnimationFrame(() => {
+            messages.scrollTop = messages.scrollHeight;
+            scrollRAF = false;
+        });
+    }
+
+
+    /* ============================================================
+       HERO AUTO-TYPER
+    ============================================================ */
+    const prompts = [
+        "Message LeoCore…",
+        "Give me a task.",
+        "Help me revise.",
+        "Make me a plan.",
+        "Let's work."
+    ];
+
+    let pi = 0, ci = 0, deleting = false;
+
+    function typeAnimation() {
+        const txt = prompts[pi];
+
+        if (!deleting) {
+            fakeText.textContent = txt.substring(0, ci++);
+            if (ci > txt.length) {
+                deleting = true;
+                return setTimeout(typeAnimation, 900);
+            }
+        } else {
+            fakeText.textContent = txt.substring(0, ci--);
+            if (ci < 0) {
+                deleting = false;
+                pi = (pi + 1) % prompts.length;
+            }
+        }
+
+        setTimeout(typeAnimation, deleting ? 55 : 75);
+    }
+    typeAnimation();
+
+
+    /* ============================================================
+       ADD MESSAGE
+    ============================================================ */
+    function addMessage(text, sender) {
+        const wrap = document.createElement("div");
+        wrap.className = sender === "user" ? "user-msg" : "ai-msg";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = text;
+
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
+
+        scrollToBottom();
+        saveChat();
+    }
+
+
+    /* ============================================================
+       AI TYPING INDICATOR
+    ============================================================ */
+    function createTypingBubble() {
+        const hold = document.createElement("div");
+        hold.className = "ai-msg typing-holder";
+
+        hold.innerHTML = `
+            <div class="spiral-bubble">
+                <div class="spiral-core"></div>
+                <div class="orbit-wrapper">
+                    <div class="o1"></div>
+                    <div class="o2"></div>
+                    <div class="o3"></div>
+                </div>
+            </div>
+        `;
+
+        messages.appendChild(hold);
+        scrollToBottom();
+        return hold;
+    }
+
+
+    /* ============================================================
+       STREAM RESPONSE
+    ============================================================ */
+    async function streamMessage(full, isFlame = false) {
+        isStreaming = true;
+        cancelStream = false;
+
+        full = full.replace(/\n/g, "<br>");
+
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble ai-streaming";
+
+        const span = document.createElement("span");
+        span.className = "stream-text";
+
+        const cursor = document.createElement("div");
+        cursor.className = "neon-cursor";
+
+        bubble.appendChild(span);
+        bubble.appendChild(cursor);
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
+
+        scrollToBottom();
+
+        let i = 0;
+        const speed = () =>
+            isFlame ? (5 + Math.random() * 10) : (15 + Math.random() * 18);
+
+        while (i < full.length) {
+            if (cancelStream) break;
+
+            span.innerHTML = full.substring(0, i + 1);
+            i++;
+
+            scrollToBottom();
+            await new Promise(r => setTimeout(r, speed()));
+        }
+
+        cursor.remove();
+        isStreaming = false;
+        saveChat();
+    }
+
+
+    /* ============================================================
+       SEND MESSAGE
+    ============================================================ */
+    async function sendMessage() {
+        if (!input.value.trim()) return;
+
+        if (isStreaming) {
+            cancelStream = true;
+            ignoreNextResponse = true;
+            return;
+        }
+
+        const text = input.value.trim();
+        addMessage(text, "user");
+
+        input.value = "";
+        input.disabled = true;
+
+        sendBtn.classList.add("stop-mode");
+        sendBtn.innerHTML = "■";
+
+        const typing = createTypingBubble();
+
+        const mode = localStorage.getItem("leocore-mode") || "default";
+        const flame = mode === "flame";
+
+        try {
+            const res = await fetch("https://leocore.onrender.com/api/chat", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    message: text,
+                    userId,
+                    mode,
+                    boost: flame ? "🔥 FLAME TONE" : ""
+                })
+            });
+
+            const data = await res.json();
+
+            if (typing && typing.remove) typing.remove();
+
+            if (!ignoreNextResponse) {
+                await streamMessage(data.reply, flame);
+            }
+
+            ignoreNextResponse = false;
+
+        } catch {
+            typing.remove();
+            addMessage("⚠️ Network issue. Try again.", "ai");
+        }
+
+        input.disabled = false;
+        sendBtn.classList.remove("stop-mode");
+        sendBtn.innerHTML = "➤";
+    }
+
+
+    /* ============================================================
+       EVENT LISTENERS
+    ============================================================ */
+    sendBtn?.addEventListener("click", sendMessage);
+    input?.addEventListener("keydown", e => (e.key === "Enter" ? sendMessage() : null));
+
+
+    /* ============================================================
+       OPEN / CLOSE CHAT
+    ============================================================ */
+    fakeInput?.addEventListener("click", () => {
+        chatScreen.classList.add("active");
+        document.body.classList.add("chat-open");
+
+        setTimeout(() => {
+            document.body.classList.add("show-blur");
+            input?.focus();
+        }, 40);
+    });
+
+    closeChat?.addEventListener("click", () => {
+        chatScreen.classList.remove("active");
+        document.body.classList.remove("show-blur");
+        setTimeout(() => document.body.classList.remove("chat-open"), 280);
+    });
+
+
+    /* ============================================================
+       FIXED WIPE SYSTEM (pointer events)
+    ============================================================ */
+    let holdTimer = null;
+    let holdActive = false;
+
+    clearBtn?.addEventListener("pointerdown", () => {
+        holdTimer = setTimeout(() => {
+            holdActive = true;
+            fullWipeAnimation();
+        }, 850);
+    });
+
+    clearBtn?.addEventListener("pointerup", () => {
+        if (!holdActive) {
+            messages.innerHTML = "";
+            localStorage.removeItem("leocore-chat");
+        }
+        holdActive = false;
+        clearTimeout(holdTimer);
+    });
+
+
+    function fullWipeAnimation() {
+        const overlay = document.createElement("div");
+        overlay.id = "wipeOverlay";
+        overlay.innerHTML = `
+            <div class="wipe-container">
+                <div class="wipe-loader"></div>
+                <div class="wipe-text">Clearing data…</div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(() => overlay.classList.add("show"));
+
+        setTimeout(() => {
+            localStorage.clear();
+            messages.innerHTML = "";
+            chatScreen.classList.remove("active");
+
+            overlay.classList.remove("show");
+            setTimeout(() => overlay.remove(), 350);
+        }, 1500);
+    }
+
+
+    /* ============================================================
+       MODE SYSTEM
+    ============================================================ */
+    const modeThemes = {
+        default: "#00eaff",
+        study: "#00aaff",
+        research: "#00ffc6",
+        reading: "#ffa840",
+        deep: "#ff0033",
+        chill: "#b400ff",
+        precision: "#00eaff",
+        flame: "#ff4500"
+    };
+
+    function updateModePill() {
+        const mode = localStorage.getItem("leocore-mode") || "default";
+
+        const labels = {
+            default: "DEF",
+            study: "STUDY",
+            research: "RSRCH",
+            reading: "READ",
+            deep: "DEEP",
+            chill: "CHILL",
+            precision: "PRCN",
+            flame: "FLAME"
+        };
+
+        modePill.textContent = labels[mode];
+        document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
+        document.body.classList.toggle("flame-mode", mode === "flame");
+    }
+
+    updateModePill();
+
+    document.querySelectorAll(".mode-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const mode = btn.dataset.mode;
+
+            localStorage.setItem("leocore-mode", mode);
+            document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            updateModePill();
+
+            chatScreen.classList.add("active");
+            document.body.classList.add("chat-open");
+
+            setTimeout(() => {
+                document.body.classList.add("show-blur");
+                input?.focus();
+            }, 60);
+        });
+    });
+
+
+    /* ============================================================
+       QUICK TOOLS
+    ============================================================ */
+    const toolPrompts = {
+        summarise: "Summarise this text:",
+        plan: "Plan my day:",
+        study: "Explain this homework:",
+        notes: "Generate notes about:"
+    };
+
+    document.querySelectorAll(".tool-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            input.value = toolPrompts[btn.dataset.task] || "";
+            chatScreen.classList.add("active");
+            setTimeout(() => input?.focus(), 100);
+        });
+    });
+
+}); // DOM READY END
+
+
+/* ============================================================
+   BACKEND KEEP-ALIVE — SAFE
+============================================================ */
+setInterval(() => {
+    fetch("https://leocore.onrender.com/ping").catch(() => {});
+}, 45000);
