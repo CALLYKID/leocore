@@ -395,7 +395,8 @@ function updateModePill() {
 
     // Clean abbreviations so pill never stretches UI
     const modeLabels = {
-        study: "STUDY",
+       default: "DEF", 
+       study: "STUDY",
         research: "RSRCH",
         deep: "DEEP",
         precision: "PRCN",
