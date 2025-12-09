@@ -25,7 +25,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   1. TRUE BACKGROUND LAYER (Never Moves, Never Breaks)
+   1. TRUE BACKGROUND LAYER — NEVER MOVES
 ============================================================ */
 #bgLayer {
     position: fixed;
@@ -71,7 +71,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   2. HOME WRAPPER
+   2. APP WRAPPER
 ============================================================ */
 .app-wrapper {
     width: 100%;
@@ -79,6 +79,17 @@ button, .clear-btn, .back-btn, #sendBtn {
     padding-bottom: 100px;
     position: relative;
     z-index: 5;
+}
+
+/* Fade-in class used in HTML */
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 
@@ -141,8 +152,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 18px;
     color: #dffaff;
 }
-
-
 /* ============================================================
    4. SECTION TITLES
 ============================================================ */
@@ -154,6 +163,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #dffaff;
     z-index: 20;
 }
+
+
 /* ============================================================
    5. MODES SECTION
 ============================================================ */
@@ -293,11 +304,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     color: #dffaff;
     font-size: 17px;
     z-index: 30;
-}
-
-
+       }
 /* ============================================================
-   10. CHAT SCREEN — FIXED
+   10. CHAT SCREEN
 ============================================================ */
 #chatScreen {
     position: fixed;
@@ -336,7 +345,26 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   11. CHAT HEADER
+   11. GLASS BUTTONS (MISSING FROM YOUR FILE)
+============================================================ */
+.glass-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    backdrop-filter: blur(12px);
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.glass-btn:active {
+    transform: scale(0.92);
+}
+
+
+/* ============================================================
+   12. CHAT HEADER
 ============================================================ */
 .chat-header {
     padding: 14px 20px;
@@ -357,7 +385,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   12. CHAT MESSAGES
+   13. MESSAGES
 ============================================================ */
 .chat-messages {
     flex: 1;
@@ -371,14 +399,13 @@ button, .clear-btn, .back-btn, #sendBtn {
     backdrop-filter: blur(6px);
 }
 
-.user-msg,
-.ai-msg {
+.user-msg, .ai-msg {
     width: 100%;
     display: flex;
 }
 
 .user-msg { justify-content: flex-end; }
-.ai-msg { justify-content: flex-start; }
+.ai-msg   { justify-content: flex-start; }
 
 .bubble {
     padding: 14px 18px;
@@ -399,7 +426,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   13. INPUT BAR
+   14. INPUT BAR
 ============================================================ */
 .chat-input-area {
     position: fixed;
@@ -443,7 +470,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   14. MODE PILL
+   15. MODE PILL
 ============================================================ */
 .mode-pill {
     padding: 0 12px;
@@ -462,7 +489,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   15. FULL WIPE OVERLAY
+   16. FULL WIPE OVERLAY
 ============================================================ */
 #wipeOverlay {
     position: fixed;
@@ -497,10 +524,51 @@ button, .clear-btn, .back-btn, #sendBtn {
 @keyframes wipeSpin {
     to { transform: rotate(360deg); }
 }
+/* ============================================================
+   17. TYPING ANIMATION (Missing Before — NOW FIXED)
+============================================================ */
+.spiral-bubble {
+    width: 40px;
+    height: 40px;
+    position: relative;
+    background: rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 6px;
+    backdrop-filter: blur(10px);
+}
+
+.spiral-core {
+    width: 10px;
+    height: 10px;
+    background: var(--theme-glow);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.orbit-wrapper div {
+    width: 6px;
+    height: 6px;
+    background: var(--theme-glow);
+    border-radius: 50%;
+    position: absolute;
+    animation: orbit 1.3s linear infinite;
+}
+
+.o1 { top: -2px; left: 50%; transform: translateX(-50%); }
+.o2 { bottom: -2px; left: 50%; transform: translateX(-50%); animation-delay: .3s; }
+.o3 { left: -2px; top: 50%; transform: translateY(-50%); animation-delay: .6s; }
+
+@keyframes orbit {
+    from { transform: rotate(0deg) translateX(8px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(8px) rotate(-360deg); }
+}
 
 
 /* ============================================================
-   16. MOBILE FIXES
+   18. MOBILE TWEAKS
 ============================================================ */
 @supports (-webkit-touch-callout: none) {
     #bgVideo {
@@ -512,4 +580,4 @@ button, .clear-btn, .back-btn, #sendBtn {
     .fake-input { height: 58px; font-size: 17px; }
     .main-title { font-size: 40px; }
     .bubble { font-size: 15px; padding: 12px 14px; }
-    }
+}
