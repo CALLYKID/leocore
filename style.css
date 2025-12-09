@@ -164,12 +164,6 @@ body::after {
     100% { transform: translateX(130%); }
 }
 
-@keyframes shine {
-    0% { left: -120%; }
-    60% { left: 120%; }
-    100% { left: 120%; }
-}
-
 .subtitle {
     margin-top: 8px;
     font-size: 18px;
