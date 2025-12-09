@@ -390,6 +390,26 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 /* ============================================================
+   CHAT SCREEN — FULL VIEWPORT + BASE LAYOUT
+============================================================ */
+.chat-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: 100vh;
+
+    background: rgba(5,10,25,0.92);
+    backdrop-filter: blur(10px);
+
+    display: flex;
+    flex-direction: column;
+
+    z-index: 99999 !important;
+    pointer-events: auto !important;
+}
+/* ============================================================
    CHAT HEADER
 ============================================================ */
 .glow-header {
