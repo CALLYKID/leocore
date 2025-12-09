@@ -1,19 +1,1 @@
-<svg width="145" height="145" viewBox="0 0 200 200">
-  <defs>
-    <linearGradient id="lc-glow" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00eaff" stop-opacity="0.9"/>
-      <stop offset="100%" stop-color="#9400ff" stop-opacity="0.6"/>
-    </linearGradient>
-  </defs>
 
-  <circle cx="100" cy="100" r="78" stroke="url(#lc-glow)" stroke-width="6"
-          fill="transparent" opacity="0.5"/>
-
-  <path d="M60 60 L60 140 L115 140"
-        stroke="url(#lc-glow)" stroke-width="10"
-        stroke-linecap="round" fill="none"/>
-
-  <path d="M145 75 A45 45 0 1 0 145 125"
-        stroke="url(#lc-glow)" stroke-width="10"
-        stroke-linecap="round" fill="none"/>
-</svg>
