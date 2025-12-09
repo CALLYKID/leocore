@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- FIXED VIEWPORT — stops zooming & layout stretch -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+
     <title>LeoCore</title>
 
     <!-- Cache breaker -->
@@ -12,7 +16,7 @@
 <body>
 
 <!-- ============================================================
-     TRUE BACKGROUND LAYER
+     TRUE BACKGROUND LAYER — NEVER MOVES, NEVER SCALES WRONG
 ============================================================ -->
 <div id="bgLayer">
     <video id="bgVideo" autoplay muted loop playsinline>
@@ -82,7 +86,7 @@
         <div class="testimonial-bubble">“Built on a phone. Unreal.”</div>
     </section>
 
-    <!-- INFO SECTION-->
+    <!-- INFO SECTION -->
     <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -94,8 +98,9 @@
     </section>
 
 </div> <!-- END HOME WRAPPER -->
-    <!-- ============================================================
-     CHAT SCREEN (OUTSIDE HOMEPAGE)
+
+<!-- ============================================================
+     CHAT SCREEN
 ============================================================ -->
 <div id="chatScreen">
 
@@ -110,10 +115,8 @@
         <button id="clearChat" class="clear-btn glass-btn">🗑</button>
     </div>
 
-    <!-- CHAT MESSAGES -->
     <div id="messages" class="chat-messages"></div>
 
-    <!-- INPUT AREA -->
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
         <input id="userInput" type="text" placeholder="Say something..." autocomplete="off" />
@@ -121,7 +124,6 @@
     </div>
 
 </div>
-<!-- END CHAT -->
 
 <!-- ============================================================
      MAIN SCRIPT
