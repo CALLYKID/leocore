@@ -136,13 +136,32 @@ body::after {
     position: relative;
 }
 
+.main-title {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    pointer-events: none; /* ensures FX can't block */
+}
+
 .main-title::after {
     content: "";
     position: absolute;
     inset: 0;
-    left: -120%;
-    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.6), transparent);
-    animation: shine 5s infinite ease-in-out;
+    pointer-events: none; /* CRITICAL FIX */
+    
+    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.45), transparent);
+    
+    width: 100%;
+    height: 100%;
+
+    transform: translateX(-130%);
+    animation: shine 4.6s infinite ease-in-out;
+}
+
+@keyframes shine {
+    0%   { transform: translateX(-130%); }
+    55%  { transform: translateX(130%); }
+    100% { transform: translateX(130%); }
 }
 
 @keyframes shine {
