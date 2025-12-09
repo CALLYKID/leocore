@@ -587,10 +587,17 @@ body {
     isolation: isolate;
 }
 
+/* ==== FIX FOR ANDROID BLACK BACKGROUND BUG ==== */
+body {
+    isolation: isolate;
+}
+
+/* Background stays behind everything but still visible */
 #bgLayer {
     position: fixed !important;
     inset: 0;
-    z-index: -99999 !important;
+    z-index: -5 !important; /* CORRECT VALUE */
+    pointer-events: none;
 }
 
 #bgVideo {
@@ -599,6 +606,7 @@ body {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -99999 !important;
+    transform: translateZ(0) scale(1.05);
+    z-index: -5 !important;  /* CORRECT VALUE */
     pointer-events: none !important;
 }
