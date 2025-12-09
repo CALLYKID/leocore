@@ -1079,3 +1079,15 @@ body::after {
     position: relative;
     z-index: 10;
 }
+#bgLayer {
+    position: fixed;
+    inset: 0;
+    z-index: -10 !important;
+    pointer-events: none !important;
+    overflow: hidden;
+}
+
+#bgLayer * {
+    pointer-events: none !important;
+    z-index: -10 !important;
+}
