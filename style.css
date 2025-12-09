@@ -338,8 +338,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     content: "";
     position: absolute;
     inset: 0;
-    background: url("waves-blur.jpg") center/cover no-repeat;
-    filter: blur(26px) brightness(.72) saturate(1.2);
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(22px) saturate(1.1);
     z-index: -1;
 }
 
