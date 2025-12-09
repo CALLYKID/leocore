@@ -1101,3 +1101,9 @@ body::after {
     70% { opacity: 1; }
     100% { opacity: 0; }
 }
+#bgLayer {
+    position: fixed;
+    inset: 0;
+    z-index: -10 !important;
+    pointer-events: none !important;
+}
