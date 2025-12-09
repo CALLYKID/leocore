@@ -555,3 +555,17 @@ html, body {
     object-fit: cover;
     object-position: center;
 }
+
+/* Fix input bar disappearing under Android navbar */
+.chat-input-area {
+    padding-bottom: env(safe-area-inset-bottom, 18px);
+    position: relative;
+    z-index: 10;
+}
+
+/* Ensure chat layout NEVER compresses the input bar out of view */
+#chatScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
