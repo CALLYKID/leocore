@@ -504,3 +504,11 @@ document.addEventListener("mousemove", e => {
         pRaf = false;
     });
 });
+
+/* ============================================================
+   BACKEND KEEP-ALIVE PING (PREVENT SERVER SLEEP)
+============================================================ */
+setInterval(() => {
+    fetch("https://<YOUR-BACKEND-URL>/ping")
+        .catch(() => {});
+}, 45000); // every 45s
