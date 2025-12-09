@@ -10,6 +10,7 @@
 
 <body>
 
+<!-- MAIN WRAPPER (NO ANIMATION HERE — FIXES ZOOM BUG) -->
 <div class="app-wrapper">
 
     <!-- BACKGROUND VIDEO -->
@@ -20,34 +21,50 @@
     <div class="overlay"></div>
     <div class="bg-soft-glow"></div>
 
-    <!-- HERO -->
-    <div class="center-wrapper parallax">
+
+    <!-- ================================
+         HERO SECTION
+    ================================= -->
+    <div class="center-wrapper fade-in">
+
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
         </div>
 
         <h1 class="main-title">LEOCORE</h1>
         <p class="subtitle">Your AI. Your Vibe.</p>
+
     </div>
 
-    <!-- MODE SELECTOR -->
-    <section class="modes-wrapper">
+
+    <!-- ================================
+         MODE SELECTOR
+    ================================= -->
+    <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
 
         <div class="mode-selector">
+
             <div class="mode-btn" data-mode="default">⚡ Default</div>
             <div class="mode-btn" data-mode="study">📘 Study</div>
+
             <div class="mode-btn" data-mode="research">🔬 Research</div>
             <div class="mode-btn" data-mode="reading">📖 Reading</div>
+
             <div class="mode-btn" data-mode="deep">🧠 Deep Mode</div>
             <div class="mode-btn" data-mode="chill">😎 Chill</div>
+
             <div class="mode-btn" data-mode="precision">🎯 Precision</div>
             <div class="mode-btn" data-mode="flame">🔥 Flame Mode</div>
+
         </div>
     </section>
 
-    <!-- QUICK TOOLS -->
-    <section class="tools-wrapper">
+
+    <!-- ================================
+         QUICK TOOLS
+    ================================= -->
+    <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
 
         <div class="tools-grid">
@@ -58,38 +75,53 @@
         </div>
     </section>
 
-    <!-- CREATOR CARD -->
-    <section class="creator-card">
+
+    <!-- ================================
+         CREATOR CARD
+    ================================= -->
+    <section class="creator-card fade-in">
         <h2>About the Creator</h2>
         <p>
-            LeoCore was built by <b>Leo</b>, a 15-year-old developer
-            creating a fast, aesthetic & private personal AI.
+            LeoCore was built by <b>Leo</b>, a 15-year-old developer designing
+            the future of personal AI — fast, aesthetic and private.
         </p>
     </section>
 
-    <!-- TESTIMONIALS -->
-    <section class="testimonials">
+
+    <!-- ================================
+         TESTIMONIALS
+    ================================= -->
+    <section class="testimonials fade-in">
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
         <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
         <div class="testimonial-bubble">“Can’t believe this was built on a phone.”</div>
+
         <div class="testimonial-separator"></div>
     </section>
 
-    <!-- INFO SECTION -->
-    <section class="info-section">
+
+    <!-- ================================
+         INFO CARD
+    ================================= -->
+    <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
             <p>
-                LeoCore is a personal AI built by <b>Leo</b> — designed to match
-                your vibe, remember your preferences, and stay private.
+                LeoCore is a fast, personal AI built by <b>Leo</b> —
+                designed to match your vibe, remember your preferences,
+                and always stay private.
             </p>
+
             <div class="features">
                 ⚡ Fast &nbsp;&nbsp; 🔒 Private &nbsp;&nbsp; 🧠 Remembers You
             </div>
         </div>
     </section>
 
-    <!-- CHAT SCREEN -->
+
+    <!-- ================================
+         CHAT SCREEN
+    ================================= -->
     <div id="chatScreen" class="chat-screen">
 
         <div class="chat-header glow-header">
@@ -114,18 +146,20 @@
         </div>
     </div>
 
-    <!-- FX -->
+
+    <!-- PARALLAX EFFECT ELEMENTS -->
     <div class="orb orb1 parallax"></div>
     <div class="orb orb2 parallax"></div>
     <div class="orb orb3 parallax"></div>
 
     <div class="neon-scan"></div>
-    <div class="holo-line" style="animation-delay: 0s;"></div>
-    <div class="holo-line" style="animation-delay: 2s;"></div>
-    <div class="holo-line" style="animation-delay: 4s;"></div>
+    <div class="holo-line" style="animation-delay:0s;"></div>
+    <div class="holo-line" style="animation-delay:2s;"></div>
+    <div class="holo-line" style="animation-delay:4s;"></div>
 
-</div> <!-- END app-wrapper -->
+</div>
 
 <script src="app.js" defer></script>
+
 </body>
 </html>
