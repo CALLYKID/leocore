@@ -356,7 +356,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 ============================================================ */
 .chat-messages {
     flex: 1;
-    min-height: 0;
+    min-height: 0;         /* 🚀 prevents overflow eating the input bar */
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -397,14 +397,22 @@ button, .clear-btn, .back-btn, #sendBtn {
    INPUT BAR
 ============================================================ */
 
-.chat-input-area input {
-    flex: 1;
-    height: 46px;
-    padding: 0 14px;
-    background: rgba(0,0,0,0.45);
-    border: 2px solid rgba(255,255,255,0.25);
-    border-radius: 14px;
-    color: #fff;
+.chat-input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+
+    background: rgba(0,0,0,0.40);
+    border-top: 1px solid rgba(255,255,255,0.12);
+
+    z-index: 9999999; /* 🚀 stays above EVERYTHING */
 }
 
 #sendBtn {
