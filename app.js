@@ -444,9 +444,11 @@ setInterval(() => {
 const bgVideo = document.getElementById("bgVideo");
 const instantBg = document.getElementById("instantBg");
 
-if (bgVideo && instantBg) {
+if (bgVideo) {
     bgVideo.addEventListener("loadeddata", () => {
-        instantBg.style.opacity = "0";
-        setTimeout(() => instantBg.remove(), 300);
+        if (instantBg) {
+            instantBg.style.opacity = "0";
+            setTimeout(() => instantBg.remove(), 300);
+        }
     });
-                       }
+}
