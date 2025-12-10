@@ -1,4 +1,14 @@
 /* ============================================================
+   REAL VIEWPORT HEIGHT FIX
+============================================================ */
+function fixVh() {
+    document.documentElement.style.setProperty("--vh", window.innerHeight * 0.01 + "px");
+}
+window.addEventListener("resize", fixVh);
+window.addEventListener("orientationchange", fixVh);
+fixVh();
+
+/* ============================================================
    DEV ERROR POPUP — DEBUG ONLY
 ============================================================ */
 window.onerror = function (msg, src, line) {
@@ -9,9 +19,7 @@ window.onerror = function (msg, src, line) {
         </div>`
     );
 };
-window.addEventListener("resize", () => {
-    document.documentElement.style.height = window.innerHeight + "px";
-});
+
 
 /* ============================================================
    GLOBAL STATE
@@ -26,15 +34,12 @@ let ignoreNextResponse = false;
    DOM READY
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
-   // Always show homepage on load in case chat was left open before
-document.querySelector(".app-wrapper").style.display = "block";
 
-    /* ============================================================
-       BACKEND AUTO WAKE (safe)
-    ============================================================ */
+    document.querySelector(".app-wrapper").style.display = "block";
+
+    // AUTO-WAKE BACKEND
     if (!window.__leocoreWarm__) {
         window.__leocoreWarm__ = true;
-
         const ping = (msg) =>
             fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
@@ -47,13 +52,10 @@ document.querySelector(".app-wrapper").style.display = "block";
             }).catch(() => {});
 
         ping("w1");
-        setTimeout(() => ping("w2"), 1100);
+        setTimeout(() => ping("w2"), 1200);
     }
 
-
-    /* ============================================================
-       ELEMENTS
-    ============================================================ */
+    /* ELEMENTS */
     const chatScreen = document.getElementById("chatScreen");
     const closeChat = document.getElementById("closeChat");
     const clearBtn = document.getElementById("clearChat");
@@ -78,7 +80,6 @@ document.querySelector(".app-wrapper").style.display = "block";
     }
 
     let userId = getCookie("leocore-user") || localStorage.getItem("leocore-user");
-
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
         setCookie("leocore-user", userId);
@@ -89,21 +90,19 @@ document.querySelector(".app-wrapper").style.display = "block";
     /* ============================================================
        RESTORE CHAT HISTORY
     ============================================================ */
-    function saveChat() {
-        const chatArr = [];
-        document.querySelectorAll(".bubble").forEach((b) => {
-            chatArr.push({
-                text: b.innerHTML,
-                sender: b.parentElement.classList.contains("user-msg")
-                    ? "user"
-                    : "ai"
-            });
-        });
-        localStorage.setItem("leocore-chat", JSON.stringify(chatArr));
-    }
-
     const saved = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
     saved.forEach((m) => addMessage(m.text, m.sender));
+
+    function saveChat() {
+        const arr = [];
+        document.querySelectorAll(".bubble").forEach((b) => {
+            arr.push({
+                text: b.innerHTML,
+                sender: b.parentElement.classList.contains("user-msg") ? "user" : "ai"
+            });
+        });
+        localStorage.setItem("leocore-chat", JSON.stringify(arr));
+    }
 
 
     /* ============================================================
@@ -120,7 +119,7 @@ document.querySelector(".app-wrapper").style.display = "block";
 
 
     /* ============================================================
-       HERO AUTO TYPER
+       HERO AUTO-TYPER
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -129,10 +128,7 @@ document.querySelector(".app-wrapper").style.display = "block";
         "Make me a plan.",
         "Let's work."
     ];
-
-    let pi = 0,
-        ci = 0,
-        deleting = false;
+    let pi = 0, ci = 0, deleting = false;
 
     function typeAnimation() {
         const txt = prompts[pi];
@@ -150,14 +146,13 @@ document.querySelector(".app-wrapper").style.display = "block";
                 pi = (pi + 1) % prompts.length;
             }
         }
-
         setTimeout(typeAnimation, deleting ? 55 : 75);
     }
     typeAnimation();
 
 
     /* ============================================================
-       ADD MESSAGE (unified)
+       ADD MESSAGE
     ============================================================ */
     function addMessage(text, sender) {
         const wrap = document.createElement("div");
@@ -176,7 +171,7 @@ document.querySelector(".app-wrapper").style.display = "block";
 
 
     /* ============================================================
-       AI TYPING INDICATOR
+       TYPING INDICATOR
     ============================================================ */
     function createTypingBubble() {
         const hold = document.createElement("div");
@@ -213,8 +208,6 @@ document.querySelector(".app-wrapper").style.display = "block";
         bubble.className = "bubble ai-streaming";
 
         const span = document.createElement("span");
-        span.className = "stream-text";
-
         const cursor = document.createElement("div");
         cursor.className = "neon-cursor";
 
@@ -226,8 +219,7 @@ document.querySelector(".app-wrapper").style.display = "block";
         scrollToBottom();
 
         let i = 0;
-        const speed = () =>
-            isFlame ? 5 + Math.random() * 9 : 15 + Math.random() * 18;
+        const speed = () => (isFlame ? 5 + Math.random() * 9 : 15 + Math.random() * 18);
 
         while (i < full.length) {
             if (cancelStream) break;
@@ -282,8 +274,7 @@ document.querySelector(".app-wrapper").style.display = "block";
             });
 
             const data = await res.json();
-
-            if (typing?.remove) typing.remove();
+            typing.remove();
 
             if (!ignoreNextResponse) {
                 await streamMessage(data.reply, flame);
@@ -305,38 +296,31 @@ document.querySelector(".app-wrapper").style.display = "block";
        LISTENERS
     ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
-    input.addEventListener("keydown", (e) =>
-        e.key === "Enter" ? sendMessage() : null
-    );
+    input.addEventListener("keydown", (e) => e.key === "Enter" ? sendMessage() : null);
 
 
     /* ============================================================
-       CHAT OPEN / CLOSE (no keyboard auto-open)
+       CHAT OPEN / CLOSE
     ============================================================ */
     fakeInput.addEventListener("click", () => {
-    chatScreen.classList.add("active");
-    document.body.classList.add("chat-open");
+        chatScreen.classList.add("active");
+        document.body.classList.add("chat-open");
+        document.querySelector(".app-wrapper").style.display = "none";
 
-    // HIDE HOMEPAGE
-    document.querySelector(".app-wrapper").style.display = "none";
+        setTimeout(() => document.body.classList.add("show-blur"), 50);
+    });
 
-    setTimeout(() => {
-        document.body.classList.add("show-blur");
-    }, 50);
-});
     closeChat.addEventListener("click", () => {
-    chatScreen.classList.remove("active");
-    document.body.classList.remove("show-blur");
+        chatScreen.classList.remove("active");
+        document.body.classList.remove("show-blur");
 
-    // SHOW HOMEPAGE AGAIN
-    document.querySelector(".app-wrapper").style.display = "block";
-
-    setTimeout(() => document.body.classList.remove("chat-open"), 280);
-});
+        document.querySelector(".app-wrapper").style.display = "block";
+        setTimeout(() => document.body.classList.remove("chat-open"), 280);
+    });
 
 
     /* ============================================================
-       WIPE SYSTEM (hold to wipe)
+       HOLD-TO-WIPE SYSTEM
     ============================================================ */
     let holdTimer = null;
     let holdActive = false;
@@ -368,7 +352,6 @@ document.querySelector(".app-wrapper").style.display = "block";
         `;
 
         document.body.appendChild(overlay);
-
         requestAnimationFrame(() => overlay.classList.add("show"));
 
         setTimeout(() => {
@@ -411,10 +394,7 @@ document.querySelector(".app-wrapper").style.display = "block";
         };
 
         modePill.textContent = labels[mode];
-        document.documentElement.style.setProperty(
-            "--theme-glow",
-            modeThemes[mode]
-        );
+        document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
 
         document.body.classList.toggle("flame-mode", mode === "flame");
     }
@@ -422,29 +402,22 @@ document.querySelector(".app-wrapper").style.display = "block";
     updateModePill();
 
     document.querySelectorAll(".mode-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const mode = btn.dataset.mode;
-        localStorage.setItem("leocore-mode", mode);
+        btn.addEventListener("click", () => {
+            const mode = btn.dataset.mode;
+            localStorage.setItem("leocore-mode", mode);
 
-        document
-            .querySelectorAll(".mode-btn")
-            .forEach((b) => b.classList.remove("active"));
+            document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
 
-        btn.classList.add("active");
+            updateModePill();
 
-        updateModePill();
+            chatScreen.classList.add("active");
+            document.body.classList.add("chat-open");
+            document.querySelector(".app-wrapper").style.display = "none";
 
-        chatScreen.classList.add("active");
-        document.body.classList.add("chat-open");
-
-        // HIDE HOMEPAGE
-        document.querySelector(".app-wrapper").style.display = "none";
-
-        setTimeout(() => {
-            document.body.classList.add("show-blur");
-        }, 70);
+            setTimeout(() => document.body.classList.add("show-blur"), 70);
+        });
     });
-});
 
 
     /* ============================================================
@@ -461,8 +434,6 @@ document.querySelector(".app-wrapper").style.display = "block";
         btn.addEventListener("click", () => {
             input.value = toolPrompts[btn.dataset.task] || "";
             chatScreen.classList.add("active");
-
-            setTimeout(() => {}, 100);
         });
     });
 }); // DOM END
