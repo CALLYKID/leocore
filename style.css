@@ -10,16 +10,24 @@
 
 html, body {
     height: calc(var(--vh, 1vh) * 100);
-    background: #000;
-    color: #fff;
-    font-family: 'Inter', sans-serif;
+    width: 100%;
     overflow-x: hidden;
     overscroll-behavior: none;
+
+    background: #000;        /* IMPORTANT: allows video to fade in clean */
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Buttons always clickable */
+button, #sendBtn, .back-btn, .clear-btn {
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
 }
 
 
 /* ============================================================
-   1. FIXED VIDEO BACKGROUND — NO FLASH, NO SHIFT
+   1. FIXED VIDEO BACKGROUND — ZERO FLASH, ZERO JUMP
 ============================================================ */
 #bgLayer {
     position: fixed;
@@ -42,26 +50,24 @@ html, body {
     object-fit: cover;
     object-position: center;
 
-    /* Slight darkening */
-    filter: brightness(0.65);
-
     transform: translateZ(0) scale(1.05);
     will-change: transform;
 
+    /* prevents Chrome flash */
+    background: #000 !important;
+    filter: brightness(0.70);
+
     z-index: -10000;
 }
-
-
 /* ============================================================
-   2. HOMEPAGE WRAPPER
+   2. HOMEPAGE WRAPPER & FADE-IN
 ============================================================ */
 .app-wrapper {
     width: 100%;
     min-height: 100%;
-    height: auto;
     padding-bottom: 100px;
-    z-index: 50;
     position: relative;
+    z-index: 50;
 }
 
 .fade-in {
@@ -76,7 +82,7 @@ html, body {
 
 
 /* ============================================================
-   3. HERO
+   3. HERO SECTION
 ============================================================ */
 .center-wrapper {
     text-align: center;
@@ -136,6 +142,7 @@ html, body {
     font-size: 18px;
     color: #dffaff;
 }
+
 
 /* ============================================================
    4. MODE SELECTOR
@@ -295,8 +302,6 @@ html, body {
     color: #dffaff;
     font-size: 17px;
 }
-
-
 /* ============================================================
    9. CHAT SCREEN OVERLAY
 ============================================================ */
@@ -329,7 +334,7 @@ html, body {
 
 
 /* ============================================================
-   10. CHAT HEADER  (PATCHED)
+   10. CHAT HEADER
 ============================================================ */
 .chat-header {
     padding: 14px 20px;
@@ -342,7 +347,7 @@ html, body {
     border-bottom: 1px solid rgba(0,255,255,0.12);
 
     position: relative;
-    z-index: 99996; /* PATCH FIX */
+    z-index: 99996;
 }
 
 .chat-title {
@@ -363,7 +368,7 @@ html, body {
 
 
 /* ============================================================
-   11. CHAT MESSAGES AREA  (PATCHED)
+   11. CHAT MESSAGES AREA
 ============================================================ */
 .chat-messages {
     flex: 1;
@@ -372,8 +377,7 @@ html, body {
     overflow-y: auto;
     padding: 14px;
 
-    /* FIX → adds safe space so AI/user messages never hide under input bar */
-    padding-bottom: 70px;
+    padding-bottom: 70px; /* space above input bar */
 
     display: flex;
     flex-direction: column;
@@ -384,7 +388,7 @@ html, body {
     -webkit-backdrop-filter: blur(6px);
 
     position: relative;
-    z-index: 99995; /* PATCH FIX */
+    z-index: 99995;
 }
 
 .user-msg, .ai-msg {
@@ -606,7 +610,7 @@ html, body {
 
 
 /* ============================================================
-   16. BLUR BUFFER (Correct)
+   16. BLUR BUFFER
 ============================================================ */
 #chatBlurBuffer {
     position: fixed;
