@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8" />
 
-    <!-- Prevent zoom bugs, Android scaling bugs, overscroll issues -->
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <meta name="HandheldFriendly" content="true">
@@ -15,14 +14,13 @@
         html, body { background:#000; }
     </style>
 
-    <!-- Main stylesheet -->
-    <link rel="stylesheet" href="style.css?v=9999">
+    <link rel="stylesheet" href="style.css?v=2001">
 </head>
 
 <body>
-    
+
 <!-- ============================================================
-     FIXED BACKGROUND LAYER (Video or fallback image)
+     FIXED GLOBAL BACKGROUND
 ============================================================ -->
 <div id="bgLayer">
     <video id="bgVideo" autoplay muted loop playsinline preload="auto" poster="waves-blur.jpg">
@@ -35,11 +33,10 @@
 
 
 <!-- ============================================================
-     APP WRAPPER (Homepage)
+     HOME SCREEN
 ============================================================ -->
 <div class="app-wrapper">
 
-    <!-- HERO -->
     <div class="center-wrapper fade-in">
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
@@ -49,7 +46,6 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-    <!-- MODE SELECTOR -->
     <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
 
@@ -65,7 +61,6 @@
         </div>
     </section>
 
-    <!-- QUICK TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
 
@@ -77,7 +72,6 @@
         </div>
     </section>
 
-    <!-- CREATOR CARD -->
     <section class="creator-card fade-in">
         <h2>About the Creator</h2>
         <p>
@@ -86,14 +80,12 @@
         </p>
     </section>
 
-    <!-- TESTIMONIALS -->
     <section class="testimonials fade-in">
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
         <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
         <div class="testimonial-bubble">“Built on a phone. Unreal.”</div>
     </section>
 
-    <!-- INFO CARD -->
     <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -104,16 +96,14 @@
         </div>
     </section>
 
-</div> <!-- END .app-wrapper -->
-
+</div>
 
 
 <!-- ============================================================
-     CHAT SCREEN (full overlay)
+     CHAT SCREEN
 ============================================================ -->
 <div id="chatScreen">
 
-    <!-- HEADER -->
     <div class="chat-header">
         <button id="closeChat" class="back-btn glass-btn">←</button>
 
@@ -125,24 +115,17 @@
         <button id="clearChat" class="clear-btn glass-btn">🗑</button>
     </div>
 
-    <!-- MESSAGES -->
     <div id="messages" class="chat-messages"></div>
 
-    <!-- INPUT BAR -->
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
         <input id="userInput" type="text" placeholder="Say something..." autocomplete="off" />
         <button id="sendBtn">➤</button>
     </div>
 
-</div> <!-- END CHAT SCREEN -->
+</div>
 
 
-
-<!-- ============================================================
-     MAIN SCRIPT (matches your full JS)
-============================================================ -->
-<script src="app.js?v=9999" defer></script>
-
+<script src="app.js?v=2001" defer></script>
 </body>
 </html>
