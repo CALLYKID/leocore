@@ -22,43 +22,16 @@
 <body>
 
 <!-- ============================================================
-     VIDEO PRELOAD FIX — NO FLASH, NO BLACK SCREEN
+     TRUE FIXED BACKGROUND (NO RESIZE, NO SCROLL, NO BLACK)
 ============================================================ -->
-<script>
-document.addEventListener("DOMContentLoaded", () => {
+<div id="bgLayer">
+    <video id="bgVideo" autoplay muted loop playsinline>
+        <source src="waves.mp4" type="video/mp4">
+    </video>
 
-    // Force fade-in system to WORK on Samsung Internet
-    document.body.style.opacity = "0";
-
-    const vid = document.getElementById("bgVideo");
-    const layer = document.getElementById("bgLayer");
-
-    let hasShown = false;
-
-    function showVideo() {
-        if (hasShown) return;
-        hasShown = true;
-
-        vid.style.display = "block";
-        layer.style.background = "none";
-        document.body.style.opacity = "1";
-    }
-
-    // If video successfully loads
-    vid.addEventListener("loadeddata", showVideo);
-
-    // Fallback after 1200ms
-    setTimeout(() => {
-        if (vid.readyState < 2) {
-            vid.style.display = "none";
-
-            layer.style.background =
-                "url('waves-blur.jpg') center/cover no-repeat";
-        }
-        document.body.style.opacity = "1";
-    }, 1200);
-});
-</script>
+    <div class="overlay"></div>
+    <div class="bg-soft-glow"></div>
+</div>
 
 
 <!-- ============================================================
