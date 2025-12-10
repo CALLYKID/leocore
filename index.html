@@ -11,13 +11,19 @@
 
     <!-- FRAME-BLOCKER + ZERO FLASH -->
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            overscroll-behavior: none;
-            -webkit-tap-highlight-color: transparent;
-        }
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        overscroll-behavior: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Prevent Android white flash BEFORE external CSS loads */
+    #bgVideo {
+        opacity: 0 !important;
+        background: #000 !important;
+    }
     </style>
 
     <link rel="stylesheet" href="style.css?v=3200">
