@@ -31,7 +31,7 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   GLOBAL STATE
+   2. GLOBAL STATE (Streaming, scroll, cancel, overrides)
 ============================================================ */
 let scrollRAF = false;
 let isStreaming = false;
@@ -40,11 +40,11 @@ let ignoreNextResponse = false;
 
 
 /* ============================================================
-   DOM READY
+   3. DOM READY (bind elements exactly matching HTML)
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENTS — matches your HTML exactly */
+    /* ELEMENTS — EXACT MATCH TO YOUR HTML */
     const chatScreen  = document.getElementById("chatScreen");
     const closeChat   = document.getElementById("closeChat");
     const clearBtn    = document.getElementById("clearChat");
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       BACKEND WARM-UP — speeds first response massively
+       4. BACKEND WARM-UP (fix cold-start lag)
     ============================================================ */
     if (!window.__leoWarm__) {
         window.__leoWarm__ = true;
@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       USER ID SYSTEM
+       5. USER ID SYSTEM (persistent identity)
     ============================================================ */
     function getCookie(name) {
         const m = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       RESTORE CHAT HISTORY (fully matches CSS & HTML)
+       6. RESTORE CHAT HISTORY (100% match to CSS/HTML style)
     ============================================================ */
     const saved = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
 
@@ -119,8 +119,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
-   /* ============================================================
-   2. HERO AUTO-TYPER  (Matches your fakeInput + fakeText)
+
+    /* CONTINUES IN PART B… */
+});
+/* ============================================================
+   7. HERO AUTO-TYPER (Matches fakeInput + fakeText)
 ============================================================ */
 const prompts = [
     "Message LeoCore…",
@@ -155,23 +158,23 @@ typeAnimation();
 
 
 /* ============================================================
-   3. OPEN / CLOSE CHAT  (Perfect match to CSS & HTML)
+   8. OPEN / CLOSE CHAT (follows your HTML structure exactly)
 ============================================================ */
 fakeInput.addEventListener("click", () => {
-    blurBuffer.style.opacity = "1";     // fade-in blur
-    chatScreen.classList.add("active"); // slide up chat
+    blurBuffer.style.opacity = "1";          // blur background
+    chatScreen.classList.add("active");      // slide chat in
     document.querySelector(".app-wrapper").style.display = "none";
 });
 
 closeChat.addEventListener("click", () => {
-    blurBuffer.style.opacity = "0";     // remove blur
+    blurBuffer.style.opacity = "0";          // remove blur
     chatScreen.classList.remove("active");
     document.querySelector(".app-wrapper").style.display = "block";
 });
 
 
 /* ============================================================
-   4. MODE SYSTEM (color theme + pill + active state)
+   9. MODE SYSTEM (themes, pill, highlight)
 ============================================================ */
 const modeThemes = {
     default:   "#00eaff",
@@ -202,28 +205,31 @@ function updateModePill() {
     document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
 }
 
-// apply theme on page load
 updateModePill();
 
 document.querySelectorAll(".mode-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
         const mode = btn.dataset.mode;
+
         localStorage.setItem("leocore-mode", mode);
 
-        // highlight selected
-        document.querySelectorAll(".mode-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".mode-btn")
+            .forEach((b) => b.classList.remove("active"));
+
         btn.classList.add("active");
 
         updateModePill();
 
-        // instantly open chat after selecting mode
+        // auto open chat
         blurBuffer.style.opacity = "1";
         chatScreen.classList.add("active");
         document.querySelector(".app-wrapper").style.display = "none";
     });
 });
-   /* ============================================================
-   5. ADD MESSAGE TO CHAT
+
+
+/* ============================================================
+   10. ADD MESSAGE TO CHAT (user + AI bubbles)
 ============================================================ */
 function addMessage(text, sender) {
     const wrap = document.createElement("div");
@@ -242,7 +248,7 @@ function addMessage(text, sender) {
 
 
 /* ============================================================
-   6. HYPERNOVA TYPING INDICATOR
+   11. HYPERNOVA TYPING INDICATOR
 ============================================================ */
 function createTypingBubble() {
     const wrap = document.createElement("div");
@@ -261,10 +267,8 @@ function createTypingBubble() {
     scrollToBottom();
     return wrap;
 }
-
-
 /* ============================================================
-   7. STREAM AI MESSAGE
+   12. STREAM AI MESSAGE (neon cursor + streaming)
 ============================================================ */
 async function streamMessage(full, flame = false) {
     isStreaming = true;
@@ -299,6 +303,7 @@ async function streamMessage(full, flame = false) {
         span.innerHTML = full.substring(0, i + 1);
         i++;
         scrollToBottom();
+
         await new Promise((r) => setTimeout(r, speed()));
     }
 
@@ -309,7 +314,7 @@ async function streamMessage(full, flame = false) {
 
 
 /* ============================================================
-   8. SEND MESSAGE
+   13. SEND MESSAGE (main message engine)
 ============================================================ */
 async function sendMessage() {
     if (!input.value.trim()) return;
@@ -349,7 +354,10 @@ async function sendMessage() {
         const data = await res.json();
         typing.remove();
 
-        if (!ignoreNextResponse) await streamMessage(data.reply, flame);
+        if (!ignoreNextResponse) {
+            await streamMessage(data.reply, flame);
+        }
+
         ignoreNextResponse = false;
 
     } catch {
@@ -365,24 +373,9 @@ async function sendMessage() {
 sendBtn.addEventListener("click", sendMessage);
 input.addEventListener("keydown", (e) => e.key === "Enter" && sendMessage());
 
-   /* ============================================================
-   9. OPEN / CLOSE CHAT
-============================================================ */
-fakeInput.addEventListener("click", () => {
-    blurBuffer.style.opacity = "1";
-    chatScreen.classList.add("active");
-    document.querySelector(".app-wrapper").style.display = "none";
-});
-
-closeChat.addEventListener("click", () => {
-    blurBuffer.style.opacity = "0";
-    chatScreen.classList.remove("active");
-    document.querySelector(".app-wrapper").style.display = "block";
-});
-
 
 /* ============================================================
-   10. HOLD-TO-WIPE SYSTEM
+   14. HOLD-TO-WIPE (full local data wipe)
 ============================================================ */
 let holdTimer = null;
 let holdActive = false;
@@ -428,60 +421,7 @@ function fullWipe() {
 
 
 /* ============================================================
-   11. MODE SYSTEM
-============================================================ */
-const modeThemes = {
-    default: "#00eaff",
-    study: "#00aaff",
-    research: "#00ffc6",
-    reading: "#ffa840",
-    deep: "#ff0033",
-    chill: "#b400ff",
-    precision: "#00eaff",
-    flame: "#ff4500"
-};
-
-function updateModePill() {
-    const mode = localStorage.getItem("leocore-mode") || "default";
-
-    const labels = {
-        default: "DEF",
-        study: "STUDY",
-        research: "RSRCH",
-        reading: "READ",
-        deep: "DEEP",
-        chill: "CHILL",
-        precision: "PRCN",
-        flame: "FLAME"
-    };
-
-    modePill.textContent = labels[mode];
-    document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
-}
-
-updateModePill();
-
-document.querySelectorAll(".mode-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        const mode = btn.dataset.mode;
-        localStorage.setItem("leocore-mode", mode);
-
-        document.querySelectorAll(".mode-btn").forEach((b) =>
-            b.classList.remove("active")
-        );
-        btn.classList.add("active");
-
-        updateModePill();
-
-        blurBuffer.style.opacity = "1";
-        chatScreen.classList.add("active");
-        document.querySelector(".app-wrapper").style.display = "none";
-    });
-});
-
-
-/* ============================================================
-   12. QUICK TOOLS AUTOFILL
+   15. QUICK TOOLS (auto-fill input)
 ============================================================ */
 const toolPrompts = {
     summarise: "Summarise this text:",
@@ -501,7 +441,7 @@ document.querySelectorAll(".tool-btn").forEach((btn) => {
 
 
 /* ============================================================
-   13. BACKEND KEEP-ALIVE (Render sleep fix)
+   16. BACKEND KEEP-ALIVE (Render cold-boot killer)
 ============================================================ */
 setInterval(() => {
     fetch("https://leocore.onrender.com/ping").catch(() => {});
@@ -509,21 +449,19 @@ setInterval(() => {
 
 
 /* ============================================================
-   14. VIDEO-LOAD BACKGROUND PATCH (FIXED)
+   17. VIDEO-LOAD BACKGROUND PATCH (fixes black screen)
 ============================================================ */
 const bgVideo = document.getElementById("bgVideo");
 
 if (bgVideo) {
-    // When video actually has pixels ready
     bgVideo.addEventListener("loadeddata", () => {
         bgVideo.style.opacity = "1";
     });
 }
 
-// Ensure opacity is never stuck at 0
 document.addEventListener("DOMContentLoaded", () => {
     if (bgVideo) {
-        bgVideo.style.opacity = "1"; // <- FIXES BLACK SCREEN PERMANENTLY
+        bgVideo.style.opacity = "1";
         bgVideo.style.transition = "opacity .45s ease";
     }
 });
