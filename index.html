@@ -2,14 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <meta name="HandheldFriendly" content="true">
-
     <title>LeoCore</title>
 
-    <!-- PREVENT FLASH BEFORE CSS LOADS -->
     <style>
         html, body {
             margin: 0;
@@ -19,14 +15,25 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Prevent Android white flash BEFORE external CSS loads */
         #bgVideo {
             opacity: 0 !important;
             background: #000 !important;
         }
     </style>
 
-    <link rel="stylesheet" href="style.css?v=3200">
+    <!-- AUTO VERSIONING SYSTEM -->
+    <script>
+        const LEOCORE_VERSION = Date.now();
+    </script>
+
+    <!-- Dynamically loaded fresh versions -->
+    <link rel="stylesheet" href="style.css" id="styleLink">
+    <script src="" id="appScript" defer></script>
+
+    <script>
+        document.getElementById("styleLink").href = `style.css?v=${LEOCORE_VERSION}`;
+        document.getElementById("appScript").src = `app.js?v=${LEOCORE_VERSION}`;
+    </script>
 </head>
 
 <body>
