@@ -9,7 +9,7 @@
 
     <title>LeoCore</title>
 
-    <!-- PREVENT FLASH BEFORE CSS LOADS -->
+    <!-- MINIMAL SAFETY RESET (no bgVideo override!) -->
     <style>
         html, body {
             margin: 0;
@@ -17,12 +17,6 @@
             background: #000;
             overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Prevent Android white flash BEFORE external CSS loads */
-        #bgVideo {
-            opacity: 0 !important;
-            background: #000 !important;
         }
     </style>
 
@@ -120,13 +114,13 @@
 
 
 <!-- ============================================================
-     BLUR BUFFER (MUST EXIST!)
+     BLUR BUFFER
 ============================================================ -->
 <div id="chatBlurBuffer"></div>
 
 
 <!-- ============================================================
-     CHAT SCREEN (TOP LAYER)
+     CHAT SCREEN
 ============================================================ -->
 <div id="chatScreen">
 
