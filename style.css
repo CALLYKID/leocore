@@ -17,7 +17,7 @@ html, body {
     overscroll-behavior: none;
 }
 
-/* Keep interactive elements clickable */
+/* Ensure buttons stay clickable */
 button, .clear-btn, .back-btn, #sendBtn {
     pointer-events: auto;
     z-index: 9999;
@@ -25,57 +25,59 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   FIXED FULL-SCREEN BACKGROUND (Stable)
+   1. FIXED FULL-SCREEN BACKGROUND (FINAL)
 ============================================================ */
 #bgLayer {
     position: fixed;
     top: 0;
     left: 0;
-
     width: 100vw;
-    height: 100vh;
-
+    height: calc(var(--vh) * 100); /* REAL viewport height */
     overflow: hidden;
     pointer-events: none;
-    z-index: -1; /* always behind UI */
+    z-index: -1000; /* Always behind everything */
 }
 
 #bgVideo {
     position: absolute;
     inset: 0;
-
     width: 100%;
     height: 100%;
-
     object-fit: cover;
     object-position: center;
-
     transform: translateZ(0) scale(1.05);
     will-change: transform;
     pointer-events: none;
+    z-index: -1001;
 }
 
+/* Dark blur overlay */
 .overlay {
     position: absolute;
     inset: 0;
     background: rgba(0, 10, 35, 0.45);
     backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: -998;
 }
 
+/* Soft glow animation */
 .bg-soft-glow {
     position: absolute;
     inset: 0;
-
     background: radial-gradient(circle at 40% 30%, rgba(0,234,255,0.2), transparent 60%);
     mix-blend-mode: screen;
     animation: softGlow 12s ease-in-out infinite;
+    z-index: -997;
 }
 
 @keyframes softGlow {
-    0% { opacity: 0.4; transform: scale(1); }
-    50% { opacity: 0.75; transform: scale(1.05); }
-    100% { opacity: 0.4; transform: scale(1); }
+    0% { opacity: .4; transform: scale(1); }
+    50% { opacity: .75; transform: scale(1.05); }
+    100% { opacity: .4; transform: scale(1); }
 }
+
+
 /* ============================================================
    2. HOMEPAGE WRAPPER
 ============================================================ */
@@ -83,14 +85,13 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 100%;
     min-height: 140vh;
     padding-bottom: 100px;
-
     position: relative;
-    z-index: 5; /* above bg video */
+    z-index: 10; /* Above BG */
 }
 
 .fade-in {
     opacity: 0;
-    animation: fadeIn 0.8s ease-out forwards;
+    animation: fadeIn .8s ease-out forwards;
 }
 
 @keyframes fadeIn {
@@ -111,7 +112,6 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 .fake-input {
     pointer-events: auto;
-
     width: 85vw;
     max-width: 600px;
     height: 64px;
@@ -138,7 +138,6 @@ button, .clear-btn, .back-btn, #sendBtn {
 .main-title {
     font-size: 46px;
     font-weight: 800;
-
     position: relative;
     margin-top: 10px;
 }
@@ -147,21 +146,14 @@ button, .clear-btn, .back-btn, #sendBtn {
     content: "";
     position: absolute;
     inset: 0;
-
-    background: linear-gradient(
-        75deg,
-        transparent,
-        rgba(255,255,255,0.35),
-        transparent
-    );
-
+    background: linear-gradient(75deg, transparent, rgba(255,255,255,.35), transparent);
     transform: translateX(-140%);
     animation: shine 4s infinite;
 }
 
 @keyframes shine {
-    0%   { transform: translateX(-140%); }
-    50%  { transform: translateX(140%); }
+    0% { transform: translateX(-140%); }
+    50% { transform: translateX(140%); }
     100% { transform: translateX(140%); }
 }
 
@@ -198,10 +190,10 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-btn {
     padding: 22px;
     border-radius: 18px;
-
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,.08);
+    border: 2px solid rgba(255,255,255,.15);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 
     display: flex;
     align-items: center;
@@ -216,7 +208,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 .mode-btn.active {
-    background: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,.18);
     border-color: var(--theme-glow);
     box-shadow: 0 0 20px var(--theme-glow);
 }
@@ -224,14 +216,11 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-badge {
     padding: 4px 10px;
     font-size: 12px;
-
     border-radius: 8px;
+
     border: 1px solid var(--theme-glow);
-
-    background: rgba(255,255,255,0.10);
+    background: rgba(255,255,255,.10);
     color: var(--theme-glow);
-
-    margin-left: 8px;
 }
 
 
@@ -253,13 +242,11 @@ button, .clear-btn, .back-btn, #sendBtn {
 .tool-btn {
     padding: 16px;
     border-radius: 18px;
-
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.25);
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(0,255,255,.25);
     backdrop-filter: blur(6px);
-
+    -webkit-backdrop-filter: blur(6px);
     text-align: center;
-
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
@@ -267,7 +254,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 }
 
 .tool-btn:active {
-    transform: scale(0.96);
+    transform: scale(.96);
 }
 
 
@@ -277,13 +264,13 @@ button, .clear-btn, .back-btn, #sendBtn {
 .creator-card {
     width: 85%;
     margin: 40px auto 24px;
-
     padding: 26px;
     border-radius: 20px;
 
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 
     color: #dffaff;
     font-size: 16px;
@@ -297,7 +284,6 @@ button, .clear-btn, .back-btn, #sendBtn {
 .testimonials {
     margin-top: 32px;
     padding: 20px;
-
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -307,10 +293,8 @@ button, .clear-btn, .back-btn, #sendBtn {
 .testimonial-bubble {
     padding: 14px 20px;
     font-size: 14px;
-
-    background: rgba(0,200,255,0.15);
+    background: rgba(0,200,255,.15);
     color: #dffaff;
-
     border-radius: 18px;
     text-align: center;
 }
@@ -322,40 +306,36 @@ button, .clear-btn, .back-btn, #sendBtn {
 .info-card {
     width: 90%;
     margin: 40px auto;
-
     padding: 28px;
     border-radius: 20px;
 
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.18);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 
     color: #dffaff;
     font-size: 17px;
 }
+
+
 /* ============================================================
    9. CHAT SCREEN OVERLAY
 ============================================================ */
 #chatScreen {
     position: fixed;
     inset: 0;
-
     width: 100vw;
     height: calc(var(--vh) * 100);
-
     display: flex;
     flex-direction: column;
-
-    background: transparent;
-
     opacity: 0;
     transform: translateY(40px);
     pointer-events: none;
-
+    background: transparent;
     transition: opacity .35s ease, transform .35s ease;
-
-    z-index: 999999; /* below input bar */
-    isolation: isolate; /* prevents blur flattening issues */
+    z-index: 99999;
+    isolation: isolate;
 }
 
 #chatScreen.active {
@@ -364,17 +344,14 @@ button, .clear-btn, .back-btn, #sendBtn {
     pointer-events: auto;
 }
 
-/* Chat blur overlay */
 #chatScreen::before {
     content: "";
     position: absolute;
     inset: 0;
-
-    background: rgba(0,0,0,0.45);
+    background: rgba(0,0,0,.45);
     backdrop-filter: blur(32px) saturate(1.3);
     -webkit-backdrop-filter: blur(32px) saturate(1.3);
-
-    z-index: 0; /* Behind chat content */
+    z-index: 0;
 }
 
 
@@ -383,14 +360,11 @@ button, .clear-btn, .back-btn, #sendBtn {
 ============================================================ */
 .chat-header {
     padding: 14px 20px;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    background: rgba(0,0,0,0.35);
-    border-bottom: 1px solid rgba(0,255,255,0.12);
-
+    background: rgba(0,0,0,.35);
+    border-bottom: 1px solid rgba(0,255,255,.12);
     position: relative;
     z-index: 2;
 }
@@ -403,67 +377,51 @@ button, .clear-btn, .back-btn, #sendBtn {
     -webkit-text-fill-color: transparent;
 }
 
-.chat-title-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-}
-
 
 /* ============================================================
    11. CHAT MESSAGES AREA
 ============================================================ */
 .chat-messages {
     flex: 1;
-    min-height: 0; /* IMPORTANT: allows scrolling */
-
+    min-height: 0;
     overflow-y: auto;
     padding: 14px;
-
     display: flex;
     flex-direction: column;
     gap: 12px;
 
-    background: rgba(0,0,0,0.20);
+    background: rgba(0,0,0,.20);
     backdrop-filter: blur(6px);
     -webkit-backdrop-filter: blur(6px);
-
     position: relative;
     z-index: 2;
 }
 
-/* User + AI message wrappers */
 .user-msg, .ai-msg {
     width: 100%;
     display: flex;
 }
 
 .user-msg { justify-content: flex-end; }
-.ai-msg   { justify-content: flex-start; }
+.ai-msg { justify-content: flex-start; }
 
-/* Message bubble base */
 .bubble {
     max-width: 85%;
     padding: 14px 18px;
     border-radius: 14px;
-
     word-break: break-word;
 }
 
-/* User bubble */
 .user-msg .bubble {
     background: #008cff;
     color: #fff;
 }
 
-/* AI bubble */
 .ai-msg .bubble {
     background: #1e263f;
     color: #e9f4ff;
 }
 
-/* Streaming text typing cursor */
 .neon-cursor {
     width: 6px;
     height: 18px;
@@ -477,55 +435,48 @@ button, .clear-btn, .back-btn, #sendBtn {
     0%, 100% { opacity: 0; }
     45%, 55% { opacity: 1; }
 }
+
+
 /* ============================================================
-   12. FIXED INPUT BAR (NEVER MOVES)
+   12. FIXED INPUT BAR
 ============================================================ */
 .chat-input-area {
-    position: fixed !important;
-    bottom: 0 !important;
+    position: fixed;
+    bottom: 0;
     left: 0;
     width: 100%;
-
     padding: 12px;
     padding-bottom: env(safe-area-inset-bottom, 16px);
-
     display: flex;
     align-items: center;
     gap: 10px;
 
-    background: rgba(0,0,0,0.40);
-    border-top: 1px solid rgba(255,255,255,0.12);
-
-    z-index: 999999999 !important; /* highest UI layer */
+    background: rgba(0,0,0,.40);
+    border-top: 1px solid rgba(255,255,255,.12);
+    z-index: 999999;
 }
 
 #sendBtn {
     width: 52px;
     height: 46px;
-
     border-radius: 14px;
     background: var(--theme-glow);
     border: none;
-
     font-weight: 700;
     color: #000;
-
     box-shadow: 0 0 12px var(--theme-glow);
 }
 
 .mode-pill {
     height: 40px;
     padding: 0 12px;
-
     display: flex;
     align-items: center;
 
     border-radius: 12px;
     border: 2px solid var(--theme-glow);
-
-    background: rgba(0,0,0,0.35);
+    background: rgba(0,0,0,.35);
     color: var(--theme-glow);
-
     font-size: 12px;
     font-weight: 600;
 }
@@ -537,22 +488,19 @@ button, .clear-btn, .back-btn, #sendBtn {
 .spiral-bubble {
     width: 40px;
     height: 40px;
-
-    background: rgba(255,255,255,0.1);
+    background: rgba(255,255,255,.1);
     padding: 6px;
     border-radius: 12px;
-
     position: relative;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .spiral-core {
     width: 10px;
     height: 10px;
-
     background: var(--theme-glow);
     border-radius: 50%;
-
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
@@ -561,10 +509,8 @@ button, .clear-btn, .back-btn, #sendBtn {
 .orbit-wrapper div {
     width: 6px;
     height: 6px;
-
     background: var(--theme-glow);
     border-radius: 50%;
-
     position: absolute;
     animation: orbit 1.3s linear infinite;
 }
@@ -580,14 +526,14 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   14. FULL WIPE OVERLAY
+   14. WIPE OVERLAY
 ============================================================ */
 #wipeOverlay {
     position: fixed;
     inset: 0;
-
-    background: rgba(5, 0, 20, 0.92);
+    background: rgba(5,0,20,.92);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 
     display: flex;
     justify-content: center;
@@ -607,18 +553,15 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   15. MOBILE & ANDROID FIXES
+   15. MOBILE TWEAKS
 ============================================================ */
-
-/* Force GPU layer on Android to stop video flicker */
 @supports (-webkit-touch-callout: none) {
     #bgVideo {
         transform: translateZ(0) scale(1.05);
     }
 }
 
-/* Smaller screens UI tweak */
-@media (max-width: 600px) {
+@media(max-width: 600px) {
     .fake-input { height: 58px; }
     .main-title { font-size: 40px; }
     .bubble { font-size: 15px; padding: 12px 14px; }
