@@ -74,6 +74,7 @@ button, #sendBtn, .back-btn, .clear-btn {
     padding-bottom: 100px;
     position: relative;
     z-index: 50;
+    background: transparent !important; /* <<< THIS FIXES YOUR VIDEO */
 }
 
 .fade-in {
