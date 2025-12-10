@@ -745,3 +745,7 @@ body.show-blur #bgLayer {
     transform: translateZ(0);
     will-change: transform;
 }
+
+body.chat-open .app-wrapper {
+    display: none !important;
+}
