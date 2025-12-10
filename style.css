@@ -651,3 +651,24 @@ button, .clear-btn, .back-btn, #sendBtn {
     .main-title { font-size: 40px; }
     .bubble { font-size: 15px; padding: 12px 14px; }
 }
+/* FORCE HOMEPAGE TRANSPARENT */
+body,
+.app-wrapper,
+.center-wrapper,
+.modes-wrapper,
+.tools-wrapper,
+.creator-card,
+.testimonials,
+.info-section {
+    background: transparent !important;
+}
+
+/* STOP CHAT BACKGROUND FROM OVERRIDING VIDEO */
+#chatScreen {
+    background: transparent !important;
+}
+
+/* KEEP CHAT MESSAGES DARK ONLY WHEN ACTIVE */
+.chat-messages {
+    background: rgba(0,0,0,0.25) !important;
+}
