@@ -9,27 +9,25 @@
 
     <title>LeoCore</title>
 
-    <!-- HARD BLOCK ALL FLASHES -->
+    <!-- HARD BLOCK ALL FLASH INCLUDING CHROME, ANDROID, SAFARI -->
     <style>
         html, body {
             background: #000 !important;
             overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
         }
-
-        /* Prevent Chrome first-frame flash */
         video {
-            background: #000 !important;   /* IMPORTANT FIX */
+            background: #000 !important; /* Prevent first-frame flash */
         }
     </style>
 
-    <link rel="stylesheet" href="style.css?v=3000">
+    <link rel="stylesheet" href="style.css?v=4000">
 </head>
 
 <body>
-
+    
 <!-- ===========================
-     FIXED VIDEO BACKGROUND
+     FIXED VIDEO BACKGROUND (NO FLASH, NO BLACK OVERLAY)
 =========================== -->
 <div id="bgLayer">
     <video id="bgVideo"
@@ -38,18 +36,18 @@
         loop
         playsinline
         preload="auto"
-        poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII=">
+        poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII="
+        style="background:#000;">
 
         <source src="waves.mp4" type="video/mp4">
     </video>
 </div>
-
-
 <!-- ===========================
-     HOME SCREEN
+     HOME SCREEN (MIDDLE LAYER)
 =========================== -->
 <div class="app-wrapper">
 
+    <!-- HERO SECTION -->
     <div class="center-wrapper fade-in">
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
@@ -59,6 +57,8 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
+
+    <!-- MODE SELECTOR -->
     <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
 
@@ -74,6 +74,8 @@
         </div>
     </section>
 
+
+    <!-- QUICK TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
 
@@ -85,6 +87,8 @@
         </div>
     </section>
 
+
+    <!-- CREATOR CARD -->
     <section class="creator-card fade-in">
         <h2>About the Creator</h2>
         <p>
@@ -93,12 +97,16 @@
         </p>
     </section>
 
+
+    <!-- TESTIMONIALS -->
     <section class="testimonials fade-in">
         <div class="testimonial-bubble">“LeoCore feels insanely fast.”</div>
         <div class="testimonial-bubble">“The vibe is futuristic 🔥”</div>
         <div class="testimonial-bubble">“Built on a phone. Unreal.”</div>
     </section>
 
+
+    <!-- INFO CARD -->
     <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
@@ -110,16 +118,13 @@
     </section>
 
 </div>
-
-
 <!-- ===========================
-     BLUR BUFFER
+     BLUR BUFFER  (MIDDLE LAYER)
 =========================== -->
 <div id="chatBlurBuffer"></div>
 
-
-<!-- ===========================
-     CHAT SCREEN
+    <!-- ===========================
+     CHAT SCREEN (TOP LAYER)
 =========================== -->
 <div id="chatScreen">
 
@@ -143,7 +148,3 @@
     </div>
 
 </div>
-
-<script src="app.js?v=3000" defer></script>
-</body>
-</html>
