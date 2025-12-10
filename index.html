@@ -9,26 +9,29 @@
 
     <title>LeoCore</title>
 
-    <!-- HARD BLOCK ALL FLASH INCLUDING CHROME, ANDROID, SAFARI -->
+    <!-- FAST VIDEO ENABLE — removes black lock -->
     <style>
         html, body {
-            background: #000 !important;
+            margin: 0;
+            padding: 0;
+            background: #000;       /* fallback only */
             overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
         }
+
         video {
-            background: #000 !important; /* Prevent first-frame flash */
+            background: transparent !important; /* fast decode */
         }
     </style>
 
-    <link rel="stylesheet" href="style.css?v=4000">
+    <link rel="stylesheet" href="style.css?v=3100">
 </head>
 
 <body>
-    
-<!-- ===========================
-     FIXED VIDEO BACKGROUND (NO FLASH, NO BLACK OVERLAY)
-=========================== -->
+
+<!-- ==========================================
+     FIXED VIDEO BACKGROUND (FAST MODE)
+=========================================== -->
 <div id="bgLayer">
     <video id="bgVideo"
         autoplay
@@ -36,18 +39,15 @@
         loop
         playsinline
         preload="auto"
-        poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII="
-        style="background:#000;">
-
+        poster="data:image/gif;base64,R0lGODlhAQABAAAAACw=">
         <source src="waves.mp4" type="video/mp4">
     </video>
 </div>
-<!-- ===========================
-     HOME SCREEN (MIDDLE LAYER)
-=========================== -->
+<!-- ==========================================
+     HOME SCREEN (MAIN UI)
+=========================================== -->
 <div class="app-wrapper">
 
-    <!-- HERO SECTION -->
     <div class="center-wrapper fade-in">
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
@@ -57,8 +57,7 @@
         <p class="subtitle">Your AI. Your Vibe.</p>
     </div>
 
-
-    <!-- MODE SELECTOR -->
+    <!-- MODES -->
     <section class="modes-wrapper fade-in">
         <h2 class="section-title">Choose Your Mode</h2>
 
@@ -74,29 +73,26 @@
         </div>
     </section>
 
-
     <!-- QUICK TOOLS -->
     <section class="tools-wrapper fade-in">
         <h2 class="section-title">Quick Tools</h2>
 
         <div class="tools-grid">
-            <div class="tool-btn" data-task="summarise">📝 Summarise Text</div>
+            <div class="tool-btn" data-task="summarise">📝 Summarise</div>
             <div class="tool-btn" data-task="plan">📅 Plan My Day</div>
-            <div class="tool-btn" data-task="study">📚 Explain Homework</div>
-            <div class="tool-btn" data-task="notes">✍️ Generate Notes</div>
+            <div class="tool-btn" data-task="study">📚 Homework Help</div>
+            <div class="tool-btn" data-task="notes">✍️ Make Notes</div>
         </div>
     </section>
-
 
     <!-- CREATOR CARD -->
     <section class="creator-card fade-in">
         <h2>About the Creator</h2>
         <p>
-            LeoCore was built by <b>Leo</b>, a 15-year-old developer building the future
-            of personal AI — fast, aesthetic, and private.
+            LeoCore was built by <b>Leo</b>, a 15-year-old developer creating 
+            the next evolution of personal AI — aesthetic, fast, and private.
         </p>
     </section>
-
 
     <!-- TESTIMONIALS -->
     <section class="testimonials fade-in">
@@ -105,27 +101,24 @@
         <div class="testimonial-bubble">“Built on a phone. Unreal.”</div>
     </section>
 
-
     <!-- INFO CARD -->
     <section class="info-section fade-in">
         <div class="info-card">
             <h2>What is LeoCore?</h2>
             <p>
-                LeoCore is your personal AI — designed to match your vibe, think fast,
-                stay private, and feel alive.
+                LeoCore is your personal AI — built to match your energy, think fast,
+                adapt instantly, and feel alive.
             </p>
         </div>
     </section>
 
 </div>
-<!-- ===========================
-     BLUR BUFFER  (MIDDLE LAYER)
-=========================== -->
-<div id="chatBlurBuffer"></div>
 
-    <!-- ===========================
+<!-- BLUR BUFFER -->
+<div id="chatBlurBuffer"></div>
+<!-- ==========================================
      CHAT SCREEN (TOP LAYER)
-=========================== -->
+=========================================== -->
 <div id="chatScreen">
 
     <div class="chat-header">
@@ -139,12 +132,25 @@
         <button id="clearChat" class="clear-btn glass-btn">🗑</button>
     </div>
 
+    <!-- CHAT BODY -->
     <div id="messages" class="chat-messages"></div>
 
+    <!-- INPUT AREA -->
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
-        <input id="userInput" type="text" placeholder="Say something..." autocomplete="off" />
+
+        <input id="userInput"
+               type="text"
+               placeholder="Say something..."
+               autocomplete="off" />
+
         <button id="sendBtn">➤</button>
     </div>
 
 </div>
+
+
+<!-- SCRIPT -->
+<script src="app.js?v=3000" defer></script>
+</body>
+</html>
