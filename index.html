@@ -9,21 +9,21 @@
 
     <title>LeoCore</title>
 
-    <!-- FRAME-BLOCKER + ZERO FLASH -->
+    <!-- PREVENT FLASH BEFORE CSS LOADS -->
     <style>
-    html, body {
-        margin: 0;
-        padding: 0;
-        background: #000;
-        overscroll-behavior: none;
-        -webkit-tap-highlight-color: transparent;
-    }
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    /* Prevent Android white flash BEFORE external CSS loads */
-    #bgVideo {
-        opacity: 0 !important;
-        background: #000 !important;
-    }
+        /* Prevent Android white flash BEFORE external CSS loads */
+        #bgVideo {
+            opacity: 0 !important;
+            background: #000 !important;
+        }
     </style>
 
     <link rel="stylesheet" href="style.css?v=3200">
@@ -32,7 +32,7 @@
 <body>
 
 <!-- ============================================================
-     FIXED VIDEO BACKGROUND — SMOOTH FADE MODE
+     FIXED VIDEO BACKGROUND — FADE MODE
 ============================================================ -->
 <div id="bgLayer">
     <video id="bgVideo"
@@ -47,10 +47,11 @@
 </div>
 
 <!-- ============================================================
-     HOME SCREEN
+     HOME SCREEN (APP WRAPPER)
 ============================================================ -->
 <div class="app-wrapper">
 
+    <!-- HERO -->
     <div class="center-wrapper fade-in">
         <div id="fakeInput" class="fake-input">
             <span id="fakeText" class="fake-text"></span>
@@ -115,13 +116,18 @@
         </div>
     </section>
 
-</div>
+</div><!-- end app-wrapper -->
 
-<!-- BLUR BUFFER -->
-<div id="chatBlurBuffer"></div>
 
 <!-- ============================================================
-     CHAT SCREEN
+     BLUR BUFFER (MUST EXIST!)
+     Matches JS: const blurBuffer = getElementById("chatBlurBuffer")
+============================================================ -->
+<div id="chatBlurBuffer"></div>
+
+
+<!-- ============================================================
+     CHAT SCREEN (TOP LAYER)
 ============================================================ -->
 <div id="chatScreen">
 
@@ -139,12 +145,22 @@
 
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
-        <input id="userInput" type="text" placeholder="Say something..." autocomplete="off" />
+
+        <input id="userInput"
+               type="text"
+               placeholder="Say something..."
+               autocomplete="off" />
+
         <button id="sendBtn">➤</button>
     </div>
 
 </div>
 
+
+<!-- ============================================================
+     SCRIPT
+============================================================ -->
 <script src="app.js?v=3200" defer></script>
+
 </body>
 </html>
