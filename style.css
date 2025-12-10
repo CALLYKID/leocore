@@ -555,3 +555,4 @@ button, .clear-btn, .back-btn, #sendBtn {
     .main-title { font-size: 40px; }
     .bubble { font-size: 15px; padding: 12px 14px; }
 }
+#bgLayer { background: red !important; }
