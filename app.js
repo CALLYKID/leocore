@@ -1,12 +1,17 @@
-/* ============================================================
-   REAL VIEWPORT HEIGHT FIX
-============================================================ */
+/* REAL VIEWPORT FIX — works on all Android browsers */
 function fixVh() {
-    document.documentElement.style.setProperty("--vh", window.innerHeight * 0.01 + "px");
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty("--vh", `${vh}px`);
 }
+
+/* Run once after page settles */
+setTimeout(fixVh, 250);
+
+/* Run again when UI changes */
 window.addEventListener("resize", fixVh);
-window.addEventListener("orientationchange", fixVh);
-fixVh();
+window.addEventListener("orientationchange", () => {
+    setTimeout(fixVh, 300);
+});
 
 /* ============================================================
    DEV ERROR POPUP — DEBUG ONLY
