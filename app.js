@@ -509,24 +509,21 @@ setInterval(() => {
 
 
 /* ============================================================
-   14. VIDEO-LOAD BACKGROUND PATCH 
+   14. VIDEO-LOAD BACKGROUND PATCH (FIXED)
 ============================================================ */
 const bgVideo = document.getElementById("bgVideo");
 
 if (bgVideo) {
+    // When video actually has pixels ready
     bgVideo.addEventListener("loadeddata", () => {
-        // once the actual video frame is ready, unlock transitions
         bgVideo.style.opacity = "1";
     });
 }
 
-// prevent black flash on Android video first-frame
+// Ensure opacity is never stuck at 0
 document.addEventListener("DOMContentLoaded", () => {
     if (bgVideo) {
-        bgVideo.style.opacity = "0";
-        setTimeout(() => {
-            bgVideo.style.transition = "opacity .45s ease";
-        }, 50);
+        bgVideo.style.opacity = "1"; // <- FIXES BLACK SCREEN PERMANENTLY
+        bgVideo.style.transition = "opacity .45s ease";
     }
 });
-   
