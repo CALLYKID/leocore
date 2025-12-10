@@ -467,3 +467,18 @@ document.addEventListener("DOMContentLoaded", () => {
 setInterval(() => {
     fetch("https://leocore.onrender.com/ping").catch(() => {});
 }, 45000);
+
+const bgVideo = document.getElementById("bgVideo");
+const instantBg = document.getElementById("instantBg");
+
+if (bgVideo && instantBg) {
+    bgVideo.addEventListener("loadeddata", () => {
+        // Fade out the placeholder once video has real pixels ready
+        instantBg.style.opacity = "0";
+
+        // Optional: remove it from layout after fade
+        setTimeout(() => {
+            instantBg.style.display = "none";
+        }, 300);
+    });
+}
