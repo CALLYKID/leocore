@@ -9,7 +9,9 @@ window.onerror = function (msg, src, line) {
         </div>`
     );
 };
-
+window.addEventListener("resize", () => {
+    document.documentElement.style.height = window.innerHeight + "px";
+});
 
 /* ============================================================
    GLOBAL STATE
