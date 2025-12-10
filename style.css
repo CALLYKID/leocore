@@ -25,7 +25,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   1. TRUE BACKGROUND LAYER — NEVER MOVES
+   1. TRUE BACKGROUND LAYER — FIXED & BEHIND EVERYTHING
 ============================================================ */
 #bgLayer {
     position: fixed;
@@ -33,7 +33,13 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    z-index: -10;
+
+    /* IMPORTANT:
+       z-index MUST be -1, not 0 or higher.
+       Higher values block the hero text on Samsung/Chrome.
+    */
+    z-index: -1;
+
     pointer-events: none;
 }
 
@@ -42,10 +48,14 @@ button, .clear-btn, .back-btn, #sendBtn {
     inset: 0;
     width: 100%;
     height: 100%;
+
     object-fit: cover;
     object-position: center;
+
     transform: translateZ(0) scale(1.05);
     filter: brightness(0.75) saturate(1.2);
+
+    pointer-events: none;
 }
 
 .overlay {
@@ -71,17 +81,21 @@ button, .clear-btn, .back-btn, #sendBtn {
 
 
 /* ============================================================
-   2. APP WRAPPER
+   2. APP WRAPPER (Homepage)
 ============================================================ */
 .app-wrapper {
     width: 100%;
     min-height: 140vh;
     padding-bottom: 100px;
+
+    /* IMPORTANT:
+       This z-index MUST sit ABOVE bgLayer AND BELOW chatScreen.
+    */
     position: relative;
     z-index: 5;
 }
 
-/* Fade-in class used in HTML */
+/* Fade-in animations */
 .fade-in {
     opacity: 0;
     animation: fadeIn 0.8s ease-out forwards;
@@ -100,6 +114,8 @@ button, .clear-btn, .back-btn, #sendBtn {
     text-align: center;
     padding-top: 12vh;
     padding-bottom: 2vh;
+
+    /* Prevents weird tap-block issues */
     pointer-events: none;
 }
 
@@ -109,13 +125,16 @@ button, .clear-btn, .back-btn, #sendBtn {
     max-width: 600px;
     height: 64px;
     margin: 0 auto 22px;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
     background: rgba(0, 15, 30, 0.40);
     border-radius: 18px;
     border: 2px solid #00eaff;
     box-shadow: 0 0 24px #00eaff88;
+
     cursor: pointer;
 }
 
@@ -172,7 +191,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     margin-top: 32px;
     padding: 22px 0;
     position: relative;
-    z-index: 30;
+    z-index: 30; /* This stays above background but below chat */
 }
 
 .mode-selector {
@@ -185,17 +204,21 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-btn {
     padding: 22px;
     border-radius: 18px;
+
     background: rgba(255,255,255,0.08);
     border: 2px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(12px);
+
     display: flex;
     align-items: center;
     gap: 14px;
+
     font-size: 18px;
     font-weight: 700;
+    color: #dffaff;
+
     cursor: pointer;
     transition: .25s;
-    color: #dffaff;
 }
 
 .mode-btn.active {
@@ -208,8 +231,10 @@ button, .clear-btn, .back-btn, #sendBtn {
     font-size: 12px;
     padding: 4px 10px;
     border-radius: 8px;
+
     background: rgba(255,255,255,0.10);
     border: 1px solid var(--theme-glow);
+
     color: var(--theme-glow);
     margin-left: 8px;
 }
@@ -234,12 +259,15 @@ button, .clear-btn, .back-btn, #sendBtn {
 .tool-btn {
     padding: 16px;
     border-radius: 18px;
+
     background: rgba(255,255,255,0.1);
     border: 1px solid rgba(0,255,255,0.25);
     backdrop-filter: blur(6px);
+
     text-align: center;
     font-size: 16px;
     font-weight: 600;
+
     cursor: pointer;
     transition: .15s;
 }
@@ -255,14 +283,18 @@ button, .clear-btn, .back-btn, #sendBtn {
 .creator-card {
     width: 85%;
     margin: 40px auto 24px;
+
     padding: 26px;
     border-radius: 20px;
+
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.15);
     backdrop-filter: blur(12px);
+
     color: #dffaff;
-    text-align: center;
     font-size: 16px;
+    text-align: center;
+
     z-index: 30;
 }
 
@@ -273,20 +305,24 @@ button, .clear-btn, .back-btn, #sendBtn {
 .testimonials {
     margin-top: 32px;
     padding: 20px;
+
     display: flex;
     flex-direction: column;
     gap: 14px;
     align-items: center;
+
     z-index: 30;
 }
 
 .testimonial-bubble {
     padding: 14px 20px;
-    background: rgba(0,200,255,0.15);
-    border-radius: 18px;
     font-size: 14px;
-    color: #dffaff;
     text-align: center;
+
+    background: rgba(0,200,255,0.15);
+    color: #dffaff;
+
+    border-radius: 18px;
 }
 
 
@@ -297,12 +333,16 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 90%;
     margin: 40px auto;
     padding: 28px;
+
     border-radius: 20px;
+
     background: rgba(255,255,255,0.08);
     border: 1px solid rgba(255,255,255,0.18);
     backdrop-filter: blur(12px);
+
     color: #dffaff;
     font-size: 17px;
+
     z-index: 30;
 }
 /* ============================================================
@@ -314,7 +354,6 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 100vw;
     height: 100vh;
 
-    /* remove blur from parent */
     background: transparent !important;
 
     display: flex;
@@ -323,9 +362,9 @@ button, .clear-btn, .back-btn, #sendBtn {
     opacity: 0;
     transform: translateY(40px);
     pointer-events: none;
-    transition: opacity .35s ease, transform .35s ease;
 
-    z-index: 999999;
+    transition: opacity .35s ease, transform .35s ease;
+    z-index: 999999; /* BELOW input bar, ABOVE everything else */
 }
 
 #chatScreen.active {
@@ -334,30 +373,37 @@ button, .clear-btn, .back-btn, #sendBtn {
     pointer-events: auto;
 }
 
-/* NEW overlay that does the blur (Chrome friendly) */
+/* Critical blur layer — this is the one Chrome reads */
 #chatScreen::before {
     content: "";
     position: absolute;
     inset: 0;
+
     background: rgba(0,0,0,0.45);
+
     backdrop-filter: blur(32px) saturate(1.3);
     -webkit-backdrop-filter: blur(32px) saturate(1.3);
-    z-index: 0;
+
+    z-index: 1;  /* BELOW all chat content */
 }
 
 
 /* ============================================================
-   11. GLASS BUTTONS (MISSING FROM YOUR FILE)
+   11. GLASS BUTTONS
 ============================================================ */
 .glass-btn {
     background: rgba(255,255,255,0.12);
     border: 1px solid rgba(255,255,255,0.25);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
     padding: 10px 14px;
     border-radius: 14px;
     font-size: 18px;
+
     cursor: pointer;
     transition: .2s;
+    z-index: 999999999; /* ensures clickable over blur */
 }
 
 .glass-btn:active {
@@ -373,32 +419,52 @@ button, .clear-btn, .back-btn, #sendBtn {
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     background: rgba(0,0,0,0.35);
     border-bottom: 1px solid rgba(0,255,255,0.12);
+
+    position: relative;
+    z-index: 2; /* ABOVE blur overlay */
 }
 
 .chat-title {
     font-size: 22px;
     font-weight: 700;
+
     background: linear-gradient(90deg, #00eaff, #9d4bff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
+.chat-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    z-index: 3;
+}
+
 
 /* ============================================================
-   13. MESSAGES
+   13. MESSAGES AREA
 ============================================================ */
 .chat-messages {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
+
     padding: 14px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+
     background: rgba(0,0,0,0.20);
+
     backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    position: relative;
+    z-index: 2; /* ABOVE blur */
 }
 
 .user-msg, .ai-msg {
@@ -434,6 +500,7 @@ button, .clear-btn, .back-btn, #sendBtn {
     position: fixed;
     bottom: 0;
     width: 100%;
+
     padding: 12px;
     padding-bottom: env(safe-area-inset-bottom, 16px);
 
@@ -443,7 +510,8 @@ button, .clear-btn, .back-btn, #sendBtn {
 
     background: rgba(0,0,0,0.40);
     border-top: 1px solid rgba(255,255,255,0.12);
-    z-index: 9999999;
+
+    z-index: 9999999; /* ALWAYS above chat blur */
 }
 
 .chat-input-area input {
@@ -451,10 +519,12 @@ button, .clear-btn, .back-btn, #sendBtn {
     height: 46px;
     padding: 0 14px;
     font-size: 16px;
+
     border-radius: 14px;
 
     background: rgba(0,0,0,0.35);
     border: 2px solid var(--theme-glow);
+
     color: #fff;
     outline: none;
 }
@@ -463,10 +533,13 @@ button, .clear-btn, .back-btn, #sendBtn {
     width: 52px;
     height: 46px;
     border-radius: 14px;
+
     background: var(--theme-glow);
     border: none;
+
     color: #000;
     font-weight: 700;
+
     box-shadow: 0 0 12px var(--theme-glow);
 }
 
@@ -477,16 +550,18 @@ button, .clear-btn, .back-btn, #sendBtn {
 .mode-pill {
     padding: 0 12px;
     height: 40px;
+
     display: flex;
     align-items: center;
 
     border-radius: 12px;
     border: 2px solid var(--theme-glow);
+
     background: rgba(0,0,0,0.35);
+    color: var(--theme-glow);
 
     font-size: 12px;
     font-weight: 600;
-    color: var(--theme-glow);
 }
 
 
@@ -496,8 +571,10 @@ button, .clear-btn, .back-btn, #sendBtn {
 #wipeOverlay {
     position: fixed;
     inset: 0;
+
     background: rgba(5, 0, 20, 0.92);
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 
     display: flex;
     justify-content: center;
@@ -505,6 +582,7 @@ button, .clear-btn, .back-btn, #sendBtn {
 
     opacity: 0;
     pointer-events: none;
+
     transition: opacity .35s;
     z-index: 999999999;
 }
@@ -517,8 +595,10 @@ button, .clear-btn, .back-btn, #sendBtn {
 .wipe-loader {
     width: 50px;
     height: 50px;
+
     border: 4px solid rgba(255,255,255,0.25);
     border-top-color: var(--theme-glow);
+
     border-radius: 50%;
     animation: wipeSpin 1s linear infinite;
 }
@@ -526,24 +606,32 @@ button, .clear-btn, .back-btn, #sendBtn {
 @keyframes wipeSpin {
     to { transform: rotate(360deg); }
 }
+
+
 /* ============================================================
-   17. TYPING ANIMATION (Missing Before — NOW FIXED)
+   17. TYPING INDICATOR
 ============================================================ */
 .spiral-bubble {
     width: 40px;
     height: 40px;
+
     position: relative;
+
     background: rgba(255,255,255,0.1);
     border-radius: 12px;
+
     padding: 6px;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .spiral-core {
     width: 10px;
     height: 10px;
+
     background: var(--theme-glow);
     border-radius: 50%;
+
     position: absolute;
     top: 50%;
     left: 50%;
@@ -553,8 +641,10 @@ button, .clear-btn, .back-btn, #sendBtn {
 .orbit-wrapper div {
     width: 6px;
     height: 6px;
+
     background: var(--theme-glow);
     border-radius: 50%;
+
     position: absolute;
     animation: orbit 1.3s linear infinite;
 }
@@ -567,55 +657,86 @@ button, .clear-btn, .back-btn, #sendBtn {
     from { transform: rotate(0deg) translateX(8px) rotate(0deg); }
     to   { transform: rotate(360deg) translateX(8px) rotate(-360deg); }
 }
-
-
 /* ============================================================
    18. MOBILE TWEAKS
 ============================================================ */
 @supports (-webkit-touch-callout: none) {
+    /* Forces GPU layer on Android WebView + Samsung browsers */
     #bgVideo {
         transform: translateZ(0) scale(1.05);
     }
 }
 
 @media (max-width: 600px) {
-    .fake-input { height: 58px; font-size: 17px; }
-    .main-title { font-size: 40px; }
-    .bubble { font-size: 15px; padding: 12px 14px; }
+    .fake-input { 
+        height: 58px; 
+        font-size: 17px; 
+    }
+    .main-title { 
+        font-size: 40px; 
+    }
+    .bubble { 
+        font-size: 15px; 
+        padding: 12px 14px; 
+    }
 }
 
-/* ==== FIX FOR ANDROID BLACK BACKGROUND BUG ==== */
+
+/* ============================================================
+   ANDROID BACKGROUND FIX (stops turning black)
+============================================================ */
+
+/* Creates a stacking isolation layer so video cannot override UI */
 body {
     isolation: isolate;
 }
 
-/* Background stays behind everything but still visible */
+/* Ensures background always stays BEHIND everything */
 #bgLayer {
     position: fixed !important;
     inset: 0;
-    z-index: 0 !important; /* FIXED: added semicolon */
+    width: 100%;
+    height: 100%;
     pointer-events: none;
+    
+    /* IMPORTANT: must be BELOW chat overlay but ABOVE html */
+    z-index: -1 !important;
 }
 
+/* Video itself must stay BELOW everything */
 #bgVideo {
     position: absolute !important;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+
+    /* Android needs this to stop flicker / black frames */
     transform: translateZ(0) scale(1.05);
-    z-index: 0 !important; /* FIXED: added semicolon */
+
     pointer-events: none !important;
+    z-index: -2 !important;
+}
+
+
+/* ============================================================
+   BLUR FIX — ensures chrome doesn't flatten layers wrong
+============================================================ */
+body.chat-open #bgLayer {
+    filter: none !important;
+}
+
+body.show-blur #bgLayer {
+    filter: blur(2px) brightness(.9);
 }
 
 /* ============================================================
-   CHAT TITLE WRAPPER (alignment fix)
+   EXTRA SAFETY — prevents accidental flattening
 ============================================================ */
-.chat-title-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2px;
-    z-index: 2; /* ensures it stays above blur overlay */
+#chatScreen,
+.chat-header,
+.chat-messages,
+.chat-input-area {
+    transform: translateZ(0);
+    will-change: transform;
 }
