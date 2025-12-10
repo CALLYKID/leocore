@@ -323,23 +323,22 @@ document.addEventListener("DOMContentLoaded", () => {
        OPEN / CLOSE CHAT
     ============================================================ */
     fakeInput.addEventListener("click", () => {
-        chatScreen.classList.add("active");
-        document.body.classList.add("chat-open");
+    document.getElementById("chatBlurBuffer").style.opacity = "1";
 
-        document.querySelector(".app-wrapper").style.display = "none";
+    chatScreen.classList.add("active");
+    document.body.classList.add("chat-open");
 
-        setTimeout(() => document.body.classList.add("show-blur"), 50);
-    });
+    document.querySelector(".app-wrapper").style.display = "none";
+});
 
     closeChat.addEventListener("click", () => {
-        chatScreen.classList.remove("active");
-        document.body.classList.remove("show-blur");
+    document.getElementById("chatBlurBuffer").style.opacity = "0";
 
-        document.querySelector(".app-wrapper").style.display = "block";
+    chatScreen.classList.remove("active");
+    document.body.classList.remove("chat-open");
 
-        setTimeout(() => document.body.classList.remove("chat-open"), 280);
-    });
-
+    document.querySelector(".app-wrapper").style.display = "block";
+});
 
     /* ============================================================
        HOLD-TO-WIPE
