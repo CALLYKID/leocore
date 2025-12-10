@@ -622,7 +622,15 @@ button, #sendBtn, .back-btn, .clear-btn {
     to { transform: rotate(360deg); }
 }
 
-
+.fake-input,
+.mode-btn,
+.tool-btn,
+.creator-card,
+.testimonial-bubble,
+.info-card {
+    background: rgba(0,0,0,0.15) !important; /* softer */
+    border-color: rgba(255,255,255,0.15) !important;
+}
 
 /* ============================================================
    16. BLUR BUFFER
