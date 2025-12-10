@@ -31,11 +31,11 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   2. ALL CODE INSIDE DOMContentLoaded
+   2. DOM CONTENT LOADED
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENTS — must match your HTML */
+    /* ELEMENTS — must match HTML */
     const chatScreen  = document.getElementById("chatScreen");
     const closeChat   = document.getElementById("closeChat");
     const clearBtn    = document.getElementById("clearChat");
@@ -54,8 +54,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let cancelStream = false;
     let ignoreNextResponse = false;
 
+
     /* ============================================================
-       BACKGROUND VIDEO FADE-IN PATCH
+       BACKGROUND VIDEO FADE-IN
     ============================================================ */
     if (bgVideo) {
         bgVideo.style.opacity = "0";
@@ -76,12 +77,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ============================================================ */
     if (!window.__leoWarm__) {
         window.__leoWarm__ = true;
+
         const warm = (msg) =>
             fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ message: msg, userId: "warm", name: "warm" })
             }).catch(() => {});
+
         warm("boot1");
         setTimeout(() => warm("boot2"), 900);
     }
@@ -111,6 +114,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
+       AUTO SCROLL FIX — MISSING FUNCTION
+    ============================================================ */
+    function scrollToBottom() {
+        if (!scrollRAF) {
+            scrollRAF = true;
+            requestAnimationFrame(() => {
+                messages.scrollTop = messages.scrollHeight;
+                scrollRAF = false;
+            });
+        }
+    }
+
+
+    /* ============================================================
        RESTORE CHAT HISTORY
     ============================================================ */
     const saved = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
@@ -133,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AUTO-TYPING HOMEPAGE PROMPTS
+       AUTO-TYPING PROMPTS
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -161,7 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 pi = (pi + 1) % prompts.length;
             }
         }
-
         setTimeout(typeAnimation, deleting ? 55 : 70);
     }
     typeAnimation();
@@ -306,7 +322,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let i = 0;
         const speed = () =>
-            flame ? (5 + Math.random() * 7) : (14 + Math.random() * 18);
+            flame ? (5 + Math.random() * 7) :
+                    (14 + Math.random() * 18);
 
         while (i < full.length) {
             if (cancelStream) break;
@@ -383,16 +400,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       ** THESE WERE CAUSING YOUR CRASH — NOW FIXED **
+       FIXED EVENT LISTENERS
     ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
+
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") sendMessage();
     });
 
 
     /* ============================================================
-       HOLD TO WIPE DATA
+       HOLD TO WIPE
     ============================================================ */
     let holdTimer = null;
     let holdActive = false;
@@ -466,5 +484,4 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch("https://leocore.onrender.com/ping").catch(() => {});
     }, 45000);
 
-
-}); // END DOMContentLoaded WRAPPER
+}); // END DOMContentLoaded
