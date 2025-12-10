@@ -23,6 +23,17 @@ button, .clear-btn, .back-btn, #sendBtn {
     z-index: 9999;
 }
 
+#instantBg {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    z-index: -100000; /* beneath everything */
+    opacity: 1;
+    transition: opacity .30s ease-out;
+}
 
 /* ============================================================
    1. TRUE FIXED VIDEO BACKGROUND (NO BLACK, NO SHIFTING)
