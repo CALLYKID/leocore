@@ -9,29 +9,25 @@
 
     <title>LeoCore</title>
 
-    <!-- FAST VIDEO ENABLE — removes black lock -->
+    <!-- FRAME-BLOCKER + ZERO FLASH -->
     <style>
         html, body {
             margin: 0;
             padding: 0;
-            background: #000;       /* fallback only */
+            background: #000;
             overscroll-behavior: none;
             -webkit-tap-highlight-color: transparent;
         }
-
-        video {
-            background: transparent !important; /* fast decode */
-        }
     </style>
 
-    <link rel="stylesheet" href="style.css?v=3100">
+    <link rel="stylesheet" href="style.css?v=3200">
 </head>
 
 <body>
 
-<!-- ==========================================
-     FIXED VIDEO BACKGROUND (FAST MODE)
-=========================================== -->
+<!-- ============================================================
+     FIXED VIDEO BACKGROUND — SMOOTH FADE MODE
+============================================================ -->
 <div id="bgLayer">
     <video id="bgVideo"
         autoplay
@@ -43,9 +39,10 @@
         <source src="waves.mp4" type="video/mp4">
     </video>
 </div>
-<!-- ==========================================
-     HOME SCREEN (MAIN UI)
-=========================================== -->
+
+<!-- ============================================================
+     HOME SCREEN
+============================================================ -->
 <div class="app-wrapper">
 
     <div class="center-wrapper fade-in">
@@ -116,9 +113,10 @@
 
 <!-- BLUR BUFFER -->
 <div id="chatBlurBuffer"></div>
-<!-- ==========================================
-     CHAT SCREEN (TOP LAYER)
-=========================================== -->
+
+<!-- ============================================================
+     CHAT SCREEN
+============================================================ -->
 <div id="chatScreen">
 
     <div class="chat-header">
@@ -126,31 +124,21 @@
 
         <div class="chat-title-wrapper">
             <div class="chat-title">LEOCORE</div>
-            <div id="modeBadge" class="mode-badge"></div>
         </div>
 
         <button id="clearChat" class="clear-btn glass-btn">🗑</button>
     </div>
 
-    <!-- CHAT BODY -->
     <div id="messages" class="chat-messages"></div>
 
-    <!-- INPUT AREA -->
     <div class="chat-input-area">
         <div id="modePill" class="mode-pill">DEF</div>
-
-        <input id="userInput"
-               type="text"
-               placeholder="Say something..."
-               autocomplete="off" />
-
+        <input id="userInput" type="text" placeholder="Say something..." autocomplete="off" />
         <button id="sendBtn">➤</button>
     </div>
 
 </div>
 
-
-<!-- SCRIPT -->
-<script src="app.js?v=3000" defer></script>
+<script src="app.js?v=3200" defer></script>
 </body>
 </html>
