@@ -74,6 +74,68 @@ button, .clear-btn, .back-btn, #sendBtn {
     100% { opacity: 0.5; transform: scale(1); }
 }
 
+/* ============================================================
+   TRUE BACKGROUND LAYER — ANIMATED + UNTOUCHABLE
+============================================================ */
+#bgLayer {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+
+    width: 100vw;
+    height: calc(var(--vh) * 100) !important;
+
+    overflow: hidden;
+    z-index: -1000 !important; /* stays behind EVERYTHING */
+
+    pointer-events: none !important;
+}
+
+#bgVideo {
+    position: absolute;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    transform: translateZ(0) scale(1.06);
+    will-change: transform;
+
+    filter: brightness(0.85) saturate(1.25);
+
+    pointer-events: none !important;
+    z-index: -1001 !important;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 10, 35, 0.45);
+    backdrop-filter: blur(3px);
+    z-index: -1000;
+}
+
+.bg-soft-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at 40% 30%,
+        rgba(0, 234, 255, 0.22),
+        transparent 60%
+    );
+    mix-blend-mode: screen;
+    animation: softGlow 12s ease-in-out infinite;
+    z-index: -999;
+}
+
+@keyframes softGlow {
+    0% { opacity: 0.40; transform: scale(1); }
+    50% { opacity: 0.75; transform: scale(1.05); }
+    100% { opacity: 0.40; transform: scale(1); }
+}
 
 /* ============================================================
    2. HOMEPAGE WRAPPER
