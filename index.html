@@ -2,12 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
+
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <meta name="HandheldFriendly" content="true">
 
     <title>LeoCore</title>
 
+    <!-- HARD BLOCK ALL FLASHES -->
+    <style>
+        html, body {
+            background: #000 !important;
+            overscroll-behavior: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Prevent Chrome first-frame flash */
+        video {
+            background: #000 !important;   /* IMPORTANT FIX */
+        }
+    </style>
 
     <link rel="stylesheet" href="style.css?v=3000">
 </head>
@@ -18,15 +32,21 @@
      FIXED VIDEO BACKGROUND
 =========================== -->
 <div id="bgLayer">
-    <video id="bgVideo" autoplay muted loop playsinline preload="auto"
+    <video id="bgVideo"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
         poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII=">
+
         <source src="waves.mp4" type="video/mp4">
     </video>
 </div>
 
 
 <!-- ===========================
-     HOME SCREEN (MIDDLE LAYER)
+     HOME SCREEN
 =========================== -->
 <div class="app-wrapper">
 
@@ -93,13 +113,13 @@
 
 
 <!-- ===========================
-     BLUR BUFFER (MUST BE HERE)
+     BLUR BUFFER
 =========================== -->
 <div id="chatBlurBuffer"></div>
 
 
 <!-- ===========================
-     CHAT SCREEN (TOP LAYER)
+     CHAT SCREEN
 =========================== -->
 <div id="chatScreen">
 
