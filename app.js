@@ -336,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     chatScreen.classList.remove("active");
     document.body.classList.remove("chat-open");
-
+    document.body.classList.remove("show-blur");
     document.querySelector(".app-wrapper").style.display = "block";
 });
 
