@@ -2,50 +2,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-
-    <!-- Force browser to render DARK instantly -->
-    <meta name="color-scheme" content="dark">
-
-    <!-- Prevent Android white flash BEFORE CSS loads -->
-    <style>
-        :root, html, body {
-            background:#000 !important;
-            color-scheme: dark;
-        }
-    </style>
-
-    <!-- Viewport fixes -->
     <meta name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
     <meta name="HandheldFriendly" content="true">
 
     <title>LeoCore</title>
-    
+
+    <!-- Prevent flash -->
+    <style>
+        html, body { background:#000; }
+    </style>
+
+    <link rel="stylesheet" href="style.css?v=3000">
 </head>
 
 <body>
 
-    <!-- Blur layer under chat -->
-<div id="chatBlurBuffer"></div>
-    
-<!-- ============================================================
-     FIXED GLOBAL BACKGROUND (Video Layer)
-============================================================ -->
+<!-- ===========================
+     FIXED VIDEO BACKGROUND
+=========================== -->
 <div id="bgLayer">
-    <video id="bgVideo"
-           autoplay muted loop playsinline preload="auto"
-           poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII=">
+    <video id="bgVideo" autoplay muted loop playsinline preload="auto"
+        poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII=">
         <source src="waves.mp4" type="video/mp4">
     </video>
-
-    <div class="overlay"></div>
-    <div class="bg-soft-glow"></div>
 </div>
 
 
-<!-- ============================================================
+<!-- ===========================
      HOME SCREEN
-============================================================ -->
+=========================== -->
 <div class="app-wrapper">
 
     <div class="center-wrapper fade-in">
@@ -110,9 +96,9 @@
 </div>
 
 
-<!-- ============================================================
+<!-- ===========================
      CHAT SCREEN
-============================================================ -->
+=========================== -->
 <div id="chatScreen">
 
     <div class="chat-header">
@@ -136,7 +122,6 @@
 
 </div>
 
-
-<script src="app.js?v=2001" defer></script>
+<script src="app.js?v=3000" defer></script>
 </body>
 </html>
