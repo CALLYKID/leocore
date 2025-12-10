@@ -482,3 +482,16 @@ if (bgVideo && instantBg) {
         }, 300);
     });
 }
+
+const bgVideo = document.getElementById("bgVideo");
+
+if (bgVideo) {
+    bgVideo.addEventListener("loadeddata", () => {
+        bgVideo.style.opacity = "1";
+    });
+
+    bgVideo.addEventListener("error", () => {
+        // If video fails, just keep background black (clean fallback)
+        document.body.style.background = "#000";
+    });
+}
