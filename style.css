@@ -749,9 +749,24 @@ body.show-blur #bgLayer {
 body.chat-open .app-wrapper {
     display: none !important;
 }
-
+html, body {
+    height: auto;
+    min-height: 100%;
+    overflow-x: hidden;
+}
+#bgVideo {
+    transform: translateZ(0) scale(1.05);
+    will-change: transform;
+}
 
 .chat-input-area {
     position: fixed !important;
     bottom: 0 !important;
+}
+#bgLayer {
+    height: 100vh !important;
+    width: 100vw !important;
+    position: fixed !important;
+    top: 0;
+    left: 0;
 }
