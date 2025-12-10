@@ -750,12 +750,7 @@ body.chat-open .app-wrapper {
     display: none !important;
 }
 
-html, body {
-    height: 100vh;
-    min-height: 100vh;
-    max-height: 100vh;
-    overflow: hidden;
-}
+
 .chat-input-area {
     position: fixed !important;
     bottom: 0 !important;
