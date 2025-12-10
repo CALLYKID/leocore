@@ -31,55 +31,57 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   GLOBAL STATE + GLOBAL ELEMENTS
-============================================================ */
-let scrollRAF = false;
-let isStreaming = false;
-let cancelStream = false;
-let ignoreNextResponse = false;
-
-let blurBuffer;        // <-- GLOBAL FIX
-let chatScreen;
-let closeChat;
-let clearBtn;
-let messages;
-let fakeInput;
-let fakeText;
-let input;
-let sendBtn;
-let modePill;
-
-
-/* ============================================================
-   DOM READY
+   2. ALL CODE INSIDE DOMContentLoaded
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENT BINDING — EXACT MATCH TO HTML */
-    chatScreen  = document.getElementById("chatScreen");
-    closeChat   = document.getElementById("closeChat");
-    clearBtn    = document.getElementById("clearChat");
-    messages    = document.getElementById("messages");
-    fakeInput   = document.getElementById("fakeInput");
-    fakeText    = document.getElementById("fakeText");
-    input       = document.getElementById("userInput");
-    sendBtn     = document.getElementById("sendBtn");
-    modePill    = document.getElementById("modePill");
-    blurBuffer  = document.getElementById("chatBlurBuffer");  // <-- FIXED
+    /* ELEMENTS — must match your HTML */
+    const chatScreen  = document.getElementById("chatScreen");
+    const closeChat   = document.getElementById("closeChat");
+    const clearBtn    = document.getElementById("clearChat");
+    const messages    = document.getElementById("messages");
+    const fakeInput   = document.getElementById("fakeInput");
+    const fakeText    = document.getElementById("fakeText");
+    const input       = document.getElementById("userInput");
+    const sendBtn     = document.getElementById("sendBtn");
+    const modePill    = document.getElementById("modePill");
+    const blurBuffer  = document.getElementById("chatBlurBuffer");
+    const appWrapper  = document.querySelector(".app-wrapper");
+    const bgVideo     = document.getElementById("bgVideo");
+
+    let scrollRAF = false;
+    let isStreaming = false;
+    let cancelStream = false;
+    let ignoreNextResponse = false;
+
+    /* ============================================================
+       BACKGROUND VIDEO FADE-IN PATCH
+    ============================================================ */
+    if (bgVideo) {
+        bgVideo.style.opacity = "0";
+        bgVideo.style.transition = "opacity .45s ease";
+
+        bgVideo.addEventListener("loadeddata", () => {
+            bgVideo.style.opacity = "1";
+        });
+
+        setTimeout(() => {
+            bgVideo.style.opacity = "1";
+        }, 500);
+    }
+
 
     /* ============================================================
        BACKEND WARM-UP
     ============================================================ */
     if (!window.__leoWarm__) {
         window.__leoWarm__ = true;
-
         const warm = (msg) =>
             fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: msg, userId: "warm" })
+                body: JSON.stringify({ message: msg, userId: "warm", name: "warm" })
             }).catch(() => {});
-
         warm("boot1");
         setTimeout(() => warm("boot2"), 900);
     }
@@ -113,7 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ============================================================ */
     const saved = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
 
-    saved.forEach((msg) => addMessage(msg.text, msg.sender));
+    saved.forEach((msg) => {
+        addMessage(msg.text, msg.sender);
+    });
 
     function saveChat() {
         const arr = [];
@@ -121,8 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
             arr.push({
                 text: b.innerHTML,
                 sender: b.parentElement.classList.contains("user-msg")
-                    ? "user"
-                    : "ai"
+                    ? "user" : "ai"
             });
         });
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
@@ -130,77 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       OPEN / CLOSE CHAT
-    ============================================================ */
-    fakeInput.addEventListener("click", () => {
-        blurBuffer.style.opacity = "1";
-        chatScreen.classList.add("active");
-        document.querySelector(".app-wrapper").style.display = "none";
-    });
-
-    closeChat.addEventListener("click", () => {
-        blurBuffer.style.opacity = "0";
-        chatScreen.classList.remove("active");
-        document.querySelector(".app-wrapper").style.display = "block";
-    });
-
-
-    /* ============================================================
-       MODE SYSTEM
-    ============================================================ */
-    const modeThemes = {
-        default: "#00eaff",
-        study: "#00aaff",
-        research: "#00ffc6",
-        reading: "#ffa840",
-        deep: "#ff0033",
-        chill: "#b400ff",
-        precision: "#00eaff",
-        flame: "#ff4500"
-    };
-
-    function updateModePill() {
-        const mode = localStorage.getItem("leocore-mode") || "default";
-
-        const labels = {
-            default: "DEF",
-            study: "STUDY",
-            research: "RSRCH",
-            reading: "READ",
-            deep: "DEEP",
-            chill: "CHILL",
-            precision: "PRCN",
-            flame: "FLAME"
-        };
-
-        modePill.textContent = labels[mode];
-        document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
-    }
-
-    updateModePill();
-
-    document.querySelectorAll(".mode-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-            const mode = btn.dataset.mode;
-
-            localStorage.setItem("leocore-mode", mode);
-
-            document.querySelectorAll(".mode-btn")
-                .forEach((b) => b.classList.remove("active"));
-
-            btn.classList.add("active");
-
-            updateModePill();
-
-            blurBuffer.style.opacity = "1";
-            chatScreen.classList.add("active");
-            document.querySelector(".app-wrapper").style.display = "none";
-        });
-    });
-
-
-    /* ============================================================
-       HERO AUTO-TYPER
+       AUTO-TYPING HOMEPAGE PROMPTS
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -234,258 +167,304 @@ document.addEventListener("DOMContentLoaded", () => {
     typeAnimation();
 
 
-}); // END DOMContentLoaded
-
-
-/* ============================================================
-   SCROLL TO BOTTOM
-============================================================ */
-function scrollToBottom() {
-    if (scrollRAF) return;
-    scrollRAF = true;
-
-    requestAnimationFrame(() => {
-        messages.scrollTop = messages.scrollHeight;
-        scrollRAF = false;
-    });
-}
-
-
-/* ============================================================
-   ADD MESSAGE
-============================================================ */
-function addMessage(text, sender) {
-    const wrap = document.createElement("div");
-    wrap.className = sender === "user" ? "user-msg" : "ai-msg";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble";
-    bubble.innerHTML = text;
-
-    wrap.appendChild(bubble);
-    messages.appendChild(wrap);
-
-    scrollToBottom();
-}
-
-
-/* ============================================================
-   TYPING INDICATOR
-============================================================ */
-function createTypingBubble() {
-    const wrap = document.createElement("div");
-    wrap.className = "ai-msg";
-
-    wrap.innerHTML = `
-        <div class="spiral-bubble">
-            <div class="spiral-core"></div>
-            <div class="typing-shard"></div>
-            <div class="typing-shard"></div>
-            <div class="typing-shard"></div>
-        </div>
-    `;
-
-    messages.appendChild(wrap);
-    scrollToBottom();
-    return wrap;
-}
-
-
-/* ============================================================
-   STREAM MESSAGE
-============================================================ */
-async function streamMessage(full, flame = false) {
-    isStreaming = true;
-    cancelStream = false;
-
-    full = full.replace(/\n/g, "<br>");
-
-    const wrap = document.createElement("div");
-    wrap.className = "ai-msg";
-
-    const bubble = document.createElement("div");
-    bubble.className = "bubble ai-streaming";
-
-    const span = document.createElement("span");
-    const cursor = document.createElement("div");
-    cursor.className = "neon-cursor";
-
-    bubble.appendChild(span);
-    bubble.appendChild(cursor);
-
-    wrap.appendChild(bubble);
-    messages.appendChild(wrap);
-
-    scrollToBottom();
-
-    let i = 0;
-    const speed = () => flame ? (5 + Math.random() * 7) : (14 + Math.random() * 18);
-
-    while (i < full.length) {
-        if (cancelStream) break;
-
-        span.innerHTML = full.substring(0, i + 1);
-        i++;
-
-        scrollToBottom();
-        await new Promise((res) => setTimeout(res, speed()));
-    }
-
-    cursor.remove();
-    isStreaming = false;
-}
-
-
-/* ============================================================
-   SEND MESSAGE
-============================================================ */
-async function sendMessage() {
-    if (!input.value.trim()) return;
-
-    if (isStreaming) {
-        cancelStream = true;
-        ignoreNextResponse = true;
-        return;
-    }
-
-    const text = input.value.trim();
-    addMessage(text, "user");
-
-    input.value = "";
-    input.disabled = true;
-
-    sendBtn.classList.add("stop-mode");
-    sendBtn.innerHTML = "■";
-
-    const typing = createTypingBubble();
-
-    const mode = localStorage.getItem("leocore-mode") || "default";
-    const flame = mode === "flame";
-
-    try {
-        const res = await fetch("https://leocore.onrender.com/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                message: text,
-                userId,
-                mode,
-                boost: flame ? "🔥 FLAME" : ""
-            })
-        });
-
-        const data = await res.json();
-        typing.remove();
-
-        if (!ignoreNextResponse) {
-            await streamMessage(data.reply, flame);
-        }
-
-        ignoreNextResponse = false;
-
-    } catch {
-        typing.remove();
-        addMessage("⚠️ Network issue. Try again.", "ai");
-    }
-
-    input.disabled = false;
-    sendBtn.classList.remove("stop-mode");
-    sendBtn.innerHTML = "➤";
-}
-
-sendBtn.addEventListener("click", sendMessage);
-input.addEventListener("keydown", (e) => e.key === "Enter" && sendMessage());
-
-
-/* ============================================================
-   HOLD-TO-WIPE
-============================================================ */
-let holdTimer = null;
-let holdActive = false;
-
-clearBtn.addEventListener("pointerdown", () => {
-    holdTimer = setTimeout(() => {
-        holdActive = true;
-        fullWipe();
-    }, 850);
-});
-
-clearBtn.addEventListener("pointerup", () => {
-    if (!holdActive) {
-        messages.innerHTML = "";
-        localStorage.removeItem("leocore-chat");
-    }
-    holdActive = false;
-    clearTimeout(holdTimer);
-});
-
-function fullWipe() {
-    const overlay = document.createElement("div");
-    overlay.id = "wipeOverlay";
-    overlay.innerHTML = `
-        <div class="wipe-container">
-            <div class="wipe-loader"></div>
-            <div class="wipe-text">Clearing data…</div>
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    requestAnimationFrame(() => overlay.classList.add("show"));
-
-    setTimeout(() => {
-        localStorage.clear();
-        messages.innerHTML = "";
-        chatScreen.classList.remove("active");
-
-        overlay.classList.remove("show");
-        setTimeout(() => overlay.remove(), 300);
-    }, 1500);
-}
-
-
-/* ============================================================
-   QUICK TOOLS
-============================================================ */
-const toolPrompts = {
-    summarise: "Summarise this text:",
-    plan: "Plan my day:",
-    study: "Explain this homework:",
-    notes: "Generate notes about:"
-};
-
-document.querySelectorAll(".tool-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-        input.value = toolPrompts[btn.dataset.task] || "";
+    /* ============================================================
+       OPEN / CLOSE CHAT
+    ============================================================ */
+    fakeInput.addEventListener("click", () => {
         blurBuffer.style.opacity = "1";
         chatScreen.classList.add("active");
-        document.querySelector(".app-wrapper").style.display = "none";
+        appWrapper.style.display = "none";
     });
-});
 
-
-/* ============================================================
-   KEEP-ALIVE
-============================================================ */
-setInterval(() => {
-    fetch("https://leocore.onrender.com/ping").catch(() => {});
-}, 45000);
-
-
-/* ============================================================
-   VIDEO BACKGROUND FADE FIX
-============================================================ */
-const bgVideo = document.getElementById("bgVideo");
-
-if (bgVideo) {
-    bgVideo.addEventListener("loadeddata", () => {
-        bgVideo.style.opacity = "1";
+    closeChat.addEventListener("click", () => {
+        blurBuffer.style.opacity = "0";
+        chatScreen.classList.remove("active");
+        appWrapper.style.display = "block";
     });
-}
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (bgVideo) {
-        bgVideo.style.opacity = "1";
-        bgVideo.style.transition = "opacity .45s ease";
+
+    /* ============================================================
+       MODE SYSTEM
+    ============================================================ */
+    const modeThemes = {
+        default:   "#00eaff",
+        study:     "#00aaff",
+        research:  "#00ffc6",
+        reading:   "#ffa840",
+        deep:      "#ff0033",
+        chill:     "#b400ff",
+        precision: "#00eaff",
+        flame:     "#ff4500"
+    };
+
+    function updateModePill() {
+        const mode = localStorage.getItem("leocore-mode") || "default";
+
+        const labels = {
+            default: "DEF",
+            study: "STUDY",
+            research: "RSRCH",
+            reading: "READ",
+            deep: "DEEP",
+            chill: "CHILL",
+            precision: "PRCN",
+            flame: "FLAME"
+        };
+
+        modePill.textContent = labels[mode];
+        document.documentElement.style.setProperty("--theme-glow", modeThemes[mode]);
     }
-});
+    updateModePill();
+
+    document.querySelectorAll(".mode-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const mode = btn.dataset.mode;
+
+            localStorage.setItem("leocore-mode", mode);
+
+            document
+                .querySelectorAll(".mode-btn")
+                .forEach((b) => b.classList.remove("active"));
+
+            btn.classList.add("active");
+
+            updateModePill();
+
+            blurBuffer.style.opacity = "1";
+            chatScreen.classList.add("active");
+            appWrapper.style.display = "none";
+        });
+    });
+
+
+    /* ============================================================
+       ADD MESSAGE
+    ============================================================ */
+    function addMessage(text, sender) {
+        const wrap = document.createElement("div");
+        wrap.className = sender === "user" ? "user-msg" : "ai-msg";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = text;
+
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
+
+        scrollToBottom();
+        saveChat();
+    }
+
+
+    /* ============================================================
+       TYPING INDICATOR
+    ============================================================ */
+    function createTypingBubble() {
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg";
+
+        wrap.innerHTML = `
+            <div class="spiral-bubble">
+                <div class="spiral-core"></div>
+                <div class="typing-shard"></div>
+                <div class="typing-shard"></div>
+                <div class="typing-shard"></div>
+            </div>
+        `;
+
+        messages.appendChild(wrap);
+        scrollToBottom();
+        return wrap;
+    }
+
+
+    /* ============================================================
+       STREAM AI MESSAGE
+    ============================================================ */
+    async function streamMessage(full, flame = false) {
+        isStreaming = true;
+        cancelStream = false;
+
+        full = full.replace(/\n/g, "<br>");
+
+        const wrap = document.createElement("div");
+        wrap.className = "ai-msg";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble ai-streaming";
+
+        const span = document.createElement("span");
+        const cursor = document.createElement("div");
+        cursor.className = "neon-cursor";
+
+        bubble.appendChild(span);
+        bubble.appendChild(cursor);
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
+
+        scrollToBottom();
+
+        let i = 0;
+        const speed = () =>
+            flame ? (5 + Math.random() * 7) : (14 + Math.random() * 18);
+
+        while (i < full.length) {
+            if (cancelStream) break;
+
+            span.innerHTML = full.substring(0, i + 1);
+            i++;
+            scrollToBottom();
+
+            await new Promise((r) => setTimeout(r, speed()));
+        }
+
+        cursor.remove();
+        saveChat();
+        isStreaming = false;
+    }
+
+
+    /* ============================================================
+       SEND MESSAGE ENGINE
+    ============================================================ */
+    async function sendMessage() {
+        if (!input.value.trim()) return;
+
+        if (isStreaming) {
+            cancelStream = true;
+            ignoreNextResponse = true;
+            return;
+        }
+
+        const text = input.value.trim();
+        addMessage(text, "user");
+
+        input.value = "";
+        input.disabled = true;
+
+        sendBtn.classList.add("stop-mode");
+        sendBtn.innerHTML = "■";
+
+        const typing = createTypingBubble();
+
+        const mode = localStorage.getItem("leocore-mode") || "default";
+        const flame = mode === "flame";
+
+        try {
+            const res = await fetch("https://leocore.onrender.com/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: text,
+                    userId,
+                    mode,
+                    boost: flame ? "🔥 FLAME" : ""
+                })
+            });
+
+            const data = await res.json();
+            typing.remove();
+
+            if (!ignoreNextResponse) {
+                await streamMessage(data.reply, flame);
+            }
+
+            ignoreNextResponse = false;
+
+        } catch {
+            typing.remove();
+            addMessage("⚠️ Network issue. Try again.", "ai");
+        }
+
+        input.disabled = false;
+        sendBtn.classList.remove("stop-mode");
+        sendBtn.innerHTML = "➤";
+    }
+
+
+    /* ============================================================
+       ** THESE WERE CAUSING YOUR CRASH — NOW FIXED **
+    ============================================================ */
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+
+    /* ============================================================
+       HOLD TO WIPE DATA
+    ============================================================ */
+    let holdTimer = null;
+    let holdActive = false;
+
+    clearBtn.addEventListener("pointerdown", () => {
+        holdTimer = setTimeout(() => {
+            holdActive = true;
+            fullWipe();
+        }, 850);
+    });
+
+    clearBtn.addEventListener("pointerup", () => {
+        if (!holdActive) {
+            messages.innerHTML = "";
+            localStorage.removeItem("leocore-chat");
+        }
+        holdActive = false;
+        clearTimeout(holdTimer);
+    });
+
+    function fullWipe() {
+        const overlay = document.createElement("div");
+        overlay.id = "wipeOverlay";
+        overlay.innerHTML = `
+            <div class="wipe-container">
+                <div class="wipe-loader"></div>
+                <div class="wipe-text">Clearing data…</div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(() => overlay.classList.add("show"));
+
+        setTimeout(() => {
+            localStorage.clear();
+            messages.innerHTML = "";
+            chatScreen.classList.remove("active");
+
+            overlay.classList.remove("show");
+            setTimeout(() => overlay.remove(), 300);
+        }, 1500);
+    }
+
+
+    /* ============================================================
+       QUICK TOOLS
+    ============================================================ */
+    const toolPrompts = {
+        summarise: "Summarise this text:",
+        plan: "Plan my day:",
+        study: "Explain this homework:",
+        notes: "Generate notes about:"
+    };
+
+    document.querySelectorAll(".tool-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            input.value = toolPrompts[btn.dataset.task] || "";
+
+            blurBuffer.style.opacity = "1";
+            chatScreen.classList.add("active");
+            appWrapper.style.display = "none";
+        });
+    });
+
+
+    /* ============================================================
+       KEEP SERVER WARM
+    ============================================================ */
+    setInterval(() => {
+        fetch("https://leocore.onrender.com/ping").catch(() => {});
+    }, 45000);
+
+
+}); // END DOMContentLoaded WRAPPER
