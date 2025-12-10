@@ -1,7 +1,3 @@
-// Fix Android viewport jump when keyboard opens
-window.addEventListener("resize", () => {
-    document.body.style.height = window.innerHeight + "px";
-});
 /* ============================================================
    DEV ERROR POPUP — DEBUG ONLY
 ============================================================ */
