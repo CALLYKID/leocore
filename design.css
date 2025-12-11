@@ -606,3 +606,24 @@ html, body, .app-wrapper, #chatScreen {
     border: none !important;
     box-shadow: none !important;
 }
+/* ============================================================
+   FIX HERO BACKGROUND OVERLAY BUG
+   Removes giant glowing panel behind LEOCORE title.
+============================================================ */
+
+.center-wrapper {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* Remove accidental full-width glow blocks in hero */
+.center-wrapper > div:not(.fake-input) {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
