@@ -764,3 +764,17 @@ button, #sendBtn, .back-btn, .clear-btn {
 #bgVideo {
     animation: driftSafe 25s ease-in-out infinite alternate !important;
 }
+
+/* FIX: force video behind everything */
+#bgVideo {
+    z-index: -5 !important;
+}
+
+#bgLayer {
+    z-index: -6 !important;
+}
+
+.app-wrapper {
+    position: relative;
+    z-index: 10 !important;
+}
