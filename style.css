@@ -51,7 +51,8 @@ button, #sendBtn, .back-btn, .clear-btn {
     transform: translateZ(0) scale(1.05);
     will-change: transform;
 
-    opacity: 1 !important;      /* ALWAYS visible */
+    opacity: 1 !important;
+    background: transparent !important;
     transition: none !important; /* No fade glitches */            /* Rare Android bug fix */
     z-index: -3;
 }
