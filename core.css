@@ -109,6 +109,33 @@ button, #sendBtn, .back-btn, .clear-btn {
 /* ============================================================
    HERO SECTION — LOGO + FAKE INPUT (HOMESCREEN)
 ============================================================ */
+.fake-input {
+    background: rgba(0, 10, 25, 0.55);
+    border-radius: 20px;
+
+    border: 2px solid rgba(0,255,255,0.45);
+    box-shadow:
+        0 0 30px rgba(0,255,255,0.35),
+        inset 0 0 20px rgba(0,255,255,0.25);
+
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+
+    width: 85vw;
+    max-width: 600px;
+    height: 64px;
+    margin: 0 auto 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fake-text {
+    font-size: 20px;
+    color: #c8f8ff;
+    text-shadow: 0 0 10px rgba(0,255,255,0.6);
+}
 
 .center-wrapper {
     text-align: center;
