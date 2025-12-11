@@ -1,7 +1,19 @@
 /* ============================================================
    CORE.CSS — STRUCTURE + BACKGROUND + CHAT
 ============================================================ */
-
+/* Ensure all neon/glass elements float ABOVE bg */
+.fake-input,
+.mode-btn,
+.tool-btn,
+.creator-card,
+.testimonial-bubble,
+.info-card,
+.section-title,
+.main-title,
+.subtitle {
+    position: relative;
+    z-index: 20;
+}
 /* GLOBAL RESET */
 * {
     margin: 0;
