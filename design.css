@@ -1,0 +1,69 @@
+/* DESIGN.CSS — EXTRA VISUALS ONLY
+   (Home screen + background. Chat left as-is.) */
+
+:root {
+    --theme-glow: #00eaff;
+}
+
+/* Background video feel */
+#bgLayer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 120, 255, 0.30),
+        rgba(0, 0, 10, 0.85)
+    );
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Slightly “smaller”, more cinematic */
+#bgVideo {
+    transform: translateZ(0) scale(1.08);
+    filter: brightness(0.85) saturate(1.35);
+}
+
+/* Hero input */
+.fake-input {
+    background: rgba(0, 0, 0, 0.35) !important;
+    border-color: rgba(0, 255, 255, 0.6) !important;
+    box-shadow:
+        0 0 18px rgba(0, 255, 255, 0.35),
+        0 0 40px rgba(0, 0, 0, 0.8);
+}
+
+/* Title gradient stays but with extra pop */
+.main-title {
+    background: linear-gradient(90deg, #00eaff, #a86dff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Mode buttons — more visible neon borders */
+.mode-btn {
+    background: rgba(0, 0, 25, 0.55) !important;
+    border-color: rgba(0, 220, 255, 0.45) !important;
+    box-shadow:
+        0 0 16px rgba(0, 220, 255, 0.4),
+        inset 0 0 10px rgba(0, 0, 0, 0.9);
+}
+
+.mode-btn.active,
+.mode-btn:hover {
+    border-color: var(--theme-glow) !important;
+    box-shadow:
+        0 0 22px var(--theme-glow),
+        0 0 50px rgba(0, 0, 0, 0.9);
+}
+
+/* Quick tools + cards — clearer glass */
+.tool-btn,
+.creator-card,
+.testimonial-bubble,
+.info-card {
+    background: rgba(0, 0, 0, 0.32) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
+}
