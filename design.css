@@ -36,6 +36,15 @@ body {
         contrast(1.14);
 }
 
+#bgVideo {
+    animation: drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+    0% { transform: scale(0.82) translateX(0) translateY(0); }
+    100% { transform: scale(0.82) translateX(-2%) translateY(-2%); }
+}
+
 /* Optional gradient overlay (SAFE — does not break layering) */
 #bgLayer::after {
     content: "";
