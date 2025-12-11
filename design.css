@@ -575,3 +575,35 @@ html, body, .app-wrapper, #chatScreen {
             inset 0 0 10px rgba(0,255,255,0.15);
     }
 }
+/* 2050 GLASS PANELS */
+.info-card,
+.creator-card,
+.testimonial-bubble {
+    background: rgba(0, 25, 50, 0.55) !important;
+
+    backdrop-filter: blur(22px) saturate(1.6);
+    -webkit-backdrop-filter: blur(22px) saturate(1.6);
+
+    border: 1.6px solid rgba(0, 255, 255, 0.28);
+
+    box-shadow:
+        0 0 28px rgba(0,255,255,0.25),
+        inset 0 0 20px rgba(0,255,255,0.12);
+
+    color: #e9fbff !important;
+}
+
+/* Neon rim for premium effect */
+.info-card::before,
+.creator-card::before,
+.testimonial-bubble::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+
+    border: 2px solid rgba(0, 255, 255, 0.10);
+    box-shadow: 0 0 40px rgba(0,255,255,0.20);
+
+    pointer-events: none;
+}
