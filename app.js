@@ -165,22 +165,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       8. OPEN / CLOSE CHAT
+       8. OPEN / CLOSE CHAT (UNTOUCHED; ROUTING ADDED IN PART 2)
     ============================================================ */
-    fakeInput.addEventListener("click", () => {
+
+    function openChatUI(skipPush = false) {
+        if (!skipPush) history.pushState({}, "", "/chat");
+
         blurBuffer.style.opacity = "1";
         chatScreen.classList.add("active");
         appWrapper.style.display = "none";
-    });
+    }
 
-    closeChat.addEventListener("click", () => {
+    function closeChatUI(skipPush = false) {
+        if (!skipPush) history.pushState({}, "", "/");
+
         chatScreen.classList.remove("active");
         blurBuffer.style.opacity = "0";
         appWrapper.style.display = "block";
-    });
+    }
 
+    fakeInput.addEventListener("click", () => openChatUI());
+    closeChat.addEventListener("click", () => closeChatUI());
 
-    /* ============================================================
+                          /* ============================================================
        9. MODE SYSTEM
     ============================================================ */
     const modeThemes = {
@@ -226,9 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             updateModePill();
 
-            blurBuffer.style.opacity = "1";
-            chatScreen.classList.add("active");
-            appWrapper.style.display = "none";
+            openChatUI();
         });
     });
 
@@ -445,9 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".tool-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             input.value = toolPrompts[btn.dataset.task] || "";
-            chatScreen.classList.add("active");
-            blurBuffer.style.opacity = "1";
-            appWrapper.style.display = "none";
+            openChatUI();
         });
     });
 
@@ -459,4 +462,24 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch("https://leocore.onrender.com/ping").catch(() => {});
     }, 45000);
 
-});
+
+
+    /* ============================================================
+       17. CLEAN URL ROUTING SYSTEM (NEW)
+    ============================================================ */
+
+    // Back button handling
+    window.onpopstate = () => {
+        if (location.pathname === "/chat") {
+            openChatUI(true);  // skipPush prevents infinite push-loop
+        } else {
+            closeChatUI(true);
+        }
+    };
+
+    // Auto-open chat if user goes directly to /chat
+    if (location.pathname === "/chat") {
+        openChatUI(true);
+    }
+
+}); // END DOMContentLoaded
