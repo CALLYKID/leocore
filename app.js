@@ -31,11 +31,11 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   2. DOM CONTENT LOADED
+   2. DOMContentLoaded — ALL APP LOGIC
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENTS — must match HTML */
+    /* ELEMENTS */
     const chatScreen  = document.getElementById("chatScreen");
     const closeChat   = document.getElementById("closeChat");
     const clearBtn    = document.getElementById("clearChat");
@@ -47,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const modePill    = document.getElementById("modePill");
     const blurBuffer  = document.getElementById("chatBlurBuffer");
     const appWrapper  = document.querySelector(".app-wrapper");
-    const bgVideo     = document.getElementById("bgVideo");
 
     let scrollRAF = false;
     let isStreaming = false;
@@ -56,24 +55,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       BACKGROUND VIDEO FADE-IN
+       3. AUTO SCROLL — FIX FOR YOUR ERROR
     ============================================================ */
-    if (bgVideo) {
-        bgVideo.style.opacity = "0";
-        bgVideo.style.transition = "opacity .45s ease";
-
-        bgVideo.addEventListener("loadeddata", () => {
-            bgVideo.style.opacity = "1";
-        });
-
-        setTimeout(() => {
-            bgVideo.style.opacity = "1";
-        }, 500);
+    function scrollToBottom() {
+        messages.scrollTop = messages.scrollHeight;
     }
 
 
     /* ============================================================
-       BACKEND WARM-UP
+       4. BACKEND WARM-UP
     ============================================================ */
     if (!window.__leoWarm__) {
         window.__leoWarm__ = true;
@@ -82,16 +72,20 @@ document.addEventListener("DOMContentLoaded", () => {
             fetch("https://leocore.onrender.com/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: msg, userId: "warm", name: "warm" })
+                body: JSON.stringify({
+                    message: msg,
+                    userId: "warm",
+                    name: "warm"
+                })
             }).catch(() => {});
-
+        
         warm("boot1");
         setTimeout(() => warm("boot2"), 900);
     }
 
 
     /* ============================================================
-       USER ID SYSTEM
+       5. USER ID SYSTEM
     ============================================================ */
     function getCookie(name) {
         const m = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
@@ -103,8 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let userId =
-        getCookie("leocore-user") ||
-        localStorage.getItem("leocore-user");
+        getCookie("leocore-user") || localStorage.getItem("leocore-user");
 
     if (!userId) {
         userId = "user-" + Math.random().toString(36).slice(2);
@@ -114,21 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AUTO SCROLL FIX — MISSING FUNCTION
-    ============================================================ */
-    function scrollToBottom() {
-        if (!scrollRAF) {
-            scrollRAF = true;
-            requestAnimationFrame(() => {
-                messages.scrollTop = messages.scrollHeight;
-                scrollRAF = false;
-            });
-        }
-    }
-
-
-    /* ============================================================
-       RESTORE CHAT HISTORY
+       6. RESTORE CHAT HISTORY
     ============================================================ */
     const saved = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
 
@@ -142,7 +121,8 @@ document.addEventListener("DOMContentLoaded", () => {
             arr.push({
                 text: b.innerHTML,
                 sender: b.parentElement.classList.contains("user-msg")
-                    ? "user" : "ai"
+                    ? "user"
+                    : "ai"
             });
         });
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
@@ -150,14 +130,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       AUTO-TYPING PROMPTS
+       7. HOMEPAGE AUTO-TYPING
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
-        "Give me a task.",
         "Help me revise.",
-        "Make me a plan.",
-        "Let's work."
+        "Give me a plan.",
+        "Let's work.",
+        "I'm ready."
     ];
 
     let pi = 0, ci = 0, deleting = false;
@@ -178,13 +158,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 pi = (pi + 1) % prompts.length;
             }
         }
+
         setTimeout(typeAnimation, deleting ? 55 : 70);
     }
     typeAnimation();
 
 
     /* ============================================================
-       OPEN / CLOSE CHAT
+       8. OPEN / CLOSE CHAT
     ============================================================ */
     fakeInput.addEventListener("click", () => {
         blurBuffer.style.opacity = "1";
@@ -193,14 +174,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     closeChat.addEventListener("click", () => {
-        blurBuffer.style.opacity = "0";
         chatScreen.classList.remove("active");
+        blurBuffer.style.opacity = "0";
         appWrapper.style.display = "block";
     });
 
 
     /* ============================================================
-       MODE SYSTEM
+       9. MODE SYSTEM
     ============================================================ */
     const modeThemes = {
         default:   "#00eaff",
@@ -238,8 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             localStorage.setItem("leocore-mode", mode);
 
-            document
-                .querySelectorAll(".mode-btn")
+            document.querySelectorAll(".mode-btn")
                 .forEach((b) => b.classList.remove("active"));
 
             btn.classList.add("active");
@@ -254,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       ADD MESSAGE
+       10. ADD MESSAGE
     ============================================================ */
     function addMessage(text, sender) {
         const wrap = document.createElement("div");
@@ -273,7 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       TYPING INDICATOR
+       11. TYPING INDICATOR
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
@@ -295,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       STREAM AI MESSAGE
+       12. STREAM MESSAGE
     ============================================================ */
     async function streamMessage(full, flame = false) {
         isStreaming = true;
@@ -321,9 +301,9 @@ document.addEventListener("DOMContentLoaded", () => {
         scrollToBottom();
 
         let i = 0;
+
         const speed = () =>
-            flame ? (5 + Math.random() * 7) :
-                    (14 + Math.random() * 18);
+            flame ? (5 + Math.random() * 7) : (14 + Math.random() * 18);
 
         while (i < full.length) {
             if (cancelStream) break;
@@ -342,7 +322,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       SEND MESSAGE ENGINE
+       13. SEND MESSAGE ENGINE
     ============================================================ */
     async function sendMessage() {
         if (!input.value.trim()) return;
@@ -399,18 +379,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    /* ============================================================
-       FIXED EVENT LISTENERS
-    ============================================================ */
     sendBtn.addEventListener("click", sendMessage);
-
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") sendMessage();
     });
 
 
     /* ============================================================
-       HOLD TO WIPE
+       14. HOLD TO FULL WIPE
     ============================================================ */
     let holdTimer = null;
     let holdActive = false;
@@ -457,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       QUICK TOOLS
+       15. QUICK TOOLS
     ============================================================ */
     const toolPrompts = {
         summarise: "Summarise this text:",
@@ -469,19 +445,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".tool-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             input.value = toolPrompts[btn.dataset.task] || "";
-
-            blurBuffer.style.opacity = "1";
             chatScreen.classList.add("active");
+            blurBuffer.style.opacity = "1";
             appWrapper.style.display = "none";
         });
     });
 
 
     /* ============================================================
-       KEEP SERVER WARM
+       16. KEEP SERVER WARM
     ============================================================ */
     setInterval(() => {
         fetch("https://leocore.onrender.com/ping").catch(() => {});
     }, 45000);
 
-}); // END DOMContentLoaded
+});
