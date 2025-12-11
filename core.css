@@ -1,8 +1,9 @@
 /* ============================================================
-   CORE.CSS — STRUCTURE, LAYOUT, VIEWPORT, Z-INDEX SAFETY
+   CORE.CSS — PART 1 / 3
+   GLOBAL RESET + VIEWPORT + BACKGROUND ENGINE
 ============================================================ */
 
-/* RESET + TRUE VIEWPORT */
+/* GLOBAL RESET */
 * {
     margin: 0;
     padding: 0;
@@ -15,12 +16,21 @@ html, body {
     width: 100%;
     overflow-x: hidden;
     overscroll-behavior: none;
-    background: transparent !important;
+    background: #000 !important;
     color: #fff;
     font-family: 'Inter', sans-serif;
 }
 
-/* VIDEO BACKGROUND */
+/* Buttons always clickable */
+button, #sendBtn, .back-btn, .clear-btn {
+    pointer-events: auto;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================
+   BACKGROUND LAYER + NEW GRADIENT + SAFE SCALE (Option A)
+============================================================ */
+
 #bgLayer {
     position: fixed;
     inset: 0;
@@ -29,34 +39,47 @@ html, body {
     overflow: hidden;
     pointer-events: none;
     z-index: -2;
+
+    /* Soft neon glow mixed with video */
+    background: radial-gradient(
+        circle at center,
+        rgba(0, 200, 255, 0.18) 0%,
+        rgba(120, 0, 255, 0.18) 40%,
+        rgba(0, 0, 0, 0.85) 100%
+    );
 }
 
+/* BACKGROUND VIDEO — reduced size + safe transform */
 #bgVideo {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
+    width: 115%;        /* makes video slightly larger than screen */
+    height: 115%;       /* prevents edges from showing */
     object-fit: cover;
     object-position: center;
 
-    /* slightly smaller feel */
-    transform: scale(1.18);
+    transform: translateZ(0) scale(0.82); /* More stylish, still safe */
+    will-change: transform;
+
     opacity: 1 !important;
     background: #000 !important;
     transition: none !important;
     z-index: -3;
 }
 
-/* APP WRAPPER */
+/* ============================================================
+   APP WRAPPER + UNIVERSAL FADE-IN
+============================================================ */
+
 .app-wrapper {
     width: 100%;
     min-height: 100%;
     padding-bottom: 100px;
     position: relative;
     z-index: 50;
+    background: transparent !important;
 }
 
-/* FADE-IN */
 .fade-in {
     opacity: 0;
     animation: fadeIn 0.9s ease-out forwards;
@@ -67,19 +90,87 @@ html, body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* HERO LAYOUT */
+/* ============================================================
+   HERO SECTION — LOGO + FAKE INPUT (HOMESCREEN)
+============================================================ */
+
 .center-wrapper {
     text-align: center;
     padding-top: 12vh;
     padding-bottom: 2vh;
 }
 
-/* MODE SECTION LAYOUT */
+/* Fake input — now clearer, glowing, visible */
+
+.fake-input {
+    width: 85vw;
+    max-width: 600px;
+    height: 64px;
+    margin: 0 auto 22px;
+
+    background: rgba(0, 10, 25, 0.45);
+    border-radius: 18px;
+
+    border: 2px solid rgba(0, 234, 255, 0.65);
+    box-shadow: 0 0 28px rgba(0, 234, 255, 0.45);
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    cursor: pointer;
+}
+
+.fake-text {
+    font-size: 20px;
+    color: #dffaff;
+    white-space: nowrap;
+}
+
+/* Title + subtitle */
+
+.main-title {
+    margin-top: 10px;
+    font-size: 46px;
+    font-weight: 800;
+    position: relative;
+}
+
+.main-title::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(75deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: translateX(-140%);
+    animation: shine 4s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-140%); }
+    50% { transform: translateX(140%); }
+    100% { transform: translateX(140%); }
+}
+
+.subtitle {
+    margin-top: 8px;
+    font-size: 18px;
+    color: #dffaff;
+}
+/* ============================================================
+   CORE.CSS — PART 2 / 3
+   MODE SELECTOR + QUICK TOOLS + CARDS
+============================================================ */
+
+/* Section titles */
 .section-title {
     text-align: center;
     font-size: 22px;
     font-weight: 700;
     margin-bottom: 14px;
+    color: #dffaff;
 }
 
 .modes-wrapper {
@@ -87,6 +178,7 @@ html, body {
     padding: 22px 0;
 }
 
+/* Mode grid */
 .mode-selector {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -94,7 +186,49 @@ html, body {
     padding: 0 24px;
 }
 
-/* QUICK TOOLS LAYOUT */
+/* MODE BUTTON — now much brighter + neon ring */
+.mode-btn {
+    padding: 22px;
+    border-radius: 18px;
+
+    background: rgba(0, 20, 35, 0.35);
+    border: 2px solid rgba(0, 255, 255, 0.35);
+
+    box-shadow:
+        0 0 12px rgba(0, 255, 255, 0.25),
+        inset 0 0 18px rgba(0, 255, 255, 0.15);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    font-size: 18px;
+    font-weight: 700;
+    color: #dffaff;
+
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+/* Active mode fully lights up */
+.mode-btn.active {
+    background: rgba(0, 255, 255, 0.18);
+    border-color: var(--theme-glow);
+    color: var(--theme-glow);
+
+    box-shadow:
+        0 0 28px var(--theme-glow),
+        inset 0 0 20px var(--theme-glow);
+    transform: translateY(-3px);
+}
+
+/* ============================================================
+   QUICK TOOLS
+============================================================ */
+
 .tools-wrapper {
     margin-top: 32px;
     padding: 18px 0;
@@ -107,17 +241,67 @@ html, body {
     padding: 0 22px;
 }
 
-/* CARDS */
+/* Quick tool button — upgraded clarity & glow */
+.tool-btn {
+    padding: 16px;
+    border-radius: 18px;
+
+    background: rgba(0, 30, 50, 0.35);
+    border: 1px solid rgba(0, 255, 255, 0.25);
+
+    box-shadow: 0 0 14px rgba(0,255,255,0.18);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    text-align: center;
+
+    font-size: 16px;
+    font-weight: 600;
+    color: #dffaff;
+
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.tool-btn:active {
+    transform: scale(0.96);
+}
+
+/* ============================================================
+   CREATOR CARD
+============================================================ */
+
 .creator-card {
     width: 85%;
     margin: 40px auto 24px;
+
     padding: 26px;
     border-radius: 20px;
+
+    background: rgba(0, 25, 45, 0.45);
+    border: 1px solid rgba(0, 255, 255, 0.25);
+
+    box-shadow:
+        0 0 20px rgba(0, 255, 255, 0.2),
+        inset 0 0 18px rgba(0, 255, 255, 0.1);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    color: #dffaff;
+    font-size: 16px;
+    text-align: center;
 }
+
+/* ============================================================
+   TESTIMONIALS
+============================================================ */
 
 .testimonials {
     margin-top: 32px;
     padding: 20px;
+
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -127,30 +311,69 @@ html, body {
 .testimonial-bubble {
     padding: 14px 20px;
     font-size: 14px;
+
+    background: rgba(0, 200, 255, 0.12);
+    color: #dffaff;
+
     border-radius: 18px;
+    border: 1px solid rgba(0,255,255,0.25);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    box-shadow: 0 0 14px rgba(0,200,255,0.18);
+
     text-align: center;
 }
+
+/* ============================================================
+   INFO CARD
+============================================================ */
 
 .info-card {
     width: 90%;
     margin: 40px auto;
+
     padding: 28px;
     border-radius: 20px;
-}
 
-/* CHAT SCREEN */
+    background: rgba(0, 25, 45, 0.45);
+    border: 1px solid rgba(0,255,255,0.25);
+
+    box-shadow:
+        0 0 22px rgba(0,255,255,0.18),
+        inset 0 0 18px rgba(0,255,255,0.1);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    color: #dffaff;
+    font-size: 17px;
+}
+/* ============================================================
+   CORE.CSS — PART 3 / 3
+   CHAT SCREEN + INPUT BAR + OVERLAYS
+============================================================ */
+
+/* CHAT OVERLAY SCREEN */
 #chatScreen {
     position: fixed;
     inset: 0;
     width: 100vw;
     height: calc(var(--vh, 1vh) * 100);
+
     display: flex;
     flex-direction: column;
+
     opacity: 0;
     transform: translateY(40px);
     pointer-events: none;
-    transition: opacity .35s ease, transform .35s ease;
+
+    background: transparent !important;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+
     z-index: 99999;
+    isolation: isolate;
 }
 
 #chatScreen.active {
@@ -159,63 +382,364 @@ html, body {
     pointer-events: auto;
 }
 
-/* CHAT HEADER STRUCTURE */
+/* ============================================================
+   CHAT HEADER + BUTTONS (new neon glass style)
+============================================================ */
+
 .chat-header {
     padding: 14px 20px;
+
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    background: rgba(0,0,0,0.45);
+    border-bottom: 1px solid rgba(0,255,255,0.14);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    position: relative;
+    z-index: 99996;
 }
 
-/* CHAT MESSAGES STRUCTURE */
+/* Back & Trash Buttons */
+.back-btn,
+.clear-btn {
+    width: 46px;
+    height: 42px;
+
+    border-radius: 12px;
+    border: 2px solid rgba(0,255,255,0.35);
+
+    background: rgba(0,20,35,0.55);
+    color: #dffaff;
+
+    box-shadow:
+        0 0 12px rgba(0,255,255,0.35),
+        inset 0 0 12px rgba(0,255,255,0.20);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.25s ease;
+}
+
+.back-btn:hover,
+.clear-btn:hover {
+    box-shadow:
+        0 0 20px rgba(0,255,255,0.45),
+        inset 0 0 16px rgba(0,255,255,0.25);
+    transform: translateY(-2px);
+}
+
+/* Chat title */
+.chat-title {
+    font-size: 22px;
+    font-weight: 700;
+
+    background: linear-gradient(90deg, #00eaff, #b400ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ============================================================
+   CHAT MESSAGES AREA
+============================================================ */
+
 .chat-messages {
     flex: 1;
+    min-height: 0;
+
     overflow-y: auto;
     padding: 14px;
     padding-bottom: 70px;
+
     display: flex;
     flex-direction: column;
     gap: 12px;
+
+    background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    position: relative;
+    z-index: 99995;
 }
 
-.user-msg, .ai-msg {
+/* Message wrappers */
+.user-msg,
+.ai-msg {
     width: 100%;
     display: flex;
 }
 
 .user-msg { justify-content: flex-end; }
-.ai-msg { justify-content: flex-start; }
+.ai-msg   { justify-content: flex-start; }
 
-/* CHAT INPUT STRUCTURE */
+/* Chat bubbles */
+.bubble {
+    max-width: 85%;
+    padding: 14px 18px;
+
+    border-radius: 14px;
+    word-break: break-word;
+    font-size: 15px;
+}
+
+/* User bubble */
+.user-msg .bubble {
+    background: #008cff;
+    color: #fff;
+    box-shadow: 0 0 12px #008cffaa;
+}
+
+/* AI bubble */
+.ai-msg .bubble {
+    background: #1e263f;
+    color: #e9f4ff;
+    box-shadow: 0 0 12px #0af2ffaa;
+}
+
+/* ============================================================
+   STREAMING CURSOR
+============================================================ */
+
+.neon-cursor {
+    width: 6px;
+    height: 18px;
+
+    background: var(--theme-glow);
+    display: inline-block;
+
+    margin-left: 4px;
+    animation: cursorBlink 0.65s infinite;
+}
+
+@keyframes cursorBlink {
+    0%, 100% { opacity: 0; }
+    45%, 55% { opacity: 1; }
+}
+
+/* ============================================================
+   HYPERNOVA TYPING ANIMATION
+============================================================ */
+
+.spiral-bubble {
+    position: relative;
+    width: 46px;
+    height: 46px;
+
+    border-radius: 14px;
+
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Core pulse */
+.spiral-core {
+    width: 10px;
+    height: 10px;
+
+    background: var(--theme-glow);
+    border-radius: 50%;
+    animation: pulseCore 1.2s ease-in-out infinite;
+}
+
+@keyframes pulseCore {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
+/* Rotating shards */
+.typing-shard {
+    position: absolute;
+    width: 6px;
+    height: 12px;
+
+    background: var(--theme-glow);
+    border-radius: 3px;
+
+    animation: shardSpin 1.1s linear infinite;
+}
+
+.typing-shard:nth-child(2) { transform: rotate(0deg) translateY(-18px); }
+.typing-shard:nth-child(3) { transform: rotate(120deg) translateY(-18px); }
+.typing-shard:nth-child(4) { transform: rotate(240deg) translateY(-18px); }
+
+@keyframes shardSpin {
+    to { transform: rotate(360deg) translateY(-18px); }
+}
+
+/* ============================================================
+   INPUT BAR
+============================================================ */
+
 .chat-input-area {
     position: fixed;
     bottom: 0;
     left: 0;
+
     width: 100%;
     padding: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+
     display: flex;
     align-items: center;
     gap: 10px;
+
+    background: rgba(0,0,0,0.45);
+    border-top: 1px solid rgba(255,255,255,0.12);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
     z-index: 9999999;
 }
 
+/* Mode pill */
 .mode-pill {
     height: 40px;
     padding: 0 12px;
+
     display: flex;
     align-items: center;
+
     border-radius: 12px;
+    border: 2px solid var(--theme-glow);
+
+    background: rgba(0,0,0,0.35);
+    color: var(--theme-glow);
     font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
-/* MOBILE FIX */
+/* Chat input box */
+#userInput {
+    flex: 1;
+    height: 44px;
+
+    border-radius: 12px;
+    border: 2px solid rgba(0,255,255,0.25);
+
+    background: rgba(0,10,20,0.55);
+    color: #dffaff;
+
+    padding: 0 14px;
+    font-size: 15px;
+
+    box-shadow: inset 0 0 12px rgba(0,255,255,0.15);
+}
+
+#userInput::placeholder {
+    color: #8ad4e8;
+}
+
+/* Send button */
+#sendBtn {
+    width: 52px;
+    height: 46px;
+
+    border-radius: 14px;
+    background: var(--theme-glow);
+    border: none;
+
+    font-weight: 700;
+    color: #000;
+    box-shadow: 0 0 14px var(--theme-glow);
+    transition: 0.15s ease;
+}
+
+#sendBtn.stop-mode {
+    background: #ff004f;
+    box-shadow: 0 0 14px #ff004f;
+}
+
+/* ============================================================
+   FULL-WIPE OVERLAY
+============================================================ */
+
+#wipeOverlay {
+    position: fixed;
+    inset: 0;
+
+    background: rgba(5, 0, 20, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.35s;
+    z-index: 999999999;
+}
+
+#wipeOverlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Loader */
+.wipe-loader {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 12px;
+
+    border: 4px solid rgba(255,255,255,0.25);
+    border-top-color: var(--theme-glow);
+
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   BLUR BUFFER (background blur when chat opens)
+============================================================ */
+
+#chatBlurBuffer {
+    position: fixed;
+    inset: 0;
+
+    backdrop-filter: blur(26px) saturate(1.25);
+    -webkit-backdrop-filter: blur(26px) saturate(1.25);
+
+    opacity: 0;
+    pointer-events: none;
+
+    transition: opacity 0.25s ease;
+    z-index: 99990;
+}
+
+/* ============================================================
+   MOBILE FIXES
+============================================================ */
+
 @supports (-webkit-touch-callout: none) {
-    #bgVideo { transform: scale(1.18); }
+    #bgVideo {
+        transform: translateZ(0) scale(1.05);
+    }
 }
 
 @media (max-width: 600px) {
     .fake-input { height: 58px; }
     .main-title { font-size: 40px; }
     .bubble { font-size: 15px; padding: 12px 14px; }
-}
+   }
