@@ -1,69 +1,192 @@
-/* DESIGN.CSS — EXTRA VISUALS ONLY
-   (Home screen + background. Chat left as-is.) */
+/* ============================================================
+   DESIGN.CSS — VISUALS, GLOWS, GLASS, COLORS, ANIMATIONS
+============================================================ */
 
-:root {
-    --theme-glow: #00eaff;
-}
-
-/* Background video feel */
-#bgLayer::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-        circle at center,
-        rgba(0, 120, 255, 0.30),
-        rgba(0, 0, 10, 0.85)
-    );
-    pointer-events: none;
-    z-index: -1;
-}
-
-/* Slightly “smaller”, more cinematic */
-#bgVideo {
-    transform: translateZ(0) scale(1.08);
-    filter: brightness(0.85) saturate(1.35);
-}
-
-/* Hero input */
-.fake-input {
-    background: rgba(0, 0, 0, 0.35) !important;
-    border-color: rgba(0, 255, 255, 0.6) !important;
-    box-shadow:
-        0 0 18px rgba(0, 255, 255, 0.35),
-        0 0 40px rgba(0, 0, 0, 0.8);
-}
-
-/* Title gradient stays but with extra pop */
+/* TITLES */
 .main-title {
-    background: linear-gradient(90deg, #00eaff, #a86dff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    margin-top: 10px;
+    font-size: 46px;
+    font-weight: 800;
+    color: #fff;
+    position: relative;
 }
 
-/* Mode buttons — more visible neon borders */
+.subtitle {
+    margin-top: 8px;
+    font-size: 18px;
+    color: #dffaff;
+}
+
+/* FAKE INPUT */
+.fake-input {
+    width: 85vw;
+    max-width: 600px;
+    height: 64px;
+    margin: 0 auto 22px;
+
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    background: rgba(255,255,255,0.08);
+    border: 2px solid rgba(0,255,255,0.35);
+
+    border-radius: 18px;
+    box-shadow: 0 0 18px rgba(0,255,255,0.35);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.fake-text {
+    font-size: 20px;
+    color: #dffaff;
+}
+
+/* MODE BUTTONS (SOFT GLASS) */
 .mode-btn {
-    background: rgba(0, 0, 25, 0.55) !important;
-    border-color: rgba(0, 220, 255, 0.45) !important;
+    padding: 22px;
+    border-radius: 18px;
+
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.3);
+
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+
     box-shadow:
-        0 0 16px rgba(0, 220, 255, 0.4),
-        inset 0 0 10px rgba(0, 0, 0, 0.9);
+        inset 0 0 18px rgba(0,255,255,0.25),
+        0 0 22px rgba(0,255,255,0.25);
+
+    font-size: 18px;
+    font-weight: 700;
+    color: #e9faff;
+    transition: 0.25s ease;
 }
 
-.mode-btn.active,
-.mode-btn:hover {
-    border-color: var(--theme-glow) !important;
+.mode-btn.active {
+    border-color: var(--theme-glow);
     box-shadow:
-        0 0 22px var(--theme-glow),
-        0 0 50px rgba(0, 0, 0, 0.9);
+        inset 0 0 18px var(--theme-glow),
+        0 0 30px var(--theme-glow);
 }
 
-/* Quick tools + cards — clearer glass */
-.tool-btn,
+/* QUICK TOOLS */
+.tool-btn {
+    padding: 16px;
+    border-radius: 18px;
+
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.3);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow:
+        inset 0 0 14px rgba(0,255,255,0.25),
+        0 0 20px rgba(0,255,255,0.25);
+
+    text-align: center;
+    font-size: 16px;
+    color: #dffaff;
+}
+
+/* CREATOR + INFO CARDS */
 .creator-card,
-.testimonial-bubble,
-.info-card {
-    background: rgba(0, 0, 0, 0.32) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
-    box-shadow: 0 0 16px rgba(0, 0, 0, 0.8);
+.info-card,
+.testimonial-bubble {
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(0,255,255,0.25);
+
+    box-shadow:
+        inset 0 0 14px rgba(0,255,255,0.2),
+        0 0 20px rgba(0,255,255,0.15);
+}
+
+/* CHAT HEADER BUTTONS */
+.back-btn,
+.clear-btn {
+    width: 46px;
+    height: 46px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 14px;
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.3);
+
+    color: #dffaff;
+    font-size: 18px;
+
+    box-shadow:
+        inset 0 0 12px rgba(0,255,255,0.2),
+        0 0 18px rgba(0,255,255,0.15);
+
+    cursor: pointer;
+}
+
+/* INPUT FIELD */
+#userInput {
+    flex: 1;
+    height: 46px;
+    padding: 0 14px;
+
+    border-radius: 14px;
+    border: 1px solid rgba(0,255,255,0.25);
+
+    background: rgba(0,0,0,0.4);
+    color: #fff;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+#userInput::placeholder {
+    color: #b6eaff;
+    opacity: 0.6;
+}
+
+/* SEND BUTTON */
+#sendBtn {
+    width: 52px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--theme-glow);
+    color: #000;
+    font-weight: 700;
+
+    box-shadow: 0 0 18px var(--theme-glow);
+    border: none;
+}
+
+#sendBtn.stop-mode {
+    background: #ff004f;
+    box-shadow: 0 0 18px #ff004f;
+}
+
+/* CHAT BUBBLES */
+.bubble {
+    border-radius: 14px;
+    padding: 14px 18px;
+}
+
+.user-msg .bubble {
+    background: rgba(0,140,255,0.9);
+    box-shadow: 0 0 18px rgba(0,140,255,0.6);
+}
+
+.ai-msg .bubble {
+    background: rgba(30,38,63,0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
