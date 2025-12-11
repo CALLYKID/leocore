@@ -1,113 +1,217 @@
 /* ============================================================
-   DESIGN.CSS — VISUALS, GLOWS, GLASS, COLORS, ANIMATIONS
+   DESIGN.CSS — PART 1 / 3
+   GLOBAL AESTHETICS + BACKGROUND + HERO
 ============================================================ */
 
-/* TITLES */
-.main-title {
-    margin-top: 10px;
-    font-size: 46px;
-    font-weight: 800;
-    color: #fff;
-    position: relative;
+/* GLOBAL NEON THEME VARIABLES */
+:root {
+    --theme-glow: #00eaff;     /* Overwritten dynamically by JS for modes */
+    --glass-bg: rgba(0, 20, 35, 0.45);
+    --border-soft: rgba(255,255,255,0.15);
+    --text-soft: #dffaff;
 }
 
-.subtitle {
-    margin-top: 8px;
-    font-size: 18px;
-    color: #dffaff;
+/* General smoothing */
+body {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* FAKE INPUT */
+/* ============================================================
+   BACKGROUND VIDEO — FUTURISTIC LOOK UPGRADE
+============================================================ */
+
+#bgLayer {
+    filter: brightness(0.86) contrast(1.15) saturate(1.35);
+}
+
+/* Make the video slightly smaller and more cinematic */
+#bgVideo {
+    transform: scale(1.18); /* smaller but zoomed-in aesthetic */
+    opacity: 0.95;
+    filter:
+        blur(1px)
+        saturate(1.4)
+        brightness(1.1)
+        contrast(1.14);
+}
+
+/* Optional gradient overlay (SAFE — does not break layering) */
+#bgLayer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(0,0,0,0.15),
+        rgba(0,0,0,0.45)
+    );
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* ============================================================
+   HERO SECTION — Neon upgrades
+============================================================ */
+
 .fake-input {
-    width: 85vw;
-    max-width: 600px;
-    height: 64px;
-    margin: 0 auto 22px;
+    background: rgba(0, 25, 45, 0.45) !important;
+    border: 2px solid var(--theme-glow) !important;
 
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-
-    background: rgba(255,255,255,0.08);
-    border: 2px solid rgba(0,255,255,0.35);
-
-    border-radius: 18px;
-    box-shadow: 0 0 18px rgba(0,255,255,0.35);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+    box-shadow:
+        0 0 12px var(--theme-glow),
+        0 0 28px rgba(0,255,255,0.25);
 }
 
 .fake-text {
-    font-size: 20px;
-    color: #dffaff;
+    color: #c7f9ff !important;
+    text-shadow: 0 0 6px rgba(0,255,255,0.45);
 }
 
-/* MODE BUTTONS (SOFT GLASS) */
+/* LEOCORE title more premium */
+.main-title {
+    letter-spacing: 1px;
+    text-shadow:
+        0 0 14px rgba(0,255,255,0.45),
+        0 0 26px rgba(0,255,255,0.25);
+}
+
+/* Subtle glow under subtitle */
+.subtitle {
+    text-shadow: 0 0 6px rgba(0,255,255,0.3);
+}
+
+/* ============================================================
+   SECTION HEADERS + TEXT
+============================================================ */
+
+.section-title {
+    color: var(--text-soft) !important;
+    text-shadow: 0 0 10px rgba(0,255,255,0.25);
+}
+
+/* ============================================================
+   MODE SELECTOR — BIG GLOW + PREMIUM LOOK
+============================================================ */
+
 .mode-btn {
-    padding: 22px;
-    border-radius: 18px;
-
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.3);
-
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    border-color: rgba(0,255,255,0.25) !important;
+    background: rgba(0, 25, 45, 0.4) !important;
 
     box-shadow:
-        inset 0 0 18px rgba(0,255,255,0.25),
-        0 0 22px rgba(0,255,255,0.25);
-
-    font-size: 18px;
-    font-weight: 700;
-    color: #e9faff;
-    transition: 0.25s ease;
+        0 0 10px rgba(0,255,255,0.18),
+        inset 0 0 10px rgba(0,255,255,0.12);
 }
 
 .mode-btn.active {
-    border-color: var(--theme-glow);
+    border-color: var(--theme-glow) !important;
+    background: rgba(0, 25, 45, 0.55) !important;
+
     box-shadow:
-        inset 0 0 18px var(--theme-glow),
-        0 0 30px var(--theme-glow);
+        0 0 18px var(--theme-glow),
+        inset 0 0 12px rgba(0,255,255,0.35);
 }
 
-/* QUICK TOOLS */
-.tool-btn {
-    padding: 16px;
+/* Specific icons glow */
+.mode-btn.active::after {
+    content: "";
+    position: absolute;
+    inset: 0;
     border-radius: 18px;
-
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.3);
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    box-shadow:
-        inset 0 0 14px rgba(0,255,255,0.25),
-        0 0 20px rgba(0,255,255,0.25);
-
-    text-align: center;
-    font-size: 16px;
-    color: #dffaff;
+    pointer-events: none;
+    box-shadow: 0 0 26px var(--theme-glow);
 }
 
-/* CREATOR + INFO CARDS */
-.creator-card,
-.info-card,
-.testimonial-bubble {
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+/* ============================================================
+   QUICK TOOLS CARDS — GLOW + GLASS ENHANCEMENT
+============================================================ */
 
-    background: rgba(255,255,255,0.08);
+.tool-btn {
+    background: rgba(0, 20, 35, 0.5) !important;
+    border-color: rgba(0,255,255,0.35) !important;
+
+    box-shadow:
+        0 0 12px rgba(0,255,255,0.25),
+        inset 0 0 10px rgba(0,255,255,0.15);
+}
+
+.tool-btn:active {
+    transform: scale(0.94);
+    box-shadow:
+        0 0 18px rgba(0,255,255,0.45),
+        inset 0 0 14px rgba(0,255,255,0.25);
+}
+
+/* ============================================================
+   CREATOR CARD — upgraded glass look
+============================================================ */
+
+.creator-card {
+    background: rgba(0, 20, 35, 0.45) !important;
+    border-color: rgba(0,255,255,0.20) !important;
+
+    box-shadow:
+        0 0 12px rgba(0,255,255,0.25),
+        inset 0 0 10px rgba(0,255,255,0.12);
+}
+
+/* ============================================================
+   TESTIMONIALS — upgraded neon
+============================================================ */
+
+.testimonial-bubble {
+    background: rgba(0,255,255,0.15) !important;
     border: 1px solid rgba(0,255,255,0.25);
 
     box-shadow:
-        inset 0 0 14px rgba(0,255,255,0.2),
-        0 0 20px rgba(0,255,255,0.15);
+        0 0 12px rgba(0,255,255,0.25),
+        inset 0 0 10px rgba(0,255,255,0.10);
 }
 
-/* CHAT HEADER BUTTONS */
+/* ============================================================
+   INFO CARD — more glass + more glow
+============================================================ */
+
+.info-card {
+    background: rgba(0, 20, 35, 0.45) !important;
+    border-color: rgba(0,255,255,0.25) !important;
+
+    box-shadow:
+        0 0 12px rgba(0,255,255,0.25),
+        inset 0 0 10px rgba(0,255,255,0.15);
+}
+/* ============================================================
+   DESIGN.CSS — PART 2 / 3
+   CHAT HEADER + BUTTONS + INPUT BAR + MODE PILL
+============================================================ */
+
+/* ============================================================
+   CHAT HEADER — PREMIUM GLASS + NEON EDGE
+============================================================ */
+
+.chat-header {
+    background: rgba(0, 20, 35, 0.55) !important;
+    border-bottom: 1px solid rgba(0,255,255,0.25) !important;
+
+    box-shadow:
+        0 0 16px rgba(0,255,255,0.22),
+        inset 0 -4px 12px rgba(0,255,255,0.12);
+}
+
+.chat-title {
+    text-shadow:
+        0 0 14px rgba(0,255,255,0.55),
+        0 0 26px rgba(0,255,255,0.35);
+}
+
+.chat-title-wrapper {
+    filter: drop-shadow(0 0 12px rgba(0,255,255,0.35));
+}
+
+/* ============================================================
+   BACK BUTTON + CLEAR BUTTON — TRUE NEON GLOW
+============================================================ */
+
 .back-btn,
 .clear-btn {
     width: 46px;
@@ -117,76 +221,357 @@
     justify-content: center;
     align-items: center;
 
+    background: rgba(0, 25, 45, 0.45) !important;
     border-radius: 14px;
 
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    border: 2px solid rgba(0,255,255,0.35) !important;
 
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(0,255,255,0.3);
-
-    color: #dffaff;
     font-size: 18px;
+    font-weight: 700;
+    color: var(--theme-glow) !important;
+
+    transition: 0.25s ease;
 
     box-shadow:
-        inset 0 0 12px rgba(0,255,255,0.2),
-        0 0 18px rgba(0,255,255,0.15);
-
-    cursor: pointer;
+        0 0 14px rgba(0,255,255,0.22),
+        inset 0 0 10px rgba(0,255,255,0.15);
 }
 
-/* INPUT FIELD */
-#userInput {
-    flex: 1;
-    height: 46px;
-    padding: 0 14px;
-
-    border-radius: 14px;
-    border: 1px solid rgba(0,255,255,0.25);
-
-    background: rgba(0,0,0,0.4);
-    color: #fff;
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+.back-btn:active,
+.clear-btn:active {
+    transform: scale(0.92);
+    box-shadow:
+        0 0 22px rgba(0,255,255,0.45),
+        inset 0 0 14px rgba(0,255,255,0.25);
 }
 
-#userInput::placeholder {
-    color: #b6eaff;
-    opacity: 0.6;
+/* ============================================================
+   CHAT MESSAGES AREA ENHANCEMENT
+============================================================ */
+
+.chat-messages {
+    background: rgba(0,10,20,0.45) !important;
+
+    box-shadow:
+        inset 0 0 45px rgba(0,255,255,0.08);
 }
 
-/* SEND BUTTON */
-#sendBtn {
-    width: 52px;
-    height: 46px;
-    border-radius: 14px;
-    background: var(--theme-glow);
-    color: #000;
-    font-weight: 700;
-
-    box-shadow: 0 0 18px var(--theme-glow);
-    border: none;
-}
-
-#sendBtn.stop-mode {
-    background: #ff004f;
-    box-shadow: 0 0 18px #ff004f;
-}
-
-/* CHAT BUBBLES */
-.bubble {
-    border-radius: 14px;
-    padding: 14px 18px;
-}
+/* ============================================================
+   USER + AI BUBBLES — NEON LIFT
+============================================================ */
 
 .user-msg .bubble {
-    background: rgba(0,140,255,0.9);
-    box-shadow: 0 0 18px rgba(0,140,255,0.6);
+    box-shadow:
+        0 0 24px rgba(0,145,255,0.55),
+        inset 0 0 10px rgba(255,255,255,0.15);
 }
 
 .ai-msg .bubble {
-    background: rgba(30,38,63,0.88);
+    box-shadow:
+        0 0 18px rgba(0,255,255,0.25),
+        inset 0 0 8px rgba(255,255,255,0.08);
+}
+
+.bubble {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+/* ============================================================
+   CHAT INPUT BAR — TRUE GLASS PANEL + OUTLINE
+============================================================ */
+
+.chat-input-area {
+    background: rgba(0, 15, 28, 0.55) !important;
+    border-top: 1px solid rgba(0,255,255,0.25) !important;
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 -4px 14px rgba(0,255,255,0.18),
+        inset 0 0 22px rgba(0,255,255,0.12);
+}
+
+/* ============================================================
+   SEND BUTTON — NEON BLAST
+============================================================ */
+
+#sendBtn {
+    border: 2px solid rgba(0,255,255,0.4) !important;
+
+    box-shadow:
+        0 0 18px var(--theme-glow),
+        inset 0 0 12px rgba(0,255,255,0.25),
+        0 0 32px rgba(0,255,255,0.35);
+}
+
+#sendBtn.stop-mode {
+    background: #ff004f !important;
+
+    border-color: rgba(255,0,69,0.55) !important;
+
+    box-shadow:
+        0 0 22px #ff004f,
+        inset 0 0 16px rgba(255,0,90,0.45);
+}
+
+/* ============================================================
+   USER INPUT FIELD — CLEAN PREMIUM & VISIBLE
+============================================================ */
+
+#userInput {
+    flex: 1;
+    height: 48px;
+
+    border-radius: 14px;
+    padding: 0 14px;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    color: #c7faff !important;
+
+    background: rgba(0, 25, 45, 0.45) !important;
+    border: 2px solid rgba(0,255,255,0.25) !important;
+
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+
+    outline: none;
+
+    box-shadow:
+        inset 0 0 14px rgba(0,255,255,0.15);
+}
+
+/* Placeholder improvement */
+#userInput::placeholder {
+    color: rgba(200,255,255,0.45);
+    text-shadow: 0 0 8px rgba(0,255,255,0.25);
+}
+
+/* ============================================================
+   MODE PILL — PREMIUM NEON BADGE
+============================================================ */
+
+.mode-pill {
+    border-color: var(--theme-glow) !important;
+
+    background: rgba(0, 20, 35, 0.45) !important;
+
+    color: var(--theme-glow) !important;
+
+    box-shadow:
+        0 0 12px var(--theme-glow),
+        inset 0 0 12px rgba(0,255,255,0.25);
+
+    text-shadow:
+        0 0 12px var(--theme-glow);
+}
+
+/* ============================================================
+   CHAT OVERLAY / BLUR BUFFER GLOW
+============================================================ */
+
+#chatBlurBuffer {
+    background: rgba(0, 20, 35, 0.35);
+
+    box-shadow:
+        inset 0 0 65px rgba(0,255,255,0.18);
+}
+/* ============================================================
+   DESIGN.CSS — PART 3 / 3
+   FINAL GLOW EFFECTS + SAFETY FIXES + CINEMATIC POLISH
+============================================================ */
+
+
+/* ============================================================
+   1. TYPING INDICATOR — HYPERNOVA GLOW BOOST
+============================================================ */
+
+.spiral-bubble {
+    box-shadow:
+        0 0 18px rgba(0,255,255,0.25),
+        inset 0 0 12px rgba(0,255,255,0.15);
+}
+
+.spiral-core {
+    box-shadow:
+        0 0 12px var(--theme-glow),
+        0 0 22px var(--theme-glow);
+}
+
+.typing-shard {
+    box-shadow:
+        0 0 10px var(--theme-glow),
+        0 0 18px var(--theme-glow);
+}
+
+
+/* ============================================================
+   2. BACKDROP — CINEMATIC DARK GLOW & PERSPECTIVE FEEL
+============================================================ */
+
+#bgLayer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background: radial-gradient(
+        circle at center,
+        rgba(0,255,255,0.08),
+        transparent 60%
+    );
+
+    pointer-events: none;
+    z-index: -1;
+}
+
+#bgVideo {
+    filter: brightness(0.88) saturate(1.15) contrast(1.10);
+}
+
+
+/* ============================================================
+   3. HERO — NEON SHIMMER BOOST
+============================================================ */
+
+.main-title {
+    text-shadow:
+        0 0 16px rgba(0,255,255,0.35),
+        0 0 28px rgba(0,255,255,0.18);
+}
+
+.fake-input {
+    box-shadow:
+        0 0 26px rgba(0,255,255,0.35),
+        inset 0 0 14px rgba(0,255,255,0.18);
+}
+
+/* ============================================================
+   4. MODE BUTTONS — TRUE PREMIUM NEON TILES
+============================================================ */
+
+.mode-btn {
+    box-shadow:
+        0 0 18px rgba(0,255,255,0.15),
+        inset 0 0 12px rgba(0,255,255,0.10);
+}
+
+.mode-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 0 22px rgba(0,255,255,0.25),
+        inset 0 0 14px rgba(0,255,255,0.15);
+}
+
+
+/* ============================================================
+   5. QUICK TOOLS — ELEVATED GLASS TILES
+============================================================ */
+
+.tool-btn {
+    box-shadow:
+        0 0 16px rgba(0,255,255,0.15),
+        inset 0 0 10px rgba(0,255,255,0.15);
+}
+
+.tool-btn:hover {
+    transform: scale(1.02);
+    box-shadow:
+        0 0 22px rgba(0,255,255,0.25),
+        inset 0 0 16px rgba(0,255,255,0.20);
+}
+
+
+/* ============================================================
+   6. CREATOR + TESTIMONIALS + INFO CARD — GLASS LEVEL UP
+============================================================ */
+
+.creator-card,
+.testimonial-bubble,
+.info-card {
+    box-shadow:
+        0 0 26px rgba(0,255,255,0.18),
+        inset 0 0 16px rgba(0,255,255,0.12);
+}
+
+
+/* ============================================================
+   7. FULL-WIPE OVERLAY — ULTRA CLEAN BLUR EFFECT
+============================================================ */
+
+#wipeOverlay {
+    background: rgba(5, 0, 20, 0.85) !important;
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+
+    box-shadow:
+        inset 0 0 40px rgba(0,255,255,0.15);
+}
+
+.wipe-loader {
+    box-shadow:
+        0 0 18px var(--theme-glow),
+        inset 0 0 12px rgba(0,255,255,0.25);
+}
+
+.wipe-text {
+    text-shadow: 0 0 12px var(--theme-glow);
+}
+
+
+/* ============================================================
+   8. BUTTON INTERACTION — GLOBAL POLISH
+============================================================ */
+
+button:active,
+.mode-btn:active,
+.tool-btn:active {
+    transform: scale(0.96);
+    filter: brightness(1.3);
+}
+
+
+/* ============================================================
+   9. SAFETY FIX —
+   PREVENT ANY LAYER FROM BREAKING VIDEO VISIBILITY
+============================================================ */
+
+html, body, .app-wrapper, #chatScreen {
+    background: transparent !important;
+}
+
+#chatScreen {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+
+/* ============================================================
+   10. MOBILE OPTIMIZATION — REDUCE OVERBRIGHT GLOW
+============================================================ */
+
+@media (max-width: 600px) {
+    .mode-btn,
+    .tool-btn,
+    .creator-card,
+    .testimonial-bubble,
+    .info-card {
+        box-shadow:
+            0 0 14px rgba(0,255,255,0.12),
+            inset 0 0 10px rgba(0,255,255,0.10);
+    }
+
+    #sendBtn {
+        box-shadow:
+            0 0 14px var(--theme-glow),
+            inset 0 0 10px rgba(0,255,255,0.20);
+    }
+
+    .fake-input {
+        box-shadow:
+            0 0 20px rgba(0,255,255,0.25),
+            inset 0 0 10px rgba(0,255,255,0.15);
+    }
 }
