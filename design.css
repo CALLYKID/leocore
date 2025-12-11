@@ -581,3 +581,28 @@ html, body, .app-wrapper, #chatScreen {
             inset 0 0 10px rgba(0,255,255,0.15);
     }
 }
+
+/* REMOVE UNWANTED HERO PANEL BACKGLOW */
+.center-wrapper,
+.hero-wrapper,
+.hero-container,
+.top-box,
+.fake-input-wrapper {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* Make sure fake input ONLY glows locally */
+.fake-input {
+    width: 85vw !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* Prevent any full-width glow blocks in hero */
+.center-wrapper > div:not(.fake-input) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
