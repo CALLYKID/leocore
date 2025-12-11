@@ -52,7 +52,7 @@ button, #sendBtn, .back-btn, .clear-btn {
     will-change: transform;
 
     opacity: 1 !important;
-    background: transparent !important;
+    background: #000 !important;
     transition: none !important; /* No fade glitches */            /* Rare Android bug fix */
     z-index: -3;
 }
