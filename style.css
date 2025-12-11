@@ -36,7 +36,7 @@ button, #sendBtn, .back-btn, .clear-btn {
 
     overflow: hidden;
     pointer-events: none;
-    z-index: -9999;
+    z-index: -2;
 }
 
 #bgVideo {
@@ -54,7 +54,7 @@ button, #sendBtn, .back-btn, .clear-btn {
     opacity: 1 !important;      /* ALWAYS visible */
     transition: none !important; /* No fade glitches */
     background: #000;            /* Rare Android bug fix */
-    z-index: -10000;
+    z-index: -3;
 }
 
 
