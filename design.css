@@ -130,7 +130,29 @@ body {
     pointer-events: none;
     box-shadow: 0 0 26px var(--theme-glow);
 }
+.mode-btn {
+    background: rgba(0, 20, 40, 0.55);
+    border: 1.6px solid rgba(0,255,255,0.28);
 
+    box-shadow:
+        0 0 25px rgba(0,255,255,0.25),
+        inset 0 0 18px rgba(0,255,255,0.15);
+
+    backdrop-filter: blur(18px) saturate(1.6);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+
+    color: #e9fbff !important;
+    font-weight: 700;
+
+    transition: 0.25s ease, transform 0.25s ease;
+}
+
+.mode-btn:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 0 35px rgba(0,255,255,0.45),
+        inset 0 0 25px rgba(0,255,255,0.20);
+}
 /* ============================================================
    QUICK TOOLS CARDS — GLOW + GLASS ENHANCEMENT
 ============================================================ */
