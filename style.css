@@ -30,7 +30,6 @@ button, #sendBtn, .back-btn, .clear-btn {
    1. FIXED VIDEO BACKGROUND — FADE-IN MODE
 ============================================================ */
 #bgLayer {
-#bgLayer {
     position: fixed;
     inset: 0;
     width: 100vw;
