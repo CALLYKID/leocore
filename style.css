@@ -542,3 +542,63 @@ mode-pill {
     background: #ff004f;
     color: #fff;
 }
+
+/* ============================================================
+   SECTION 4 — STABLE GLASS NEON (NO BUGS)
+   - No masks
+   - No animations
+   - No chat interference
+============================================================ */
+
+/* Ensure isolation */
+.mode-btn,
+.tool-btn {
+    position: relative;
+    isolation: isolate;
+}
+
+/* Static neon edge */
+.mode-btn,
+.tool-btn {
+    border: 2px solid rgba(0, 234, 255, 0.45);
+
+    box-shadow:
+        0 0 0 1px rgba(0, 234, 255, 0.35),   /* crisp edge */
+        0 0 18px rgba(0, 234, 255, 0.35),    /* outer glow */
+        0 12px 28px rgba(0,0,0,0.45),        /* depth */
+        inset 0 1px 0 rgba(255,255,255,0.25),
+        inset 0 -8px 16px rgba(0,0,0,0.45);
+}
+
+/* Hover = premium lift (NO glow changes) */
+.mode-btn:hover,
+.tool-btn:hover {
+    transform: translateY(-3px);
+    box-shadow:
+        0 0 0 1px rgba(0, 234, 255, 0.55),
+        0 0 26px rgba(0, 234, 255, 0.55),
+        0 18px 42px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.35),
+        inset 0 -10px 20px rgba(0,0,0,0.55);
+}
+
+/* Active = physical press */
+.mode-btn:active,
+.tool-btn:active {
+    transform: translateY(1px);
+    box-shadow:
+        0 0 18px rgba(0, 234, 255, 0.45),
+        0 6px 16px rgba(0,0,0,0.45),
+        inset 0 6px 14px rgba(0,0,0,0.65);
+}
+
+/* Active mode = stronger glow */
+.mode-btn.active {
+    border-color: #00eaff;
+    box-shadow:
+        0 0 0 1px #00eaff,
+        0 0 32px rgba(0,234,255,0.75),
+        0 22px 48px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.45),
+        inset 0 -12px 24px rgba(0,0,0,0.55);
+}
