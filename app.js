@@ -177,11 +177,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function closeChatUI(skipPush = false) {
-        if (!skipPush) history.pushState({}, "", "/");
+    if (!skipPush) history.pushState({}, "", "/");
 
-        chatScreen.classList.remove("active");
+    // start exit animation
+    chatScreen.classList.remove("active");
+
+    // WAIT for animation to finish before hiding
+    setTimeout(() => {
         blurBuffer.style.opacity = "0";
-        appWrapper.style.display = "block";
+
+        appWrapper.style.visibility = "visible";
+        appWrapper.style.pointerEvents = "auto";
+    }, 350); // MUST match CSS duration
     }
 
     fakeInput.addEventListener("click", () => openChatUI());
