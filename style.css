@@ -202,15 +202,7 @@ html, body {
 @keyframes neonSpin {
   to { transform: rotate(360deg); }
 }
-#fakeText {
-  letter-spacing: 0.3px;
-  animation: textBreath 3s ease-in-out infinite;
-}
-
-@keyframes textBreath {
-  0%,100% { opacity: 0.85; }
-  50%     { opacity: 1; }
-}/* ============================================================
+/* ============================================================
    HERO INPUT — UNIQUE NEON ENERGY FLOW
 ============================================================ */
 .neon-input-hero {
@@ -243,4 +235,13 @@ html, body {
 @keyframes heroFlow {
   0%   { transform: translateX(-120%) rotate(0deg); }
   100% { transform: translateX(120%) rotate(0deg); }
+}
+#fakeText {
+  letter-spacing: 0.3px;
+  animation: textBreath 3s ease-in-out infinite;
+}
+
+@keyframes textBreath {
+  0%,100% { opacity: 0.85; }
+  50%     { opacity: 1; }
 }
