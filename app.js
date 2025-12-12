@@ -158,6 +158,25 @@ document.addEventListener("DOMContentLoaded", () => {
         setCookie("leocore-user", userId);
         localStorage.setItem("leocore-user", userId);
     }
+   
+/* ============================================================
+       12. ADD MESSAGE
+    ============================================================ */
+    window.addMessage = function (text, sender) {
+        const wrap = document.createElement("div");
+        wrap.className = sender === "user" ? "user-msg" : "ai-msg";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = text;
+
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
+
+        scrollToBottom();
+        saveChat();
+    };
+
 
 
     /* ============================================================
@@ -181,24 +200,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
-
-/* ============================================================
-       12. ADD MESSAGE
-    ============================================================ */
-    window.addMessage = function (text, sender) {
-        const wrap = document.createElement("div");
-        wrap.className = sender === "user" ? "user-msg" : "ai-msg";
-
-        const bubble = document.createElement("div");
-        bubble.className = "bubble";
-        bubble.innerHTML = text;
-
-        wrap.appendChild(bubble);
-        messages.appendChild(wrap);
-
-        scrollToBottom();
-        saveChat();
-    };
 
 
     /* ============================================================
