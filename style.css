@@ -202,3 +202,45 @@ html, body {
 @keyframes neonSpin {
   to { transform: rotate(360deg); }
 }
+#fakeText {
+  letter-spacing: 0.3px;
+  animation: textBreath 3s ease-in-out infinite;
+}
+
+@keyframes textBreath {
+  0%,100% { opacity: 0.85; }
+  50%     { opacity: 1; }
+}/* ============================================================
+   HERO INPUT — UNIQUE NEON ENERGY FLOW
+============================================================ */
+.neon-input-hero {
+  isolation: isolate;
+}
+
+/* soft inner glass */
+.neon-input-hero::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.05),
+    rgba(0,0,0,0.25)
+  );
+}
+
+/* ENERGY SWEEP (unique to hero) */
+.neon-input-hero::before {
+  animation: heroFlow 4s linear infinite;
+  background: linear-gradient(
+    120deg,
+    transparent 20%,
+    rgba(0,234,255,0.9),
+    rgba(180,0,255,0.9),
+    rgba(255,59,212,0.9),
+    transparent 80%
+  );
+}
+
+/* slower, calmer motion */
+@keyframes heroFlow {
+  0%   { transform: translateX(-120%) rotate(0deg); }
+  100% { transform: translateX(120%) rotate(0deg); }
+}
