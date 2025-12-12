@@ -478,7 +478,7 @@ html, body,
 }
 
 /* Mode pill */
-mode-pill {
+.mode-pill {
     height: 44px;                 /* EXACT same as input */
     min-width: 56px;
 
