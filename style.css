@@ -473,7 +473,7 @@ html, body, .app-wrapper, #chatScreen {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
 
-    z-index: 10;
+    z-index: 1;
    #bgLayer,
    #bgVideo {
     position: fixed !important;
