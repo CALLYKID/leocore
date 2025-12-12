@@ -296,3 +296,239 @@ html, body,
     background: rgba(0, 30, 55, 0.65);
     border: 1.5px solid rgba(255,255,255,0.15);
 }
+/* ============================================================
+   SECTION 3 — CHAT UI (STABLE / LOCKED)
+   Purpose:
+   - Perfect input visibility
+   - Placeholder readable
+   - Streaming-follow button works
+   - ZERO interaction with home UI
+============================================================ */
+
+/* ============================================================
+   CHAT SCREEN CONTAINER
+============================================================ */
+
+#chatScreen {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    opacity: 0;
+    pointer-events: none;
+
+    background: transparent;
+    z-index: 9999;
+}
+
+#chatScreen.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ============================================================
+   CHAT HEADER
+============================================================ */
+
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 14px 18px;
+
+    background: rgba(0, 20, 35, 0.75);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+
+    backdrop-filter: blur(10px);
+}
+
+/* Header buttons */
+.back-btn,
+.clear-btn {
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+
+    background: rgba(0, 25, 45, 0.85);
+    color: #eaf9ff;
+
+    font-size: 18px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+/* Title */
+.chat-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #eaf9ff;
+}
+
+/* ============================================================
+   CHAT MESSAGES AREA
+============================================================ */
+
+.chat-messages {
+    flex: 1;
+    min-height: 0;
+
+    padding: 16px;
+    padding-bottom: 90px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    overflow-y: auto;
+
+    background: rgba(0, 10, 20, 0.65);
+    backdrop-filter: blur(8px);
+}
+
+/* Message rows */
+.user-msg {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.ai-msg {
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* Message bubbles */
+.bubble {
+    max-width: 85%;
+    padding: 14px 18px;
+    border-radius: 14px;
+
+    font-size: 15px;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+/* User */
+.user-msg .bubble {
+    background: #008cff;
+    color: #ffffff;
+}
+
+/* AI */
+.ai-msg .bubble {
+    background: #1f2a44;
+    color: #e9f4ff;
+}
+
+/* ============================================================
+   STREAMING INDICATOR / FOLLOW BUTTON
+============================================================ */
+
+.spiral-bubble {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 12px;
+    background: rgba(255,255,255,0.14);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    backdrop-filter: blur(8px);
+}
+
+.spiral-core {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+
+    background: #00eaff;
+}
+
+/* ============================================================
+   INPUT BAR (FIXED & READABLE)
+============================================================ */
+
+.chat-input-area {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+
+    width: 100%;
+    padding: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 14px);
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    background: rgba(0, 15, 30, 0.85);
+    border-top: 1px solid rgba(255,255,255,0.12);
+
+    backdrop-filter: blur(12px);
+    z-index: 20;
+}
+
+/* Mode pill */
+.mode-pill {
+    height: 40px;
+    padding: 0 12px;
+
+    border-radius: 12px;
+    border: 1.5px solid #00eaff;
+
+    background: rgba(0,0,0,0.35);
+    color: #00eaff;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Text input */
+#userInput {
+    flex: 1;
+    height: 44px;
+
+    border-radius: 12px;
+    border: 1.5px solid rgba(255,255,255,0.25);
+
+    background: rgba(0, 25, 45, 0.95);
+    color: #ffffff;
+
+    padding: 0 14px;
+    font-size: 15px;
+}
+
+/* Placeholder — FIXED VISIBILITY */
+#userInput::placeholder {
+    color: rgba(255,255,255,0.55);
+}
+
+/* Send button */
+#sendBtn {
+    width: 50px;
+    height: 44px;
+
+    border-radius: 12px;
+    border: none;
+
+    background: #00eaff;
+    color: #000;
+
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Stop mode */
+#sendBtn.stop-mode {
+    background: #ff004f;
+    color: #fff;
+}
