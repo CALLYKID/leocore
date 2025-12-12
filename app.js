@@ -1,42 +1,37 @@
-/* ============================================================
-   FIXED STREAMING TEXT (TYPE + DELETE)
-============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
   const fakeText = document.getElementById("fakeText");
-  if (!fakeText) return;
 
-  const messages = [
+  const phrases = [
     "Message LeoCore",
-    "Help me revise",
     "Build me a plan",
+    "Help me revise",
     "I'm ready",
-    "Make me a plan",
     "Give me a funny joke"
+     "Let's Chat"     
   ];
 
-  let msg = 0;
-  let char = 0;
+  let phraseIndex = 0;
+  let charIndex = 0;
   let deleting = false;
 
-  function loop() {
-    const text = messages[msg];
+  function typeLoop() {
+    const current = phrases[phraseIndex];
 
     if (!deleting) {
-      fakeText.textContent = text.slice(0, char++);
-      if (char > text.length) {
+      fakeText.textContent = current.slice(0, charIndex++);
+      if (charIndex > current.length) {
         setTimeout(() => deleting = true, 1200);
       }
     } else {
-      fakeText.textContent = text.slice(0, char--);
-      if (char < 0) {
+      fakeText.textContent = current.slice(0, charIndex--);
+      if (charIndex === 0) {
         deleting = false;
-        msg = (msg + 1) % messages.length;
-        char = 0;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
       }
     }
 
-    setTimeout(loop, deleting ? 45 : 70);
+    setTimeout(typeLoop, deleting ? 40 : 70);
   }
 
-  loop();
+  typeLoop();
 });
