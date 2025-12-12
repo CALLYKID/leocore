@@ -1,74 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>LeoCore</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LeoCore</title>
 
-<link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
 
-<!-- BACKGROUND -->
-<div id="bgLayer">
+  <!-- BACKGROUND VIDEO (UNCHANGED / YOUR IDENTITY) -->
   <video id="bgVideo" autoplay muted loop playsinline>
     <source src="waves.mp4" type="video/mp4">
   </video>
-</div>
 
-<!-- AMBIENT NEON -->
-<div class="neon-field"></div>
+  <main class="app-wrapper">
 
-<!-- HOME -->
-<div class="app-wrapper">
+    <!-- HERO -->
+    <section class="hero">
 
-  <div class="center-wrapper">
-    <div class="fake-input" id="fakeInput">
-      <span id="fakeText"></span>
-    </div>
+      <!-- FAKE INPUT (AUTO-SIZING) -->
+      <div class="fake-input neon-border glow">
+        <span id="fakeText">Message LeoCore</span>
+      </div>
 
-    <h1 class="main-title">LEOCORE</h1>
-    <p class="subtitle">Your AI. Your Vibe.</p>
+      <h1 class="title">LEOCORE</h1>
+      <p class="subtitle">Your AI. Your Vibe.</p>
 
-    <h2 class="section-title">Choose Your Mode</h2>
+    </section>
 
-    <div class="mode-grid">
-      <button class="mode-btn" data-mode="default">⚡ Default</button>
-      <button class="mode-btn" data-mode="study">📘 Study</button>
-      <button class="mode-btn" data-mode="research">🔬 Research</button>
-      <button class="mode-btn" data-mode="reading">📖 Reading</button>
-      <button class="mode-btn" data-mode="deep">🧠 Deep</button>
-      <button class="mode-btn" data-mode="chill">😎 Chill</button>
-      <button class="mode-btn" data-mode="precision">🎯 Precision</button>
-      <button class="mode-btn flame" data-mode="flame">🔥 Flame</button>
-    </div>
-  </div>
+    <!-- MODES -->
+    <section class="modes">
+      <button class="mode-btn neon-border glow">⚡ Default</button>
+      <button class="mode-btn neon-border glow">📘 Study</button>
+      <button class="mode-btn neon-border glow">🔬 Research</button>
+      <button class="mode-btn neon-border glow">📖 Reading</button>
+      <button class="mode-btn neon-border glow">🧠 Deep</button>
+      <button class="mode-btn neon-border glow">😎 Chill</button>
+      <button class="mode-btn neon-border glow">🎯 Precision</button>
+      <button class="mode-btn neon-border glow">🔥 Flame</button>
+    </section>
 
-</div>
+  </main>
 
-<!-- CHAT -->
-<div id="chatScreen">
-  <div class="chat-stage">
-
-    <header class="chat-header">
-      <button id="closeChat" class="back-btn">←</button>
-      <div class="chat-title">LEOCORE</div>
-      <button id="clearChat" class="clear-btn">🗑</button>
-    </header>
-
-    <div id="messages" class="chat-messages"></div>
-
-    <div class="chat-input">
-      <div class="mode-pill" id="modePill">DEF</div>
-      <input id="userInput" placeholder="Say something…" />
-      <button id="sendBtn">➤</button>
-    </div>
-
-  </div>
-</div>
-
-<script src="app.js"></script>
 </body>
 </html>
