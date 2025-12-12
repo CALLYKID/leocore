@@ -233,9 +233,3 @@ body {
 @keyframes shimmer { }
 @keyframes scan { }
 
-.neon-inner {
-  background: none !important;
-  animation: none !important;
-  filter: none !important;
-  transform: none !important;
-}
