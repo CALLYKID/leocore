@@ -1,5 +1,5 @@
 /* ============================================================
-   0. RESET + VARIABLES
+   RESET + VARIABLES
 ============================================================ */
 * {
   box-sizing: border-box;
@@ -24,13 +24,12 @@ html, body {
 }
 
 /* ============================================================
-   1. BACKGROUND VIDEO (AUTHENTICITY PRESERVED)
+   BACKGROUND VIDEO
 ============================================================ */
 #bgLayer {
   position: fixed;
   inset: 0;
   z-index: -10;
-  overflow: hidden;
 }
 
 #bgVideo {
@@ -40,7 +39,7 @@ html, body {
 }
 
 /* ============================================================
-   2. APP WRAPPER + OVERLAY
+   APP WRAPPER
 ============================================================ */
 .app-wrapper {
   min-height: 100svh;
@@ -55,14 +54,13 @@ html, body {
 }
 
 /* ============================================================
-   3. HERO SECTION
+   HERO
 ============================================================ */
 .center-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  margin-top: 12px;
 }
 
 .main-title {
@@ -77,27 +75,24 @@ html, body {
 }
 
 /* ============================================================
-   HERO INPUT — FINAL, FIXED, PREMIUM
+   HERO INPUT — UNIQUE SYSTEM (TEXT SAFE)
 ============================================================ */
-
 .hero-input {
   width: 320px;
   height: 56px;
   border-radius: 18px;
   border: none;
+  background: var(--bg-dark);
   position: relative;
   overflow: hidden;
 
-  background: rgba(6, 18, 30, 0.78);
-
-  /* CRITICAL: prevents overlays killing text */
+  /* THIS IS THE FIX THAT SAVES TEXT */
   isolation: isolate;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  /* premium idle presence */
   box-shadow:
     0 0 18px rgba(0,234,255,0.22),
     0 0 36px rgba(180,0,255,0.14);
@@ -105,27 +100,22 @@ html, body {
   animation: heroIdleGlow 6s ease-in-out infinite;
 }
 
-/* ------------------------------------------------------------
-   HERO TEXT — ALWAYS VISIBLE
------------------------------------------------------------- */
+/* HERO TEXT — ALWAYS ON TOP */
 .hero-text {
   position: relative;
-  z-index: 5; /* TOP LAYER */
+  z-index: 5;
   font-size: 17px;
   letter-spacing: 0.4px;
   white-space: nowrap;
   color: #eaf9ff;
-
   animation: heroTextBreath 3s ease-in-out infinite;
 }
 
-/* ------------------------------------------------------------
-   ENERGY SWEEP — BELOW TEXT
------------------------------------------------------------- */
+/* ENERGY SWEEP (BELOW TEXT) */
 .hero-energy {
   position: absolute;
   inset: 0;
-  z-index: 2; /* BELOW TEXT */
+  z-index: 2;
   pointer-events: none;
 
   background: linear-gradient(
@@ -141,50 +131,28 @@ html, body {
   animation: heroEnergyFlow 4s linear infinite;
 }
 
-/* ------------------------------------------------------------
-   INNER GLASS LAYER (SUBTLE)
------------------------------------------------------------- */
+/* INNER GLASS */
 .hero-input::after {
   content: "";
   position: absolute;
   inset: 2px;
   border-radius: 16px;
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.06),
-    rgba(0,0,0,0.25)
-  );
+  background:
+    radial-gradient(
+      120% 120% at 20% 0%,
+      rgba(0,234,255,0.08),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(0,0,0,0.28)
+    );
   z-index: 1;
-  pointer-events: none;
 }
 
 /* ============================================================
-   ANIMATIONS
-============================================================ */
-
-@keyframes heroEnergyFlow {
-  to { transform: translateX(120%); }
-}
-
-@keyframes heroIdleGlow {
-  0%,100% {
-    box-shadow:
-      0 0 16px rgba(0,234,255,0.20),
-      0 0 32px rgba(180,0,255,0.12);
-  }
-  50% {
-    box-shadow:
-      0 0 26px rgba(0,234,255,0.34),
-      0 0 52px rgba(180,0,255,0.22);
-  }
-}
-
-@keyframes heroTextBreath {
-  0%,100% { opacity: 0.88; }
-  50% { opacity: 1; }
-}
-/* ============================================================
-   6. MODES SECTION
+   MODES
 ============================================================ */
 .modes-wrapper {
   flex: 1;
@@ -198,7 +166,6 @@ html, body {
   margin: 26px 0 18px;
 }
 
-/* grid fills screen */
 .mode-grid {
   flex: 1;
   display: grid;
@@ -206,9 +173,7 @@ html, body {
   gap: 16px;
 }
 
-/* ============================================================
-   7. MODE BUTTONS (SEPARATE SYSTEM)
-============================================================ */
+/* MODE BUTTONS — SEPARATE SYSTEM */
 .neon-btn {
   min-height: 68px;
   border-radius: 20px;
@@ -225,14 +190,12 @@ html, body {
   z-index: 3;
 }
 
-/* neon border */
 .neon-btn::before {
   content: "";
   position: absolute;
   inset: -2px;
   border-radius: inherit;
   background: conic-gradient(
-    from 0deg,
     var(--neon-a),
     var(--neon-b),
     var(--neon-c),
@@ -241,7 +204,6 @@ html, body {
   animation: neonSpin 3.6s linear infinite;
 }
 
-/* inner cut */
 .neon-btn::after {
   content: "";
   position: absolute;
@@ -251,15 +213,7 @@ html, body {
 }
 
 /* ============================================================
-   8. INTERACTION
-============================================================ */
-.neon-btn:active,
-.hero-input:active {
-  transform: scale(0.98);
-}
-
-/* ============================================================
-   9. ANIMATIONS
+   ANIMATIONS
 ============================================================ */
 @keyframes neonSpin {
   to { transform: rotate(360deg); }
@@ -277,8 +231,8 @@ html, body {
   }
   50% {
     box-shadow:
-      0 0 24px rgba(0,234,255,0.30),
-      0 0 50px rgba(180,0,255,0.22);
+      0 0 26px rgba(0,234,255,0.34),
+      0 0 52px rgba(180,0,255,0.22);
   }
 }
 
