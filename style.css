@@ -542,3 +542,96 @@ mode-pill {
     background: #ff004f;
     color: #fff;
 }
+/* ============================================================
+   SECTION 4A — HOME BUTTON NEON (SAFE, NO CHAT)
+   Applies ONLY to .mode-btn and .tool-btn
+============================================================ */
+
+/* Guard: never affects chat */
+#chatScreen .mode-btn,
+#chatScreen .tool-btn {
+    all: unset;
+}
+
+/* Neon outline */
+.mode-btn::after,
+.tool-btn::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+
+    padding: 2px;
+
+    background: linear-gradient(
+        120deg,
+        #00eaff,
+        #7c3aed,
+        #ff00cc,
+        #00eaff
+    );
+
+    background-size: 300% 300%;
+    animation: neonFlow 6s linear infinite;
+
+    /* show ONLY border */
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.75;
+}
+
+/* Soft glow halo */
+.mode-btn::before,
+.tool-btn::before {
+    content: "";
+    position: absolute;
+    inset: -8px;
+    border-radius: inherit;
+
+    background: radial-gradient(
+        circle,
+        rgba(0,234,255,0.35),
+        transparent 70%
+    );
+
+    filter: blur(16px);
+    opacity: 0.55;
+
+    animation: neonFlow 6s linear infinite;
+    pointer-events: none;
+    z-index: -2;
+}
+
+/* Hover = faster energy */
+.mode-btn:hover::after,
+.tool-btn:hover::after {
+    animation-duration: 3.5s;
+    opacity: 1;
+}
+
+/* Active mode = powered */
+.mode-btn.active::after {
+    animation-duration: 2.5s;
+    opacity: 1;
+}
+
+/* Animation */
+@keyframes neonFlow {
+    0%   { background-position:   0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+/* Mobile safety */
+@media (max-width: 600px) {
+    .mode-btn::after,
+    .tool-btn::after {
+        animation-duration: 8s;
+        opacity: 0.6;
+    }
+}
