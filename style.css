@@ -521,6 +521,22 @@ mode-pill {
 #userInput::placeholder {
     color: rgba(255,255,255,0.55);
 }
+/* ============================================================
+   INPUT PLACEHOLDER — PREMIUM & READABLE
+============================================================ */
+
+#userInput::placeholder {
+    color: rgba(200, 245, 255, 0.55);
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    text-shadow: 0 0 6px rgba(0, 234, 255, 0.35);
+}
+
+/* When user focuses input */
+#userInput:focus::placeholder {
+    opacity: 0.25;
+    text-shadow: none;
+}
 
 /* Send button */
 #sendBtn {
@@ -601,4 +617,26 @@ mode-pill {
         0 22px 48px rgba(0,0,0,0.6),
         inset 0 1px 0 rgba(255,255,255,0.45),
         inset 0 -12px 24px rgba(0,0,0,0.55);
+}
+/* ============================================================
+   CHAT ENTER ANIMATION — FIXED SLIDE UP
+============================================================ */
+
+#chatScreen {
+    transform: translateY(24px);
+    opacity: 0;
+    transition:
+        transform 0.35s cubic-bezier(.2,.8,.2,1),
+        opacity 0.25s ease;
+}
+
+#chatScreen.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+#userInput:focus {
+    border-color: #00eaff;
+    box-shadow:
+        0 0 0 1px rgba(0,234,255,0.45),
+        inset 0 0 14px rgba(0,234,255,0.25);
 }
