@@ -182,6 +182,24 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("leocore-chat", JSON.stringify(arr));
     }
 
+/* ============================================================
+       12. ADD MESSAGE
+    ============================================================ */
+    window.addMessage = function (text, sender) {
+        const wrap = document.createElement("div");
+        wrap.className = sender === "user" ? "user-msg" : "ai-msg";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = text;
+
+        wrap.appendChild(bubble);
+        messages.appendChild(wrap);
+
+        scrollToBottom();
+        saveChat();
+    };
+
 
     /* ============================================================
        10. HOMEPAGE AUTO-TYPING (FAKE INPUT)
@@ -266,26 +284,6 @@ document.addEventListener("DOMContentLoaded", () => {
             openChatUI();
         });
     });
-
-
-    /* ============================================================
-       12. ADD MESSAGE
-    ============================================================ */
-    window.addMessage = function (text, sender) {
-        const wrap = document.createElement("div");
-        wrap.className = sender === "user" ? "user-msg" : "ai-msg";
-
-        const bubble = document.createElement("div");
-        bubble.className = "bubble";
-        bubble.innerHTML = text;
-
-        wrap.appendChild(bubble);
-        messages.appendChild(wrap);
-
-        scrollToBottom();
-        saveChat();
-    };
-
 
     /* ============================================================
        13. TYPING INDICATOR
