@@ -9,7 +9,9 @@ document.addEventListener("DOMContentLoaded", () => {
     "Message LeoCore",
     "Help me revise",
     "Build me a plan",
-    "I'm ready"
+    "I'm ready",
+    "Make me a plan",
+    "Give me a funny joke"
   ];
 
   let msg = 0;
