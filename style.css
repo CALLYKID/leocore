@@ -242,3 +242,59 @@ html, body {
   0%,100% { opacity: 0.85; }
   50% { opacity: 1; }
 }
+.hero-input {
+  width: 320px;
+  height: 56px;
+  border-radius: 18px;
+  background: rgba(6, 18, 30, 0.78);
+  border: none;
+  position: relative;
+  overflow: hidden;
+
+  /* permanent premium presence */
+  box-shadow:
+    0 0 22px rgba(0,234,255,0.25),
+    0 0 44px rgba(180,0,255,0.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-text {
+  position: relative;
+  z-index: 5;
+  font-size: 17px;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  color: #eaf9ff;
+
+  /* subtle life even when idle */
+  animation: heroTextBreath 3s ease-in-out infinite;
+}
+
+@keyframes heroTextBreath {
+  0%,100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+.hero-energy {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+
+  background: linear-gradient(
+    120deg,
+    transparent 25%,
+    rgba(0,234,255,0.9),
+    rgba(180,0,255,0.9),
+    rgba(255,59,212,0.9),
+    transparent 75%
+  );
+
+  transform: translateX(-120%);
+  animation: heroEnergyFlow 3.8s ease-in-out infinite;
+}
+
+@keyframes heroEnergyFlow {
+  to { transform: translateX(120%); }
+}
