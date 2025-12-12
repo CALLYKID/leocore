@@ -1,5 +1,5 @@
 /* ============================================================
-   FAKE INPUT — SAFE, MATCHED, NO SIDE EFFECTS
+   FAKE INPUT — CLEAN STREAMING (BUG-FREE)
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
@@ -15,50 +15,50 @@ document.addEventListener("DOMContentLoaded", () => {
     "I'm ready"
   ];
 
-  let i = 0;
+  let promptIndex = 0;
+  let charIndex = 0;
+  let widthLocked = false;
 
-  function resizeToText(text) {
-    const span = document.createElement("span");
-    span.style.visibility = "hidden";
-    span.style.position = "absolute";
-    span.style.whiteSpace = "nowrap";
-    span.style.font = getComputedStyle(fakeText).font;
-    span.textContent = text;
+  function lockWidth(text) {
+    const probe = document.createElement("span");
+    probe.style.position = "absolute";
+    probe.style.visibility = "hidden";
+    probe.style.whiteSpace = "nowrap";
+    probe.style.font = getComputedStyle(fakeText).font;
+    probe.textContent = text;
 
-    document.body.appendChild(span);
-    const w = span.getBoundingClientRect().width;
-    span.remove();
+    document.body.appendChild(probe);
+    fakeInput.style.width = Math.ceil(probe.offsetWidth + 64) + "px";
+    probe.remove();
 
-    fakeInput.style.width = Math.ceil(w + 64) + "px";
+    widthLocked = true;
   }
 
-  resizeToText(fakeText.textContent);
+  function typeNextChar() {
+    const text = prompts[promptIndex];
 
-  setInterval(() => {
-    i = (i + 1) % prompts.length;
-    fakeText.textContent = prompts[i];
-    resizeToText(prompts[i]);
-  }, 2200);
+    fakeText.textContent = text.slice(0, charIndex);
+    charIndex++;
+
+    if (charIndex <= text.length) {
+      setTimeout(typeNextChar, 70);
+    } else {
+      // lock width ONCE after first sentence finishes
+      if (!widthLocked) lockWidth(text);
+
+      // pause fully rendered text
+      setTimeout(() => {
+        charIndex = 0;
+        fakeText.textContent = "";
+        promptIndex = (promptIndex + 1) % prompts.length;
+        setTimeout(typeNextChar, 300);
+      }, 1400);
+    }
+  }
+
+  typeNextChar();
 
 });
-const fakeText = document.getElementById("fakeText");
-
-const streamText = "Message LeoCore";
-let i = 0;
-
-function streamType() {
-  fakeText.textContent = streamText.slice(0, i);
-  i++;
-
-  if (i <= streamText.length) {
-    setTimeout(streamType, 80);
-  } else {
-    i = 0;
-    setTimeout(streamType, 1200);
-  }
-}
-
-streamType();
 /* ============================================================
    LEOCORE — APP JS (MATCHED & SAFE)
 ============================================================ */
