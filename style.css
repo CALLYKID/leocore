@@ -18,7 +18,10 @@ html, body {
     color: #fff;
     font-family: 'Inter', sans-serif;
 }
-
+html, body {
+    height: 100%;
+    overflow: hidden !important;
+}
 /* C2 BACKGROUND — TRUE CENTER, NO ZOOM BUG */
 #bgLayer {
     position: fixed;
@@ -460,4 +463,23 @@ html, body, .app-wrapper, #chatScreen {
     margin-top: 8px;
     font-size: 14px;
     color: rgba(200,255,255,0.65);
+}
+.app-wrapper {
+    position: relative;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+
+    z-index: 10;
+   #bgLayer,
+   #bgVideo {
+    position: fixed !important;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+
+    pointer-events: none;
 }
