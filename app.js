@@ -13,32 +13,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let phraseIndex = 0;
   let charIndex = 0;
-  let mode = "typing"; // typing | pausing | deleting
+  let state = "typing"; // typing | pausing | deleting
 
   function loop() {
     const current = phrases[phraseIndex];
 
-    if (mode === "typing") {
+    if (state === "typing") {
       fakeText.textContent = current.slice(0, charIndex + 1);
       charIndex++;
 
       if (charIndex === current.length) {
-        mode = "pausing";
-        setTimeout(() => mode = "deleting", 1200);
+        state = "pausing";
+        setTimeout(() => {
+          state = "deleting";
+        }, 1200);
       }
     }
 
-    else if (mode === "deleting") {
+    else if (state === "deleting") {
       fakeText.textContent = current.slice(0, charIndex - 1);
       charIndex--;
 
       if (charIndex === 0) {
-        mode = "typing";
+        state = "typing";
         phraseIndex = (phraseIndex + 1) % phrases.length;
       }
     }
 
-    setTimeout(loop, mode === "deleting" ? 40 : 70);
+    setTimeout(loop, state === "deleting" ? 40 : 70);
   }
 
   loop();
