@@ -1,5 +1,9 @@
 /* ============================================================
-   0. REAL VIEWPORT FIX
+   PART 1 / 2 — CORE, ROUTING, UI STATE
+============================================================ */
+
+/* ============================================================
+   0. REAL VIEWPORT FIX (ANDROID SAFE)
 ============================================================ */
 function fixVh() {
     const vh = window.innerHeight * 0.01;
@@ -11,7 +15,7 @@ document.addEventListener("DOMContentLoaded", fixVh);
 
 
 /* ============================================================
-   1. DEV ERROR POPUP
+   1. DEV ERROR POPUP (DEBUG ONLY)
 ============================================================ */
 window.onerror = function (msg, src, line) {
     document.body.insertAdjacentHTML(
@@ -23,7 +27,7 @@ window.onerror = function (msg, src, line) {
             color:red;
             padding:8px;
             border:1px solid red;
-            z-index:999999999;">
+            z-index:999999;">
             <b>${msg}</b><br>Line: ${line}
         </div>`
     );
@@ -31,61 +35,111 @@ window.onerror = function (msg, src, line) {
 
 
 /* ============================================================
-   2. DOMContentLoaded — ALL APP LOGIC
+   2. GLOBAL STATE
+============================================================ */
+let isStreaming = false;
+let cancelStream = false;
+let ignoreNextResponse = false;
+
+
+/* ============================================================
+   3. DOM READY — CORE SETUP
 ============================================================ */
 document.addEventListener("DOMContentLoaded", () => {
 
-    /* ELEMENTS */
-    const chatScreen  = document.getElementById("chatScreen");
-    const closeChat   = document.getElementById("closeChat");
-    const clearBtn    = document.getElementById("clearChat");
-    const messages    = document.getElementById("messages");
-    const fakeInput   = document.getElementById("fakeInput");
-    const fakeText    = document.getElementById("fakeText");
-    const input       = document.getElementById("userInput");
-    const sendBtn     = document.getElementById("sendBtn");
-    const modePill    = document.getElementById("modePill");
-    const blurBuffer  = document.getElementById("chatBlurBuffer");
-    const appWrapper  = document.querySelector(".app-wrapper");
-
-    let scrollRAF = false;
-    let isStreaming = false;
-    let cancelStream = false;
-    let ignoreNextResponse = false;
+    /* ================= ELEMENTS ================= */
+    window.chatScreen  = document.getElementById("chatScreen");
+    window.closeChat   = document.getElementById("closeChat");
+    window.clearBtn    = document.getElementById("clearChat");
+    window.messages    = document.getElementById("messages");
+    window.fakeInput   = document.getElementById("fakeInput");
+    window.fakeText    = document.getElementById("fakeText");
+    window.input       = document.getElementById("userInput");
+    window.sendBtn     = document.getElementById("sendBtn");
+    window.modePill    = document.getElementById("modePill");
+    window.blurBuffer  = document.getElementById("chatBlurBuffer");
+    window.appWrapper  = document.querySelector(".app-wrapper");
 
 
     /* ============================================================
-       3. AUTO SCROLL — FIX FOR YOUR ERROR
+       4. SCROLL ENGINE
     ============================================================ */
-    function scrollToBottom() {
+    window.scrollToBottom = function () {
         messages.scrollTop = messages.scrollHeight;
-    }
+    };
 
 
     /* ============================================================
-       4. BACKEND WARM-UP
+       5. OPEN / CLOSE CHAT (FIXED + FAST)
     ============================================================ */
-    if (!window.__leoWarm__) {
-        window.__leoWarm__ = true;
+    window.openChatUI = function (skipPush = false) {
+        if (!skipPush && location.pathname !== "/chat") {
+            history.pushState({ chat: true }, "", "/chat");
+        }
 
-        const warm = (msg) =>
-            fetch("https://leocore.onrender.com/api/chat", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    message: msg,
-                    userId: "warm",
-                    name: "warm"
-                })
-            }).catch(() => {});
-        
-        warm("boot1");
-        setTimeout(() => warm("boot2"), 900);
-    }
+        blurBuffer.style.opacity = "1";
+
+        chatScreen.classList.add("active");
+        chatScreen.style.pointerEvents = "auto";
+
+        appWrapper.style.visibility = "hidden";
+        appWrapper.style.pointerEvents = "none";
+
+        requestAnimationFrame(() => {
+            input.focus();
+            scrollToBottom();
+        });
+    };
+
+    window.closeChatUI = function (skipPush = false) {
+        if (!skipPush && location.pathname === "/chat") {
+            history.back();
+            return;
+        }
+
+        chatScreen.classList.remove("active");
+
+        setTimeout(() => {
+            blurBuffer.style.opacity = "0";
+            chatScreen.style.pointerEvents = "none";
+
+            appWrapper.style.visibility = "visible";
+            appWrapper.style.pointerEvents = "auto";
+        }, 350);
+    };
 
 
     /* ============================================================
-       5. USER ID SYSTEM
+       6. CLICK HANDLERS
+    ============================================================ */
+    fakeInput.addEventListener("click", openChatUI);
+    closeChat.addEventListener("click", closeChatUI);
+
+
+    /* ============================================================
+       7. ANDROID / BROWSER BACK BUTTON (INSTANT)
+    ============================================================ */
+    window.onpopstate = () => {
+        if (location.pathname === "/chat") {
+            openChatUI(true);
+        } else {
+            closeChatUI(true);
+        }
+    };
+
+    if (location.pathname === "/chat") {
+        openChatUI(true);
+    }
+
+});
+/* ============================================================
+   PART 2 / 2 — CHAT ENGINE, STREAMING, TOOLS
+============================================================ */
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    /* ============================================================
+       8. USER ID SYSTEM (PERSISTENT)
     ============================================================ */
     function getCookie(name) {
         const m = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
@@ -107,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       6. RESTORE CHAT HISTORY
+       9. RESTORE CHAT HISTORY
     ============================================================ */
     const saved = JSON.parse(localStorage.getItem("leocore-chat") || "[]");
 
@@ -130,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       7. HOMEPAGE AUTO-TYPING
+       10. HOMEPAGE AUTO-TYPING (FAKE INPUT)
     ============================================================ */
     const prompts = [
         "Message LeoCore…",
@@ -165,37 +219,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ============================================================
-       8. OPEN / CLOSE CHAT (UNTOUCHED; ROUTING ADDED IN PART 2)
-    ============================================================ */
-
-    function openChatUI(skipPush = false) {
-    if (!skipPush) history.pushState({}, "", "/chat");
-
-    blurBuffer.style.opacity = "1";
-
-    chatScreen.classList.add("active");
-    chatScreen.style.pointerEvents = "auto";
-
-    appWrapper.style.visibility = "hidden";
-    appWrapper.style.pointerEvents = "none";
-}
-
-function closeChatUI(skipPush = false) {
-    if (!skipPush) history.pushState({}, "", "/");
-
-    chatScreen.classList.remove("active");
-
-    setTimeout(() => {
-        blurBuffer.style.opacity = "0";
-
-        chatScreen.style.pointerEvents = "none";
-
-        appWrapper.style.visibility = "visible";
-        appWrapper.style.pointerEvents = "auto";
-    }, 350);
-}
-                          /* ============================================================
-       9. MODE SYSTEM
+       11. MODE SYSTEM
     ============================================================ */
     const modeThemes = {
         default:   "#00eaff",
@@ -237,7 +261,6 @@ function closeChatUI(skipPush = false) {
                 .forEach((b) => b.classList.remove("active"));
 
             btn.classList.add("active");
-
             updateModePill();
 
             openChatUI();
@@ -246,9 +269,9 @@ function closeChatUI(skipPush = false) {
 
 
     /* ============================================================
-       10. ADD MESSAGE
+       12. ADD MESSAGE
     ============================================================ */
-    function addMessage(text, sender) {
+    window.addMessage = function (text, sender) {
         const wrap = document.createElement("div");
         wrap.className = sender === "user" ? "user-msg" : "ai-msg";
 
@@ -261,11 +284,11 @@ function closeChatUI(skipPush = false) {
 
         scrollToBottom();
         saveChat();
-    }
+    };
 
 
     /* ============================================================
-       11. TYPING INDICATOR
+       13. TYPING INDICATOR
     ============================================================ */
     function createTypingBubble() {
         const wrap = document.createElement("div");
@@ -287,7 +310,7 @@ function closeChatUI(skipPush = false) {
 
 
     /* ============================================================
-       12. STREAM MESSAGE
+       14. STREAM MESSAGE (TOKEN SAFE)
     ============================================================ */
     async function streamMessage(full, flame = false) {
         isStreaming = true;
@@ -313,7 +336,6 @@ function closeChatUI(skipPush = false) {
         scrollToBottom();
 
         let i = 0;
-
         const speed = () =>
             flame ? (5 + Math.random() * 7) : (14 + Math.random() * 18);
 
@@ -334,7 +356,7 @@ function closeChatUI(skipPush = false) {
 
 
     /* ============================================================
-       13. SEND MESSAGE ENGINE
+       15. SEND MESSAGE ENGINE
     ============================================================ */
     async function sendMessage() {
         if (!input.value.trim()) return;
@@ -355,7 +377,6 @@ function closeChatUI(skipPush = false) {
         sendBtn.innerHTML = "■";
 
         const typing = createTypingBubble();
-
         const mode = localStorage.getItem("leocore-mode") || "default";
         const flame = mode === "flame";
 
@@ -377,7 +398,6 @@ function closeChatUI(skipPush = false) {
             if (!ignoreNextResponse) {
                 await streamMessage(data.reply, flame);
             }
-
             ignoreNextResponse = false;
 
         } catch {
@@ -390,7 +410,6 @@ function closeChatUI(skipPush = false) {
         sendBtn.innerHTML = "➤";
     }
 
-
     sendBtn.addEventListener("click", sendMessage);
     input.addEventListener("keydown", (e) => {
         if (e.key === "Enter") sendMessage();
@@ -398,7 +417,7 @@ function closeChatUI(skipPush = false) {
 
 
     /* ============================================================
-       14. HOLD TO FULL WIPE
+       16. HOLD TO CLEAR CHAT
     ============================================================ */
     let holdTimer = null;
     let holdActive = false;
@@ -406,46 +425,19 @@ function closeChatUI(skipPush = false) {
     clearBtn.addEventListener("pointerdown", () => {
         holdTimer = setTimeout(() => {
             holdActive = true;
-            fullWipe();
+            messages.innerHTML = "";
+            localStorage.removeItem("leocore-chat");
         }, 850);
     });
 
     clearBtn.addEventListener("pointerup", () => {
-        if (!holdActive) {
-            messages.innerHTML = "";
-            localStorage.removeItem("leocore-chat");
-        }
         holdActive = false;
         clearTimeout(holdTimer);
     });
 
-    function fullWipe() {
-        const overlay = document.createElement("div");
-        overlay.id = "wipeOverlay";
-        overlay.innerHTML = `
-            <div class="wipe-container">
-                <div class="wipe-loader"></div>
-                <div class="wipe-text">Clearing data…</div>
-            </div>
-        `;
-
-        document.body.appendChild(overlay);
-
-        requestAnimationFrame(() => overlay.classList.add("show"));
-
-        setTimeout(() => {
-            localStorage.clear();
-            messages.innerHTML = "";
-            chatScreen.classList.remove("active");
-
-            overlay.classList.remove("show");
-            setTimeout(() => overlay.remove(), 300);
-        }, 1500);
-    }
-
 
     /* ============================================================
-       15. QUICK TOOLS
+       17. QUICK TOOLS
     ============================================================ */
     const toolPrompts = {
         summarise: "Summarise this text:",
@@ -463,30 +455,10 @@ function closeChatUI(skipPush = false) {
 
 
     /* ============================================================
-       16. KEEP SERVER WARM
+       18. KEEP SERVER WARM
     ============================================================ */
     setInterval(() => {
         fetch("https://leocore.onrender.com/ping").catch(() => {});
     }, 45000);
 
-
-
-    /* ============================================================
-       17. CLEAN URL ROUTING SYSTEM (NEW)
-    ============================================================ */
-
-    // Back button handling
-    window.onpopstate = () => {
-        if (location.pathname === "/chat") {
-            openChatUI(true);  // skipPush prevents infinite push-loop
-        } else {
-            closeChatUI(true);
-        }
-    };
-
-    // Auto-open chat if user goes directly to /chat
-    if (location.pathname === "/chat") {
-        openChatUI(true);
-    }
-
-}); // END DOMContentLoaded
+});
