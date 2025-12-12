@@ -46,16 +46,11 @@ html, body {
   padding: 28px 18px 48px;
   display: flex;
   flex-direction: column;
+  position: relative;
+  z-index: 1;
 
-  /* lighter, cinematic overlay */
-  background:
-    radial-gradient(
-      120% 120% at 50% 0%,
-      rgba(0,0,0,0.35),
-      rgba(0,0,0,0.65)
-    );
+  background: transparent; /* IMPORTANT */
 }
-
 /* ============================================================
    HERO
 ============================================================ */
