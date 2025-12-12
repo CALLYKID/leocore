@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const fakeText = document.getElementById("fakeText");
+  const fakeText = document.getElementById("heroText");
   if (!fakeText) return;
 
   const phrases = [
