@@ -86,7 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
         appWrapper.style.pointerEvents = "none";
 
         requestAnimationFrame(() => {
-            input.focus({preventScroll: true});
             scrollToBottom();
         });
     };
