@@ -77,62 +77,112 @@ html, body {
 }
 
 /* ============================================================
-   4. HERO INPUT — UNIQUE COMPONENT (NOT SHARED)
+   HERO INPUT — FINAL, FIXED, PREMIUM
 ============================================================ */
+
 .hero-input {
   width: 320px;
   height: 56px;
   border-radius: 18px;
-  background: var(--bg-dark);
   border: none;
   position: relative;
   overflow: hidden;
+
+  background: rgba(6, 18, 30, 0.78);
+
+  /* CRITICAL: prevents overlays killing text */
+  isolation: isolate;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  /* permanent premium presence */
+  /* premium idle presence */
   box-shadow:
-    0 0 20px rgba(0,234,255,0.22),
-    0 0 42px rgba(180,0,255,0.16);
+    0 0 18px rgba(0,234,255,0.22),
+    0 0 36px rgba(180,0,255,0.14);
 
   animation: heroIdleGlow 6s ease-in-out infinite;
 }
 
-/* hero text */
+/* ------------------------------------------------------------
+   HERO TEXT — ALWAYS VISIBLE
+------------------------------------------------------------ */
 .hero-text {
   position: relative;
-  z-index: 4;
+  z-index: 5; /* TOP LAYER */
   font-size: 17px;
   letter-spacing: 0.4px;
   white-space: nowrap;
   color: #eaf9ff;
+
   animation: heroTextBreath 3s ease-in-out infinite;
 }
 
-/* ============================================================
-   5. HERO ENERGY SWEEP (HERO ONLY)
-============================================================ */
+/* ------------------------------------------------------------
+   ENERGY SWEEP — BELOW TEXT
+------------------------------------------------------------ */
 .hero-energy {
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: 2; /* BELOW TEXT */
   pointer-events: none;
 
   background: linear-gradient(
     120deg,
-    transparent 25%,
-    rgba(0,234,255,0.95),
-    rgba(180,0,255,0.95),
-    rgba(255,59,212,0.95),
-    transparent 75%
+    transparent 30%,
+    rgba(0,234,255,0.85),
+    rgba(180,0,255,0.85),
+    rgba(255,59,212,0.85),
+    transparent 70%
   );
 
   transform: translateX(-120%);
-  animation: heroEnergyFlow 3.8s linear infinite;
+  animation: heroEnergyFlow 4s linear infinite;
 }
 
+/* ------------------------------------------------------------
+   INNER GLASS LAYER (SUBTLE)
+------------------------------------------------------------ */
+.hero-input::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.06),
+    rgba(0,0,0,0.25)
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* ============================================================
+   ANIMATIONS
+============================================================ */
+
+@keyframes heroEnergyFlow {
+  to { transform: translateX(120%); }
+}
+
+@keyframes heroIdleGlow {
+  0%,100% {
+    box-shadow:
+      0 0 16px rgba(0,234,255,0.20),
+      0 0 32px rgba(180,0,255,0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 26px rgba(0,234,255,0.34),
+      0 0 52px rgba(180,0,255,0.22);
+  }
+}
+
+@keyframes heroTextBreath {
+  0%,100% { opacity: 0.88; }
+  50% { opacity: 1; }
+}
 /* ============================================================
    6. MODES SECTION
 ============================================================ */
