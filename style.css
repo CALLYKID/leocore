@@ -675,3 +675,234 @@ html, body,
 .chat-input-area {
     background-clip: padding-box;
    }
+/* ============================================================
+   SECTION 1 — GLASS NEON OUTLINE (MEDIUM SPEED)
+   Safe: no z-index issues, no overlays, no chat changes
+============================================================ */
+
+/* Base safety */
+.mode-btn,
+.tool-btn {
+    position: relative;
+    isolation: isolate; /* prevents bleed into background */
+    overflow: hidden;
+}
+
+/* Neon outline layer */
+.mode-btn::after,
+.tool-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px; /* outline thickness */
+
+    background: linear-gradient(
+        120deg,
+        #00f6ff,
+        #3b82f6,
+        #8b5cf6,
+        #00f6ff
+    );
+
+    background-size: 300% 300%;
+    animation: neon-outline-flow 6s linear infinite;
+
+    /* Mask so only border shows */
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Soft outer glow */
+.mode-btn::before,
+.tool-btn::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: inherit;
+
+    background: linear-gradient(
+        120deg,
+        rgba(0,246,255,0.45),
+        rgba(139,92,246,0.35),
+        rgba(0,246,255,0.45)
+    );
+
+    filter: blur(14px);
+    opacity: 0.75;
+
+    animation: neon-outline-flow 6s linear infinite;
+    pointer-events: none;
+    z-index: -2;
+}
+
+/* Animation */
+@keyframes neon-outline-flow {
+    0%   { background-position:   0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position:   0% 50%; }
+}
+
+/* Hover = premium lift */
+.mode-btn:hover,
+.tool-btn:hover {
+    transform: translateY(-3px);
+}
+
+/* Active = physical press */
+.mode-btn:active,
+.tool-btn:active {
+    transform: translateY(1px);
+}
+/* ============================================================
+   SECTION 2 — PREMIUM 3D DEPTH + HARDWARE MOTION
+   Safe: transform-only, no layout or z-index changes
+============================================================ */
+
+/* Base 3D depth */
+.mode-btn,
+.tool-btn {
+    transform-style: preserve-3d;
+    will-change: transform;
+
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, 0.45),          /* ground shadow */
+        inset 0 1px 0 rgba(255,255,255,0.28),    /* top light */
+        inset 0 -6px 14px rgba(0,0,0,0.45);      /* bottom depth */
+
+    transition:
+        transform 0.22s cubic-bezier(.2,.8,.2,1),
+        box-shadow 0.22s ease;
+}
+
+/* Hover = premium lift + slight tilt */
+.mode-btn:hover,
+.tool-btn:hover {
+    transform:
+        translateY(-4px)
+        rotateX(1.2deg);
+
+    box-shadow:
+        0 18px 42px rgba(0, 0, 0, 0.55),
+        inset 0 1px 0 rgba(255,255,255,0.35),
+        inset 0 -8px 18px rgba(0,0,0,0.55);
+}
+
+/* Active = physical press */
+.mode-btn:active,
+.tool-btn:active {
+    transform:
+        translateY(2px)
+        rotateX(0deg);
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,0.45),
+        inset 0 4px 14px rgba(0,0,0,0.65);
+}
+
+/* Active mode = powered hardware */
+.mode-btn.active {
+    box-shadow:
+        0 22px 48px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255,255,255,0.45),
+        inset 0 -10px 22px rgba(0,0,0,0.55);
+}
+/* ============================================================
+   SECTION 3 — ANIMATED NEON OUTLINE (SAFE / GPU ONLY)
+   Inspired by sci-fi hardware + neon plasma
+============================================================ */
+
+/* Enable isolated outline layer */
+.mode-btn,
+.tool-btn {
+    position: relative;
+    isolation: isolate;
+}
+
+/* Animated neon outline */
+.mode-btn::after,
+.tool-btn::after {
+    content: "";
+    position: absolute;
+    inset: -2px; /* outline thickness */
+    border-radius: inherit;
+
+    background: linear-gradient(
+        120deg,
+        #00eaff,
+        #7cff00,
+        #ff00cc,
+        #00eaff
+    );
+
+    background-size: 300% 300%;
+    animation: neonFlow 4.5s linear infinite;
+
+    /* MASK so ONLY the border shows */
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    padding: 2px;
+
+    opacity: 0.75;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Subtle outer glow (depth) */
+.mode-btn::before,
+.tool-btn::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: inherit;
+
+    background: radial-gradient(
+        circle,
+        rgba(0,255,255,0.25),
+        transparent 70%
+    );
+
+    opacity: 0.45;
+    filter: blur(12px);
+
+    pointer-events: none;
+    z-index: -2;
+}
+
+/* Active mode = stronger power */
+.mode-btn.active::after {
+    opacity: 1;
+    animation-duration: 3s;
+}
+
+/* Hover = faster energy flow */
+.mode-btn:hover::after,
+.tool-btn:hover::after {
+    animation-duration: 2.8s;
+    opacity: 0.95;
+}
+
+/* Animation */
+@keyframes neonFlow {
+    0%   { background-position:   0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+
+/* Mobile safety — slightly calmer */
+@media (max-width: 600px) {
+    .mode-btn::after,
+    .tool-btn::after {
+        animation-duration: 6s;
+        opacity: 0.6;
+    }
+}
