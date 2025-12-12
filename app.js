@@ -86,27 +86,25 @@ document.addEventListener("DOMContentLoaded", () => {
         appWrapper.style.pointerEvents = "none";
 
         requestAnimationFrame(() => {
-            input.focus();
+            input.focus({preventScroll: true});
             scrollToBottom();
         });
     };
 
     window.closeChatUI = function (skipPush = false) {
-        if (!skipPush && location.pathname === "/chat") {
-            history.back();
-            return;
-        }
+    if (!skipPush && location.pathname === "/chat") {
+        history.back();
+        return;
+    }
 
-        chatScreen.classList.remove("active");
+    chatScreen.classList.remove("active");
+    chatScreen.style.pointerEvents = "none";
 
-        setTimeout(() => {
-            blurBuffer.style.opacity = "0";
-            chatScreen.style.pointerEvents = "none";
+    blurBuffer.style.opacity = "0";
 
-            appWrapper.style.visibility = "visible";
-            appWrapper.style.pointerEvents = "auto";
-        }, 350);
-    };
+    appWrapper.style.visibility = "visible";
+    appWrapper.style.pointerEvents = "auto";
+};
 
 
     /* ============================================================
@@ -452,7 +450,19 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+if (!window.__leoWarm__) {
+    window.__leoWarm__ = true;
 
+    fetch("https://leocore.onrender.com/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            message: "boot",
+            userId: "warm",
+            name: "warm"
+        })
+    }).catch(() => {});
+}
     /* ============================================================
        18. KEEP SERVER WARM
     ============================================================ */
