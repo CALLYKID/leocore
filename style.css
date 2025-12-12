@@ -977,3 +977,108 @@ html, body,
 .mode-btn.active {
     border-color: #00eaff;
 }
+/* ============================================================
+   SECTION B — ANIMATED NEON OUTLINE (GLASS NEON)
+   Purpose:
+   - Futuristic moving outline
+   - Medium speed
+   - No layering issues
+   - Safe on mobile
+============================================================ */
+
+/* Ensure buttons are isolated */
+.mode-btn,
+.tool-btn {
+    isolation: isolate;
+}
+
+/* Animated neon border */
+.mode-btn::after,
+.tool-btn::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+
+    padding: 2px; /* outline thickness */
+
+    background: linear-gradient(
+        120deg,
+        #00eaff,
+        #3b82f6,
+        #8b5cf6,
+        #00eaff
+    );
+
+    background-size: 300% 300%;
+    animation: neon-border-flow 5.5s linear infinite;
+
+    /* Mask so ONLY the border shows */
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+
+    pointer-events: none;
+    z-index: -1;
+    opacity: 0.75;
+}
+
+/* Soft glow halo (depth, not loud) */
+.mode-btn::before,
+.tool-btn::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: inherit;
+
+    background: linear-gradient(
+        120deg,
+        rgba(0,234,255,0.45),
+        rgba(139,92,246,0.35),
+        rgba(0,234,255,0.45)
+    );
+
+    filter: blur(14px);
+    opacity: 0.6;
+
+    animation: neon-border-flow 5.5s linear infinite;
+
+    pointer-events: none;
+    z-index: -2;
+}
+
+/* Hover = slightly faster energy */
+.mode-btn:hover::after,
+.tool-btn:hover::after {
+    animation-duration: 3.8s;
+    opacity: 0.9;
+}
+
+/* Active mode = powered hardware */
+.mode-btn.active::after {
+    animation-duration: 2.6s;
+    opacity: 1;
+}
+
+/* Animation */
+@keyframes neon-border-flow {
+    0%   { background-position:   0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position:   0% 50%; }
+}
+
+/* Mobile safety — calmer */
+@media (max-width: 600px) {
+    .mode-btn::after,
+    .tool-btn::after {
+        animation-duration: 7s;
+        opacity: 0.6;
+    }
+
+    .mode-btn::before,
+    .tool-btn::before {
+        opacity: 0.45;
+    }
+}
