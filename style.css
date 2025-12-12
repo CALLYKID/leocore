@@ -7,19 +7,21 @@
 }
 
 :root {
-  --bg-glass: rgba(5, 18, 30, 0.82);
+  --bg-dark: rgba(6, 18, 30, 0.75);
   --neon-a: #00eaff;
-  --neon-b: #b400ff;
+  --neon-b: #8a3cff;
   --neon-c: #ff3bd4;
 }
 
 html, body {
   margin: 0;
+  padding: 0;
   width: 100%;
   height: 100%;
   background: transparent;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #fff;
+  overflow-x: hidden;
 }
 
 /* ============================================================
@@ -39,37 +41,31 @@ html, body {
 }
 
 /* ============================================================
-   2. APP STRUCTURE
+   2. APP WRAPPER
 ============================================================ */
 .app-wrapper {
   min-height: 100svh;
+  padding: 28px 18px 48px;
   display: flex;
   flex-direction: column;
-  padding: 28px 18px 60px;
   background: linear-gradient(
     to bottom,
     rgba(0,0,0,0.55),
-    rgba(0,0,0,0.65)
+    rgba(0,0,0,0.7)
   );
 }
 
+/* ============================================================
+   3. HERO
+============================================================ */
 .center-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-top: 18px;
+  gap: 14px;
+  margin-top: 16px;
 }
 
-.modes-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ============================================================
-   3. TEXT
-============================================================ */
 .main-title {
   font-size: 36px;
   font-weight: 800;
@@ -77,49 +73,35 @@ html, body {
 }
 
 .subtitle {
-  opacity: 0.8;
   margin: 0;
-}
-
-.section-title {
-  margin: 28px 0 18px;
-  text-align: center;
-  font-size: clamp(22px, 6vw, 32px);
+  opacity: 0.85;
 }
 
 /* ============================================================
-   4. GRID
+   4. STREAMING INPUT (FIXED SIZE)
 ============================================================ */
-.mode-grid {
-  flex: 1;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-/* ============================================================
-   5. NEON BORDER CORE (NO SHADOWS)
-============================================================ */
-.neon-input,
-.neon-btn {
+.neon-input {
+  width: 300px;
+  height: 54px;
+  background: var(--bg-dark);
+  border-radius: 18px;
   position: relative;
-  background: var(--bg-glass);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.10);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #eaf9ff;
   overflow: hidden;
-  box-shadow: none;
 }
 
-.neon-input span,
-.neon-btn span {
-  position: relative;
+#fakeText {
+  white-space: nowrap;
+  font-size: 17px;
   z-index: 2;
 }
 
-/* === ANIMATED BORDER ONLY === */
-.neon-input::before,
-.neon-btn::before {
+/* Neon border */
+.neon-input::before {
   content: "";
   position: absolute;
   inset: -2px;
@@ -132,52 +114,91 @@ html, body {
     var(--neon-a)
   );
   animation: neonSpin 3s linear infinite;
-  pointer-events: none;
 }
 
-/* CUT CENTER */
-.neon-input::after,
+.neon-input::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 15px;
+  background: var(--bg-dark);
+}
+
+/* ============================================================
+   5. MODES SECTION
+============================================================ */
+.modes-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(22px, 6vw, 32px);
+  margin: 26px 0 18px;
+}
+
+.mode-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* ============================================================
+   6. NEON MODE BUTTONS
+============================================================ */
+.neon-btn {
+  height: 100%;
+  min-height: 68px;
+  background: var(--bg-dark);
+  border-radius: 20px;
+  border: none;
+  color: #eaf9ff;
+  font-size: 15px;
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-btn span {
+  position: relative;
+  z-index: 2;
+}
+
+/* border */
+.neon-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    var(--neon-a),
+    var(--neon-b),
+    var(--neon-c),
+    var(--neon-a)
+  );
+  animation: neonSpin 3.5s linear infinite;
+}
+
 .neon-btn::after {
   content: "";
   position: absolute;
   inset: 3px;
-  border-radius: calc(20px - 3px);
-  background: var(--bg-glass);
-  pointer-events: none;
+  border-radius: 17px;
+  background: var(--bg-dark);
+}
+
+/* interaction */
+.neon-btn:active,
+.neon-input:active {
+  transform: scale(0.98);
 }
 
 /* ============================================================
-   6. SIZING
-============================================================ */
-.neon-input {
-  padding: 22px 36px;
-  font-size: 18px;
-  min-width: 280px;
-  max-width: 92%;
-}
-
-.neon-btn {
-  min-height: 64px;
-  font-size: 15px;
-  text-align: center;
-}
-
-/* ============================================================
-   7. INTERACTION
-============================================================ */
-.neon-input:active,
-.neon-btn:active {
-  transform: scale(0.97);
-}
-
-/* ============================================================
-   8. ANIMATION
+   7. ANIMATION
 ============================================================ */
 @keyframes neonSpin {
   to { transform: rotate(360deg); }
-}
-/* Lock fake input size once established */
-.neon-input {
-  width: max-content;
-  min-width: 280px;
 }
