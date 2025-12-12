@@ -41,3 +41,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }, 2200);
 
 });
+const fakeText = document.getElementById("fakeText");
+
+const streamText = "Message LeoCore";
+let i = 0;
+
+function streamType() {
+  fakeText.textContent = streamText.slice(0, i);
+  i++;
+
+  if (i <= streamText.length) {
+    setTimeout(streamType, 80);
+  } else {
+    i = 0;
+    setTimeout(streamType, 1200);
+  }
+}
+
+streamType();
