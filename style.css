@@ -166,3 +166,77 @@ html, body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+/* ============================================================
+   HOTFIX A — KILL BLOB/SLAB GLOWS (the screenshot issue)
+============================================================ */
+.fake-input::before, .fake-input::after,
+.mode-btn::before, .mode-btn::after,
+.tool-btn::before, .tool-btn::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Stop any accidental overlay layers from blocking text/clicks */
+.fake-input, .mode-btn, .tool-btn { position: relative; }
+.fake-input *, .mode-btn *, .tool-btn * { position: relative; z-index: 2; }
+
+/* Fix your cut-off heading on mobile */
+.section-title{
+  width:100%;
+  padding:0 18px;
+  box-sizing:border-box;
+  text-align:center;
+  font-size:clamp(22px, 6vw, 34px);
+  line-height:1.15;
+}
+
+/* ============================================================
+   HOTFIX B — REAL "ANIMATED NEON BORDER" (NO BLOBS)
+   Apply class .neonBorder to fake-input + buttons
+============================================================ */
+.neonBorder{
+  position: relative;
+  border-radius: 18px;
+  background: rgba(0, 18, 35, 0.60);
+  border: 1px solid rgba(255,255,255,0.10);
+  overflow: hidden; /* IMPORTANT: clips animation to edge */
+  box-shadow:
+    0 0 24px rgba(0,234,255,0.20),
+    0 18px 46px rgba(0,0,0,0.55);
+}
+
+/* The animated edge (NOT a fill) */
+.neonBorder::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from 0deg,
+    #00eaff, #b400ff, #ff3bd4, #00eaff
+  );
+  animation: neonSpin 2.4s linear infinite;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+/* Cut the center out so only the border remains */
+.neonBorder::after{
+  content:"";
+  position:absolute;
+  inset: 3px;
+  border-radius: calc(inherit - 3px);
+  background: rgba(0, 18, 35, 0.72);
+  pointer-events: none;
+}
+
+@keyframes neonSpin { to { transform: rotate(360deg); } }
+
+/* Make text readable */
+.neonBorder{
+  color:#eaf9ff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.55);
+}
+
+/* Hover/press */
+.neonBorder:active{ transform: scale(0.99); }
