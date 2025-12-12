@@ -623,14 +623,35 @@ mode-pill {
 ============================================================ */
 
 #chatScreen {
+    position: fixed;
+    inset: 0;
+    height: calc(var(--vh, 1vh) * 100);
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s ease;
 }
 
 #chatScreen.active {
     opacity: 1;
     pointer-events: auto;
+}
+
+/* THIS is what animates */
+.chat-stage {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    transform: translateY(28px);
+    opacity: 0;
+
+    transition:
+        transform 0.35s cubic-bezier(.2,.8,.2,1),
+        opacity 0.25s ease;
+}
+
+#chatScreen.active .chat-stage {
+    transform: translateY(0);
+    opacity: 1;
 }
 #userInput:focus {
     border-color: #00eaff;
