@@ -8,32 +8,36 @@
   />
   <title>LeoCore</title>
 
-  <link rel="stylesheet" href="style.css" />
+  <!-- Cache buster -->
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
 
-  <!-- BACKGROUND VIDEO -->
+  <!-- ================= BACKGROUND VIDEO ================= -->
   <div id="bgLayer">
     <video
-  id="bgVideo"
-  autoplay
-  muted
-  loop
-  playsinline
-  preload="auto"
-  poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII="
->
+      id="bgVideo"
+      autoplay
+      muted
+      loop
+      playsinline
+      preload="auto"
+      poster="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y3BpV8AAAAASUVORK5CYII="
+    >
       <source src="background.mp4" type="video/mp4" />
     </video>
   </div>
 
-  <!-- APP -->
+  <!-- ================= BACKGROUND OVERLAY ================= -->
+  <div id="bgOverlay"></div>
+
+  <!-- ================= APP UI ================= -->
   <div class="app-wrapper">
 
     <!-- HERO -->
     <section class="center-wrapper">
 
-      <!-- HERO INPUT (SINGLE, UNIQUE, SAFE) -->
+      <!-- HERO INPUT (UNIQUE, PREMIUM, SAFE) -->
       <button class="hero-input" id="heroInput">
         <div class="hero-ambient"></div>
         <span class="hero-text" id="heroText">Message LeoCore</span>
@@ -63,6 +67,5 @@
 
   </div>
 
-  <script src="app.js"></script>
 </body>
 </html>
