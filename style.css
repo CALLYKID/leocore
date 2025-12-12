@@ -143,3 +143,156 @@ html, body,
         transform: translate(-50%, -50%) scale(1.05);
     }
 }
+/* ============================================================
+   SECTION 2 — HOME UI (STABLE FOUNDATION)
+   Purpose:
+   - Clean layout
+   - Perfect spacing
+   - No glow / no animation
+   - No overlap with chat
+============================================================ */
+
+/* ============================================================
+   HERO AREA
+============================================================ */
+
+.center-wrapper {
+    text-align: center;
+    padding-top: 12vh;
+    padding-bottom: 4vh;
+}
+
+/* Fake input bar */
+.fake-input {
+    width: 85vw;
+    max-width: 600px;
+    height: 60px;
+
+    margin: 0 auto 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 25, 45, 0.55);
+    border-radius: 16px;
+    border: 1.5px solid rgba(255,255,255,0.15);
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.fake-text {
+    font-size: 18px;
+    color: #eaf9ff;
+}
+
+/* Title */
+.main-title {
+    margin-top: 10px;
+    font-size: 44px;
+    font-weight: 800;
+}
+
+/* Subtitle */
+.subtitle {
+    margin-top: 6px;
+    font-size: 18px;
+    opacity: 0.85;
+}
+
+/* ============================================================
+   SECTION TITLES
+============================================================ */
+
+.section-title {
+    margin: 28px 0 20px;
+    text-align: center;
+
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* ============================================================
+   MODE SELECTOR GRID
+============================================================ */
+
+.modes-wrapper {
+    margin-bottom: 56px;
+}
+
+.mode-selector {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+
+    padding: 0 24px;
+}
+
+/* Base mode button (NO EFFECTS) */
+.mode-btn {
+    padding: 20px;
+    border-radius: 16px;
+
+    background: rgba(0, 35, 65, 0.65);
+    border: 2px solid rgba(255,255,255,0.18);
+
+    color: #f0fbff;
+    font-size: 17px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+/* Active mode (simple, readable) */
+.mode-btn.active {
+    border-color: #00eaff;
+}
+
+/* ============================================================
+   QUICK TOOLS GRID
+============================================================ */
+
+.tools-wrapper {
+    margin-bottom: 64px;
+}
+
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+
+    padding: 0 22px;
+}
+
+/* Tool buttons (same base) */
+.tool-btn {
+    padding: 18px;
+    border-radius: 16px;
+
+    background: rgba(0, 35, 65, 0.65);
+    border: 2px solid rgba(255,255,255,0.18);
+
+    color: #f0fbff;
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+/* ============================================================
+   LOWER INFO PANELS (OPTIONAL)
+============================================================ */
+
+.creator-card,
+.info-card,
+.testimonials {
+    width: 88%;
+    margin: 28px auto;
+
+    padding: 26px;
+    border-radius: 18px;
+
+    background: rgba(0, 30, 55, 0.65);
+    border: 1.5px solid rgba(255,255,255,0.15);
+}
