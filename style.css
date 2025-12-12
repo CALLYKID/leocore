@@ -480,16 +480,28 @@ html, body,
 /* Mode pill */
 .mode-pill {
     height: 40px;
+mode-pill {
+    height: 44px;                 /* EXACT same as input */
+    min-width: 56px;
+
     padding: 0 12px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     border-radius: 12px;
     border: 1.5px solid #00eaff;
 
-    background: rgba(0,0,0,0.35);
+    background: rgba(0, 0, 0, 0.35);
     color: #00eaff;
 
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1;
+
+    white-space: nowrap;
+    flex-shrink: 0;               /* prevents squeeze bugs */
 }
 
 /* Text input */
