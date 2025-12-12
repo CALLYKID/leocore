@@ -623,16 +623,14 @@ mode-pill {
 ============================================================ */
 
 #chatScreen {
-    transform: translateY(24px);
     opacity: 0;
-    transition:
-        transform 0.35s cubic-bezier(.2,.8,.2,1),
-        opacity 0.25s ease;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
 }
 
 #chatScreen.active {
-    transform: translateY(0);
     opacity: 1;
+    pointer-events: auto;
 }
 #userInput:focus {
     border-color: #00eaff;
