@@ -176,3 +176,8 @@ html, body {
 @keyframes neonSpin {
   to { transform: rotate(360deg); }
 }
+/* Lock fake input size once established */
+.neon-input {
+  width: max-content;
+  min-width: 280px;
+}
