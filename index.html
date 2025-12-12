@@ -2,28 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
-  />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+
   <title>LeoCore</title>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css?v=1">
 
-  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
 
 <!-- =========================================================
-     BACKGROUND VIDEO — AUTHENTICITY (LOCKED)
+     BACKGROUND VIDEO (AUTHENTICITY — DO NOT TOUCH)
 ========================================================= -->
 <div id="bgLayer">
-  <video id="bgVideo" autoplay muted loop playsinline preload="auto">
-    <source src="background.mp4" type="video/mp4" />
+  <video id="bgVideo" autoplay muted loop playsinline>
+    <source src="background.mp4" type="video/mp4">
   </video>
 </div>
 
@@ -32,58 +27,37 @@
 ========================================================= -->
 <div class="app-wrapper">
 
-  <!-- HERO -->
-  <div class="center-wrapper">
+  <!-- ================= HERO ================= -->
+  <section class="center-wrapper">
 
-    <div class="fake-input neon-border">
-      <span class="fake-text" id="fakeText">Message LeoCore</span>
-    </div>
+    <button id="fakeInput" class="neon-input">
+      <span id="fakeText">Message LeoCore</span>
+    </button>
 
     <h1 class="main-title">LEOCORE</h1>
     <p class="subtitle">Your AI. Your Vibe.</p>
 
-  </div>
+  </section>
 
-  <!-- MODES -->
-  <h2 class="section-title">Choose Your Mode</h2>
+  <!-- ================= MODES ================= -->
+  <section class="modes-wrapper">
+    <h2 class="section-title">Choose Your Mode</h2>
 
-  <div class="mode-grid">
-
-    <button class="mode-btn neon-border" data-mode="default">
-      ⚡ Default
-    </button>
-
-    <button class="mode-btn neon-border" data-mode="study">
-      📘 Study
-    </button>
-
-    <button class="mode-btn neon-border" data-mode="research">
-      🔬 Research
-    </button>
-
-    <button class="mode-btn neon-border" data-mode="reading">
-      📖 Reading
-    </button>
-
-    <button class="mode-btn neon-border" data-mode="deep">
-      🧠 Deep
-    </button>
-
-    <button class="mode-btn neon-border" data-mode="chill">
-      😎 Chill
-    </button>
-
-    <button class="mode-btn neon-border" data-mode="precision">
-      🎯 Precision
-    </button>
-
-    <button class="mode-btn neon-border flame" data-mode="flame">
-      🔥 Flame
-    </button>
-
-  </div>
+    <div class="mode-grid">
+      <button class="neon-btn"><span class="neon-inner">⚡ Default</span></button>
+      <button class="neon-btn"><span class="neon-inner">📘 Study</span></button>
+      <button class="neon-btn"><span class="neon-inner">🔬 Research</span></button>
+      <button class="neon-btn"><span class="neon-inner">📖 Reading</span></button>
+      <button class="neon-btn"><span class="neon-inner">🧠 Deep</span></button>
+      <button class="neon-btn"><span class="neon-inner">😎 Chill</span></button>
+      <button class="neon-btn"><span class="neon-inner">🎯 Precision</span></button>
+      <button class="neon-btn"><span class="neon-inner">🔥 Flame</span></button>
+    </div>
+  </section>
 
 </div>
 
+<!-- Scripts -->
+<script src="app.js?v=1"></script>
 </body>
 </html>
