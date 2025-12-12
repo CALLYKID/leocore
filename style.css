@@ -634,9 +634,3 @@ mode-pill {
     transform: translateY(0);
     opacity: 1;
 }
-#userInput:focus {
-    border-color: #00eaff;
-    box-shadow:
-        0 0 0 1px rgba(0,234,255,0.45),
-        inset 0 0 14px rgba(0,234,255,0.25);
-}
