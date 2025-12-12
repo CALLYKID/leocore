@@ -1,5 +1,5 @@
 /* ============================================================
-   0. RESET + VARIABLES
+   RESET + VARIABLES
 ============================================================ */
 * {
   box-sizing: border-box;
@@ -15,7 +15,6 @@
 
 html, body {
   margin: 0;
-  padding: 0;
   width: 100%;
   height: 100%;
   background: transparent;
@@ -25,13 +24,12 @@ html, body {
 }
 
 /* ============================================================
-   1. BACKGROUND VIDEO
+   BACKGROUND
 ============================================================ */
 #bgLayer {
   position: fixed;
   inset: 0;
   z-index: -10;
-  overflow: hidden;
 }
 
 #bgVideo {
@@ -41,7 +39,7 @@ html, body {
 }
 
 /* ============================================================
-   2. APP WRAPPER
+   APP WRAPPER
 ============================================================ */
 .app-wrapper {
   min-height: 100svh;
@@ -56,14 +54,13 @@ html, body {
 }
 
 /* ============================================================
-   3. HERO
+   HERO
 ============================================================ */
 .center-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
-  margin-top: 16px;
 }
 
 .main-title {
@@ -78,7 +75,7 @@ html, body {
 }
 
 /* ============================================================
-   4. STREAMING INPUT (FIXED SIZE)
+   HERO INPUT (FIXED SIZE, NEVER RESIZES)
 ============================================================ */
 .neon-input {
   width: 300px;
@@ -90,21 +87,11 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #eaf9ff;
   overflow: hidden;
+  color: #eaf9ff;
 }
 
-#fakeText {
-  position: relative;
-  z-index: 3;
-  white-space: nowrap;
-  font-size: 17px;
-  letter-spacing: 0.3px;
-  animation: textBreath 3s ease-in-out infinite;
-}
-
-/* Neon border */
-.neon-input::before {
+/* border */
 .neon-input::before {
   content: "";
   position: absolute;
@@ -120,6 +107,7 @@ html, body {
   z-index: 0;
 }
 
+/* inner cut */
 .neon-input::after {
   content: "";
   position: absolute;
@@ -129,8 +117,45 @@ html, body {
   z-index: 1;
 }
 
+/* text */
+#fakeText {
+  position: relative;
+  z-index: 3;
+  white-space: nowrap;
+  font-size: 17px;
+  letter-spacing: 0.3px;
+  animation: textBreath 3s ease-in-out infinite;
+}
+
 /* ============================================================
-   5. MODES SECTION
+   HERO UNIQUE EFFECTS
+============================================================ */
+.neon-input-hero {
+  box-shadow:
+    0 0 18px rgba(0,234,255,0.18),
+    0 0 36px rgba(180,0,255,0.12);
+  animation: heroIdleGlow 6s ease-in-out infinite;
+}
+
+.hero-sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(0,234,255,0.9),
+    rgba(180,0,255,0.9),
+    rgba(255,59,212,0.9),
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  animation: heroFlow 4s linear infinite;
+}
+
+/* ============================================================
+   MODES
 ============================================================ */
 .modes-wrapper {
   flex: 1;
@@ -151,19 +176,15 @@ html, body {
   gap: 16px;
 }
 
-/* ============================================================
-   6. NEON MODE BUTTONS
-============================================================ */
 .neon-btn {
-  height: 100%;
   min-height: 68px;
   background: var(--bg-dark);
   border-radius: 20px;
   border: none;
-  color: #eaf9ff;
-  font-size: 15px;
   position: relative;
   overflow: hidden;
+  color: #eaf9ff;
+  font-size: 15px;
 }
 
 .neon-btn span {
@@ -171,14 +192,12 @@ html, body {
   z-index: 2;
 }
 
-/* border */
 .neon-btn::before {
   content: "";
   position: absolute;
   inset: -2px;
   border-radius: inherit;
   background: conic-gradient(
-    from 0deg,
     var(--neon-a),
     var(--neon-b),
     var(--neon-c),
@@ -195,110 +214,17 @@ html, body {
   background: var(--bg-dark);
 }
 
-/* interaction */
-.neon-btn:active,
-.neon-input:active {
-  transform: scale(0.98);
-}
-
 /* ============================================================
-   7. ANIMATION
+   ANIMATIONS
 ============================================================ */
 @keyframes neonSpin {
   to { transform: rotate(360deg); }
 }
-/* ============================================================
-   HERO INPUT — UNIQUE NEON ENERGY FLOW
-============================================================ */
-.neon-input-hero {
-  isolation: isolate;
-}
 
-/* soft inner glass */
-.neon-input-hero::after {
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,0.05),
-    rgba(0,0,0,0.25)
-  );
-}
-
-/* ENERGY SWEEP (unique to hero) */
-.neon-input-hero::before {
-  animation: heroFlow 4s linear infinite;
-  background: linear-gradient(
-    120deg,
-    transparent 20%,
-    rgba(0,234,255,0.9),
-    rgba(180,0,255,0.9),
-    rgba(255,59,212,0.9),
-    transparent 80%
-  );
-}
-
-/* slower, calmer motion */
-@keyframes heroFlow {
-  0%   { transform: translateX(-120%) rotate(0deg); }
-  100% { transform: translateX(120%) rotate(0deg); }
-}
-#fakeText {
-  letter-spacing: 0.3px;
-  animation: textBreath 3s ease-in-out infinite;
-}
-
-@keyframes textBreath {
-  0%,100% { opacity: 0.85; }
-  50%     { opacity: 1; }
-}
-/* ============================================================
-   HERO INPUT — IDLE AMBIENT GLOW (NEVER DULL)
-============================================================ */
-.neon-input-hero {
-  box-shadow:
-    0 0 18px rgba(0,234,255,0.18),
-    0 0 36px rgba(180,0,255,0.12);
-  animation: heroIdleGlow 5.5s ease-in-out infinite;
-}
-
-/* very slow, very subtle */
-@keyframes heroIdleGlow {
-  0%, 100% {
-    box-shadow:
-      0 0 14px rgba(0,234,255,0.16),
-      0 0 28px rgba(180,0,255,0.10);
-  }
-  50% {
-    box-shadow:
-      0 0 22px rgba(0,234,255,0.28),
-      0 0 46px rgba(180,0,255,0.18);
-  }
-}
-.hero-sweep {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: linear-gradient(
-    120deg,
-    transparent 30%,
-    rgba(0,234,255,0.9),
-    rgba(180,0,255,0.9),
-    rgba(255,59,212,0.9),
-    transparent 70%
-  );
-  transform: translateX(-120%);
-  animation: heroFlow 4s linear infinite;
-}
 @keyframes heroFlow {
   to { transform: translateX(120%); }
 }
-   
-.neon-input-hero {
-  box-shadow:
-    0 0 18px rgba(0,234,255,0.18),
-    0 0 36px rgba(180,0,255,0.12);
-  animation: heroIdleGlow 5.5s ease-in-out infinite;
-   }
+
 @keyframes heroIdleGlow {
   0%,100% {
     box-shadow:
@@ -310,4 +236,9 @@ html, body {
       0 0 22px rgba(0,234,255,0.28),
       0 0 46px rgba(180,0,255,0.18);
   }
-   }
+}
+
+@keyframes textBreath {
+  0%,100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
