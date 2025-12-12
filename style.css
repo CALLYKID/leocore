@@ -150,6 +150,38 @@ html, body {
     );
   z-index: 1;
 }
+/* ============================================================
+   HERO AMBIENT LIFE — NEVER DRY
+============================================================ */
+.hero-ambient {
+  position: absolute;
+  inset: -20%;
+  z-index: 0;
+  pointer-events: none;
+
+  background: radial-gradient(
+      40% 60% at 30% 20%,
+      rgba(0,234,255,0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      50% 70% at 70% 80%,
+      rgba(180,0,255,0.10),
+      transparent 65%
+    );
+
+  filter: blur(18px);
+  opacity: 0.55;
+
+  animation: heroAmbientDrift 22s linear infinite;
+}
+
+/* VERY SLOW, SUBCONSCIOUS MOTION */
+@keyframes heroAmbientDrift {
+  0%   { transform: translate(0%, 0%); }
+  50%  { transform: translate(-6%, 4%); }
+  100% { transform: translate(0%, 0%); }
+}
 
 /* ============================================================
    MODES
