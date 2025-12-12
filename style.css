@@ -1,5 +1,5 @@
 /* ============================================================
-   RESET + VARIABLES
+   0. RESET + VARIABLES
 ============================================================ */
 * {
   box-sizing: border-box;
@@ -17,19 +17,20 @@ html, body {
   margin: 0;
   width: 100%;
   height: 100%;
-  background: #000; /* correct */
+  background: #000; /* fallback only */
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #fff;
   overflow-x: hidden;
 }
 
 /* ============================================================
-   BACKGROUND VIDEO
+   1. BACKGROUND VIDEO (SAFE STACK)
 ============================================================ */
 #bgLayer {
   position: fixed;
   inset: 0;
-  z-index: -10;
+  z-index: 0;
+  pointer-events: none;
 }
 
 #bgVideo {
@@ -39,20 +40,38 @@ html, body {
 }
 
 /* ============================================================
-   APP WRAPPER
+   2. CINEMATIC OVERLAY
+============================================================ */
+#bgOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgba(0,0,0,0.35),
+      rgba(0,0,0,0.65)
+    );
+}
+
+/* ============================================================
+   3. APP WRAPPER (TOP LAYER)
 ============================================================ */
 .app-wrapper {
+  position: relative;
+  z-index: 2;
+
   min-height: 100svh;
   padding: 28px 18px 48px;
+
   display: flex;
   flex-direction: column;
-  position: relative;
-  z-index: 1;
-
-  background: transparent; /* IMPORTANT */
 }
+
 /* ============================================================
-   HERO
+   4. HERO
 ============================================================ */
 .center-wrapper {
   display: flex;
@@ -73,18 +92,17 @@ html, body {
 }
 
 /* ============================================================
-   HERO INPUT — UNIQUE SYSTEM (TEXT SAFE)
+   5. HERO INPUT (UNIQUE SYSTEM)
 ============================================================ */
 .hero-input {
   width: 320px;
   height: 56px;
   border-radius: 18px;
   border: none;
+
   background: var(--bg-dark);
   position: relative;
   overflow: hidden;
-
-  /* THIS IS THE FIX THAT SAVES TEXT */
   isolation: isolate;
 
   display: flex;
@@ -98,7 +116,7 @@ html, body {
   animation: heroIdleGlow 6s ease-in-out infinite;
 }
 
-/* HERO TEXT — ALWAYS ON TOP */
+/* TEXT (ALWAYS VISIBLE) */
 .hero-text {
   position: relative;
   z-index: 5;
@@ -106,10 +124,11 @@ html, body {
   letter-spacing: 0.4px;
   white-space: nowrap;
   color: #eaf9ff;
+
   animation: heroTextBreath 3s ease-in-out infinite;
 }
 
-/* ENERGY SWEEP (BELOW TEXT) */
+/* ENERGY SWEEP */
 .hero-energy {
   position: absolute;
   inset: 0;
@@ -129,35 +148,15 @@ html, body {
   animation: heroEnergyFlow 4s linear infinite;
 }
 
-/* INNER GLASS */
-.hero-input::after {
-  content: "";
-  position: absolute;
-  inset: 2px;
-  border-radius: 16px;
-  background:
-    radial-gradient(
-      120% 120% at 20% 0%,
-      rgba(0,234,255,0.08),
-      transparent 60%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(255,255,255,0.05),
-      rgba(0,0,0,0.28)
-    );
-  z-index: 1;
-}
-/* ============================================================
-   HERO AMBIENT LIFE — NEVER DRY
-============================================================ */
+/* AMBIENT GLOW (NEVER DRY) */
 .hero-ambient {
   position: absolute;
   inset: -20%;
   z-index: 0;
   pointer-events: none;
 
-  background: radial-gradient(
+  background:
+    radial-gradient(
       40% 60% at 30% 20%,
       rgba(0,234,255,0.12),
       transparent 60%
@@ -174,15 +173,30 @@ html, body {
   animation: heroAmbientDrift 22s linear infinite;
 }
 
-/* VERY SLOW, SUBCONSCIOUS MOTION */
-@keyframes heroAmbientDrift {
-  0%   { transform: translate(0%, 0%); }
-  50%  { transform: translate(-6%, 4%); }
-  100% { transform: translate(0%, 0%); }
+/* INNER GLASS */
+.hero-input::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 16px;
+
+  background:
+    radial-gradient(
+      120% 120% at 20% 0%,
+      rgba(0,234,255,0.08),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(0,0,0,0.28)
+    );
+
+  z-index: 1;
 }
 
 /* ============================================================
-   MODES
+   6. MODES
 ============================================================ */
 .modes-wrapper {
   flex: 1;
@@ -203,12 +217,13 @@ html, body {
   gap: 16px;
 }
 
-/* MODE BUTTONS — SEPARATE SYSTEM */
+/* MODE BUTTONS */
 .neon-btn {
   min-height: 68px;
   border-radius: 20px;
   background: var(--bg-dark);
   border: none;
+
   position: relative;
   overflow: hidden;
   color: #eaf9ff;
@@ -225,12 +240,14 @@ html, body {
   position: absolute;
   inset: -2px;
   border-radius: inherit;
+
   background: conic-gradient(
     var(--neon-a),
     var(--neon-b),
     var(--neon-c),
     var(--neon-a)
   );
+
   animation: neonSpin 3.6s linear infinite;
 }
 
@@ -243,7 +260,7 @@ html, body {
 }
 
 /* ============================================================
-   ANIMATIONS
+   7. ANIMATIONS
 ============================================================ */
 @keyframes neonSpin {
   to { transform: rotate(360deg); }
@@ -251,6 +268,12 @@ html, body {
 
 @keyframes heroEnergyFlow {
   to { transform: translateX(120%); }
+}
+
+@keyframes heroAmbientDrift {
+  0%   { transform: translate(0%, 0%); }
+  50%  { transform: translate(-6%, 4%); }
+  100% { transform: translate(0%, 0%); }
 }
 
 @keyframes heroIdleGlow {
