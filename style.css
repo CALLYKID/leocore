@@ -1082,3 +1082,72 @@ html, body,
         opacity: 0.45;
     }
 }
+/* ============================================================
+   SECTION C — PREMIUM 3D DEPTH + HARDWARE MOTION
+   Purpose:
+   - Make buttons feel physical & expensive
+   - Works with Section B neon outline
+   - Zero effect on chat or background
+============================================================ */
+
+/* Base 3D depth */
+.mode-btn,
+.tool-btn {
+    transform-style: preserve-3d;
+    will-change: transform;
+
+    transition:
+        transform 0.22s cubic-bezier(.2,.8,.2,1),
+        box-shadow 0.22s ease;
+}
+
+/* Hover = lift + micro tilt */
+.mode-btn:hover,
+.tool-btn:hover {
+    transform:
+        translateY(-4px)
+        rotateX(1.2deg);
+
+    box-shadow:
+        0 20px 44px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.40),
+        inset 0 -10px 20px rgba(0,0,0,0.55);
+}
+
+/* Active = physical press */
+.mode-btn:active,
+.tool-btn:active {
+    transform:
+        translateY(2px)
+        rotateX(0deg);
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,0.45),
+        inset 0 6px 14px rgba(0,0,0,0.65);
+}
+
+/* Active mode = powered hardware */
+.mode-btn.active {
+    box-shadow:
+        0 26px 52px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.45),
+        inset 0 -12px 24px rgba(0,0,0,0.55);
+}
+
+/* Slight glow intensification when active */
+.mode-btn.active::before {
+    opacity: 0.85;
+}
+
+/* Mobile safety — calmer motion */
+@media (max-width: 600px) {
+    .mode-btn:hover,
+    .tool-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .mode-btn:active,
+    .tool-btn:active {
+        transform: translateY(1px);
+    }
+}
