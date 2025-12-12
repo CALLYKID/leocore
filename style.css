@@ -1,686 +1,162 @@
-/* ============================================================
-   SECTION 1 — GLOBAL RESET + TRUE BACKGROUND ENGINE (LOCKED)
-   Purpose:
-   - Zero layering bugs
-   - Background never scrolls
-   - Video always centered
-   - No glow panels
-   - Safe for chat + buttons later
-============================================================ */
+/* RESET */
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; background:#000; font-family:Inter,system-ui; overflow:hidden; }
 
-/* ---------- GLOBAL RESET ---------- */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-}
-
-html, body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;              /* background NEVER scrolls */
-    overscroll-behavior: none;
-    background: #000;
-    color: #fff;
-    font-family: 'Inter', system-ui, sans-serif;
-}
-
-/* ---------- ROOT THEME VARIABLES ---------- */
-:root {
-    --theme-glow: #00eaff;
-    --glass-bg: rgba(0, 20, 35, 0.45);
-    --glass-border: rgba(0,255,255,0.28);
-    --glass-text: #dffaff;
-}
-
-/* ============================================================
-   BACKGROUND LAYER — FIXED & UNTOUCHABLE
-============================================================ */
-
+/* BACKGROUND */
 #bgLayer {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-
-    overflow: hidden;
-    pointer-events: none;
-
-    z-index: -10;
-
-    /* soft depth, NOT a panel */
-    background: radial-gradient(
-        circle at center,
-        rgba(0,255,255,0.10),
-        rgba(0,0,20,0.85) 70%
-    );
+  position:fixed; inset:0;
+  z-index:-3;
 }
-
-/* ---------- VIDEO ---------- */
 #bgVideo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-
-    width: 100%;
-    height: 100%;
-
-    transform: translate(-50%, -50%);
-    object-fit: cover;
-    object-position: center;
-
-    opacity: 0.95;
-
-    filter:
-        brightness(1.05)
-        contrast(1.1)
-        saturate(1.2);
-
-    z-index: -11;
-    will-change: transform;
+  width:100%; height:100%;
+  object-fit:cover;
+  filter: brightness(1.05) saturate(1.2);
 }
 
-/* Subtle cinematic overlay (NO shapes, NO panels) */
-#bgLayer::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-
-    background: radial-gradient(
-        circle at 50% 20%,
-        rgba(0,255,255,0.15),
-        rgba(0,0,0,0.6) 65%
-    );
-
-    pointer-events: none;
-    z-index: -9;
+/* AMBIENT NEON FIELD */
+.neon-field {
+  position:fixed; inset:0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(0,234,255,.18), transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(255,0,180,.14), transparent 65%);
+  animation: drift 14s linear infinite;
+  pointer-events:none;
+  z-index:-2;
+}
+@keyframes drift {
+  0% { filter:hue-rotate(0deg); }
+  100% { filter:hue-rotate(360deg); }
 }
 
-/* ============================================================
-   APP SCROLL CONTAINER (CONTENT ONLY)
-============================================================ */
-
+/* HOME */
 .app-wrapper {
-    position: relative;
-    height: 100vh;
-
-    overflow-y: auto;
-    overflow-x: hidden;
-
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-
-    z-index: 1; /* always above background */
+  height:100%;
+  overflow-y:auto;
+  color:#fff;
 }
-
-/* ============================================================
-   SAFETY — NOTHING CREATES FULL PANELS
-============================================================ */
-
-html, body,
-.app-wrapper,
-#chatScreen {
-    background: transparent !important;
-}
-
-/* Kill accidental wrappers */
-.center-wrapper,
-.hero-wrapper,
-.hero-container,
-.top-box {
-    background: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-
-/* ============================================================
-   MOBILE GPU SAFETY
-============================================================ */
-
-@supports (-webkit-touch-callout: none) {
-    #bgVideo {
-        transform: translate(-50%, -50%) scale(1.05);
-    }
-}
-/* ============================================================
-   SECTION 2 — HOME UI (STABLE FOUNDATION)
-   Purpose:
-   - Clean layout
-   - Perfect spacing
-   - No glow / no animation
-   - No overlap with chat
-============================================================ */
-
-/* ============================================================
-   HERO AREA
-============================================================ */
-
 .center-wrapper {
-    text-align: center;
-    padding-top: 12vh;
-    padding-bottom: 4vh;
+  padding:14vh 16px 80px;
+  text-align:center;
 }
-
-/* Fake input bar */
 .fake-input {
-    width: 85vw;
-    max-width: 600px;
-    height: 60px;
-
-    margin: 0 auto 24px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    background: rgba(0, 25, 45, 0.55);
-    border-radius: 16px;
-    border: 1.5px solid rgba(255,255,255,0.15);
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+  width:85%;
+  max-width:420px;
+  margin:0 auto 24px;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(0,25,45,.55);
+  border:1px solid rgba(0,234,255,.45);
+  box-shadow:0 0 28px rgba(0,234,255,.35);
+  cursor:pointer;
 }
+.main-title { font-size:46px; font-weight:800; }
+.subtitle { opacity:.85; margin-bottom:28px; }
 
-.fake-text {
-    font-size: 18px;
-    color: #eaf9ff;
+.section-title { margin:36px 0 18px; }
+
+/* MODES */
+.mode-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
 }
-
-/* Title */
-.main-title {
-    margin-top: 10px;
-    font-size: 44px;
-    font-weight: 800;
-}
-
-/* Subtitle */
-.subtitle {
-    margin-top: 6px;
-    font-size: 18px;
-    opacity: 0.85;
-}
-
-/* ============================================================
-   SECTION TITLES
-============================================================ */
-
-.section-title {
-    margin: 28px 0 20px;
-    text-align: center;
-
-    font-size: 22px;
-    font-weight: 700;
-}
-
-/* ============================================================
-   MODE SELECTOR GRID
-============================================================ */
-
-.modes-wrapper {
-    margin-bottom: 56px;
-}
-
-.mode-selector {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-
-    padding: 0 24px;
-}
-
-/* Base mode button (NO EFFECTS) */
 .mode-btn {
-    padding: 20px;
-    border-radius: 16px;
-
-    background: rgba(0, 35, 65, 0.65);
-    border: 2px solid rgba(255,255,255,0.18);
-
-    color: #f0fbff;
-    font-size: 17px;
-    font-weight: 700;
-
-    cursor: pointer;
+  padding:18px;
+  border-radius:16px;
+  background:rgba(0,30,55,.65);
+  color:#eaffff;
+  font-size:16px;
+  border:1.5px solid rgba(0,234,255,.45);
+  box-shadow:0 0 22px rgba(0,234,255,.25);
+}
+.mode-btn.flame {
+  box-shadow:0 0 28px rgba(255,80,0,.65);
 }
 
-/* Active mode (simple, readable) */
-.mode-btn.active {
-    border-color: #00eaff;
-}
-
-/* ============================================================
-   QUICK TOOLS GRID
-============================================================ */
-
-.tools-wrapper {
-    margin-bottom: 64px;
-}
-
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
-
-    padding: 0 22px;
-}
-
-/* Tool buttons (same base) */
-.tool-btn {
-    padding: 18px;
-    border-radius: 16px;
-
-    background: rgba(0, 35, 65, 0.65);
-    border: 2px solid rgba(255,255,255,0.18);
-
-    color: #f0fbff;
-    font-size: 16px;
-    font-weight: 600;
-
-    cursor: pointer;
-}
-
-/* ============================================================
-   LOWER INFO PANELS (OPTIONAL)
-============================================================ */
-
-.creator-card,
-.info-card,
-.testimonials {
-    width: 88%;
-    margin: 28px auto;
-
-    padding: 26px;
-    border-radius: 18px;
-
-    background: rgba(0, 30, 55, 0.65);
-    border: 1.5px solid rgba(255,255,255,0.15);
-}
-/* ============================================================
-   SECTION 3 — CHAT UI (STABLE / LOCKED)
-   Purpose:
-   - Perfect input visibility
-   - Placeholder readable
-   - Streaming-follow button works
-   - ZERO interaction with home UI
-============================================================ */
-
-/* ============================================================
-   CHAT SCREEN CONTAINER
-============================================================ */
-
+/* CHAT */
 #chatScreen {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-
-    display: flex;
-    flex-direction: column;
-
-    opacity: 0;
-    pointer-events: none;
-
-    background: transparent;
-    z-index: 9999;
+  position:fixed; inset:0;
+  background:rgba(0,5,15,.65);
+  backdrop-filter:blur(14px);
+  opacity:0;
+  pointer-events:none;
+  transition:.35s;
 }
-
 #chatScreen.active {
-    opacity: 1;
-    pointer-events: auto;
+  opacity:1;
+  pointer-events:auto;
 }
-
-/* ============================================================
-   CHAT HEADER
-============================================================ */
+.chat-stage {
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  transform:translateY(24px);
+  transition:.35s;
+}
+#chatScreen.active .chat-stage {
+  transform:translateY(0);
+}
 
 .chat-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 14px 18px;
-
-    background: rgba(0, 20, 35, 0.75);
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-
-    backdrop-filter: blur(10px);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px;
 }
-
-/* Header buttons */
-.back-btn,
-.clear-btn {
-    width: 44px;
-    height: 44px;
-
-    border-radius: 12px;
-    border: 1.5px solid rgba(255,255,255,0.25);
-
-    background: rgba(0, 25, 45, 0.85);
-    color: #eaf9ff;
-
-    font-size: 18px;
-    font-weight: 700;
-
-    cursor: pointer;
+.back-btn, .clear-btn {
+  background:rgba(0,25,45,.8);
+  color:#eaffff;
+  border-radius:12px;
+  padding:10px 14px;
+  border:1px solid rgba(0,234,255,.45);
 }
-
-/* Title */
-.chat-title {
-    font-size: 20px;
-    font-weight: 700;
-    color: #eaf9ff;
-}
-
-/* ============================================================
-   CHAT MESSAGES AREA
-============================================================ */
 
 .chat-messages {
-    flex: 1;
-    min-height: 0;
-
-    padding: 16px;
-    padding-bottom: 90px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-
-    overflow-y: auto;
-
-    background: rgba(0, 10, 20, 0.65);
-    backdrop-filter: blur(8px);
+  flex:1;
+  padding:18px;
+  overflow-y:auto;
 }
+.user-msg { text-align:right; }
+.ai-msg { text-align:left; }
 
-/* Message rows */
-.user-msg {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.ai-msg {
-    display: flex;
-    justify-content: flex-start;
-}
-
-/* Message bubbles */
 .bubble {
-    max-width: 85%;
-    padding: 14px 18px;
-    border-radius: 14px;
-
-    font-size: 15px;
-    line-height: 1.45;
-    word-break: break-word;
+  display:inline-block;
+  margin-bottom:12px;
+  padding:14px 18px;
+  border-radius:16px;
+  max-width:82%;
 }
-
-/* User */
 .user-msg .bubble {
-    background: #008cff;
-    color: #ffffff;
+  background:#008cff;
 }
-
-/* AI */
 .ai-msg .bubble {
-    background: #1f2a44;
-    color: #e9f4ff;
+  background:#1b2c44;
 }
 
-/* ============================================================
-   STREAMING INDICATOR / FOLLOW BUTTON
-============================================================ */
-
-.spiral-bubble {
-    width: 42px;
-    height: 42px;
-
-    border-radius: 12px;
-    background: rgba(255,255,255,0.14);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    backdrop-filter: blur(8px);
+/* INPUT */
+.chat-input {
+  display:flex;
+  gap:10px;
+  padding:12px;
 }
-
-.spiral-core {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-
-    background: #00eaff;
-}
-
-/* ============================================================
-   INPUT BAR (FIXED & READABLE)
-============================================================ */
-
-.chat-input-area {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-
-    width: 100%;
-    padding: 12px;
-    padding-bottom: env(safe-area-inset-bottom, 14px);
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    background: rgba(0, 15, 30, 0.85);
-    border-top: 1px solid rgba(255,255,255,0.12);
-
-    backdrop-filter: blur(12px);
-    z-index: 20;
-}
-
-/* Mode pill */
 .mode-pill {
-    height: 44px;                 /* EXACT same as input */
-    min-width: 56px;
-
-    padding: 0 12px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border-radius: 12px;
-    border: 1.5px solid #00eaff;
-
-    background: rgba(0, 0, 0, 0.35);
-    color: #00eaff;
-
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1;
-
-    white-space: nowrap;
-    flex-shrink: 0;               /* prevents squeeze bugs */
+  padding:0 12px;
+  border-radius:12px;
+  border:1px solid #00eaff;
+  color:#00eaff;
 }
-
-/* Text input */
 #userInput {
-    flex: 1;
-    height: 44px;
-
-    border-radius: 12px;
-    border: 1.5px solid rgba(255,255,255,0.25);
-
-    background: rgba(0, 25, 45, 0.95);
-    color: #ffffff;
-
-    padding: 0 14px;
-    font-size: 15px;
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid rgba(0,234,255,.45);
+  background:rgba(0,25,45,.85);
+  color:#fff;
 }
-
-/* Placeholder — FIXED VISIBILITY */
-#userInput::placeholder {
-    color: rgba(255,255,255,0.55);
-}
-/* ============================================================
-   INPUT PLACEHOLDER — PREMIUM & READABLE
-============================================================ */
-
-#userInput::placeholder {
-    color: rgba(200, 245, 255, 0.55);
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    text-shadow: 0 0 6px rgba(0, 234, 255, 0.35);
-}
-
-/* When user focuses input */
-#userInput:focus::placeholder {
-    opacity: 0.25;
-    text-shadow: none;
-}
-
-/* Send button */
 #sendBtn {
-    width: 50px;
-    height: 44px;
-
-    border-radius: 12px;
-    border: none;
-
-    background: #00eaff;
-    color: #000;
-
-    font-weight: 700;
-    cursor: pointer;
-}
-
-/* Stop mode */
-#sendBtn.stop-mode {
-    background: #ff004f;
-    color: #fff;
-}
-
-/* ============================================================
-   SECTION 4 — STABLE GLASS NEON (NO BUGS)
-   - No masks
-   - No animations
-   - No chat interference
-============================================================ */
-
-/* Ensure isolation */
-.mode-btn,
-.tool-btn {
-    position: relative;
-    isolation: isolate;
-}
-
-/* Static neon edge */
-.mode-btn,
-.tool-btn {
-    border: 2px solid rgba(0, 234, 255, 0.45);
-
-    box-shadow:
-        0 0 0 1px rgba(0, 234, 255, 0.35),   /* crisp edge */
-        0 0 18px rgba(0, 234, 255, 0.35),    /* outer glow */
-        0 12px 28px rgba(0,0,0,0.45),        /* depth */
-        inset 0 1px 0 rgba(255,255,255,0.25),
-        inset 0 -8px 16px rgba(0,0,0,0.45);
-}
-
-/* Hover = premium lift (NO glow changes) */
-.mode-btn:hover,
-.tool-btn:hover {
-    transform: translateY(-3px);
-    box-shadow:
-        0 0 0 1px rgba(0, 234, 255, 0.55),
-        0 0 26px rgba(0, 234, 255, 0.55),
-        0 18px 42px rgba(0,0,0,0.55),
-        inset 0 1px 0 rgba(255,255,255,0.35),
-        inset 0 -10px 20px rgba(0,0,0,0.55);
-}
-
-/* Active = physical press */
-.mode-btn:active,
-.tool-btn:active {
-    transform: translateY(1px);
-    box-shadow:
-        0 0 18px rgba(0, 234, 255, 0.45),
-        0 6px 16px rgba(0,0,0,0.45),
-        inset 0 6px 14px rgba(0,0,0,0.65);
-}
-
-/* Active mode = stronger glow */
-.mode-btn.active {
-    border-color: #00eaff;
-    box-shadow:
-        0 0 0 1px #00eaff,
-        0 0 32px rgba(0,234,255,0.75),
-        0 22px 48px rgba(0,0,0,0.6),
-        inset 0 1px 0 rgba(255,255,255,0.45),
-        inset 0 -12px 24px rgba(0,0,0,0.55);
-}
-/* ============================================================
-   CHAT ENTER ANIMATION — FIXED SLIDE UP
-============================================================ */
-
-#chatScreen {
-    position: fixed;
-    inset: 0;
-    height: calc(var(--vh, 1vh) * 100);
-    opacity: 0;
-    pointer-events: none;
-}
-
-#chatScreen.active {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-/* THIS is what animates */
-.chat-stage {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-
-    transform: translateY(28px);
-    opacity: 0;
-
-    transition:
-        transform 0.35s cubic-bezier(.2,.8,.2,1),
-        opacity 0.25s ease;
-}
-
-#chatScreen.active .chat-stage {
-    transform: translateY(0);
-    opacity: 1;
-}
-#userInput:focus {
-    border-color: #00eaff;
-    box-shadow:
-        0 0 0 1px rgba(0,234,255,0.45),
-        inset 0 0 14px rgba(0,234,255,0.25);
-}
-.spiral-bubble {
-    position: relative;
-    width: 42px;
-    height: 42px;
-}
-
-.typing-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #00eaff;
-    opacity: 0.4;
-    animation: breathe 1.4s ease-in-out infinite;
-}
-
-@keyframes breathe {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.4;
-    }
-    50% {
-        transform: scale(1.35);
-        opacity: 1;
-    }
+  padding:0 16px;
+  border-radius:12px;
+  background:#00eaff;
+  color:#000;
+  font-weight:700;
 }
