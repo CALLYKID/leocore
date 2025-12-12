@@ -170,35 +170,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function openChatUI(skipPush = false) {
     if (!skipPush) history.pushState({}, "", "/chat");
-
     blurBuffer.style.opacity = "1";
-
-    // enable chat
     chatScreen.classList.add("active");
-    chatScreen.style.pointerEvents = "auto";
-
-    // hide home (NON-destructive)
-    appWrapper.style.visibility = "hidden";
-    appWrapper.style.pointerEvents = "none";
+    appWrapper.style.display = "none";
 }
 
 function closeChatUI(skipPush = false) {
     if (!skipPush) history.pushState({}, "", "/");
-
-    // start exit animation
+    blurBuffer.style.opacity = "0";
     chatScreen.classList.remove("active");
-
-    // wait for CSS transition to finish
-    setTimeout(() => {
-        blurBuffer.style.opacity = "0";
-
-        // disable chat AFTER animation
-        chatScreen.style.pointerEvents = "none";
-
-        // restore home
-        appWrapper.style.visibility = "visible";
-        appWrapper.style.pointerEvents = "auto";
-    }, 350); // must match CSS
+    appWrapper.style.display = "block";
 }
                           /* ============================================================
        9. MODE SYSTEM
