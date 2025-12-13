@@ -701,7 +701,55 @@ body {
     var(--neon-a),
     var(--neon-b)
   );
+#sendBtn {
+  position: relative;
+  overflow: hidden;
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
 
+/* Icons */
+#sendBtn span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  transition:
+    opacity 0.2s ease,
+    transform 0.25s cubic-bezier(.22,.61,.36,1);
+}
+
+/* Default */
+#sendBtn .send-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#sendBtn .stop-icon {
+  opacity: 0;
+  transform: scale(0.6) rotate(-90deg);
+}
+
+/* Streaming state */
+#sendBtn.streaming {
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.2),
+    0 0 32px rgba(255,59,212,0.65),
+    0 0 64px rgba(255,59,212,0.35);
+}
+
+#sendBtn.streaming .send-icon {
+  opacity: 0;
+  transform: scale(0.6) rotate(90deg);
+}
+
+#sendBtn.streaming .stop-icon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+  
   color: #000;
   font-size: 18px;
 
