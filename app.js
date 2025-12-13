@@ -1,3 +1,13 @@
+function setVh() {
+  document.documentElement.style.setProperty(
+    "--vh",
+    window.innerHeight * 0.01 + "px"
+  );
+}
+
+setVh();
+window.addEventListener("resize", setVh);
+
 document.addEventListener("DOMContentLoaded", () => {
   const fakeText = document.getElementById("hero-text");
   if (!fakeText) return;
