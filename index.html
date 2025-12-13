@@ -8,12 +8,19 @@
   />
   <title>LeoCore</title>
 
-  <!-- Cache buster -->
+  <!-- Prevent white flash -->
+  <style>
+    html { background:#000; }
+  </style>
+
+  <!-- Main styles -->
   <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
 
-  <!-- ================= BACKGROUND VIDEO ================= -->
+  <!-- ======================================================
+       BACKGROUND VIDEO (BOTTOM LAYER)
+  ======================================================= -->
   <div id="bgLayer">
     <video
       id="bgVideo"
@@ -28,16 +35,25 @@
     </video>
   </div>
 
-  <!-- ================= BACKGROUND OVERLAY ================= -->
+  <!-- ======================================================
+       BLUR LAYER (REQUIRED FOR BLUR TO WORK)
+  ======================================================= -->
+  <div id="bgBlur"></div>
+
+  <!-- ======================================================
+       CINEMATIC DARK OVERLAY
+  ======================================================= -->
   <div id="bgOverlay"></div>
 
-  <!-- ================= APP UI ================= -->
+  <!-- ======================================================
+       APP UI (TOP LAYER)
+  ======================================================= -->
   <div class="app-wrapper">
 
     <!-- HERO -->
     <section class="center-wrapper">
 
-      <!-- HERO INPUT (UNIQUE, PREMIUM, SAFE) -->
+      <!-- HERO INPUT (UNIQUE / PREMIUM / SAFE) -->
       <button class="hero-input" id="heroInput">
         <div class="hero-ambient"></div>
         <span class="hero-text" id="heroText">Message LeoCore</span>
@@ -66,6 +82,10 @@
     </section>
 
   </div>
-<script src="app.js?v=1"></script>
+
+  <!-- ======================================================
+       LOGIC
+  ======================================================= -->
+  <script src="app.js?v=1"></script>
 </body>
 </html>
