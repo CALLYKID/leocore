@@ -1,3 +1,5 @@
+let isStreaming = false;
+let stopRequested = false;
 /* ============================================================
    VIEWPORT LOCK (MOBILE SAFE)
 ============================================================ */
@@ -165,6 +167,13 @@ function addMessage(text, type) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+const sendBtn = document.getElementById("sendBtn");
+
+function setStreamingState(on) {
+  isStreaming = on;
+  stopRequested = false;
+  sendBtn.classList.toggle("streaming", on);
+}
 
 /* ============================================================
    LEOCORE ORBITAL PRESENCE (INLINE, PREMIUM)
@@ -190,11 +199,17 @@ async function streamIntoBubble(el, text) {
   el.classList.remove("thinking");
   el.innerHTML = "";
 
+  setStreamingState(true);
+
   for (let i = 0; i < text.length; i++) {
-    el.textContent+= text[i];
+    if (stopRequested) break;
+
+    el.innerHTML += text[i];
     chatMessages.scrollTop = chatMessages.scrollHeight;
     await new Promise(r => setTimeout(r, 12));
   }
+
+  setStreamingState(false);
 }
 
 
@@ -204,36 +219,26 @@ async function streamIntoBubble(el, text) {
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  // STOP MODE
+  if (isStreaming) {
+    stopRequested = true;
+    setStreamingState(false);
+    return;
+  }
+
+  // SEND MODE
   const text = chatInput.value.trim();
   if (!text) return;
 
   addMessage(text, "user");
   chatInput.value = "";
 
-  // 🔥 ONE presence. ONE bubble. ONE lifecycle.
   const leoBubble = createLeoOrbitalBubble();
 
   try {
     await warmBackend();
-
-    const res = await fetch("https://leocore.onrender.com/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: text,
-        userId: "leo-user",
-        mode: currentMode
-      })
-    });
-
-    if (!res.ok) throw new Error(await res.text());
-
-    const data = await res.json();
-
-    await streamIntoBubble(leoBubble, data.reply || "...");
-
+    // fetch + stream response
   } catch (err) {
-    console.error("CHAT ERROR:", err);
-    leoBubble.innerHTML = "⚠️ Connection error. Try again.";
+    setStreamingState(false);
   }
 });
