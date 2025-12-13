@@ -118,6 +118,59 @@
     </section>
 
   </div>
+  <!-- ================= CHAT OVERLAY ================= -->
+<div id="chat-overlay" aria-hidden="true">
+
+  <!-- Backdrop -->
+  <div class="chat-backdrop"></div>
+
+  <!-- Chat Panel -->
+  <div class="chat-panel">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-mode" id="chatMode">⚡ Default</div>
+        <div class="chat-mode-desc" id="chatModeDesc">
+          Balanced answers for everyday questions
+        </div>
+      </div>
+
+      <button class="chat-close" id="chatCloseBtn" aria-label="Close chat">
+        ✕
+      </button>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+
+      <!-- LeoCore typing / orbit loader -->
+      <div class="chat-message leocore typing" id="typingIndicator" hidden>
+        <div class="orbit-loader">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Input -->
+    <form class="chat-input-bar" id="chatForm" autocomplete="off">
+      <input
+        type="text"
+        id="chatInput"
+        placeholder="Message LeoCore…"
+        spellcheck="false"
+        autocomplete="off"
+      />
+      <button type="submit" id="sendBtn">
+        ➤
+      </button>
+    </form>
+
+  </div>
+</div>
 <script src="app.js?v=1" defer></script>
 </body>
 </html>
