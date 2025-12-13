@@ -206,7 +206,9 @@ chatForm.addEventListener("submit", async (e) => {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
   try {
-    const res = await fetch("/api/chat", {
+    const res = await fetch(
+  "https://leocore-backend.onrender.com/api/chat",
+       {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
