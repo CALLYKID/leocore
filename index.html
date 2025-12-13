@@ -2,21 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+  />
   <title>LeoCore</title>
 
-  <!-- Kill white flash -->
-  <style>html,body{background:#000}</style>
+  <!-- Prevent white flash -->
+  <style>
+    html, body { background: #000; }
+  </style>
 
-  <link rel="stylesheet" href="style.css?v=12" />
+  <link rel="stylesheet" href="style.css?v=FINAL" />
 </head>
 <body>
 
-  <!-- BACKGROUND VIDEO -->
-  <div id="bgLayer" aria-hidden="true">
+  <!-- =========================================================
+       CINEMATIC BACKGROUND SYSTEM (LOCKED)
+  ========================================================== -->
+  <div id="bg-root" aria-hidden="true">
     <video
-      id="bgVideo"
+      id="bg-video"
       autoplay
       muted
       loop
@@ -26,12 +32,15 @@
     >
       <source src="background.mp4" type="video/mp4" />
     </video>
+
+    <div class="bg-soften"></div>
+    <div class="bg-vignette"></div>
+    <div class="bg-bloom"></div>
   </div>
 
-  <!-- CINEMATIC OVERLAY -->
-  <div id="bgOverlay" aria-hidden="true"></div>
-
-  <!-- UI -->
+  <!-- =========================================================
+       APP UI
+  ========================================================== -->
   <div class="app-wrapper">
 
     <section class="center-wrapper">
