@@ -769,3 +769,44 @@ body {
 #sendBtn:active {
   transform: scale(0.92);
 }
+/* ===== MORPH STYLE 3: DIRECTIONAL FLIP ===== */
+#sendBtn {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #00eaff, #8a3cff);
+  box-shadow:
+    0 0 20px rgba(0,234,255,0.6),
+    0 8px 24px rgba(0,0,0,0.65);
+
+  display: grid;
+  place-items: center;
+}
+
+#sendBtn .morph {
+  width: 18px;
+  height: 18px;
+  background: #000;
+  border-radius: 4px;
+
+  transform:
+    rotate(45deg)
+    skewX(-12deg);
+
+  transition:
+    transform 0.3s cubic-bezier(.22,.61,.36,1),
+    border-radius 0.25s ease;
+}
+
+/* STREAMING */
+#sendBtn.streaming .morph {
+  transform:
+    rotate(0deg)
+    skewX(0deg);
+
+  border-radius: 2px;
+}
