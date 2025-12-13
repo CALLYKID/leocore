@@ -664,6 +664,7 @@ body {
   padding: 14px;
   display: flex;
   gap: 10px;
+  flex-shrink: 0;
 
   background: linear-gradient(
     180deg,
@@ -705,15 +706,19 @@ body {
 
 #sendBtn {
   position: relative;
-  width: 46px;
-  height: 46px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   border: none;
   cursor: pointer;
 
-  background: linear-gradient(135deg, #00eaff, #7c3aed);
+  background:
+    linear-gradient(135deg, #00eaff, #7c3aed),
+    #05080f;
+
   box-shadow:
-    0 0 18px rgba(0,234,255,0.55),
+    inset 0 0 0 2px rgba(0,234,255,0.35),
+    0 0 26px rgba(0,234,255,0.4),
     0 8px 20px rgba(0,0,0,0.6);
 
   display: grid;
@@ -725,7 +730,6 @@ body {
     box-shadow 0.25s ease,
     transform 0.15s ease;
 }
-
 /* Icons */
 #sendBtn span {
   position: absolute;
@@ -768,19 +772,6 @@ body {
 /* Tap feedback */
 #sendBtn:active {
   transform: scale(0.92);
-}
-
-/* BASE — unchanged */
-#sendBtn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: #05080f;
-  box-shadow:
-    inset 0 0 0 2px rgba(0,234,255,0.35),
-    0 0 26px rgba(0,234,255,0.4);
-  position: relative;
-  overflow: hidden;
 }
 
 /* BASE FIELD */
