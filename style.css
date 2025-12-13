@@ -398,7 +398,39 @@ body {
   background: rgba(255,255,255,0.08);
   color: #eaf9ff;
 }
+/* ============================================================
+   INLINE THINKING INDICATOR (LEOCORE)
+============================================================ */
 
+.chat-message.leocore.thinking {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 14px;
+  padding: 12px 16px;
+  width: fit-content;
+  max-width: 75%;
+}
+
+.thinking-dots {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.thinking-dots span {
+  width: 6px;
+  height: 6px;
+  background: linear-gradient(135deg, #6cf, #a8f);
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.thinking-dots span:nth-child(2) { animation-delay: .15s; }
+.thinking-dots span:nth-child(3) { animation-delay: .3s; }
+
+@keyframes pulse {
+  0%, 80%, 100% { opacity: .2; }
+  40% { opacity: .9; }
+}
 /* ================= INPUT ================= */
 
 .chat-input-bar {
@@ -432,35 +464,6 @@ body {
   font-size: 18px;
 }
 
-/* ================= ORBIT LOADER ================= */
-
-.orbit-loader {
-  width: 32px;
-  height: 32px;
-  position: relative;
-}
-
-.orbit-loader span {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: var(--neon-a);
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform-origin: -10px 0;
-  animation: orbit 1.4s linear infinite;
-}
-
-.orbit-loader span:nth-child(2) {
-  animation-delay: 0.15s;
-  background: var(--neon-b);
-}
-
-.orbit-loader span:nth-child(3) {
-  animation-delay: 0.3s;
-  background: var(--neon-c);
-}
 /* ================= CHAT OVERLAY VISIBILITY ================= */
 #chat-overlay {
   position: fixed;
