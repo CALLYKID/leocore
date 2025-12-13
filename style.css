@@ -909,3 +909,35 @@ body {
     transform: translateY(0) scale(1);
   }
 }
+
+.chat-empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.empty-text {
+  max-width: 80%;
+  text-align: center;
+
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 1.3;
+
+  color: #eaf9ff;
+  opacity: 0.65;
+
+  animation: emptyFloat 4s ease-in-out infinite;
+}
+
+@keyframes emptyFloat {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-6px);
+    opacity: 0.75;
+  }
+}
