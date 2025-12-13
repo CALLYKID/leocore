@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
 ============================================================ */
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
-
+    warmBackend();
   setTimeout(() => {
     chatInput.focus({ preventScroll: true });
   }, 1000);
@@ -236,8 +236,6 @@ chatForm.addEventListener("submit", async (e) => {
   const leoBubble = createLeoOrbitalBubble();
 
   try {
-    await warmBackend();
-    // fetch + stream response
   } catch (err) {
     setStreamingState(false);
   }
