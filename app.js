@@ -188,7 +188,7 @@ async function streamIntoBubble(el, text) {
   el.innerHTML = "";
 
   for (let i = 0; i < text.length; i++) {
-    el.innerHTML += text[i];
+    el.textContent+= text[i];
     chatMessages.scrollTop = chatMessages.scrollHeight;
     await new Promise(r => setTimeout(r, 12));
   }
