@@ -17,9 +17,7 @@
 </head>
 <body>
 
-  <!-- =========================================================
-       CINEMATIC BACKGROUND SYSTEM (LOCKED)
-  ========================================================== -->
+  <!-- ================= BACKGROUND ================= -->
   <div id="bg-root" aria-hidden="true">
     <video
       id="bg-video"
@@ -38,15 +36,14 @@
     <div class="bg-bloom"></div>
   </div>
 
-  <!-- =========================================================
-       APP UI
-  ========================================================== -->
+  <!-- ================= UI ================= -->
   <div class="app-wrapper">
 
+    <!-- HERO -->
     <section class="center-wrapper">
       <button class="hero-input" type="button">
         <div class="hero-ambient"></div>
-        <span class="hero-text" id="heroText">Message LeoCore</span>
+        <span class="hero-text">Message LeoCore</span>
         <div class="hero-energy"></div>
       </button>
 
@@ -54,23 +51,72 @@
       <p class="subtitle">Your AI. Your Vibe.</p>
     </section>
 
+    <!-- MODES -->
     <section class="modes-wrapper">
       <h2 class="section-title">Choose Your Mode</h2>
 
       <div class="mode-grid">
-        <button class="neon-btn"><span>⚡ Default</span></button>
-        <button class="neon-btn"><span>📘 Study</span></button>
-        <button class="neon-btn"><span>🔬 Research</span></button>
-        <button class="neon-btn"><span>📖 Reading</span></button>
-        <button class="neon-btn"><span>🧠 Deep</span></button>
-        <button class="neon-btn"><span>😎 Chill</span></button>
-        <button class="neon-btn"><span>🎯 Precision</span></button>
-        <button class="neon-btn"><span>🔥 Flame</span></button>
+
+        <button class="neon-btn recommended">
+          <div class="mode-content">
+            <div class="mode-title">⚡ Default</div>
+            <div class="mode-desc">Balanced answers for everyday questions</div>
+          </div>
+          <div class="mode-badge">Recommended</div>
+        </button>
+
+        <button class="neon-btn">
+          <div class="mode-content">
+            <div class="mode-title">📘 Study</div>
+            <div class="mode-desc">Clear explanations with examples</div>
+          </div>
+        </button>
+
+        <button class="neon-btn">
+          <div class="mode-content">
+            <div class="mode-title">🔬 Research</div>
+            <div class="mode-desc">Detailed, structured, and factual</div>
+          </div>
+        </button>
+
+        <button class="neon-btn">
+          <div class="mode-content">
+            <div class="mode-title">📖 Reading</div>
+            <div class="mode-desc">Summaries and simplified explanations</div>
+          </div>
+        </button>
+
+        <button class="neon-btn">
+          <div class="mode-content">
+            <div class="mode-title">🧠 Deep</div>
+            <div class="mode-desc">Long-form reasoning and insights</div>
+          </div>
+        </button>
+
+        <button class="neon-btn">
+          <div class="mode-content">
+            <div class="mode-title">😎 Chill</div>
+            <div class="mode-desc">Casual, friendly conversation</div>
+          </div>
+        </button>
+
+        <button class="neon-btn">
+          <div class="mode-content">
+            <div class="mode-title">🎯 Precision</div>
+            <div class="mode-desc">Short, exact, no fluff answers</div>
+          </div>
+        </button>
+
+        <button class="neon-btn">
+          <div class="mode-content">
+            <div class="mode-title">🔥 Flame</div>
+            <div class="mode-desc">Creative, bold, high-energy responses</div>
+          </div>
+        </button>
+
       </div>
     </section>
 
   </div>
-
-  <script src="app.js?v=2"></script>
 </body>
 </html>
