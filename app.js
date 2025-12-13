@@ -10,6 +10,22 @@ function setVh() {
 setVh();
 window.addEventListener("resize", setVh);
 
+
+/* ============================================================
+   BACKEND WARM-UP (RENDER COLD START FIX)
+============================================================ */
+async function warmBackend() {
+  try {
+    await fetch("https://leocore-backend.onrender.com/ping", {
+      method: "GET",
+      cache: "no-store"
+    });
+  } catch {
+    // Silent — only wakes backend
+  }
+}
+
+
 /* ============================================================
    HERO FAKE TYPING
 ============================================================ */
@@ -57,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loop();
 });
 
+
 /* ============================================================
    CHAT STATE + MODE MAP
 ============================================================ */
@@ -99,21 +116,23 @@ const MODE_MAP = {
 
 const MODE_KEYS = Object.keys(MODE_MAP);
 
+
 /* ============================================================
    DOM REFERENCES
 ============================================================ */
-const chatOverlay = document.getElementById("chat-overlay");
-const chatCloseBtn = document.getElementById("chatCloseBtn");
-const chatMessages = document.getElementById("chatMessages");
-const chatForm = document.getElementById("chatForm");
-const chatInput = document.getElementById("chatInput");
+const chatOverlay     = document.getElementById("chat-overlay");
+const chatCloseBtn    = document.getElementById("chatCloseBtn");
+const chatMessages    = document.getElementById("chatMessages");
+const chatForm        = document.getElementById("chatForm");
+const chatInput       = document.getElementById("chatInput");
 const typingIndicator = document.getElementById("typingIndicator");
 
-const chatMode = document.getElementById("chatMode");
+const chatMode     = document.getElementById("chatMode");
 const chatModeDesc = document.getElementById("chatModeDesc");
 
-const heroInput = document.querySelector(".hero-input");
+const heroInput  = document.querySelector(".hero-input");
 const modeButtons = document.querySelectorAll(".neon-btn");
+
 
 /* ============================================================
    MODE CONTROL
@@ -130,6 +149,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setMode("default");
 });
 
+
 /* ============================================================
    CHAT OPEN / CLOSE
 ============================================================ */
@@ -144,6 +164,7 @@ function closeChat() {
 
 chatCloseBtn.addEventListener("click", closeChat);
 
+
 /* ============================================================
    HERO → DEFAULT CHAT
 ============================================================ */
@@ -151,6 +172,7 @@ heroInput.addEventListener("click", () => {
   setMode("default");
   openChat();
 });
+
 
 /* ============================================================
    MODE BUTTONS → CHAT
@@ -161,6 +183,7 @@ modeButtons.forEach((btn, index) => {
     openChat();
   });
 });
+
 
 /* ============================================================
    MESSAGE HELPERS
@@ -173,22 +196,22 @@ function addMessage(text, type) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+
 /* ============================================================
    FAKE STREAMING (PREMIUM ILLUSION)
 ============================================================ */
 async function fakeStream(text) {
-  let i = 0;
   const msg = document.createElement("div");
   msg.className = "chat-message leocore";
   chatMessages.appendChild(msg);
 
-  while (i < text.length) {
+  for (let i = 0; i < text.length; i++) {
     msg.innerHTML += text[i];
-    i++;
     chatMessages.scrollTop = chatMessages.scrollHeight;
     await new Promise(r => setTimeout(r, 12));
   }
 }
+
 
 /* ============================================================
    SEND MESSAGE → BACKEND
@@ -205,27 +228,28 @@ chatForm.addEventListener("submit", async (e) => {
   typingIndicator.hidden = false;
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
-  await warmBackend(); // 🔥 critical
+  try {
+    await warmBackend(); // wake Render
 
-const res = await fetch(
-  "https://leocore-backend.onrender.com/api/chat",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: text,
-      userId: "leo-user",
-      mode: currentMode
-    })
-  }
-);
+    const res = await fetch(
+      "https://leocore-backend.onrender.com/api/chat",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: text,
+          userId: "leo-user",
+          mode: currentMode
+        })
+      }
+    );
 
     if (!res.ok) {
-  const raw = await res.text();
-  throw new Error(raw);
-}
+      const raw = await res.text();
+      throw new Error(raw);
+    }
 
-const data = await res.json();
+    const data = await res.json();
     typingIndicator.hidden = true;
 
     if (data.reply) {
@@ -233,6 +257,7 @@ const data = await res.json();
     }
 
   } catch (err) {
+    console.error("CHAT ERROR:", err);
     typingIndicator.hidden = true;
     addMessage("⚠️ Connection error. Try again.", "leocore");
   }
