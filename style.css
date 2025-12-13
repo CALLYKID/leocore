@@ -71,8 +71,8 @@ html {
 }
 /* Fallback blur for video (Android-safe) */
 #bgVideo {
-  filter: blur(6px);
-  transform: scale(1.05);
+  filter: blur(7px);
+  transform: scale(1.06); /* hides blur edges */
 }
 
 .app-wrapper {
