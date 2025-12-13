@@ -123,14 +123,18 @@ function setMode(key) {
   chatModeDesc.textContent = m.desc;
 }
 /* ==================== HEIGHT HELP ================ */
-function isNearBottom(el, threshold = 48) {
+function isNearBottom(el, threshold = 80) {
   return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
 }
 
-function smartScroll(el, smooth = true) {
+function jumpToBottom(el) {
+  el.scrollTop = el.scrollHeight;
+}
+
+function smoothToBottom(el) {
   el.scrollTo({
     top: el.scrollHeight,
-    behavior: smooth ? "smooth" : "auto"
+    behavior: "smooth"
   });
 }
 
@@ -138,6 +142,10 @@ function smartScroll(el, smooth = true) {
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
   warmBackend();
+   
+   if (!hasRealMessages()) {
+  showEmptyState();
+   }
 
   // 👇 SHOW EMPTY STATE IF NO MESSAGES
   if (chatMessages.children.length === 0) {
@@ -191,33 +199,39 @@ function hideEmptyState() {
 
 /* ================= MESSAGE HELPERS ================= */
 function addMessage(text, type) {
-  hideEmptyState(); // 👈 important
+  hideEmptyState();
 
   const el = document.createElement("div");
   el.className = `chat-message ${type}`;
   el.textContent = text;
   chatMessages.appendChild(el);
 
-  requestAnimationFrame(() => {
-    smartScroll(chatMessages, true);
-  });
+  if (isNearBottom(chatMessages)) {
+    jumpToBottom(chatMessages);
+  }
 }
 
 function createLeoOrbitalBubble() {
-   hideEmptyState();
+  hideEmptyState();
+
   const el = document.createElement("div");
   el.className = "chat-message leocore thinking";
   el.innerHTML = `<div class="orbit-loader"></div>`;
   chatMessages.appendChild(el);
-  requestAnimationFrame(() => {
-  smartScroll(chatMessages, true);
-});
+
+  jumpToBottom(chatMessages);
   return el;
 }
 
 function setStreamingState(on) {
   isStreaming = on;
   sendBtn.classList.toggle("streaming", on);
+}
+
+function hasRealMessages() {
+  return [...chatMessages.children].some(el =>
+    el.classList.contains("user") || el.classList.contains("leocore")
+  );
 }
 
 /* ================= STREAM SIM ================= */
@@ -228,26 +242,32 @@ async function streamIntoBubble(el, text) {
   setStreamingState(true);
   stopRequested = false;
 
-  let lastScroll = 0;
+  let buffer = "";
+  let lastFlush = performance.now();
 
   for (let i = 0; i < text.length; i++) {
     if (stopRequested) break;
 
-    el.textContent += text[i];
+    buffer += text[i];
 
     const now = performance.now();
 
-    // Instant tracking during stream
-    if (isNearBottom(chatMessages) && now - lastScroll > 80) {
-      smartScroll(chatMessages, false); // auto
-      lastScroll = now;
+    // flush text every ~30ms
+    if (now - lastFlush > 30 || i === text.length - 1) {
+      el.textContent += buffer;
+      buffer = "";
+      lastFlush = now;
+
+      if (isNearBottom(chatMessages)) {
+        jumpToBottom(chatMessages);
+      }
     }
 
     await new Promise(r => setTimeout(r, 12));
   }
 
-  // Final settle scroll (ONE smooth motion)
-  smartScroll(chatMessages, true);
+  // ONE smooth settle at the end
+  smoothToBottom(chatMessages);
 
   setStreamingState(false);
   controller = null;
