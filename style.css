@@ -47,7 +47,7 @@ html, body {
   transform: scale(0.94);
 
   /* ↓ cinematic softness */
-  filter: blur(3px) brightness(0.95) saturate(1.05);
+  filter: blur(5px) brightness(0.97) saturate(1.08);
 
   /* GPU stability */
   will-change: transform, filter;
