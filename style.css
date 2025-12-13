@@ -665,3 +665,21 @@ body {
   filter: blur(24px);
   opacity: 0.8;
 }
+.hero-input:active,
+.hero-input:focus-visible {
+  box-shadow:
+    0 0 0 1px rgba(0,234,255,0.35),
+    0 0 28px rgba(0,234,255,0.45),
+    0 0 48px rgba(138,60,255,0.25);
+}
+
+.hero-input:active .hero-ambient,
+.hero-input:focus-visible .hero-ambient {
+  opacity: 0.9;
+  filter: blur(16px);
+}
+
+.hero-input:active .hero-energy,
+.hero-input:focus-visible .hero-energy {
+  animation-duration: 2.2s; /* faster = “awake” */
+}
