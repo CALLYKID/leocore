@@ -167,14 +167,68 @@ modeButtons.forEach((btn, i) => {
 });
 
 /* ================= EMPTY STATE ================= */
-const EMPTY_PROMPTS = [
-  "What should we start with today?",
-  "What’s on your mind right now?",
-  "Got a plan, or should we make one?",
-  "Tell me what you’re working on.",
-  "Let’s build something. What is it?",
-  "Want help thinking, or doing?"
-];
+const EMPTY_STATES = {
+  default: [
+    {
+      title: "What are we starting with?",
+      sub: "Say anything — I’ll take it from there."
+    },
+    {
+      title: "Let’s get into it.",
+      sub: "What’s on your mind right now?"
+    }
+  ],
+
+  study: [
+    {
+      title: "What are we studying today?",
+      sub: "Name the topic — I’ll explain it clearly."
+    },
+    {
+      title: "Stuck on something?",
+      sub: "Tell me the concept. We’ll break it down."
+    }
+  ],
+
+  research: [
+    {
+      title: "What are we analysing?",
+      sub: "I’ll keep it structured and factual."
+    },
+    {
+      title: "Start with the question.",
+      sub: "We’ll work through the evidence."
+    }
+  ],
+
+  deep: [
+    {
+      title: "What do you want to think through?",
+      sub: "Take your time. I’ll go deep with you."
+    }
+  ],
+
+  chill: [
+    {
+      title: "What’s up?",
+      sub: "No pressure — just talk."
+    }
+  ],
+
+  precision: [
+    {
+      title: "What’s the question?",
+      sub: "Short answers. No fluff."
+    }
+  ],
+
+  flame: [
+    {
+      title: "Let’s cook.",
+      sub: "Say the idea — I’ll bring the energy."
+    }
+  ]
+};
 
 function showEmptyState() {
   const el = document.getElementById("emptyState");
