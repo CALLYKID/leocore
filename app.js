@@ -127,7 +127,6 @@ function setMode(key) {
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
   warmBackend();
-  setTimeout(() => chatInput.focus({ preventScroll: true }), 600);
 }
 
 function closeChat() {
