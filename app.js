@@ -21,7 +21,7 @@ async function warmBackend() {
       cache: "no-store"
     });
   } catch {
-    // silent: only waking backend
+    // silent
   }
 }
 
@@ -50,15 +50,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const current = phrases[phraseIndex];
 
     if (state === "typing") {
-      fakeText.textContent = current.slice(0, charIndex + 1);
-      charIndex++;
+      fakeText.textContent = current.slice(0, ++charIndex);
       if (charIndex === current.length) {
         state = "pausing";
         setTimeout(() => (state = "deleting"), 1200);
       }
     } else if (state === "deleting") {
-      fakeText.textContent = current.slice(0, charIndex - 1);
-      charIndex--;
+      fakeText.textContent = current.slice(0, --charIndex);
       if (charIndex === 0) {
         state = "typing";
         phraseIndex = (phraseIndex + 1) % phrases.length;
@@ -166,28 +164,35 @@ function addMessage(text, type) {
 
 
 /* ============================================================
-   INLINE THINKING PLACEHOLDER
+   AI PULSE INDICATOR (SYSTEM-LEVEL)
 ============================================================ */
-function createThinkingBubble() {
-  const msg = document.createElement("div");
-  msg.className = "chat-message leocore thinking";
-  msg.innerHTML = `
-    <span class="thinking-dots">
-      <span></span><span></span><span></span>
-    </span>
-  `;
-  chatMessages.appendChild(msg);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-  return msg;
+let aiIndicator = null;
+
+function showAIIndicator() {
+  if (aiIndicator) return;
+
+  aiIndicator = document.createElement("div");
+  aiIndicator.className = "ai-pulse-indicator";
+  chatOverlay.appendChild(aiIndicator);
+}
+
+function hideAIIndicator() {
+  if (!aiIndicator) return;
+  aiIndicator.remove();
+  aiIndicator = null;
 }
 
 
 /* ============================================================
-   STREAM INTO EXISTING BUBBLE (FIX)
+   STREAMING MESSAGE
 ============================================================ */
-async function fakeStreamInto(el, text) {
+async function streamMessage(text) {
+  const msg = document.createElement("div");
+  msg.className = "chat-message leocore";
+  chatMessages.appendChild(msg);
+
   for (let i = 0; i < text.length; i++) {
-    el.innerHTML += text[i];
+    msg.innerHTML += text[i];
     chatMessages.scrollTop = chatMessages.scrollHeight;
     await new Promise(r => setTimeout(r, 12));
   }
@@ -206,7 +211,7 @@ chatForm.addEventListener("submit", async (e) => {
   addMessage(text, "user");
   chatInput.value = "";
 
-  const leoBubble = createThinkingBubble();
+  showAIIndicator();
 
   try {
     await warmBackend();
@@ -225,13 +230,12 @@ chatForm.addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
-    leoBubble.classList.remove("thinking");
-    leoBubble.innerHTML = "";
-    await fakeStreamInto(leoBubble, data.reply || "...");
+    hideAIIndicator();
+    await streamMessage(data.reply || "...");
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
-    leoBubble.classList.remove("thinking");
-    leoBubble.innerHTML = "⚠️ Connection error. Try again.";
+    hideAIIndicator();
+    addMessage("⚠️ Connection error. Try again.", "leocore");
   }
 });
