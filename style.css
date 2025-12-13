@@ -876,16 +876,36 @@ body {
   }
 }
 
-/* ================= MESSAGE ENTRY ================= */
+/* ================= MESSAGE ENTRY — SMOOTH SETTLE ================= */
+
 .chat-message {
   opacity: 0;
-  transform: translateY(8px);
-  animation: messageIn 0.28s cubic-bezier(.22,.61,.36,1) forwards;
+  transform: translateY(6px) scale(0.985);
+  animation: messageSettle 0.42s cubic-bezier(.16,.84,.44,1) forwards;
+  will-change: transform, opacity;
 }
 
-@keyframes messageIn {
-  to {
+/* Slightly stronger for LeoCore replies */
+.chat-message.leocore {
+  animation-duration: 0.46s;
+}
+
+/* User messages land quicker */
+.chat-message.user {
+  animation-duration: 0.34s;
+}
+
+@keyframes messageSettle {
+  0% {
+    opacity: 0;
+    transform: translateY(6px) scale(0.985);
+  }
+  65% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(-1px) scale(1.002);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
