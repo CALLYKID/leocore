@@ -34,9 +34,23 @@ html, body {
 }
 
 #bgVideo {
+  position: absolute;
+  inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+  object-position: center;
+
+  /* ↓ makes it feel zoomed out */
+  transform: scale(0.94);
+
+  /* ↓ cinematic softness */
+  filter: blur(3px) brightness(0.95) saturate(1.05);
+
+  /* GPU stability */
+  will-change: transform, filter;
 }
 
 /* ============================================================
