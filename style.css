@@ -36,23 +36,23 @@ html, body {
 #bgVideo {
   position: absolute;
   inset: 0;
-
   width: 100%;
   height: 100%;
-
   object-fit: cover;
   object-position: center;
-
-  /* ↓ makes it feel zoomed out */
   transform: scale(0.94);
-
-  /* ↓ cinematic softness */
-  filter: blur(5px) brightness(0.97) saturate(1.08);
-
-  /* GPU stability */
-  will-change: transform, filter;
 }
+#bgBlur {
+  position: fixed;
+  inset: 0;
+  z-index: -5;
+  pointer-events: none;
 
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  background: rgba(0, 0, 0, 0.15);
+}
 /* ============================================================
    2. CINEMATIC OVERLAY
 ============================================================ */
