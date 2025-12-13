@@ -840,3 +840,52 @@ body {
   0%,100% { transform: scale(0.88); }
   50% { transform: scale(1); }
 }
+
+@media (min-width: 900px) {
+  .app-wrapper {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+}
+@media (min-width: 900px) {
+  .center-wrapper {
+    margin: 12px;
+    gap: 10px;
+  }
+
+  .modes-wrapper {
+    margin-top: 22px;
+  }
+
+  .mode-grid {
+    gap: 12px;
+  }
+}
+@media (min-width: 900px) {
+  .hero-input {
+    transform: scale(0.92);
+  }
+
+  .main-title {
+    font-size: 30px;
+  }
+
+  .section-title {
+    font-size: 22px;
+    margin-bottom: 12px;
+  }
+}
+
+/* ================= MESSAGE ENTRY ================= */
+.chat-message {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: messageIn 0.28s cubic-bezier(.22,.61,.36,1) forwards;
+}
+
+@keyframes messageIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
