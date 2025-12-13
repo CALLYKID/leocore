@@ -77,10 +77,16 @@ html, body {
 .app-wrapper {
   position: relative;
   z-index: 2;
-  min-height: 100svh;
+
+  height: calc(var(--vh, 1vh) * 100);
+  overflow-y: auto;
+
   padding: 28px 18px 48px;
   display: flex;
   flex-direction: column;
+
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
 }
 
 /* ================= HERO ================= */
@@ -290,4 +296,5 @@ html, body {
 }
 body {
   overscroll-behavior: none;
+  overflow: hidden;
 }
