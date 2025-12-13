@@ -238,3 +238,71 @@ chatForm.addEventListener("submit", async (e) => {
     setStreamingState(false);
   }
 });
+/* ================= SEND / STOP BUTTON ================= */
+
+#sendBtn {
+  position: relative;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #00eaff, #7c3aed);
+  box-shadow:
+    0 0 18px rgba(0,234,255,0.55),
+    0 8px 20px rgba(0,0,0,0.6);
+
+  display: grid;
+  place-items: center;
+
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.15s ease;
+}
+
+/* Icons */
+#sendBtn span {
+  position: absolute;
+  font-size: 18px;
+  color: #000;
+
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease;
+}
+
+/* DEFAULT STATE — SEND */
+#sendBtn .send-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+#sendBtn .stop-icon {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+/* STREAMING STATE — STOP */
+#sendBtn.streaming {
+  background: linear-gradient(135deg, #ff3b3b, #ff0080);
+  box-shadow:
+    0 0 20px rgba(255,60,120,0.6),
+    0 8px 22px rgba(0,0,0,0.7);
+}
+
+#sendBtn.streaming .send-icon {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+#sendBtn.streaming .stop-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Tap feedback */
+#sendBtn:active {
+  transform: scale(0.92);
+}
