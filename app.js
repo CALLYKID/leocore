@@ -236,7 +236,19 @@ chatForm.addEventListener("submit", async (e) => {
   const leoBubble = createLeoOrbitalBubble();
 
   try {
-  } catch (err) {
-    setStreamingState(false);
+  const res = await fetch("https://leocore.onrender.com/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: text,
+      mode: currentMode
+    })
+  });
+
+  const data = await res.json();
+
+  await streamIntoBubble(leoBubble, data.reply);
+} catch (err) {
+  leoBubble.textContent = "⚠️ Connection failed.";
+  setStreamingState(false);
   }
-});
