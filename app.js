@@ -146,6 +146,11 @@ function smartScroll(el) {
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
   warmBackend();
+
+  // 👇 SHOW EMPTY STATE IF NO MESSAGES
+  if (chatMessages.children.length === 0) {
+    showEmptyState();
+  }
 }
 
 function closeChat() {
@@ -166,18 +171,48 @@ modeButtons.forEach((btn, i) => {
   });
 });
 
+/* ================= EMPTY STATE ================= */
+const EMPTY_PROMPTS = [
+  "What should we start with today?",
+  "What’s on your mind right now?",
+  "Got a plan, or should we make one?",
+  "Tell me what you’re working on.",
+  "Let’s build something. What is it?",
+  "Want help thinking, or doing?"
+];
+
+function showEmptyState() {
+  const el = document.getElementById("emptyState");
+  if (!el) return;
+
+  const text = el.querySelector(".empty-text");
+  text.textContent =
+    EMPTY_PROMPTS[Math.floor(Math.random() * EMPTY_PROMPTS.length)];
+
+  el.style.display = "grid";
+}
+
+function hideEmptyState() {
+  const el = document.getElementById("emptyState");
+  if (el) el.style.display = "none";
+}
+
 /* ================= MESSAGE HELPERS ================= */
 function addMessage(text, type) {
+  hideEmptyState(); // 👈 important
+
   const el = document.createElement("div");
   el.className = `chat-message ${type}`;
   el.textContent = text;
   chatMessages.appendChild(el);
+
   requestAnimationFrame(() => {
-  smartScroll(chatMessages);
-});
+    smartScroll(chatMessages);
+  });
 }
 
 function createLeoOrbitalBubble() {
+   hideEmptyState();
   const el = document.createElement("div");
   el.className = "chat-message leocore thinking";
   el.innerHTML = `<div class="orbit-loader"></div>`;
