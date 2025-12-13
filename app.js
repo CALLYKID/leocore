@@ -231,12 +231,17 @@ const EMPTY_STATES = {
 };
 
 function showEmptyState() {
+function showEmptyState() {
   const el = document.getElementById("emptyState");
   if (!el) return;
 
-  const text = el.querySelector(".empty-text");
-  text.textContent =
-    EMPTY_PROMPTS[Math.floor(Math.random() * EMPTY_PROMPTS.length)];
+  const pool =
+    EMPTY_STATES[currentMode] || EMPTY_STATES.default;
+
+  const pick = pool[Math.floor(Math.random() * pool.length)];
+
+  el.querySelector(".empty-title").textContent = pick.title;
+  el.querySelector(".empty-sub").textContent = pick.sub;
 
   el.style.display = "grid";
 }
