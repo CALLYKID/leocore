@@ -127,18 +127,10 @@ function isNearBottom(el, threshold = 48) {
   return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
 }
 
-let scrollRAF = false;
-
-function smartScroll(el) {
-  if (scrollRAF) return;
-  scrollRAF = true;
-
-  requestAnimationFrame(() => {
-    el.scrollTo({
-      top: el.scrollHeight,
-      behavior: "smooth"
-    });
-    scrollRAF = false;
+function smartScroll(el, smooth = true) {
+  el.scrollTo({
+    top: el.scrollHeight,
+    behavior: smooth ? "smooth" : "auto"
   });
 }
 
@@ -207,7 +199,7 @@ function addMessage(text, type) {
   chatMessages.appendChild(el);
 
   requestAnimationFrame(() => {
-    smartScroll(chatMessages);
+    smartScroll(chatMessages, true);
   });
 }
 
@@ -218,7 +210,7 @@ function createLeoOrbitalBubble() {
   el.innerHTML = `<div class="orbit-loader"></div>`;
   chatMessages.appendChild(el);
   requestAnimationFrame(() => {
-  smartScroll(chatMessages);
+  smartScroll(chatMessages, true);
 });
   return el;
 }
@@ -245,17 +237,20 @@ async function streamIntoBubble(el, text) {
 
     const now = performance.now();
 
-    // throttle scroll to feel natural
+    // Instant tracking during stream
     if (isNearBottom(chatMessages) && now - lastScroll > 80) {
-      smartScroll(chatMessages);
+      smartScroll(chatMessages, false); // auto
       lastScroll = now;
     }
 
     await new Promise(r => setTimeout(r, 12));
   }
 
-  smartScroll(chatMessages);
+  // Final settle scroll (ONE smooth motion)
+  smartScroll(chatMessages, true);
+
   setStreamingState(false);
+  controller = null;
 }
 
 /* ================= SEND MESSAGE ================= */
