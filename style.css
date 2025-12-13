@@ -721,45 +721,63 @@ body {
     transform 0.25s cubic-bezier(.22,.61,.36,1);
 }
 
-/* Default */
-#sendBtn .send-icon {
-  opacity: 1;
-  transform: scale(1);
-}
+/* ================= SEND / STOP BUTTON ================= */
+#sendBtn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
 
-#sendBtn .stop-icon {
-  opacity: 0;
-  transform: scale(0.6) rotate(-90deg);
-}
+  background: linear-gradient(
+    135deg,
+    #00eaff,
+    #8a3cff
+  );
 
-/* Streaming state */
-#sendBtn.streaming {
   box-shadow:
-    0 0 0 1px rgba(255,255,255,0.2),
-    0 0 32px rgba(255,59,212,0.65),
-    0 0 64px rgba(255,59,212,0.35);
+    0 0 0 1px rgba(255,255,255,0.15),
+    0 0 26px rgba(0,234,255,0.6),
+    0 10px 30px rgba(0,0,0,0.6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.15s ease;
+}
+  
+/* ================= STREAMING (STOP MODE) ================= */
+#sendBtn.streaming {
+  background: linear-gradient(
+    135deg,
+    #ff3b3b,
+    #ff0066
+  );
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.18),
+    0 0 28px rgba(255,60,60,0.7),
+    0 10px 30px rgba(0,0,0,0.6);
 }
 
+/* Swap icons */
 #sendBtn.streaming .send-icon {
   opacity: 0;
-  transform: scale(0.6) rotate(90deg);
+  transform: scale(0.6);
 }
 
 #sendBtn.streaming .stop-icon {
   opacity: 1;
-  transform: scale(1) rotate(0deg);
+  transform: scale(1);
+  color: #000;
 }
   
-  color: #000;
-  font-size: 18px;
-
-  pointer-events: auto;
-
-  box-shadow:
-    0 0 0 1px rgba(255,255,255,0.14),
-    0 0 28px rgba(0,234,255,0.6),
-    0 10px 28px rgba(0,0,0,0.6);
-  }
 @keyframes fadeUp {
   from {
     opacity: 0;
