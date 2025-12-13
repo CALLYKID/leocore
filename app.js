@@ -205,20 +205,27 @@ chatForm.addEventListener("submit", async (e) => {
   typingIndicator.hidden = false;
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
-  try {
-    const res = await fetch(
-  "https://leocore-backend.onrender.com/api/chat",
-       {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: text,
-        userId: "leo-user",
-        mode: currentMode
-      })
-    });
+  await warmBackend(); // 🔥 critical
 
-    const data = await res.json();
+const res = await fetch(
+  "https://leocore-backend.onrender.com/api/chat",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      message: text,
+      userId: "leo-user",
+      mode: currentMode
+    })
+  }
+);
+
+    if (!res.ok) {
+  const raw = await res.text();
+  throw new Error(raw);
+}
+
+const data = await res.json();
     typingIndicator.hidden = true;
 
     if (data.reply) {
