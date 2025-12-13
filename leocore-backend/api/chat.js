@@ -242,11 +242,13 @@ ${toneBoost}
 
         // SAVE
         mem.lastAssistant = reply;
-        mem.history.push({ role: "assistant", content: reply });
         mem.history.push({ role: "user", content: message });
+mem.history.push({ role: "assistant", content: reply });
 
-        if (mem.history.length > 22) mem.history.shift();
-
+        while (mem.history.length > 20) {
+  mem.history.shift();
+  mem.history.shift();
+}
         return res.json({ reply: warmup + reply });
 
     } catch (err) {
