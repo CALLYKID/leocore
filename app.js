@@ -1,3 +1,5 @@
+
+alert("JS LOADED");
 document.addEventListener("DOMContentLoaded", () => {
   const fakeText = document.getElementById("hero-text");
   if (!fakeText) return;
