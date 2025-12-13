@@ -973,3 +973,25 @@ body {
     transform: translateY(0);
   }
 }
+.chat-backdrop {
+  pointer-events: none;
+}
+#chat-overlay {
+  z-index: 100;
+}
+
+.chat-backdrop {
+  z-index: 0;
+}
+
+.chat-panel {
+  z-index: 1;
+  pointer-events: auto;
+}
+.chat-panel {
+  overscroll-behavior: contain;
+}
+
+.chat-messages {
+  -webkit-overflow-scrolling: touch;
+}
