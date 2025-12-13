@@ -146,11 +146,6 @@ function openChat() {
    if (!hasRealMessages()) {
   showEmptyState();
    }
-
-  // 👇 SHOW EMPTY STATE IF NO MESSAGES
-  if (chatMessages.children.length === 0) {
-    showEmptyState();
-  }
 }
 
 function closeChat() {
@@ -236,6 +231,10 @@ function hasRealMessages() {
 
 /* ================= STREAM SIM ================= */
 async function streamIntoBubble(el, text) {
+   if (stopRequested) {
+  setStreamingState(false);
+  return;
+   }
   el.classList.remove("thinking");
   el.textContent = "";
 
@@ -246,7 +245,10 @@ async function streamIntoBubble(el, text) {
   let lastFlush = performance.now();
 
   for (let i = 0; i < text.length; i++) {
-    if (stopRequested) break;
+    if (stopRequested) {
+  setStreamingState(false);
+  return;
+}
 
     buffer += text[i];
 
@@ -267,7 +269,9 @@ async function streamIntoBubble(el, text) {
   }
 
   // ONE smooth settle at the end
+  if (isNearBottom(chatMessages)) {
   smoothToBottom(chatMessages);
+  }
 
   setStreamingState(false);
   controller = null;
