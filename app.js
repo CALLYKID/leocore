@@ -216,17 +216,19 @@ async function streamIntoBubble(el, text) {
 /* ============================================================
    SEND MESSAGE → BACKEND
 ============================================================ */
+let controller = null;
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // STOP MODE
-  if (isStreaming) {
-    stopRequested = true;
-    setStreamingState(false);
+  /* ================= STOP MODE ================= */
+  if (isStreaming && controller) {
+    controller.abort();          // 🔴 cancel backend request
+    stopRequested = true;        // stop frontend stream loop
+    setStreamingState(false);    // revert button UI
     return;
   }
 
-  // SEND MODE
+  /* ================= SEND MODE ================= */
   const text = chatInput.value.trim();
   if (!text) return;
 
@@ -235,20 +237,29 @@ chatForm.addEventListener("submit", async (e) => {
 
   const leoBubble = createLeoOrbitalBubble();
 
+  controller = new AbortController(); // 🧠 NEW controller
+
   try {
-  const res = await fetch("https://leocore.onrender.com/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      message: text,
-      mode: currentMode
-    })
-  });
+    setStreamingState(true);
 
-  const data = await res.json();
+    const res = await fetch("https://leocore.onrender.com/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      signal: controller.signal, // 🔥 THIS is the magic
+      body: JSON.stringify({
+        message: text,
+        mode: currentMode
+      })
+    });
 
-  await streamIntoBubble(leoBubble, data.reply);
-} catch (err) {
-  leoBubble.textContent = "⚠️ Connection failed.";
-  setStreamingState(false);
+    const data = await res.json();
+
+    await streamIntoBubble(leoBubble, data.reply);
+
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      leoBubble.textContent = "⚠️ Connection failed.";
+    }
+    setStreamingState(false);
   }
+});
