@@ -1,21 +1,19 @@
 /* ============================================================
    0. RESET + VARIABLES
 ============================================================ */
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
 
-:root{
+:root {
   --bg-dark: rgba(6, 18, 30, 0.78);
   --neon-a: #00eaff;
   --neon-b: #8a3cff;
   --neon-c: #ff3bd4;
-
-  /* tweak these */
-  --bg-blur: 8px;       /* 6–10 */
-  --bg-scale: 1.06;     /* hides blur edges */
-  --bg-dim: 0.92;       /* makes text pop */
 }
 
-html, body{
+html, body {
   margin: 0;
   width: 100%;
   height: 100%;
@@ -26,9 +24,9 @@ html, body{
 }
 
 /* ============================================================
-   1. BACKGROUND VIDEO (REAL)
+   1. BACKGROUND VIDEO (THIS IS THE BLUR)
 ============================================================ */
-#bgLayer{
+#bgLayer {
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -44,18 +42,19 @@ html, body{
   object-fit: cover;
   object-position: center;
 
-  /* THIS is the look from your screenshot */
+  /* FORCE VISIBLE BLUR (ANDROID SAFE) */
   filter:
-    blur(4px)
-    saturate(1.08)
-    contrast(0.92)
-    brightness(0.95);
+    blur(10px)
+    saturate(1.05)
+    contrast(0.85)
+    brightness(0.9);
 
-  transform: scale(1.045);
+  transform: scale(1.12); /* hides blur edges */
   will-change: transform, filter;
 }
+
 /* ============================================================
-   2. CINEMATIC OVERLAY (DEPTH)
+   2. DARK CINEMATIC OVERLAY
 ============================================================ */
 #bgOverlay {
   position: fixed;
@@ -66,15 +65,15 @@ html, body{
   background:
     radial-gradient(
       140% 140% at 50% 0%,
-      rgba(0,0,0,0.18),
-      rgba(0,0,0,0.55)
+      rgba(0, 0, 0, 0.2),
+      rgba(0, 0, 0, 0.6)
     );
 }
 
 /* ============================================================
-   3. APP WRAPPER
+   3. APP LAYER
 ============================================================ */
-.app-wrapper{
+.app-wrapper {
   position: relative;
   z-index: 2;
   min-height: 100svh;
@@ -86,20 +85,28 @@ html, body{
 /* ============================================================
    4. HERO
 ============================================================ */
-.center-wrapper{
+.center-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 14px;
 }
 
-.main-title{ font-size: 36px; font-weight: 800; margin: 0; }
-.subtitle{ margin: 0; opacity: 0.85; }
+.main-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.subtitle {
+  margin: 0;
+  opacity: 0.85;
+}
 
 /* ============================================================
    5. HERO INPUT
 ============================================================ */
-.hero-input{
+.hero-input {
   width: 320px;
   height: 56px;
   border-radius: 18px;
@@ -108,15 +115,19 @@ html, body{
   position: relative;
   overflow: hidden;
   isolation: isolate;
+
   display: flex;
   align-items: center;
   justify-content: center;
 
-  box-shadow: 0 0 18px rgba(0,234,255,0.22), 0 0 36px rgba(180,0,255,0.14);
+  box-shadow:
+    0 0 18px rgba(0,234,255,0.22),
+    0 0 36px rgba(180,0,255,0.14);
+
   animation: heroIdleGlow 6s ease-in-out infinite;
 }
 
-.hero-text{
+.hero-text {
   position: relative;
   z-index: 5;
   font-size: 17px;
@@ -126,54 +137,92 @@ html, body{
   animation: heroTextBreath 3s ease-in-out infinite;
 }
 
-.hero-energy{
+.hero-energy {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: linear-gradient(120deg, transparent 30%, rgba(0,234,255,0.85), rgba(180,0,255,0.85), rgba(255,59,212,0.85), transparent 70%);
+
+  background: linear-gradient(
+    120deg,
+    transparent 30%,
+    rgba(0,234,255,0.85),
+    rgba(180,0,255,0.85),
+    rgba(255,59,212,0.85),
+    transparent 70%
+  );
+
   transform: translateX(-120%);
   animation: heroEnergyFlow 4s linear infinite;
 }
 
-.hero-ambient{
+.hero-ambient {
   position: absolute;
   inset: -20%;
   z-index: 0;
   pointer-events: none;
+
   background:
-    radial-gradient(40% 60% at 30% 20%, rgba(0,234,255,0.12), transparent 60%),
-    radial-gradient(50% 70% at 70% 80%, rgba(180,0,255,0.10), transparent 65%);
+    radial-gradient(
+      40% 60% at 30% 20%,
+      rgba(0,234,255,0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      50% 70% at 70% 80%,
+      rgba(180,0,255,0.10),
+      transparent 65%
+    );
+
   filter: blur(18px);
   opacity: 0.55;
   animation: heroAmbientDrift 22s linear infinite;
 }
 
-.hero-input::after{
-  content:"";
-  position:absolute;
-  inset:2px;
-  border-radius:16px;
+.hero-input::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  border-radius: 16px;
+
   background:
-    radial-gradient(120% 120% at 20% 0%, rgba(0,234,255,0.08), transparent 60%),
-    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(0,0,0,0.28));
-  z-index:1;
+    radial-gradient(
+      120% 120% at 20% 0%,
+      rgba(0,234,255,0.08),
+      transparent 60%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.05),
+      rgba(0,0,0,0.28)
+    );
+
+  z-index: 1;
 }
 
 /* ============================================================
    6. MODES
 ============================================================ */
-.modes-wrapper{ flex: 1; display:flex; flex-direction:column; }
-.section-title{ text-align:center; font-size: clamp(22px, 6vw, 32px); margin: 26px 0 18px; }
+.modes-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
 
-.mode-grid{
+.section-title {
+  text-align: center;
+  font-size: clamp(22px, 6vw, 32px);
+  margin: 26px 0 18px;
+}
+
+.mode-grid {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-.neon-btn{
+.neon-btn {
   min-height: 68px;
   border-radius: 20px;
   background: var(--bg-dark);
@@ -184,38 +233,66 @@ html, body{
   font-size: 15px;
 }
 
-.neon-btn span{ position: relative; z-index: 3; }
+.neon-btn span {
+  position: relative;
+  z-index: 3;
+}
 
-.neon-btn::before{
-  content:"";
-  position:absolute;
-  inset:-2px;
-  border-radius:inherit;
-  background: conic-gradient(var(--neon-a), var(--neon-b), var(--neon-c), var(--neon-a));
+.neon-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+
+  background: conic-gradient(
+    var(--neon-a),
+    var(--neon-b),
+    var(--neon-c),
+    var(--neon-a)
+  );
+
   animation: neonSpin 3.6s linear infinite;
 }
 
-.neon-btn::after{
-  content:"";
-  position:absolute;
-  inset:3px;
-  border-radius:17px;
+.neon-btn::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 17px;
   background: var(--bg-dark);
 }
 
 /* ============================================================
    7. ANIMATIONS
 ============================================================ */
-@keyframes neonSpin{ to{ transform: rotate(360deg); } }
-@keyframes heroEnergyFlow{ to{ transform: translateX(120%); } }
-@keyframes heroAmbientDrift{ 0%{transform:translate(0,0)} 50%{transform:translate(-6%,4%)} 100%{transform:translate(0,0)} }
-
-@keyframes heroIdleGlow{
-  0%,100%{ box-shadow: 0 0 14px rgba(0,234,255,0.18), 0 0 28px rgba(180,0,255,0.12); }
-  50%{ box-shadow: 0 0 26px rgba(0,234,255,0.34), 0 0 52px rgba(180,0,255,0.22); }
+@keyframes neonSpin {
+  to { transform: rotate(360deg); }
 }
 
-@keyframes heroTextBreath{
-  0%,100%{ opacity: 0.88; }
-  50%{ opacity: 1; }
+@keyframes heroEnergyFlow {
+  to { transform: translateX(120%); }
+}
+
+@keyframes heroAmbientDrift {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-6%,4%); }
+  100% { transform: translate(0,0); }
+}
+
+@keyframes heroIdleGlow {
+  0%,100% {
+    box-shadow:
+      0 0 14px rgba(0,234,255,0.18),
+      0 0 28px rgba(180,0,255,0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 26px rgba(0,234,255,0.34),
+      0 0 52px rgba(180,0,255,0.22);
+  }
+}
+
+@keyframes heroTextBreath {
+  0%,100% { opacity: 0.88; }
+  50% { opacity: 1; }
 }
