@@ -19,6 +19,12 @@ html, body {
   background: #000;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: #fff;
+  color-scheme: dark;
+}
+
+/* Prevent OLED greying + increase perceived contrast */
+body {
+  text-shadow: 0 0 0.01px rgba(255,255,255,0.01);
 }
 
 /* ================= BACKGROUND (LOCKED STACK) ================= */
@@ -29,7 +35,7 @@ html, body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  isolation: isolate; /* prevents bleed into app */
+  isolation: isolate;
 }
 
 #bg-video {
@@ -39,10 +45,17 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(0.9) contrast(0.75) brightness(0.9);
-  transform: scale(1.08);
+
+  /* cinematic grading */
+  filter:
+    saturate(1.05)
+    contrast(0.82)
+    brightness(0.85);
+
+  transform: scale(1.1);
 }
 
+/* Soft light diffusion */
 .bg-soften {
   position: absolute;
   inset: 0;
@@ -52,33 +65,35 @@ html, body {
     rgba(255,255,255,0.06),
     transparent 60%
   );
-  filter: blur(28px);
+  filter: blur(30px);
   opacity: 0.6;
 }
 
+/* Color bloom (depth, not fog) */
 .bg-bloom {
   position: absolute;
-  inset: -10%;
+  inset: -12%;
   z-index: 2;
   background:
-    radial-gradient(40% 60% at 25% 30%, rgba(0,234,255,0.08), transparent 60%),
-    radial-gradient(50% 70% at 75% 70%, rgba(138,60,255,0.07), transparent 65%);
-  filter: blur(40px);
-  opacity: 0.7;
+    radial-gradient(40% 60% at 25% 30%, rgba(0,234,255,0.09), transparent 60%),
+    radial-gradient(50% 70% at 75% 70%, rgba(138,60,255,0.08), transparent 65%);
+  filter: blur(46px);
+  opacity: 0.85;
 }
 
+/* Deep vignette for separation */
 .bg-vignette {
   position: absolute;
   inset: 0;
   z-index: 3;
   background: radial-gradient(
-    140% 140% at 50% 0%,
+    120% 120% at 50% 0%,
     rgba(0,0,0,0.15),
-    rgba(0,0,0,0.65)
+    rgba(0,0,0,0.82)
   );
 }
 
-/* ================= APP (SCROLL CONTAINER) ================= */
+/* ================= APP BASE ================= */
 body {
   overflow: hidden;
   overscroll-behavior: none;
@@ -86,8 +101,8 @@ body {
 
 .app-wrapper {
   position: relative;
-  z-index: 10;          /* ← APP BASE LAYER */
-  isolation: isolate;   /* ← critical for chat later */
+  z-index: 10;
+  isolation: isolate;
 
   height: calc(var(--vh, 1vh) * 100);
   overflow-y: auto;
@@ -100,6 +115,18 @@ body {
   overscroll-behavior: contain;
 }
 
+/* Ambient depth layer behind UI */
+.app-wrapper::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(80% 60% at 50% 20%, rgba(0,234,255,0.06), transparent 60%),
+    radial-gradient(70% 60% at 50% 80%, rgba(138,60,255,0.05), transparent 65%);
+}
 /* ================= HERO ================= */
 .center-wrapper {
   display: flex;
@@ -112,6 +139,7 @@ body {
   font-size: 36px;
   font-weight: 800;
   margin: 0;
+  letter-spacing: 0.6px;
 }
 
 .subtitle {
@@ -119,53 +147,69 @@ body {
   margin: 0;
 }
 
+/* Hero input (cinematic, not flat) */
 .hero-input {
   width: 320px;
   height: 56px;
   border-radius: 18px;
   border: none;
-  background: var(--bg-dark);
+  background: linear-gradient(
+    180deg,
+    rgba(10,18,30,0.92),
+    rgba(6,12,22,0.92)
+  );
+
   position: relative;
   overflow: hidden;
-  isolation: isolate;   /* ← locks hero internals */
+  isolation: isolate;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   box-shadow:
-    0 0 18px rgba(0,234,255,0.22),
-    0 0 36px rgba(180,0,255,0.14);
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 12px 32px rgba(0,0,0,0.55),
+    0 0 22px rgba(0,234,255,0.28);
 }
 
+/* Ambient glow inside hero */
 .hero-ambient {
   position: absolute;
-  inset: -20%;
+  inset: -25%;
   z-index: 1;
   pointer-events: none;
+
   background:
-    radial-gradient(40% 60% at 30% 20%, rgba(0,234,255,0.12), transparent 60%),
-    radial-gradient(50% 70% at 70% 80%, rgba(180,0,255,0.10), transparent 65%);
-  filter: blur(18px);
-  opacity: 0.55;
+    radial-gradient(40% 60% at 30% 20%, rgba(0,234,255,0.14), transparent 60%),
+    radial-gradient(50% 70% at 70% 80%, rgba(180,0,255,0.12), transparent 65%);
+
+  filter: blur(20px);
+  opacity: 0.6;
   animation: heroAmbientDrift 22s linear infinite;
 }
 
+/* Energy sweep */
 .hero-energy {
   position: absolute;
   inset: 0;
   z-index: 3;
   pointer-events: none;
+
   background: linear-gradient(
     120deg,
     transparent 30%,
-    rgba(0,234,255,0.85),
+    rgba(0,234,255,0.9),
     rgba(180,0,255,0.85),
     rgba(255,59,212,0.85),
     transparent 70%
   );
+
   transform: translateX(-120%);
   animation: heroEnergyFlow 4s linear infinite;
 }
 
+/* Text breathing */
 .hero-text {
   position: relative;
   z-index: 5;
@@ -174,12 +218,13 @@ body {
   letter-spacing: 0.4px;
   color: #eaf9ff;
   white-space: nowrap;
+
   animation: heroTextBreath 3s ease-in-out infinite;
 }
 
 /* ================= MODES ================= */
 .modes-wrapper {
-  margin-top: 32px;
+  margin-top: 34px;
 }
 
 .section-title {
@@ -194,46 +239,69 @@ body {
   gap: 18px;
 }
 
+/* Mode card base */
 .neon-btn {
   width: 100%;
   min-height: 86px;
   border-radius: 22px;
   border: none;
-  background: var(--bg-dark);
+
+  background: linear-gradient(
+    180deg,
+    rgba(14,22,36,0.92),
+    rgba(8,14,26,0.92)
+  );
+
   position: relative;
   overflow: hidden;
-  isolation: isolate;   /* ← critical */
+  isolation: isolate;
+
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+
   color: #eaf9ff;
+
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04),
+    0 18px 42px rgba(0,0,0,0.6);
 }
 
+/* Animated neon border */
 .neon-btn::before {
   content: "";
   position: absolute;
   inset: -2px;
   z-index: 1;
   border-radius: inherit;
+
   background: conic-gradient(
     var(--neon-a),
     var(--neon-b),
     var(--neon-c),
     var(--neon-a)
   );
+
   animation: neonSpin 3.6s linear infinite;
 }
 
+/* Inner surface */
 .neon-btn::after {
   content: "";
   position: absolute;
   inset: 3px;
   z-index: 2;
   border-radius: 19px;
-  background: var(--bg-dark);
+
+  background: linear-gradient(
+    180deg,
+    rgba(12,20,34,0.95),
+    rgba(6,10,18,0.95)
+  );
 }
 
+/* Content */
 .mode-content {
   position: relative;
   z-index: 3;
@@ -248,18 +316,22 @@ body {
   top: 12px;
   right: 14px;
   z-index: 4;
+
   font-size: 10px;
   padding: 4px 8px;
   border-radius: 999px;
+
   background: rgba(0,234,255,0.14);
   color: #7df6ff;
   border: 1px solid rgba(0,234,255,0.35);
 }
 
+/* Recommended emphasis */
 .neon-btn.recommended {
   box-shadow:
-    0 0 18px rgba(0,234,255,0.28),
-    0 0 36px rgba(0,234,255,0.14);
+    0 0 0 1px rgba(0,234,255,0.25),
+    0 0 26px rgba(0,234,255,0.35),
+    0 24px 60px rgba(0,0,0,0.7);
 }
 
 /* ================= ANIMATIONS ================= */
@@ -272,21 +344,20 @@ body {
 }
 
 @keyframes heroAmbientDrift {
-  0% { transform: translate(0,0); }
-  50% { transform: translate(-6%,4%); }
+  0%   { transform: translate(0,0); }
+  50%  { transform: translate(-6%,4%); }
   100% { transform: translate(0,0); }
 }
 
 @keyframes heroTextBreath {
   0%,100% { opacity: 0.88; }
-  50% { opacity: 1; }
+  50%     { opacity: 1; }
 }
 /* ================= CHAT OVERLAY ================= */
-
 #chat-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100; /* RESERVED CHAT LAYER */
+  z-index: 100;
   pointer-events: none;
 }
 
@@ -294,17 +365,25 @@ body {
   pointer-events: auto;
 }
 
-/* Backdrop */
+/* Backdrop — depth + separation */
 .chat-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(6px);
+  background: radial-gradient(
+    120% 120% at 50% 0%,
+    rgba(0,0,0,0.45),
+    rgba(0,0,0,0.75)
+  );
+  backdrop-filter: blur(8px);
   opacity: 0;
   transition: opacity 0.35s ease;
 }
 
-/* Panel */
+#chat-overlay[aria-hidden="false"] .chat-backdrop {
+  opacity: 1;
+}
+
+/* ================= CHAT PANEL ================= */
 .chat-panel {
   position: absolute;
   left: 0;
@@ -312,25 +391,25 @@ body {
   bottom: 0;
 
   height: calc(var(--vh, 1vh) * 100);
+
   background: linear-gradient(
     180deg,
-    rgba(10,16,26,0.92),
-    rgba(6,10,18,0.96)
+    rgba(12,18,30,0.96),
+    rgba(6,10,18,0.98)
   );
 
   border-radius: 22px 22px 0 0;
+
   transform: translateY(100%);
-  transition: transform 0.4s cubic-bezier(.22,.9,.3,1);
+  transition: transform 0.45s cubic-bezier(.22,.9,.3,1);
 
   display: flex;
   flex-direction: column;
-
   isolation: isolate;
-}
 
-/* Active state */
-#chat-overlay[aria-hidden="false"] .chat-backdrop {
-  opacity: 1;
+  box-shadow:
+    0 -12px 40px rgba(0,0,0,0.6),
+    0 0 0 1px rgba(255,255,255,0.05);
 }
 
 #chat-overlay[aria-hidden="false"] .chat-panel {
@@ -338,12 +417,17 @@ body {
 }
 
 /* ================= HEADER ================= */
-
 .chat-header {
   padding: 18px 18px 14px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  background: linear-gradient(
+    180deg,
+    rgba(18,26,40,0.85),
+    rgba(10,16,26,0.65)
+  );
 
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
@@ -365,20 +449,28 @@ body {
   border: none;
   color: #fff;
   font-size: 20px;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 /* ================= MESSAGES ================= */
-
 .chat-messages {
   flex: 1;
   padding: 18px;
   overflow-y: auto;
+
   display: flex;
   flex-direction: column;
   gap: 14px;
+
+  background:
+    radial-gradient(
+      120% 120% at 50% 0%,
+      rgba(0,234,255,0.05),
+      transparent 60%
+    );
 }
 
+/* Base bubble */
 .chat-message {
   max-width: 80%;
   padding: 12px 14px;
@@ -387,69 +479,123 @@ body {
   line-height: 1.45;
 }
 
+/* User bubble — crisp */
 .chat-message.user {
   align-self: flex-end;
-  background: rgba(0,234,255,0.14);
+
+  background: linear-gradient(
+    135deg,
+    rgba(0,234,255,0.22),
+    rgba(0,140,255,0.18)
+  );
+
   color: #eaf9ff;
+
+  box-shadow:
+    0 8px 22px rgba(0,0,0,0.45);
 }
 
+/* LeoCore bubble — cinematic */
 .chat-message.leocore {
   align-self: flex-start;
-  background: rgba(255,255,255,0.08);
-  color: #eaf9ff;
-}
-/* ============================================================
-   LEOCORE ORBITAL INDICATOR (ACTUAL IMPLEMENTATION)
-============================================================ */
 
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,0.10),
+    rgba(255,255,255,0.05)
+  );
+
+  color: #eaf9ff;
+
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.55),
+    inset 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* ================= ORBITAL THINKING INDICATOR ================= */
+.chat-message.leocore.thinking {
+  background: rgba(255,255,255,0.04);
+  padding: 12px 16px;
+  border-radius: 14px;
+  width: fit-content;
+}
+
+/* Orbital core */
 .orbit-loader {
   position: relative;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
 }
 
-.orbit-loader::before,
-.orbit-loader::after {
+.orbit-loader::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 1.5px solid rgba(0,234,255,0.9);
+  border: 1.5px solid rgba(0,234,255,0.85);
   animation: orbit 1.4s linear infinite;
 }
 
 .orbit-loader::after {
-  width: 6px;
-  height: 6px;
-  background: #00eaff;
-  border-radius: 50%;
+  content: "";
+  position: absolute;
   top: 50%;
   left: 50%;
+
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+
+  background: #00eaff;
+
   transform: translate(-50%, -50%);
   animation: pulseCore 1.2s ease-in-out infinite;
 }
 
-@keyframes pulseCore {
-  0%,100% { transform: translate(-50%,-50%) scale(0.9); opacity: 0.7; }
-  50%     { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
+@keyframes orbit {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
 }
-/* ================= INPUT ================= */
 
+@keyframes pulseCore {
+  0%,100% {
+    transform: translate(-50%,-50%) scale(0.85);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%,-50%) scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* ================= INPUT BAR ================= */
 .chat-input-bar {
   padding: 14px;
   display: flex;
   gap: 10px;
+
+  background: linear-gradient(
+    180deg,
+    rgba(12,18,30,0.85),
+    rgba(6,10,18,0.95)
+  );
+
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
 #chatInput {
   flex: 1;
-  background: rgba(255,255,255,0.08);
+
+  background: rgba(255,255,255,0.10);
   border: none;
   border-radius: 14px;
+
   padding: 12px 14px;
   color: #fff;
   font-size: 14.5px;
+
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.05);
 }
 
 #sendBtn {
@@ -457,21 +603,17 @@ body {
   height: 44px;
   border-radius: 50%;
   border: none;
+
   background: linear-gradient(
     135deg,
     var(--neon-a),
     var(--neon-b)
   );
+
   color: #000;
   font-size: 18px;
-}
 
-/* ================= CHAT OVERLAY VISIBILITY ================= */
-@keyframes orbit {
-  from {
-    transform: rotate(0deg) translateX(10px);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.12),
+    0 8px 22px rgba(0,0,0,0.55);
   }
-  to {
-    transform: rotate(360deg) translateX(10px);
-  }
-}
