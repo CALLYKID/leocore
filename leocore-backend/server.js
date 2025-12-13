@@ -1,3 +1,9 @@
+// ================= ENVIRONMENT GUARD =================
+if (!process.env.GROQ_API_KEY) {
+  console.error("❌ FATAL: GROQ_API_KEY is missing.");
+  console.error("➡️ Add it in Render → Environment Variables.");
+  process.exit(1); // hard stop — no fake running server
+}
 import express from "express";
 import cors from "cors";
 import chatHandler from "./api/chat.js";
@@ -23,4 +29,11 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
     console.log("LeoCore backend running on port " + PORT);
+});
+app.get("/health", (req, res) => {
+  res.json({
+    status: "ok",
+    groqKeyLoaded: !!process.env.GROQ_API_KEY,
+    uptime: process.uptime()
+  });
 });
