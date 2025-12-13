@@ -5,8 +5,12 @@
 }
 
 /* Decorative layers must never block clicks */
-::before,
-::after {
+.hero-input::before,
+.hero-input::after,
+.neon-btn::before,
+.neon-btn::after,
+.chat-header::before,
+.chat-message.leocore.thinking::before {
   pointer-events: none;
 }
 
@@ -149,6 +153,8 @@ body {
   height: 56px;
   border-radius: 18px;
   border: none;
+  cursor: pointer;
+  touch-action: manipulation;
 
   background: linear-gradient(
     180deg,
