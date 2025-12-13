@@ -16,7 +16,7 @@ window.addEventListener("resize", setVh);
 ============================================================ */
 async function warmBackend() {
   try {
-    await fetch("https://leocore-backend.onrender.com/ping", {
+    await fetch("https://leocore.onrender.com/ping", {
       method: "GET",
       cache: "no-store"
     });
@@ -232,7 +232,7 @@ chatForm.addEventListener("submit", async (e) => {
     await warmBackend();
 
     const res = await fetch(
-      "https://leocore-backend.onrender.com/api/chat",
+      "https://leocore.onrender.com/api/chat",
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
