@@ -231,7 +231,6 @@ const EMPTY_STATES = {
 };
 
 function showEmptyState() {
-function showEmptyState() {
   const el = document.getElementById("emptyState");
   if (!el) return;
 
