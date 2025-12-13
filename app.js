@@ -174,6 +174,9 @@ function setStreamingState(on) {
 async function streamIntoBubble(el, text) {
   el.classList.remove("thinking");
   el.textContent = "";
+  el.style.animation = "none";
+  el.offsetHeight; // force reflow
+  el.style.animation = "";
 
   setStreamingState(true);
   stopRequested = false;
