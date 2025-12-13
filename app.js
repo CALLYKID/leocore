@@ -240,26 +240,27 @@ chatForm.addEventListener("submit", async (e) => {
   controller = new AbortController(); // 🧠 NEW controller
 
   try {
-    setStreamingState(true);
+  const res = await fetch("https://leocore.onrender.com/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    signal: controller.signal,
+    body: JSON.stringify({
+      message: text,
+      mode: currentMode
+    })
+  });
 
-    const res = await fetch("https://leocore.onrender.com/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      signal: controller.signal, // 🔥 THIS is the magic
-      body: JSON.stringify({
-        message: text,
-        mode: currentMode
-      })
-    });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-    const data = await res.json();
+  const raw = await res.text();
+  const data = JSON.parse(raw);
 
-    await streamIntoBubble(leoBubble, data.reply);
+  setStreamingState(true);
+  await streamIntoBubble(leoBubble, data.reply);
 
-  } catch (err) {
-    if (err.name !== "AbortError") {
-      leoBubble.textContent = "⚠️ Connection failed.";
-    }
-    setStreamingState(false);
+} catch (err) {
+  if (err.name !== "AbortError") {
+    leoBubble.textContent = "⚠️ Backend unavailable.";
   }
-});
+  setStreamingState(false);
+  }
