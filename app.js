@@ -187,7 +187,6 @@ function setStreamingState(on) {
 
 /* ================= STREAM SIM ================= */
 async function streamIntoBubble(el, text) {
-async function streamIntoBubble(el, text) {
   el.classList.remove("thinking");
   el.textContent = "";
 
