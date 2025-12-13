@@ -1,15 +1,22 @@
-console.log("✅ app.js loaded");
-
 /* ============================================================
-   GLOBAL STATE
+   LEOCORE APP.JS — FINAL STABLE BUILD
 ============================================================ */
+
+/* ================= GLOBAL STATE ================= */
 let isStreaming = false;
 let stopRequested = false;
 let controller = null;
 
-/* ============================================================
-   VIEWPORT LOCK (MOBILE SAFE)
-============================================================ */
+/* ================= USER ID (REQUIRED) ================= */
+const USER_ID =
+  localStorage.getItem("leocore_uid") ||
+  (() => {
+    const id = crypto.randomUUID();
+    localStorage.setItem("leocore_uid", id);
+    return id;
+  })();
+
+/* ================= VIEWPORT LOCK ================= */
 function setVh() {
   document.documentElement.style.setProperty(
     "--vh",
@@ -19,9 +26,7 @@ function setVh() {
 setVh();
 window.addEventListener("resize", setVh);
 
-/* ============================================================
-   BACKEND WARM-UP (RENDER COLD START FIX)
-============================================================ */
+/* ================= BACKEND WARM ================= */
 async function warmBackend() {
   try {
     await fetch("https://leocore.onrender.com/ping", {
@@ -29,213 +34,207 @@ async function warmBackend() {
       cache: "no-store"
     });
   } catch {
-    // intentionally silent
+    /* silent */
   }
 }
 
-/* ============================================================
-   MODE MAP
-============================================================ */
+/* ================= DOM READY ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("DOM ready");
+  initHeroTyping();
+  initModes();
+});
+
+/* ================= HERO FAKE TYPING ================= */
+function initHeroTyping() {
+  const fakeText = document.getElementById("hero-text");
+  if (!fakeText) return;
+
+  const phrases = [
+    "Message LeoCore",
+    "Build me a plan",
+    "Help me revise",
+    "I'm ready",
+    "Give me a funny joke",
+    "Let's chat"
+  ];
+
+  let p = 0, c = 0, mode = "type";
+
+  function loop() {
+    const t = phrases[p];
+
+    if (mode === "type") {
+      fakeText.textContent = t.slice(0, ++c);
+      if (c === t.length) {
+        mode = "pause";
+        setTimeout(() => (mode = "delete"), 1200);
+      }
+    } else if (mode === "delete") {
+      fakeText.textContent = t.slice(0, --c);
+      if (c === 0) {
+        mode = "type";
+        p = (p + 1) % phrases.length;
+      }
+    }
+    setTimeout(loop, mode === "delete" ? 40 : 70);
+  }
+
+  loop();
+}
+
+/* ================= MODES ================= */
 let currentMode = "default";
 
 const MODE_MAP = {
-  default:   { label: "⚡ Default",   desc: "Balanced answers for everyday questions" },
-  study:     { label: "📘 Study",     desc: "Clear explanations with examples" },
-  research:  { label: "🔬 Research",  desc: "Detailed, structured, and factual" },
-  reading:   { label: "📖 Reading",   desc: "Summaries and simplified explanations" },
-  deep:      { label: "🧠 Deep",      desc: "Long-form reasoning and insights" },
-  chill:     { label: "😎 Chill",     desc: "Casual, friendly conversation" },
+  default: { label: "⚡ Default", desc: "Balanced answers for everyday questions" },
+  study: { label: "📘 Study", desc: "Clear explanations with examples" },
+  research: { label: "🔬 Research", desc: "Detailed, structured, and factual" },
+  reading: { label: "📖 Reading", desc: "Summaries and simplified explanations" },
+  deep: { label: "🧠 Deep", desc: "Long-form reasoning and insights" },
+  chill: { label: "😎 Chill", desc: "Casual, friendly conversation" },
   precision: { label: "🎯 Precision", desc: "Short, exact, no fluff answers" },
-  flame:     { label: "🔥 Flame",     desc: "Creative, bold, high-energy responses" }
+  flame: { label: "🔥 Flame", desc: "Creative, bold, high-energy responses" }
 };
 
 const MODE_KEYS = Object.keys(MODE_MAP);
 
-/* ============================================================
-   DOM READY — ALL DOM WORK LIVES HERE (CRASH-PROOF)
-============================================================ */
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🧠 DOM ready");
+/* ================= DOM REFS ================= */
+const chatOverlay  = document.getElementById("chat-overlay");
+const chatCloseBtn = document.getElementById("chatCloseBtn");
+const chatMessages = document.getElementById("chatMessages");
+const chatForm     = document.getElementById("chatForm");
+const chatInput    = document.getElementById("chatInput");
+const chatMode     = document.getElementById("chatMode");
+const chatModeDesc = document.getElementById("chatModeDesc");
+const heroInput    = document.querySelector(".hero-input");
+const modeButtons  = document.querySelectorAll(".neon-btn");
+const sendBtn      = document.getElementById("sendBtn");
 
-  /* ---------------- DOM REFERENCES ---------------- */
-  const chatOverlay  = document.getElementById("chat-overlay");
-  const chatCloseBtn = document.getElementById("chatCloseBtn");
-  const chatMessages = document.getElementById("chatMessages");
-  const chatForm     = document.getElementById("chatForm");
-  const chatInput    = document.getElementById("chatInput");
-  const sendBtn      = document.getElementById("sendBtn");
+/* ================= MODE INIT ================= */
+function initModes() {
+  setMode("default");
+}
 
-  const chatMode     = document.getElementById("chatMode");
-  const chatModeDesc = document.getElementById("chatModeDesc");
+function setMode(key) {
+  const m = MODE_MAP[key] || MODE_MAP.default;
+  currentMode = key;
+  chatMode.textContent = m.label;
+  chatModeDesc.textContent = m.desc;
+}
 
-  const heroInput    = document.querySelector(".hero-input");
-  const modeButtons  = document.querySelectorAll(".neon-btn");
+/* ================= CHAT OPEN/CLOSE ================= */
+function openChat() {
+  chatOverlay.setAttribute("aria-hidden", "false");
+  warmBackend();
+  setTimeout(() => chatInput.focus({ preventScroll: true }), 600);
+}
 
-  if (!chatForm || !chatInput || !sendBtn || !chatOverlay) {
-    console.error("❌ Critical DOM missing — JS halted safely");
+function closeChat() {
+  chatOverlay.setAttribute("aria-hidden", "true");
+}
+
+chatCloseBtn.addEventListener("click", closeChat);
+
+heroInput.addEventListener("click", () => {
+  setMode("default");
+  openChat();
+});
+
+modeButtons.forEach((btn, i) => {
+  btn.addEventListener("click", () => {
+    setMode(MODE_KEYS[i] || "default");
+    openChat();
+  });
+});
+
+/* ================= MESSAGE HELPERS ================= */
+function addMessage(text, type) {
+  const el = document.createElement("div");
+  el.className = `chat-message ${type}`;
+  el.textContent = text;
+  chatMessages.appendChild(el);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function createLeoOrbitalBubble() {
+  const el = document.createElement("div");
+  el.className = "chat-message leocore thinking";
+  el.innerHTML = `<div class="orbit-loader"></div>`;
+  chatMessages.appendChild(el);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return el;
+}
+
+function setStreamingState(on) {
+  isStreaming = on;
+  sendBtn.classList.toggle("streaming", on);
+}
+
+/* ================= STREAM SIM ================= */
+async function streamIntoBubble(el, text) {
+  el.classList.remove("thinking");
+  el.textContent = "";
+
+  setStreamingState(true);
+  stopRequested = false;
+
+  for (let i = 0; i < text.length; i++) {
+    if (stopRequested) break;
+    el.textContent += text[i];
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    await new Promise(r => setTimeout(r, 12));
+  }
+
+  setStreamingState(false);
+}
+
+/* ================= SEND MESSAGE ================= */
+chatForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  /* STOP MODE */
+  if (isStreaming) {
+    stopRequested = true;
+    if (controller) controller.abort();
+    setStreamingState(false);
     return;
   }
 
-  /* ---------------- MODE CONTROL ---------------- */
-  function setMode(modeKey) {
-    const m = MODE_MAP[modeKey] || MODE_MAP.default;
-    currentMode = modeKey;
-    if (chatMode) chatMode.textContent = m.label;
-    if (chatModeDesc) chatModeDesc.textContent = m.desc;
-  }
-  setMode("default");
+  const text = chatInput.value.trim();
+  if (!text) return;
 
-  /* ---------------- CHAT OPEN / CLOSE ---------------- */
-  function openChat() {
-    chatOverlay.setAttribute("aria-hidden", "false");
-    warmBackend(); // 🔥 warm immediately
-  }
+  addMessage(text, "user");
+  chatInput.value = "";
 
-  function closeChat() {
-    chatOverlay.setAttribute("aria-hidden", "true");
-  }
+  const leoBubble = createLeoOrbitalBubble();
+  controller = new AbortController();
 
-  if (chatCloseBtn) {
-    chatCloseBtn.addEventListener("click", closeChat);
-  }
-
-  if (heroInput) {
-    heroInput.addEventListener("click", () => {
-      setMode("default");
-      openChat();
-    });
-  }
-
-  modeButtons.forEach((btn, index) => {
-    btn.addEventListener("click", () => {
-      setMode(MODE_KEYS[index] || "default");
-      openChat();
-    });
-  });
-
-  /* ---------------- HERO FAKE TYPING ---------------- */
-  const fakeText = document.getElementById("hero-text");
-  if (fakeText) {
-    const phrases = [
-      "Message LeoCore",
-      "Build me a plan",
-      "Help me revise",
-      "I'm ready",
-      "Give me a funny joke",
-      "Let's chat"
-    ];
-
-    let p = 0, c = 0, state = "typing";
-
-    (function loop() {
-      const text = phrases[p];
-      if (state === "typing") {
-        fakeText.textContent = text.slice(0, ++c);
-        if (c === text.length) {
-          state = "pausing";
-          setTimeout(() => (state = "deleting"), 1200);
-        }
-      } else if (state === "deleting") {
-        fakeText.textContent = text.slice(0, --c);
-        if (c === 0) {
-          state = "typing";
-          p = (p + 1) % phrases.length;
-        }
-      }
-      setTimeout(loop, state === "deleting" ? 40 : 70);
-    })();
-  }
-
-  /* ---------------- MESSAGE HELPERS ---------------- */
-  function addMessage(text, type) {
-    const msg = document.createElement("div");
-    msg.className = `chat-message ${type}`;
-    msg.textContent = text;
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-  }
-
-  function setStreamingState(on) {
-    isStreaming = on;
-    stopRequested = false;
-    sendBtn.classList.toggle("streaming", on);
-  }
-
-  function createLeoOrbitalBubble() {
-    const msg = document.createElement("div");
-    msg.className = "chat-message leocore thinking";
-    msg.innerHTML = `<div class="orbit-loader"></div>`;
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    return msg;
-  }
-
-  async function streamIntoBubble(el, text) {
-    el.classList.remove("thinking");
-    el.textContent = "";
-    setStreamingState(true);
-
-    for (let i = 0; i < text.length; i++) {
-      if (stopRequested) break;
-      el.textContent += text[i];
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-      await new Promise(r => setTimeout(r, 12));
-    }
-
-    setStreamingState(false);
-  }
-   /* ============================================================
-     SEND MESSAGE → BACKEND (STOP / SEND SAFE)
-  ============================================================ */
-  chatForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    /* ---------- STOP MODE ---------- */
-    if (isStreaming && controller && "AbortController" in window) {
-      controller.abort();
-      stopRequested = true;
-      setStreamingState(false);
-      return;
-    }
-
-    /* ---------- SEND MODE ---------- */
-    const text = chatInput.value.trim();
-    if (!text) return;
-
-    addMessage(text, "user");
-    chatInput.value = "";
-
-    const leoBubble = createLeoOrbitalBubble();
-
-    controller = ("AbortController" in window)
-      ? new AbortController()
-      : null;
-
-    try {
-      setStreamingState(true);
-
-      const res = await fetch("https://leocore.onrender.com/chat", {
+  try {
+    const res = await fetch(
+      /* 🔴 CHANGE THIS IF NEEDED */
+      "https://leocore.onrender.com/api/chat",
+      {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        signal: controller?.signal,
+        signal: controller.signal,
         body: JSON.stringify({
           message: text,
-          mode: currentMode
+          mode: currentMode,
+          userId: USER_ID
         })
-      });
-
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const raw = await res.text();
-      const data = JSON.parse(raw);
-
-      await streamIntoBubble(leoBubble, data.reply || "No response.");
-
-    } catch (err) {
-      if (err.name !== "AbortError") {
-        leoBubble.textContent = "⚠️ Backend unavailable.";
       }
-      setStreamingState(false);
+    );
+
+    if (!res.ok) throw new Error("HTTP " + res.status);
+
+    const data = await res.json();
+    await streamIntoBubble(leoBubble, data.reply);
+
+  } catch (err) {
+    if (err.name !== "AbortError") {
+      leoBubble.textContent = "⚠️ Backend unavailable.";
     }
-  });
+    setStreamingState(false);
+  }
 });
