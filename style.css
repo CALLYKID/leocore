@@ -69,6 +69,11 @@ html {
     rgba(0,0,0,0.65)
   );
 }
+/* Fallback blur for video (Android-safe) */
+#bgVideo {
+  filter: blur(6px);
+  transform: scale(1.05);
+}
 
 .app-wrapper {
   position: relative;
