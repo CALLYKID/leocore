@@ -465,19 +465,6 @@ body {
 }
 
 /* ================= CHAT OVERLAY VISIBILITY ================= */
-#chat-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100; /* above app, below nothing else */
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.35s ease;
-}
-
-#chat-overlay[aria-hidden="false"] {
-  opacity: 1;
-  pointer-events: auto;
-}
 @keyframes orbit {
   from {
     transform: rotate(0deg) translateX(10px);
