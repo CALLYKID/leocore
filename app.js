@@ -128,7 +128,7 @@ function openChat() {
 
   setTimeout(() => {
     chatInput.focus({ preventScroll: true });
-  }, 300);
+  }, 1000);
 }
    
 function closeChat() {
