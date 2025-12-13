@@ -21,7 +21,7 @@ async function warmBackend() {
       cache: "no-store"
     });
   } catch {
-    // silent warm-up
+    // silent: only waking backend
   }
 }
 
@@ -78,14 +78,14 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentMode = "default";
 
 const MODE_MAP = {
-  default:   { label: "⚡ Default",   desc: "Balanced answers for everyday questions" },
-  study:     { label: "📘 Study",     desc: "Clear explanations with examples" },
-  research:  { label: "🔬 Research",  desc: "Detailed, structured, and factual" },
-  reading:   { label: "📖 Reading",   desc: "Summaries and simplified explanations" },
-  deep:      { label: "🧠 Deep",      desc: "Long-form reasoning and insights" },
-  chill:     { label: "😎 Chill",     desc: "Casual, friendly conversation" },
+  default: { label: "⚡ Default", desc: "Balanced answers for everyday questions" },
+  study: { label: "📘 Study", desc: "Clear explanations with examples" },
+  research: { label: "🔬 Research", desc: "Detailed, structured, and factual" },
+  reading: { label: "📖 Reading", desc: "Summaries and simplified explanations" },
+  deep: { label: "🧠 Deep", desc: "Long-form reasoning and insights" },
+  chill: { label: "😎 Chill", desc: "Casual, friendly conversation" },
   precision: { label: "🎯 Precision", desc: "Short, exact, no fluff answers" },
-  flame:     { label: "🔥 Flame",     desc: "Creative, bold, high-energy responses" }
+  flame: { label: "🔥 Flame", desc: "Creative, bold, high-energy responses" }
 };
 
 const MODE_KEYS = Object.keys(MODE_MAP);
@@ -103,8 +103,8 @@ const chatInput    = document.getElementById("chatInput");
 const chatMode     = document.getElementById("chatMode");
 const chatModeDesc = document.getElementById("chatModeDesc");
 
-const heroInput    = document.querySelector(".hero-input");
-const modeButtons  = document.querySelectorAll(".neon-btn");
+const heroInput   = document.querySelector(".hero-input");
+const modeButtons = document.querySelectorAll(".neon-btn");
 
 
 /* ============================================================
@@ -138,7 +138,7 @@ chatCloseBtn.addEventListener("click", closeChat);
 
 
 /* ============================================================
-   HERO & MODE BUTTONS
+   HERO + MODE BUTTONS
 ============================================================ */
 heroInput.addEventListener("click", () => {
   setMode("default");
@@ -166,7 +166,7 @@ function addMessage(text, type) {
 
 
 /* ============================================================
-   INLINE THINKING BUBBLE
+   INLINE THINKING PLACEHOLDER
 ============================================================ */
 function createThinkingBubble() {
   const msg = document.createElement("div");
@@ -183,14 +183,11 @@ function createThinkingBubble() {
 
 
 /* ============================================================
-   STREAM INTO EXISTING BUBBLE
+   STREAM INTO EXISTING BUBBLE (FIX)
 ============================================================ */
-async function streamIntoBubble(bubble, text) {
-  bubble.classList.remove("thinking");
-  bubble.innerHTML = "";
-
+async function fakeStreamInto(el, text) {
   for (let i = 0; i < text.length; i++) {
-    bubble.innerHTML += text[i];
+    el.innerHTML += text[i];
     chatMessages.scrollTop = chatMessages.scrollHeight;
     await new Promise(r => setTimeout(r, 12));
   }
@@ -224,14 +221,13 @@ chatForm.addEventListener("submit", async (e) => {
       })
     });
 
-    if (!res.ok) {
-      throw new Error(await res.text());
-    }
+    if (!res.ok) throw new Error(await res.text());
 
     const data = await res.json();
-    if (data.reply) {
-      await streamIntoBubble(leoBubble, data.reply);
-    }
+
+    leoBubble.classList.remove("thinking");
+    leoBubble.innerHTML = "";
+    await fakeStreamInto(leoBubble, data.reply || "...");
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
