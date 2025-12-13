@@ -175,7 +175,7 @@ html, body {
 }
 /* ================= MODES ================= */
 .modes-wrapper {
-  margin-top: 22px;
+  margin-top: 32px;
 }
 
 .section-title {
@@ -187,7 +187,7 @@ html, body {
 .mode-grid {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
 }
 
 .neon-btn {
@@ -263,8 +263,8 @@ html, body {
 
 .neon-btn.recommended {
   box-shadow:
-    0 0 26px rgba(0,234,255,0.35),
-    0 0 52px rgba(0,234,255,0.18);
+    0 0 18px rgba(0,234,255,0.28),
+    0 0 36px rgba(0,234,255,0.14);
 }
 
 /* ================= ANIMATIONS ================= */
