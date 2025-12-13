@@ -71,14 +71,11 @@ html, body {
 
 /* Vignette depth */
 .bg-vignette {
-  position: absolute;
-  inset: 0;
-
   background:
     radial-gradient(
-      140% 140% at 50% 0%,
-      rgba(0,0,0,0.15),
-      rgba(0,0,0,0.65)
+      140% 140% at 50% 10%,
+      rgba(0,0,0,0.12),
+      rgba(0,0,0,0.7)
     );
 }
 
