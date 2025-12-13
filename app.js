@@ -125,9 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
 ============================================================ */
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
-  setTimeout(() => chatInput.focus(), 200);
-}
-
+   
 function closeChat() {
   chatOverlay.setAttribute("aria-hidden", "true");
 }
