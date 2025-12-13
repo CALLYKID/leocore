@@ -399,51 +399,39 @@ body {
   color: #eaf9ff;
 }
 /* ============================================================
-   LEOCORE AI PULSE INDICATOR
+   LEOCORE ORBITAL INDICATOR (ACTUAL IMPLEMENTATION)
 ============================================================ */
 
-.chat-message.leocore.pulse {
-  background: rgba(255,255,255,0.04);
-  padding: 14px 18px;
-  border-radius: 16px;
-  width: fit-content;
-  max-width: 70%;
-}
-
-.ai-pulse {
+.orbit-loader {
   position: relative;
   width: 18px;
   height: 18px;
 }
 
-.ai-pulse::before,
-.ai-pulse::after {
+.orbit-loader::before,
+.orbit-loader::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(0,234,255,0.9),
-    rgba(0,234,255,0.2) 60%,
-    transparent 70%
-  );
-  animation: pulseRing 1.8s ease-out infinite;
+  border: 1.5px solid rgba(0,234,255,0.9);
+  animation: orbit 1.4s linear infinite;
 }
 
-.ai-pulse::after {
-  animation-delay: .6s;
+.orbit-loader::after {
+  width: 6px;
+  height: 6px;
+  background: #00eaff;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulseCore 1.2s ease-in-out infinite;
 }
 
-@keyframes pulseRing {
-  0% {
-    transform: scale(0.4);
-    opacity: 0.9;
-  }
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
+@keyframes pulseCore {
+  0%,100% { transform: translate(-50%,-50%) scale(0.9); opacity: 0.7; }
+  50%     { transform: translate(-50%,-50%) scale(1.2); opacity: 1; }
 }
 /* ================= INPUT ================= */
 
