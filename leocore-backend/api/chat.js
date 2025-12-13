@@ -215,6 +215,7 @@ Personality Rules:
 - Mode determines tone.
 - Never use parentheses or brackets to describe emotions or actions.
 - Express tone naturally within the sentence itself.
+- Do not include HTML, tags, or markup in responses".
 ${toneBoost}
 `;
 
