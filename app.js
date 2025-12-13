@@ -20,8 +20,8 @@ async function warmBackend() {
       method: "GET",
       cache: "no-store"
     });
-  } catch {
-    // Silent — only wakes backend
+  } catch (err) {
+    // silent: only waking backend
   }
 }
 
@@ -130,7 +130,7 @@ const typingIndicator = document.getElementById("typingIndicator");
 const chatMode     = document.getElementById("chatMode");
 const chatModeDesc = document.getElementById("chatModeDesc");
 
-const heroInput  = document.querySelector(".hero-input");
+const heroInput   = document.querySelector(".hero-input");
 const modeButtons = document.querySelectorAll(".neon-btn");
 
 
@@ -144,7 +144,7 @@ function setMode(modeKey) {
   chatModeDesc.textContent = m.desc;
 }
 
-/* Reset to Default on reload */
+/* Always reset to Default on reload */
 document.addEventListener("DOMContentLoaded", () => {
   setMode("default");
 });
@@ -191,7 +191,7 @@ modeButtons.forEach((btn, index) => {
 function addMessage(text, type) {
   const msg = document.createElement("div");
   msg.className = `chat-message ${type}`;
-  msg.innerHTML = text; // backend sends <br>
+  msg.innerHTML = text; // backend may include <br>
   chatMessages.appendChild(msg);
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -229,7 +229,7 @@ chatForm.addEventListener("submit", async (e) => {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 
   try {
-    await warmBackend(); // wake Render
+    await warmBackend();
 
     const res = await fetch(
       "https://leocore-backend.onrender.com/api/chat",
