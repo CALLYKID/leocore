@@ -122,6 +122,17 @@ function setMode(key) {
   chatMode.textContent = m.label;
   chatModeDesc.textContent = m.desc;
 }
+/* ==================== HEIGHT HELP ================ */
+function isNearBottom(el, threshold = 24) {
+  return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+}
+
+function smoothScrollToBottom(el) {
+  el.scrollTo({
+    top: el.scrollHeight,
+    behavior: "smooth"
+  });
+}
 
 /* ================= CHAT OPEN/CLOSE ================= */
 function openChat() {
@@ -153,7 +164,9 @@ function addMessage(text, type) {
   el.className = `chat-message ${type}`;
   el.textContent = text;
   chatMessages.appendChild(el);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  requestAnimationFrame(() => {
+  smoothScrollToBottom(chatMessages);
+});
 }
 
 function createLeoOrbitalBubble() {
@@ -161,7 +174,9 @@ function createLeoOrbitalBubble() {
   el.className = "chat-message leocore thinking";
   el.innerHTML = `<div class="orbit-loader"></div>`;
   chatMessages.appendChild(el);
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  requestAnimationFrame(() => {
+  smoothScrollToBottom(chatMessages);
+});
   return el;
 }
 
@@ -172,19 +187,22 @@ function setStreamingState(on) {
 
 /* ================= STREAM SIM ================= */
 async function streamIntoBubble(el, text) {
+async function streamIntoBubble(el, text) {
   el.classList.remove("thinking");
   el.textContent = "";
-  el.style.animation = "none";
-  el.offsetHeight; // force reflow
-  el.style.animation = "";
 
   setStreamingState(true);
   stopRequested = false;
 
   for (let i = 0; i < text.length; i++) {
     if (stopRequested) break;
+
     el.textContent += text[i];
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    if (isNearBottom(chatMessages)) {
+      chatMessages.scrollTop += 1;
+    }
+
     await new Promise(r => setTimeout(r, 12));
   }
 
