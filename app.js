@@ -196,6 +196,21 @@ function addMessage(text, type) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
+/* ============================================================
+   INLINE THINKING PLACEHOLDER (LEOCORE)
+============================================================ */
+function createThinkingBubble() {
+  const msg = document.createElement("div");
+  msg.className = "chat-message leocore thinking";
+  msg.innerHTML = `
+    <span class="thinking-dots">
+      <span></span><span></span><span></span>
+    </span>
+  `;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return msg;
+}
 
 /* ============================================================
    FAKE STREAMING (PREMIUM ILLUSION)
@@ -225,8 +240,8 @@ chatForm.addEventListener("submit", async (e) => {
   addMessage(text, "user");
   chatInput.value = "";
 
-  typingIndicator.hidden = false;
-  chatMessages.scrollTop = chatMessages.scrollHeight;
+  // ⬇️ INLINE PLACEHOLDER WHERE REPLY WILL STREAM
+  const leoBubble = createThinkingBubble();
 
   try {
     await warmBackend();
@@ -250,15 +265,17 @@ chatForm.addEventListener("submit", async (e) => {
     }
 
     const data = await res.json();
-    typingIndicator.hidden = true;
 
     if (data.reply) {
+      // remove thinking state + stream into SAME bubble
+      leoBubble.classList.remove("thinking");
+      leoBubble.innerHTML = "";
       await fakeStream(data.reply);
     }
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
-    typingIndicator.hidden = true;
-    addMessage("⚠️ Connection error. Try again.", "leocore");
+    leoBubble.classList.remove("thinking");
+    leoBubble.innerHTML = "⚠️ Connection error. Try again.";
   }
 });
