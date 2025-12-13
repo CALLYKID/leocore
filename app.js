@@ -21,7 +21,7 @@ async function warmBackend() {
       cache: "no-store"
     });
   } catch {
-    // silent — only waking backend
+    // silent warm-up
   }
 }
 
@@ -76,14 +76,14 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentMode = "default";
 
 const MODE_MAP = {
-  default:   { label: "⚡ Default",   desc: "Balanced answers for everyday questions" },
-  study:     { label: "📘 Study",     desc: "Clear explanations with examples" },
-  research:  { label: "🔬 Research",  desc: "Detailed, structured, and factual" },
-  reading:   { label: "📖 Reading",   desc: "Summaries and simplified explanations" },
-  deep:      { label: "🧠 Deep",      desc: "Long-form reasoning and insights" },
-  chill:     { label: "😎 Chill",     desc: "Casual, friendly conversation" },
+  default: { label: "⚡ Default", desc: "Balanced answers for everyday questions" },
+  study: { label: "📘 Study", desc: "Clear explanations with examples" },
+  research: { label: "🔬 Research", desc: "Detailed, structured, and factual" },
+  reading: { label: "📖 Reading", desc: "Summaries and simplified explanations" },
+  deep: { label: "🧠 Deep", desc: "Long-form reasoning and insights" },
+  chill: { label: "😎 Chill", desc: "Casual, friendly conversation" },
   precision: { label: "🎯 Precision", desc: "Short, exact, no fluff answers" },
-  flame:     { label: "🔥 Flame",     desc: "Creative, bold, high-energy responses" }
+  flame: { label: "🔥 Flame", desc: "Creative, bold, high-energy responses" }
 };
 
 const MODE_KEYS = Object.keys(MODE_MAP);
@@ -164,24 +164,24 @@ function addMessage(text, type) {
 
 
 /* ============================================================
-   INLINE THINKING PLACEHOLDER (PIXEL-PERFECT)
+   LEOCORE ORBITAL PRESENCE (INLINE, PREMIUM)
 ============================================================ */
-function createThinkingBubble() {
+function createLeoOrbitalBubble() {
   const msg = document.createElement("div");
   msg.className = "chat-message leocore thinking";
-  msg.innerHTML = `
-    <span class="thinking-dots">
-      <span></span><span></span><span></span>
-    </span>
-  `;
+
+  // THIS uses YOUR orbit-loader styling
+  msg.innerHTML = `<div class="orbit-loader"></div>`;
+
   chatMessages.appendChild(msg);
   chatMessages.scrollTop = chatMessages.scrollHeight;
+
   return msg;
 }
 
 
 /* ============================================================
-   STREAM INTO SAME BUBBLE (NO JUMP, NO DUPLICATE)
+   STREAM RESPONSE INTO SAME BUBBLE
 ============================================================ */
 async function streamIntoBubble(el, text) {
   el.classList.remove("thinking");
@@ -207,7 +207,8 @@ chatForm.addEventListener("submit", async (e) => {
   addMessage(text, "user");
   chatInput.value = "";
 
-  const leoBubble = createThinkingBubble();
+  // 🔥 ONE presence. ONE bubble. ONE lifecycle.
+  const leoBubble = createLeoOrbitalBubble();
 
   try {
     await warmBackend();
@@ -230,7 +231,6 @@ chatForm.addEventListener("submit", async (e) => {
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
-    leoBubble.classList.remove("thinking");
     leoBubble.innerHTML = "⚠️ Connection error. Try again.";
   }
 });
