@@ -941,3 +941,35 @@ body {
     opacity: 0.75;
   }
 }
+
+#emptyState {
+  height: 100%;
+  display: none;
+  place-items: center;
+  text-align: center;
+  pointer-events: none;
+  animation: emptyIn 0.6s cubic-bezier(.22,.61,.36,1);
+}
+
+.empty-title {
+  font-size: 26px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.empty-sub {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+@keyframes emptyIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
