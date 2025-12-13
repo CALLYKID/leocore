@@ -231,10 +231,8 @@ function hasRealMessages() {
 
 /* ================= STREAM SIM ================= */
 async function streamIntoBubble(el, text) {
-   if (stopRequested) {
-  setStreamingState(false);
-  return;
-   }
+  stopRequested = false; // ✅ critical reset
+
   el.classList.remove("thinking");
   el.textContent = "";
 
@@ -288,6 +286,10 @@ chatForm.addEventListener("submit", async (e) => {
     setStreamingState(false);
     return;
   }
+
+  // ✅ RESET STATE FOR NEW MESSAGE
+  stopRequested = false;
+  controller = null;
 
   const text = chatInput.value.trim();
   if (!text) return;
