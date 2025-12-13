@@ -21,7 +21,7 @@ async function warmBackend() {
       cache: "no-store"
     });
   } catch {
-    // silent
+    // silent — only waking backend
   }
 }
 
@@ -76,14 +76,14 @@ document.addEventListener("DOMContentLoaded", () => {
 let currentMode = "default";
 
 const MODE_MAP = {
-  default: { label: "⚡ Default", desc: "Balanced answers for everyday questions" },
-  study: { label: "📘 Study", desc: "Clear explanations with examples" },
-  research: { label: "🔬 Research", desc: "Detailed, structured, and factual" },
-  reading: { label: "📖 Reading", desc: "Summaries and simplified explanations" },
-  deep: { label: "🧠 Deep", desc: "Long-form reasoning and insights" },
-  chill: { label: "😎 Chill", desc: "Casual, friendly conversation" },
+  default:   { label: "⚡ Default",   desc: "Balanced answers for everyday questions" },
+  study:     { label: "📘 Study",     desc: "Clear explanations with examples" },
+  research:  { label: "🔬 Research",  desc: "Detailed, structured, and factual" },
+  reading:   { label: "📖 Reading",   desc: "Summaries and simplified explanations" },
+  deep:      { label: "🧠 Deep",      desc: "Long-form reasoning and insights" },
+  chill:     { label: "😎 Chill",     desc: "Casual, friendly conversation" },
   precision: { label: "🎯 Precision", desc: "Short, exact, no fluff answers" },
-  flame: { label: "🔥 Flame", desc: "Creative, bold, high-energy responses" }
+  flame:     { label: "🔥 Flame",     desc: "Creative, bold, high-energy responses" }
 };
 
 const MODE_KEYS = Object.keys(MODE_MAP);
@@ -164,35 +164,31 @@ function addMessage(text, type) {
 
 
 /* ============================================================
-   AI PULSE INDICATOR (SYSTEM-LEVEL)
+   INLINE THINKING PLACEHOLDER (PIXEL-PERFECT)
 ============================================================ */
-let aiIndicator = null;
-
-function showAIIndicator() {
-  if (aiIndicator) return;
-
-  aiIndicator = document.createElement("div");
-  aiIndicator.className = "ai-pulse-indicator";
-  chatOverlay.appendChild(aiIndicator);
-}
-
-function hideAIIndicator() {
-  if (!aiIndicator) return;
-  aiIndicator.remove();
-  aiIndicator = null;
+function createThinkingBubble() {
+  const msg = document.createElement("div");
+  msg.className = "chat-message leocore thinking";
+  msg.innerHTML = `
+    <span class="thinking-dots">
+      <span></span><span></span><span></span>
+    </span>
+  `;
+  chatMessages.appendChild(msg);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  return msg;
 }
 
 
 /* ============================================================
-   STREAMING MESSAGE
+   STREAM INTO SAME BUBBLE (NO JUMP, NO DUPLICATE)
 ============================================================ */
-async function streamMessage(text) {
-  const msg = document.createElement("div");
-  msg.className = "chat-message leocore";
-  chatMessages.appendChild(msg);
+async function streamIntoBubble(el, text) {
+  el.classList.remove("thinking");
+  el.innerHTML = "";
 
   for (let i = 0; i < text.length; i++) {
-    msg.innerHTML += text[i];
+    el.innerHTML += text[i];
     chatMessages.scrollTop = chatMessages.scrollHeight;
     await new Promise(r => setTimeout(r, 12));
   }
@@ -211,7 +207,7 @@ chatForm.addEventListener("submit", async (e) => {
   addMessage(text, "user");
   chatInput.value = "";
 
-  showAIIndicator();
+  const leoBubble = createThinkingBubble();
 
   try {
     await warmBackend();
@@ -230,12 +226,11 @@ chatForm.addEventListener("submit", async (e) => {
 
     const data = await res.json();
 
-    hideAIIndicator();
-    await streamMessage(data.reply || "...");
+    await streamIntoBubble(leoBubble, data.reply || "...");
 
   } catch (err) {
     console.error("CHAT ERROR:", err);
-    hideAIIndicator();
-    addMessage("⚠️ Connection error. Try again.", "leocore");
+    leoBubble.classList.remove("thinking");
+    leoBubble.innerHTML = "⚠️ Connection error. Try again.";
   }
 });
