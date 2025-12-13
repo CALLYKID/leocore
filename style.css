@@ -769,44 +769,40 @@ body {
 #sendBtn:active {
   transform: scale(0.92);
 }
-/* ===== MORPH STYLE: ENERGY COLLAPSE ===== */
-#sendBtn {
+#sendBtn .morph {
   position: relative;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: none;
-  cursor: pointer;
-
-  background: linear-gradient(135deg, #00eaff, #7c3aed);
-  box-shadow:
-    0 0 22px rgba(0,234,255,0.6),
-    0 10px 26px rgba(0,0,0,0.65);
-
-  display: grid;
-  place-items: center;
+  width: 14px;
+  height: 14px;
 }
 
-#sendBtn .morph {
-  width: 20px;
-  height: 14px;
+#sendBtn .morph::before,
+#sendBtn .morph::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 3px;
   background: #000;
-  border-radius: 10px;
+  transform: translateY(-50%) rotate(0deg);
+  transition: all 0.25s cubic-bezier(.22,.61,.36,1);
+}
 
-  transform:
-    rotate(0deg)
-    scaleX(1.3);
+#sendBtn .morph::before {
+  left: 0;
+  transform: translateY(-50%) rotate(45deg);
+}
 
-  transition:
-    transform 0.28s cubic-bezier(.22,.61,.36,1),
-    border-radius 0.28s ease;
+#sendBtn .morph::after {
+  right: 0;
+  transform: translateY(-50%) rotate(-45deg);
 }
 
 /* STREAMING */
-#sendBtn.streaming .morph {
-  transform:
-    scaleX(0.7)
-    scaleY(1.1);
-
-  border-radius: 2px;
+#sendBtn.streaming .morph::before,
+#sendBtn.streaming .morph::after {
+  width: 14px;
+  height: 14px;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%) rotate(0deg);
 }
