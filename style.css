@@ -27,46 +27,53 @@ html, body {
 /* ============================================================
    1. BACKGROUND VIDEO (SAFE STACK)
 ============================================================ */
-html,body {
-   background:#000;
+html {
+  background: #000; /* kills white flash safely */
 }
+
 #bgLayer {
   position: fixed;
   inset: 0;
-  z-index: -30; /* raw video at the very bottom */
+  z-index: 0;
   pointer-events: none;
+}
+
+#bgVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(0.94); /* less zoom */
 }
 
 #bgBlur {
   position: fixed;
   inset: 0;
-  z-index: -20; /* ABOVE the video */
+  z-index: 1;
   pointer-events: none;
 
   backdrop-filter: blur(7px);
   -webkit-backdrop-filter: blur(7px);
+
   background: rgba(0, 0, 0, 0.15);
 }
 
 #bgOverlay {
   position: fixed;
   inset: 0;
-  z-index: -10; /* ABOVE blur */
+  z-index: 2;
   pointer-events: none;
 
-  background:
-    radial-gradient(
-      120% 120% at 50% 0%,
-      rgba(0,0,0,0.35),
-      rgba(0,0,0,0.65)
-    );
+  background: radial-gradient(
+    120% 120% at 50% 0%,
+    rgba(0,0,0,0.35),
+    rgba(0,0,0,0.65)
+  );
 }
 
 .app-wrapper {
   position: relative;
-  z-index: 1; /* UI on top */
+  z-index: 3;
 }
-
 /* ============================================================
    4. HERO
 ============================================================ */
