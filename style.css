@@ -35,10 +35,15 @@ html, body {
 /* Prevent OLED greying + boost perceived contrast */
 body {
   text-shadow: 0 0 0.01px rgba(255,255,255,0.01);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: none;
 }
 
+body.chat-open {
+  overflow: hidden;
+  height: 100%;
+}
 /* ================= BACKGROUND (LOCKED STACK) ================= */
 #bg-root {
   position: fixed;
@@ -976,6 +981,8 @@ body {
 }
 
 .chat-panel {
+  bottom: 0;
+  max-height: 100dvh;
   z-index: 1;
   pointer-events: auto;
 }
@@ -985,4 +992,8 @@ body {
 
 .chat-messages {
   -webkit-overflow-scrolling: touch;
+}
+.chat-input-bar {
+  position: relative;
+  z-index: 5;
 }
