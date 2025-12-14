@@ -141,23 +141,18 @@ function smoothToBottom(el) {
 /* ================= CHAT OPEN/CLOSE ================= */
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
+  document.body.classList.add("chat-open");
   warmBackend();
-   document.body.classList.add("chat-open");   // on open
-   if (!hasRealMessages()) {
-  showEmptyState();
-   }
+
+  if (!hasRealMessages()) {
+    showEmptyState();
+  }
 }
 
 function closeChat() {
   chatOverlay.setAttribute("aria-hidden", "true");
-}
-document.body.classList.remove("chat-open"); // on close
-
-chatCloseBtn.addEventListener("click", closeChat);
-
-heroInput.addEventListener("click", () => {
-  setMode("default");
-  openChat();
+  document.body.classList.remove("chat-open");
+}();
 });
 
 modeButtons.forEach((btn, i) => {
