@@ -142,7 +142,7 @@ function smoothToBottom(el) {
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
   warmBackend();
-   
+   document.body.classList.add("chat-open");   // on open
    if (!hasRealMessages()) {
   showEmptyState();
    }
@@ -151,6 +151,7 @@ function openChat() {
 function closeChat() {
   chatOverlay.setAttribute("aria-hidden", "true");
 }
+document.body.classList.remove("chat-open"); // on close
 
 chatCloseBtn.addEventListener("click", closeChat);
 
