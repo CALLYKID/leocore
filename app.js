@@ -152,8 +152,7 @@ function openChat() {
 function closeChat() {
   chatOverlay.setAttribute("aria-hidden", "true");
   document.body.classList.remove("chat-open");
-}();
-});
+}
 
 modeButtons.forEach((btn, i) => {
   btn.addEventListener("click", () => {
