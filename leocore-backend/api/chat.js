@@ -1,6 +1,11 @@
 // api/chat.js
 import Groq from "groq-sdk";
 
+const RATE_WINDOW = 10 * 1000; // 10 seconds
+const MAX_REQUESTS = 2;       // max 2 prompts per window
+
+const userRate = new Map();
+
 /* ============================================================
    SAFE GROQ CLIENT (does NOT crash if key is missing)
 ============================================================ */
@@ -9,11 +14,33 @@ const groq = groqApiKey
   ? new Groq({ apiKey: groqApiKey })
   : null;
 
+async function createGroqStreamWithRetry(payload, retries = 3) {
+  let attempt = 0;
+
+  while (attempt < retries) {
+    try {
+      return await groq.chat.completions.create(payload);
+    } catch (err) {
+      attempt++;
+
+      // Not a rate limit → throw immediately
+      if (err.status !== 429) throw err;
+
+      // Try to get retry-after header
+      const retryAfter =
+        Number(err?.response?.headers?.["retry-after"]) || 5;
+
+      console.log(`⏳ Groq rate limited. Waiting ${retryAfter}s… (attempt ${attempt})`);
+      await new Promise(r => setTimeout(r, retryAfter * 1000));
+    }
+  }
+
+  throw new Error("Groq failed after retries");
+}
 /* ============================================================
    MEMORY SAFETY
 ============================================================ */
 const MEMORY_LIMIT = 8; // max messages from history (frontend should match)
-
 /* ============================================================
    PROFILE MEMORY SAFETY
 ============================================================ */
@@ -133,6 +160,29 @@ export default async function chatHandler(req, res) {
         ? req.body.message.trim()
         : "";
 
+const userId =
+  typeof req.body?.userId === "string" && req.body.userId.trim()
+    ? req.body.userId
+    : req.ip || "anonymous";
+
+const now = Date.now();
+const history = userRate.get(userId) || [];
+
+const recent = history.filter(t => now - t < RATE_WINDOW);
+
+// clean old timestamps out of memory
+userRate.set(userId, recent);
+
+if (recent.length >= MAX_REQUESTS) {
+  return res.status(429).json({
+    error: true,
+    message: "You're sending messages too fast. Take a breath 😄",
+    waitSeconds: Math.ceil(RATE_WINDOW / 1000)
+  });
+}
+
+recent.push(now);
+
     const mode =
       typeof req.body?.mode === "string"
         ? req.body.mode
@@ -185,28 +235,34 @@ ${GENPROMPTS}
       });
     }
 
-    /* ---------- REAL GROQ CALL ---------- */
-    const completion = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      temperature: 0.7,
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...safeMemory,
-        { role: "user", content: message }
-      ]
-    });
+/* ---------- REAL GROQ STREAMING ---------- */
+const completion = await createGroqStreamWithRetry({
+  model: "llama-3.1-8b-instant",
+  temperature: 0.7,
+  stream: true,
+  messages: [
+    { role: "system", content: systemPrompt },
+    ...safeMemory,
+    { role: "user", content: message }
+  ]
+});
 
-    const reply =
-      completion?.choices?.[0]?.message?.content ||
-      "I couldn’t generate a response.";
+res.setHeader("Content-Type", "text/plain; charset=utf-8");
+res.setHeader("Cache-Control", "no-cache");
+res.setHeader("Transfer-Encoding", "chunked");
 
-    return res.json({ reply });
+for await (const chunk of completion) {
+  const delta = chunk?.choices?.[0]?.delta?.content || "";
+  if (delta) {
+    res.write(delta);
+  }
+}
 
+res.end();
   } catch (err) {
     console.error("CHAT ERROR:", err);
-
-    return res.json({
-      reply: "⚠️ Something went wrong, but I’m still here."
-    });
+    try {
+      res.end("Something broke");
+    } catch {}
   }
 }

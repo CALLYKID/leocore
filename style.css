@@ -1280,20 +1280,24 @@
     opacity: 0;
     transform: translateY(8px);
     animation: emptyFade 0.6s ease-out forwards;
+  margin-top: 68px;   /* Moves it below header nicely */
+  padding: 0 16px;
+  text-align: left;
   }
   
   #emptyState .empty-title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: .2px;
-    animation: emptyPop 0.7s ease forwards;
-  }
-  
-  #emptyState .empty-sub {
-    opacity: .7;
-    margin-top: 6px;
-    animation: emptyFade 0.9s ease forwards;
-  }
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: .3px;
+  margin-bottom: 6px;
+  color: #eaf9ff;
+}
+
+#emptyState .empty-sub {
+  font-size: 16px;
+  opacity: .78;
+  line-height: 1.5;
+}
   
   /* Keyframes */
   @keyframes emptyFade {
@@ -1309,23 +1313,30 @@
     margin-top: 14px;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
   }
   
   .empty-suggestions button {
-    background: rgba(255,255,255,0.08);
-    border: 1px solid rgba(255,255,255,0.18);
-    padding: 8px 12px;
-    border-radius: 10px;
-    color: white;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all .2s;
-  }
+  font-size: 15px;
+  padding: 10px 14px;
+  border-radius: 14px;
+
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.28);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.4),
+    inset 0 0 0 1px rgba(255,255,255,.08);
+
+  backdrop-filter: blur(6px);
+}
   
   .empty-suggestions button:hover {
-    background: rgba(255,255,255,0.18);
-  }
+  background: rgba(0,234,255,.2);
+  box-shadow:
+    0 0 20px rgba(0,234,255,.4),
+    inset 0 0 0 1px rgba(0,234,255,.6);
+}
   .app-wrapper::before {
     background: radial-gradient(
       60% 60% at 50% 20%,
@@ -1603,4 +1614,88 @@ body.chat-open .mode-card::after {
 
 .chat-message.leocore p:last-child {
   margin-bottom: 0;
+}
+.chat-message.leocore {
+  max-width: 98.6%;
+  width: auto;
+  position: relative;
+
+  padding: 14px 16px;
+  margin: 10px auto;        /* centers the AI bubble nicely */
+  border-radius: 14px;
+
+  background: linear-gradient(145deg, rgba(18,28,48,0.9), rgba(10,12,30,0.9));
+  border: 1px solid rgba(255,255,255,0.12);
+
+  font-size: 16px;
+  line-height: 1.75;
+  letter-spacing: .1px;
+
+  color: #fff;
+  backdrop-filter: blur(10px);
+}
+.chat-message.user {
+  max-width: 78%;
+  padding: 10px 14px;
+  border-radius: 16px;
+
+  background: rgba(0, 120, 255, .85);
+  color: white;
+
+  font-size: 17px;
+  line-height: 1.60;
+
+  margin: 8px 0 8px auto;
+}
+.chat-message.leocore p {
+  margin: 8px 0 10px;
+}
+.chat-message {
+  margin-bottom: 14px !important;
+}
+.chat-message.leocore {
+  box-shadow: 0 0 22px rgba(0,255,255,0.06);
+}
+#chatMessages {
+  padding-left: 14px;
+  padding-right: 14px;
+  overflow-anchor: none;
+  padding-top: 70px;
+}
+
+.chat-message.leocore p {
+  margin: 8px 0 10px;
+}
+.chat-message.leocore .reply-text {
+  display: block;
+  width: 100%;
+  word-wrap: break-word;
+  min-height: 20px; /* prevents collapsing while streaming */
+}
+.chat-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 20;
+  transition: transform .25s ease, opacity .2s ease;
+}
+
+#chatHeader.hide {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+}
+.reply-text p {
+  text-wrap: pretty;
+}
+.reply-text {
+  line-height: 1.6;
+}
+.chat-freeze #emptyState {
+  opacity: 1 !important;
+  filter: none !important;
+  pointer-events: auto !important;
+  display: grid !important;
 }

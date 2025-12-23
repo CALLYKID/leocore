@@ -11,7 +11,6 @@ let rafScroll = null;
 const MEMORY_LIMIT = 8;
 let userPowerSave = false;
 
-
 /* ================= USER ID ================= */
 const USER_ID =
   localStorage.getItem("leocore_uid") ||
@@ -26,9 +25,18 @@ const PROFILE_KEY = "leocore_profile_v1";
 
 function loadProfile() {
   try {
-    return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {};
+    const data = JSON.parse(localStorage.getItem(PROFILE_KEY));
+    return data || {
+      joined: Date.now(),
+      messagesSent: 0,
+      streak: 0
+    };
   } catch {
-    return {};
+    return {
+      joined: Date.now(),
+      messagesSent: 0,
+      streak: 0
+    };
   }
 }
 
@@ -103,6 +111,10 @@ function enableThermalMode() {
   if (thermalActive || userPowerSave) return;
   thermalActive = true;
   document.body.classList.add("chat-freeze");
+  
+  requestAnimationFrame(() => {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
   console.log("🔥 Thermal Mode ENABLED");
 }
 
@@ -114,6 +126,9 @@ function disableThermalMode() {
     document.body.classList.remove("chat-freeze");
   }
   
+  requestAnimationFrame(() => {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
   console.log("❄️ Thermal Mode DISABLED");
 }
 
@@ -142,7 +157,6 @@ async function fetchWithRetry(url, options, retries = 4, delay = 1800) {
     }
   }
 }
-
 /* ================= HERO FAKE TYPING ================= */
 function initHeroTyping() {
   const el = document.getElementById("hero-text");
@@ -263,24 +277,29 @@ function formatLeoReply(text) {
 
 // --- 6️⃣ Paragraph Spacing ---
 text = text
-  .replace(/\n{3,}/g, "\n\n")   // collapse 3+ newlines to 2
+  .replace(/\r/g, "")
+  .replace(/\n{3,}/g, "\n\n")
   .trim();
 
-// Convert paragraphs properly
-let parts = text.split(/\n\n/).map(p =>
-  p.replace(/\n/g, "<br>")
-);
+let parts = text
+  .split(/\n\n/)
+  .map(p => p.trim())
+  .filter(p => p.length > 0)
+  .map(p => p.replace(/\n/g, "<br>"));
 
-text = parts.map(p => `<p>${p}</p>`).join("");
+text = parts
+  .map(p => `<div style="margin: 6px 0; line-height: 1.6">${p}</div>`)
+  .join("");
+  
 return text;
-
 }
 /* ================= CHAT STORAGE ================= */
 const CHAT_STORE_KEY = "leocore_chats_v1";
 
 function loadAllChats() {
   try {
-    return JSON.parse(localStorage.getItem(CHAT_STORE_KEY)) || {};
+    const data = JSON.parse(localStorage.getItem(CHAT_STORE_KEY));
+    return data || {};
   } catch {
     return {};
   }
@@ -437,6 +456,10 @@ document.getElementById("lowPowerToggle")?.addEventListener("click", () => {
     document.body.classList.remove("chat-freeze");
     document.getElementById("lpStatus").textContent = "OFF";
   }
+  
+  requestAnimationFrame(() => {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
 });
 
 /* ================= CLICK BINDINGS (MODE CARDS) ================= */
@@ -516,6 +539,24 @@ chatMessages.addEventListener("scroll", () => {
     });
     isTicking = true;
   }
+}, { passive: true });
+let lastScrollTop = 0;
+
+chatMessages.addEventListener("scroll", () => {
+  const st = chatMessages.scrollTop;
+  const header = document.getElementById("chatHeader");
+  if (!header) return;
+
+  if (st > lastScrollTop + 6) {
+    // scrolling DOWN → hide header
+    header.classList.add("hide");
+  } 
+  else if (st < lastScrollTop - 6) {
+    // scrolling UP → show header
+    header.classList.remove("hide");
+  }
+
+  lastScrollTop = Math.max(st, 0);
 }, { passive: true });
 
 
@@ -635,7 +676,7 @@ function showEmptyState() {
 
 function hideEmptyState() {
   const el = document.getElementById("emptyState");
-  if (el) el.style.display = "none";
+  if (el) el.style.setProperty("display", "none", "important");
 }
 
 function hasRealMessages() {
@@ -703,6 +744,9 @@ async function streamIntoBubble(el, text) {
 
   // IMPORTANT: Set initial lock state before loop starts
   userLockedScroll = isNearBottom(chatMessages, 50);
+if (userLockedScroll) {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
   for (let i = 0; i < text.length; i++) {
     if (stopRequested) {
@@ -729,8 +773,8 @@ async function streamIntoBubble(el, text) {
 
   // Final smooth scroll only if still locked
   if (userLockedScroll) {
-    smoothToBottom(chatMessages);
-  }
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
   setStreamingState(false);
   controller = null;
@@ -776,9 +820,16 @@ chatForm.addEventListener("submit", async (e) => {
   addMessage(text, "user");
   chatInput.value = "";
   saveCurrentChat();
-
+requestAnimationFrame(() => {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
   const leoBubble = createLeoOrbitalBubble();
-  
+  requestAnimationFrame(() => {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+if (!hasRealMessages()) {
+  showEmptyState();
+}
   await new Promise(requestAnimationFrame);
   controller = new AbortController();
 
@@ -791,36 +842,90 @@ const memory = getMemoryForMode(currentMode, MEMORY_LIMIT)
   const profile = loadProfile();
   
   try {
-    const res = await fetchWithRetry(
-  `${API_URL}/api/chat`,
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    signal: controller.signal,
-    body: JSON.stringify({
-      message: text,
-      mode: currentMode,
-      userId: USER_ID,
-      memory,
-      profile
-      
-    })
-  },
-  4,
-  1800
-);
+    const response = await fetch(`${API_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            message: text,
+            mode: currentMode,
+            userId: USER_ID,
+            memory,
+            profile
+        })
+    });
 
-    if (!res.ok) throw new Error("HTTP " + res.status);
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
 
-    const data = await res.json();
-    await streamIntoBubble(leoBubble, data.reply);
+    let fullText = "";
+    const textEl = leoBubble.querySelector(".reply-text");
+    let lastWordCount = 0;
 
-  } catch (err) {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value, { stream: true });
+      fullText += chunk;
+
+      const loader = leoBubble.querySelector(".orbit-loader");
+      if (loader) {
+        loader.remove();
+        leoBubble.classList.remove("thinking");
+      }
+
+// --- SMART LIVE MARKDOWN WORD STREAMING ---
+const words = fullText.split(/(\s+)/);
+const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
+
+let throttle = false;
+
+while (lastWordCount < words.length) {
+
+  if (stopRequested) return;
+
+  lastWordCount++;
+
+  const current = words.slice(0, lastWordCount).join("");
+
+  // Detect if formatting is even needed
+  const needsFormat = markdownTriggers.test(current);
+
+  if (needsFormat) {
+    if (!throttle) {
+      throttle = true;
+
+      textEl.innerHTML = formatLeoReply(current);
+
+      setTimeout(() => throttle = false, 120);
+    }
+  } else {
+    textEl.textContent = current;
+  }
+
+  if (userLockedScroll)
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+  await new Promise(r => setTimeout(r, 25));
+}
+    }
+    
+    textEl.innerHTML = formatLeoReply(fullText);
+    if (textEl) textEl.style.paddingBottom = "2px";
+
+    setStreamingState(false);
+    saveCurrentChat();
+    
+    requestAnimationFrame(() => {
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+});
+
+} catch (err) {
     if (err.name !== "AbortError") {
       leoBubble.textContent = "WAKING LEOCORE🙂🙊";
     }
     setStreamingState(false);
-  }
+}
 });
 /* ================= INTENT STRIP ROTATING TEXT ================= */
 
