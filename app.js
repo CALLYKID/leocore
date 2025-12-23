@@ -9,6 +9,7 @@ let controller = null;
 let userLockedScroll = true;
 let rafScroll = null;
 const MEMORY_LIMIT = 8;
+let userPowerSave = false;
 
 
 /* ================= USER ID ================= */
@@ -55,6 +56,13 @@ setVh();
 window.addEventListener("resize", setVh);
 window.addEventListener("orientationchange", setVh);
 
+// Restore saved power mode
+userPowerSave = localStorage.getItem("lpMode") === "1";
+if (userPowerSave) {
+  document.body.classList.add("chat-freeze");
+}
+const lp = document.getElementById("lpStatus");
+if (lp) lp.textContent = userPowerSave ? "ON" : "OFF";
 /* ================= BACKEND WARM ================= */
  async function warmBackend() {
   try {
@@ -64,7 +72,63 @@ window.addEventListener("orientationchange", setVh);
     });
   } catch {}
 }
+
+/* ================================================
+   AUTO THERMAL CONTROL — PHASE 1
+================================================ */
+let thermalSamples = [];
+let thermalActive = false;
+
+function getFPS(callback) {
+  let last = performance.now();
+  let frames = 0;
+
+  function frame() {
+    const now = performance.now();
+    frames++;
+
+    if (now >= last + 1000) {
+      callback(frames);
+      frames = 0;
+      last = now;
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+}
+
+function enableThermalMode() {
+  if (thermalActive || userPowerSave) return;
+  thermalActive = true;
+  document.body.classList.add("chat-freeze");
+  console.log("🔥 Thermal Mode ENABLED");
+}
+
+function disableThermalMode() {
+  if (!thermalActive) return;
+  thermalActive = false;
+
+  if (!userPowerSave) {
+    document.body.classList.remove("chat-freeze");
+  }
   
+  console.log("❄️ Thermal Mode DISABLED");
+}
+
+getFPS(fps => {
+  thermalSamples.push(fps);
+  if (thermalSamples.length > 6) thermalSamples.shift();
+
+  const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
+
+  // enter protection aggressively
+if (avg < 45) enableThermalMode();
+
+// exit protection slowly (prevents flip-flop)
+if (avg > 62) disableThermalMode();
+});  
 /* ================= SAFE FETCH WITH RETRY ================= */
 async function fetchWithRetry(url, options, retries = 4, delay = 1800) {
   for (let i = 0; i < retries; i++) {
@@ -197,11 +261,19 @@ function formatLeoReply(text) {
     '<code style="background:rgba(255,255,255,0.12);padding:3px 6px;border-radius:6px;">$1</code>'
   );
 
-  // --- 6️⃣ Paragraph Spacing ---
-  text = text.replace(/\n{2,}/g, "<br><br>");
-  text = text.replace(/\n/g, "<br>");
+// --- 6️⃣ Paragraph Spacing ---
+text = text
+  .replace(/\n{3,}/g, "\n\n")   // collapse 3+ newlines to 2
+  .trim();
 
-  return text.trim();
+// Convert paragraphs properly
+let parts = text.split(/\n\n/).map(p =>
+  p.replace(/\n/g, "<br>")
+);
+
+text = parts.map(p => `<p>${p}</p>`).join("");
+return text;
+
 }
 /* ================= CHAT STORAGE ================= */
 const CHAT_STORE_KEY = "leocore_chats_v1";
@@ -328,11 +400,20 @@ function openChat() {
   if (!hasRealMessages()) {
     showEmptyState();
   }
+  requestAnimationFrame(() => {
+  if (chatMessages.scrollHeight <= chatMessages.clientHeight) {
+    chatMessages.scrollTop = 0;      // Force top if short chat
+  } else {
+    chatMessages.scrollTop = chatMessages.scrollHeight;  // Normal bottom stick
+  }
+});
 
   clearTimeout(freezeTimeout);
   freezeTimeout = setTimeout(() => {
+  if (!userPowerSave) {
     document.body.classList.add("chat-freeze");
-  }, 1800);   // <--- delay before freezing animations
+  }
+}, 1800);
 }
 
 function closeChat() {
@@ -340,11 +421,22 @@ function closeChat() {
 
   clearTimeout(freezeTimeout);
   document.body.classList.remove("chat-open");
+
+if (!userPowerSave) {
   document.body.classList.remove("chat-freeze");
 }
+}
 document.getElementById("lowPowerToggle")?.addEventListener("click", () => {
-  const isEnabled = document.body.classList.toggle("chat-freeze");
-  document.getElementById("lpStatus").textContent = isEnabled ? "ON" : "OFF";
+  userPowerSave = !userPowerSave;
+  localStorage.setItem("lpMode", userPowerSave ? "1" : "0");
+
+  if (userPowerSave) {
+    document.body.classList.add("chat-freeze");
+    document.getElementById("lpStatus").textContent = "ON";
+  } else {
+    document.body.classList.remove("chat-freeze");
+    document.getElementById("lpStatus").textContent = "OFF";
+  }
 });
 
 /* ================= CLICK BINDINGS (MODE CARDS) ================= */
@@ -632,7 +724,7 @@ async function streamIntoBubble(el, text) {
       chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    await new Promise(r => setTimeout(r, 15));
+    await new Promise(requestAnimationFrame);
   }
 
   // Final smooth scroll only if still locked

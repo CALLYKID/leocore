@@ -1461,3 +1461,146 @@ body.chat-freeze .bg-reactor {
   filter: grayscale(0.5) brightness(0.7);
   opacity: 0.5;
 }
+body.chat-open #bg-root,
+body.chat-open .bg-soften,
+body.chat-open .bg-bloom,
+body.chat-open .bg-vignette,
+body.chat-open .intent-strip,
+body.chat-open .mode-card::before,
+body.chat-open .mode-card::after {
+  animation: none !important;
+}
+/* === LEOCORE CHAT — FINAL CLEAN LAYOUT === */
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.chat-message {
+  max-width: 92%;
+  margin: 10px 0;
+}
+
+/* USER RIGHT */
+.chat-message.user {
+  align-self: flex-end;
+}
+
+/* AI LEFT */
+.chat-message.leocore {
+  align-self: flex-start;
+}
+
+/* Typing bubble controlled width */
+.chat-message.leocore.thinking {
+  max-width: 50%;
+}
+.chat-message + .chat-message {
+  margin-top: 12px !important;
+}
+/* ===== FINAL CHAT ANTI-GAP KILLER ===== */
+
+.chat-messages {
+  overflow-anchor: auto !important;
+  contain: none;
+  will-change: auto;
+  transform: none;
+}
+
+.chat-message {
+  overflow: hidden;      /* prevents inner margin bubbles causing collapse */
+}
+
+/* Prevent paragraph + list bottom margins exploding spacing */
+.chat-message.leocore p,
+.chat-message.leocore ul,
+.chat-message.leocore ol {
+  margin-bottom: 6px !important;
+}
+
+.chat-message.leocore p:last-child,
+.chat-message.leocore ul:last-child,
+.chat-message.leocore ol:last-child {
+  margin-bottom: 0 !important;
+}
+.chat-message.leocore * {
+  margin-top: 0 !important;
+}
+
+.chat-message.leocore > *:last-child {
+  margin-bottom: 0 !important;
+}
+.chat-message.leocore * {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.chat-message.leocore p,
+.chat-message.leocore div {
+  margin: 0 !important;
+}
+
+.chat-message.leocore br {
+  line-height: 0 !important;
+}
+/* =========================
+   CHATGPT STYLE SPACING FIX
+========================= */
+
+/* Kill layout conflict */
+.chat-messages {
+  gap: 0 !important;
+}
+
+/* Consistent message spacing */
+.chat-message {
+  margin: 10px 0 !important;
+}
+
+/* Inside messages behave like NORMAL text again */
+.chat-message.leocore * {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Proper readable paragraphs */
+.chat-message.leocore p {
+  margin: 6px 0 !important;
+  line-height: 1.5;
+}
+
+/* No giant space after last line */
+.chat-message.leocore p:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Lists sane spacing */
+.chat-message.leocore ul,
+.chat-message.leocore ol {
+  margin: 6px 0 6px 16px !important;
+}
+
+/* Prevent BR spam stretching */
+.chat-message.leocore br {
+  line-height: 0 !important;
+}
+.chat-messages {
+  overflow-anchor: none !important;
+}
+.chat-message.leocore p:first-child {
+  margin-top: 0 !important;
+}
+
+.chat-message:first-child {
+  margin-top: 0 !important;
+}
+.chat-message.leocore p {
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.chat-message.leocore p:last-child {
+  margin-bottom: 0;
+}
