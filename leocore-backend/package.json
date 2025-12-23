@@ -1,0 +1,20 @@
+{
+  "name": "leocore-backend",
+  "version": "1.0.0",
+  "description": "LeoCore AI Backend",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^4.19.2",
+    "groq-sdk": "^0.3.0",
+    "node-fetch": "^3.3.2"
+  }
+}

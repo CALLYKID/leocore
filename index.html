@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+  />
+
+  <!-- SEO / META -->
+  <meta name="google-site-verification" content="pbW7l_nCjL1D0HqGCBQx2sQA8LFbFrwpe-PhHa2mnd0" />
+  <meta property="og:title" content="LeoCore — Free AI Chat with Multiple Modes" />
+  <meta property="og:description" content="Fast, free AI chat with Study, Research, Deep & Chill modes. No paywalls." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://leocore.vercel.app/" />
+  <meta property="og:image" content="https://leocore.vercel.app/android-chrome-512x512.png" />
+
+  <title>LeoCore — Free AI Chat with Study, Research & Deep Modes</title>
+  <meta name="description" content="LeoCore is a fast, free AI chat app with multiple modes like Study, Research, Deep, Chill, and Flame. No paywalls. No limits." />
+
+  <!-- Icons -->
+  <link rel="icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="canonical" href="https://leocore.vercel.app/" />
+  <meta name="theme-color" content="#0b1020">
+
+  <!-- Prevent white flash -->
+  <style>
+    html, body { background: #000; }
+  </style>
+
+  <link rel="stylesheet" href="/style.css?v=liquid004">
+</head>
+
+<body>
+
+<!-- ================= BACKGROUND ================= -->
+<div id="bg-root" aria-hidden="true">
+  <video
+    id="bg-video"
+    autoplay
+    muted
+    loop
+    playsinline
+    preload="auto"
+    poster="media/waves-blur.jpg"
+  >
+    <<source src="media/background.webm" type="video/webm" />
+  </video>
+
+  <div class="bg-soften"></div>
+  <div class="bg-vignette"></div>
+  <div class="bg-bloom"></div>
+</div>
+
+<!-- ================= UI ================= -->
+<div class="app-wrapper">
+
+  <!-- ================= HEADER ================= -->
+  <section class="center-wrapper">
+    <h1 class="main-title">LeoCore AI Chat</h1>
+    <p class="subtitle">Free AI chat with multiple modes</p>
+    <button id="menuBtn" class="menu-btn">☰</button>
+  </section>
+
+  <!-- ================= INTENT STRIP (NEW HERO) ================= -->
+  <div class="intent-strip">
+  <div class="intent-rotator">
+    <span class="intent-word active">Ask</span>
+    <span class="intent-word">Study</span>
+    <span class="intent-word">Research</span>
+    <span class="intent-word">Read</span>
+  </div>
+  <div class="intent-sub">What do you want to do?</div>
+</div>
+
+  <!-- ================= MODE SELECTOR ================= -->
+  <section class="modes-wrapper">
+    <h2 class="section-title">Choose Your Mode</h2>
+
+    <div class="mode-selector">
+
+      <!-- DEFAULT -->
+      <div class="mode-card active" data-mode="default">
+        <div class="mode-row">
+          <span class="mode-icon">⚡</span>
+          <span class="mode-name">Default</span>
+          <span class="mode-pill">Recommended</span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
+        </div>
+        <div class="mode-expand">
+          <p>Balanced answers for everyday questions.</p>
+          <button class="mode-start">Start with Default</button>
+        </div>
+      </div>
+
+      <!-- STUDY -->
+      <div class="mode-card" data-mode="study">
+        <div class="mode-row">
+          <span class="mode-icon">📘</span>
+          <span class="mode-name">Study</span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
+        </div>
+        <div class="mode-expand">
+          <p>Clear explanations with examples.</p>
+          <button class="mode-start">Start with Study</button>
+        </div>
+      </div>
+
+      <!-- RESEARCH -->
+      <div class="mode-card" data-mode="research">
+        <div class="mode-row">
+          <span class="mode-icon">🔬</span>
+          <span class="mode-name">Research</span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
+        </div>
+        <div class="mode-expand">
+          <p>Detailed, structured, and factual answers.</p>
+          <button class="mode-start">Start with Research</button>
+        </div>
+      </div>
+
+      <!-- READING -->
+      <div class="mode-card" data-mode="reading">
+        <div class="mode-row">
+          <span class="mode-icon">📖</span>
+          <span class="mode-name">Reading</span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
+        </div>
+        <div class="mode-expand">
+          <p>Summaries and simplified explanations.</p>
+          <button class="mode-start">Start with Reading</button>
+        </div>
+      </div>
+
+      <!-- DEEP -->
+      <div class="mode-card" data-mode="deep">
+        <div class="mode-row">
+          <span class="mode-icon">🧠</span>
+          <span class="mode-name">Deep</span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
+        </div>
+        <div class="mode-expand">
+          <p>Long-form reasoning and deep insights.</p>
+          <button class="mode-start">Start with Deep</button>
+        </div>
+      </div>
+
+      <!-- CHILL -->
+      <div class="mode-card" data-mode="chill">
+        <div class="mode-row">
+          <span class="mode-icon">😎</span>
+          <span class="mode-name">Chill</span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
+        </div>
+        <div class="mode-expand">
+          <p>Casual, friendly conversation.</p>
+          <button class="mode-start">Start with Chill</button>
+        </div>
+      </div>
+
+      <!-- PRECISION -->
+      <div class="mode-card" data-mode="precision">
+        <div class="mode-row">
+          <span class="mode-icon">🎯</span>
+          <span class="mode-name">Precision</span>
+          <span class="mode-toggle">
+            <span class="chevron"></span>
+          </span>
+        </div>
+        <div class="mode-expand">
+          <p>Short, exact, no fluff answers.</p>
+          <button class="mode-start">Start with Precision</button>
+        </div>
+      </div>
+
+      <!-- FLAME -->
+      <div class="mode-card" data-mode="flame">
+        <div class="mode-row">
+          <span class="mode-icon">🔥</span>
+          <span class="mode-name">Flame</span>
+          <span class="mode-toggle">
+            <span class="chevron"></span>
+          </span>
+        </div>
+        <div class="mode-expand">
+          <p>Creative, bold, high-energy responses.</p>
+          <button class="mode-start">Start with Flame</button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+<footer class="lc-footer">
+  <div class="f-top">
+    <div class="f-col">
+      <h4>LeoCore</h4>
+      <p>Fast. Free. Powerful AI chat — built for real people.</p>
+    </div>
+
+    <div class="f-col">
+      <h4>Product</h4>
+<a href="/modes/study" class="mode-link" data-mode="study">Study Mode</a>
+<a href="/modes/research" class="mode-link" data-mode="research">Research mode</a>
+<a href="/modes/deep">Deep Mode</a>
+<a href="/modes/flame">Flame Mode</a>
+    </div>
+
+    <div class="f-col">
+      <h4>Legal</h4>
+      <a href="/privacy">Privacy Policy</a>
+<a href="/terms">Terms of Service</a>
+<a href="/contact">Contact</a>
+<a href="/sitemap">Sitemap</a>
+    </div>
+  </div>
+
+  <div class="f-bottom">
+    © 2025 LeoCore — All rights reserved.
+  </div>
+</footer>
+</div>
+
+<!-- ================= CHAT OVERLAY (UNCHANGED) ================= -->
+<div id="chat-overlay" aria-hidden="true">
+  <div class="chat-backdrop"></div>
+
+  <div class="chat-panel">
+
+    <div class="chat-header">
+      <button class="chat-back-btn" id="chatCloseBtn" aria-label="Close chat">‹</button>
+
+      <div class="chat-header-center">
+        <div class="chat-mode" id="chatMode">⚡ Default</div>
+        <div class="chat-mode-desc" id="chatModeDesc">
+          Balanced answers for everyday questions
+        </div>
+      </div>
+
+      <button id="clearChat" class="chat-clear-btn" aria-label="Clear conversation">
+        Clear
+      </button>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div id="emptyState">
+        <div class="empty-title"></div>
+        <div class="empty-sub"></div>
+        <div class="empty-suggestions" id="emptySuggestions"></div>
+      </div>
+    </div>
+
+    <form class="chat-input-bar" id="chatForm" autocomplete="off">
+      <input
+        type="text"
+        id="chatInput"
+        placeholder="Message LeoCore…"
+        spellcheck="false"
+        autocomplete="off"
+      />
+      <button type="submit" id="sendBtn" aria-label="Send">
+        <span class="morph-core"></span>
+        <span class="morph-arm a"></span>
+        <span class="morph-arm b"></span>
+        <span class="stream-ring"></span>
+      </button>
+    </form>
+
+  </div>
+</div>
+
+<script src="/app.js?v=9999" defer></script>
+<div id="menuOverlay" aria-hidden="true">
+  <div class="menu-backdrop"></div>
+
+  <aside class="menu-panel">
+    
+    <div class="menu-top">
+      <h2 class="menu-title">LeoCore</h2>
+      <button id="menuClose" class="menu-close">×</button>
+    </div>
+
+    <div class="menu-section">
+      <h4>Quick Access</h4>
+      <a class="menu-link" href="/modes/default">⚡ Default Chat</a>
+<a class="menu-link" href="/modes/study">📘 Study</a>
+<a class="menu-link" href="/modes/deep">🧠 Deep</a>
+<a class="menu-link" href="/modes/flame">🔥 Flame</a>
+    </div>
+
+<div class="menu-section">
+  <h4>Performance</h4>
+  <div class="menu-link" id="lowPowerToggle">
+    <span>🔋</span> Battery Saver: <b id="lpStatus">OFF</b>
+  </div>
+</div>
+
+
+    <div class="menu-section">
+      <h4>Navigation</h4>
+      <a class="menu-link" href="/">🏠 Home</a>
+      <a class="menu-link" href="/about">ℹ️ About</a>
+    </div>
+
+    <div class="menu-section">
+      <h4>Legal</h4>
+      <a class="menu-link" href="/privacy">Privacy Policy</a>
+      <a class="menu-link" href="/terms">Terms of Service</a>
+    </div>
+
+  </aside>
+</div>
+</body>
+</html>
