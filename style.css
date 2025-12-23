@@ -1699,3 +1699,18 @@ body.chat-open .mode-card::after {
   pointer-events: auto !important;
   display: grid !important;
 }
+.chat-wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 18px;
+}
+#bgLayer::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  background: linear-gradient(
+    rgba(0,0,0,0) 0%,
+    rgba(0,0,0,0.6) 60%,
+    rgba(0,0,0,0.9) 100%
+  );
+}
