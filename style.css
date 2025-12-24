@@ -1678,3 +1678,53 @@ body.mode-flame #bgTint {
 textarea, input {
   font-family: inherit !important;
 }
+/* ================================
+   DESKTOP — CENTER + PROFESSIONAL
+================================ */
+@media (min-width: 900px) {
+
+  /* Main app container centered */
+  .app-wrapper {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 80px 40px 60px;
+  }
+
+  /* Intent strip not full width */
+  .intent-strip {
+    max-width: 840px;
+    margin: 24px auto 34px;
+  }
+
+  /* Mode selector centered */
+  .modes-wrapper {
+    max-width: 840px;
+    margin: 0 auto;
+  }
+
+  /* Cards breathe better on desktop */
+  .mode-card {
+    border-radius: 20px;
+  }
+
+  /* Footer boxed & centered */
+  .lc-footer {
+    max-width: 1080px;
+    margin: 40px auto 0;
+    border-radius: 18px !important;
+    width: auto;
+  }
+
+  /* CHAT PANEL — not fullscreen ugly */
+  .chat-panel {
+    max-width: 980px;
+    margin: 0 auto;
+    border-radius: 22px !important;
+  }
+
+  /* Chat message width sanity */
+  .chat-message.leocore,
+  .chat-message.user {
+    max-width: 70%;
+  }
+}
