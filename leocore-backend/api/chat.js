@@ -1,6 +1,7 @@
 // api/chat.js
 import Groq from "groq-sdk";
 const SERVER_SECRET = process.env.SERVER_SECRET;
+console.log("SERVER SECRET LOADED:", !!SERVER_SECRET);
 const RATE_WINDOW = 10 * 1000; // 10 seconds
 const MAX_REQUESTS = 2;       // max 2 prompts per window
 
