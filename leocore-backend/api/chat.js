@@ -151,12 +151,81 @@ YOU ARE THE MOST ENTERTAINING VERSION OF YOURSELF. LET’S COOK 🔥
 };
 
 /* ============================================================
+   HARD SECURITY WALL — COPY THIS EXACTLY
+============================================================ */
+const ALLOWED_ORIGINS = new Set([
+  "https://leocore.vercel.app",
+  "https://leocore.onrender.com",
+  "http://localhost:3000"
+]);
+
+function applySecurityHeaders(req, res) {
+  const origin = req.headers.origin;
+
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers",
+    "Content-Type, X-Leocore-Key"
+  );
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Cache-Control", "no-store");
+
+  if (req.method === "OPTIONS") {
+    res.status(204).end();
+    return true;
+  }
+
+  return false;
+}
+/* ============================================================
+   GLOBAL FLOOD PROTECTION
+============================================================ */
+let globalHits = [];
+const GLOBAL_WINDOW = 10 * 1000;
+const GLOBAL_LIMIT = 25; // max 25 total requests per 10s
+
+function globalRateGuard() {
+  const now = Date.now();
+  globalHits = globalHits.filter(t => now - t < GLOBAL_WINDOW);
+
+  if (globalHits.length >= GLOBAL_LIMIT) return false;
+
+  globalHits.push(now);
+  return true;
+}
+/* ============================================================
    CHAT HANDLER
 ============================================================ */
 export default async function chatHandler(req, res) {
   try {
-    const token = req.headers['x-leocore-key'];
+    // 1️⃣ Apply CORS + security headers + handle OPTIONS
+    if (applySecurityHeaders(req, res)) return;
 
+    // 2️⃣ Global flood protection
+    if (!globalRateGuard()) {
+      return res.status(429).json({
+        error: true,
+        message: "Server is cooling down. Try again shortly."
+      });
+    }
+
+    // 3️⃣ Only allow POST
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Method Not Allowed" });
+    }
+
+    // 4️⃣ Basic body size guard (prevents massive payload attack)
+    if (JSON.stringify(req.body || "").length > 6000) {
+      return res.status(413).json({ error: "Payload too large" });
+    }
+
+    // 5️⃣ Your existing secret check (already good)
+    const token = req.headers['x-leocore-key'];
     if (!token || token !== SERVER_SECRET) {
       return res.status(401).json({ error: "Unauthorized" });
     }
