@@ -135,26 +135,24 @@ function disableThermalMode() {
   console.log("❄️ Thermal Mode DISABLED");
 }
 setTimeout(() => {
-getFPS(fps => {
-  thermalSamples.push(fps);
-  if (thermalSamples.length > 10) thermalSamples.shift();
+  getFPS(fps => {
+    thermalSamples.push(fps);
+    if (thermalSamples.length > 10) thermalSamples.shift();
 
-  const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
+    const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
+    const now = Date.now();
+    if (now - lastThermalSwitch < THERMAL_COOLDOWN) return;
 
-  const now = Date.now();
-  if (now - lastThermalSwitch < THERMAL_COOLDOWN) return;
+    if (avg < 35) {
+      enableThermalMode();
+      lastThermalSwitch = now;
+    }
 
-  if (avg < 35) {
-    enableThermalMode();
-    lastThermalSwitch = now;
-  }
-
-  if (avg > 62) {
-    disableThermalMode();
-    lastThermalSwitch = now;
-  }
-});
-});
+    if (avg > 62) {
+      disableThermalMode();
+      lastThermalSwitch = now;
+    }
+  });
 }, 3000);
 /* ================= SAFE FETCH WITH RETRY ================= */
 async function fetchWithRetry(url, options, retries = 4, delay = 1800) {
