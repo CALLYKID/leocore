@@ -1726,3 +1726,27 @@ textarea, input {
     max-width: 78%;      /* wider bubbles */
   }
 }
+/* DESKTOP CHAT ALIGNMENT FIX */
+@media (min-width: 900px) {
+
+  /* Center chat area, but DO NOT center the messages inside */
+  #chatMessages {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch !important;  /* IMPORTANT */
+  }
+
+  /* AI Left */
+  .chat-message.leocore {
+    align-self: flex-start !important;
+    max-width: 82%;
+  }
+
+  /* USER Right */
+  .chat-message.user {
+    align-self: flex-end !important;
+    max-width: 82%;
+  }
+}
