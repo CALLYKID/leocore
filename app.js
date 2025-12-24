@@ -303,7 +303,7 @@ text = parts
   
 return text;
 }
-/* ================= CHAT STORAGE ================= */
+/* ================ CHAT STORAGE ================= */
 const CHAT_STORE_KEY = "leocore_chats_v1";
 
 function loadAllChats() {
