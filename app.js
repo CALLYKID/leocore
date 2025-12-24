@@ -829,6 +829,7 @@ chatForm.addEventListener("submit", async (e) => {
 
   addMessage(text, "user");
   chatInput.value = "";
+  chatInput.style.height = "auto";
   saveCurrentChat();
 requestAnimationFrame(() => {
   chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -939,6 +940,15 @@ while (lastWordCount < words.length) {
     }
     setStreamingState(false);
 }
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const chatInput = document.getElementById("chatInput");
+  if (!chatInput) return;
+
+  chatInput.addEventListener("input", () => {
+    chatInput.style.height = "auto";
+    chatInput.style.height = chatInput.scrollHeight + "px";
+  });
 });
 /* ================= INTENT STRIP ROTATING TEXT ================= */
 

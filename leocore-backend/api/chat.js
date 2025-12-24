@@ -220,7 +220,7 @@ export default async function chatHandler(req, res) {
     }
 
     // 4️⃣ Basic body size guard (prevents massive payload attack)
-    if (JSON.stringify(req.body || "").length > 6000) {
+    if (JSON.stringify(req.body || "").length > 100000) {
       return res.status(413).json({ error: "Payload too large" });
     }
 
@@ -252,7 +252,7 @@ if (recent.length >= MAX_REQUESTS) {
   return res.status(429).json({
     error: true,
     message: "You're sending messages too fast. Take a breath 😄",
-    waitSeconds: Math.ceil(RATE_WINDOW / 1000)
+    waitSeconds: Math.ceil(RATE_WINDOW / 6000)
   });
 }
 
