@@ -11,6 +11,9 @@ let rafScroll = null;
 const MEMORY_LIMIT = 8;
 let userPowerSave = false;
 
+setInterval(() => {
+  fetch("https://leocore.onrender.com/heartbeat");
+}, 20000);
 /* ================= USER ID ================= */
 const USER_ID =
   localStorage.getItem("leocore_uid") ||
@@ -654,6 +657,20 @@ const MODE_SUGGESTIONS = {
     "Give me something crazy creative",
   ]
 };
+
+const userCountEl = document.getElementById("liveUsers");
+
+async function updateUsers() {
+  try {
+    const res = await fetch("https://leocore.onrender.com/active-users");
+    const data = await res.json();
+    userCountEl.textContent = `${data.active} people online now`;
+  } catch {}
+}
+
+setInterval(updateUsers, 5000);
+updateUsers();
+
 function showEmptyState() {
   const el = document.getElementById("emptyState");
   if (!el) return;

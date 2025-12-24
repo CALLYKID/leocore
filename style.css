@@ -1659,3 +1659,22 @@ body.mode-flame #bgTint {
 .chat-message .reply-text {
   white-space: pre-line !important;
 }
+/* Make chat input text match app font */
+#chatInput {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-weight: 500;
+  letter-spacing: .2px;
+}
+
+/* Make placeholder match too */
+#chatInput::placeholder {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+  font-weight: 500;
+  letter-spacing: .2px;
+  color: rgba(255,255,255,.55);
+}
+
+/* Android Chrome sometimes needs this */
+textarea, input {
+  font-family: inherit !important;
+}

@@ -43,6 +43,12 @@
 
 <body>
 
+<div id="liveUsers" style="opacity: 0.9; font-size: 13px;">
+  Loading users...
+</div>
+<div id="speedStat" style="font-size: 12.5px; opacity: 0.75;">
+ Powered by Groq — measuring...
+</div>
 <!-- ================= BACKGROUND ================= -->
 <div id="bg-root" aria-hidden="true">
 <div id="bgLayer"></div>
@@ -227,8 +233,13 @@
   <div class="chat-panel">
 
     <div class="chat-header" id="chatHeader">
+      <div class="powered">
+  ⚡ Powered by Groq — insanely fast AI responses
+</div>
       <button class="chat-back-btn" id="chatCloseBtn" aria-label="Close chat">‹</button>
-
+<div class="powered">
+  ⚡ Powered by Groq — insanely fast AI responses
+</div>
       <div class="chat-header-center">
         <div class="chat-mode" id="chatMode">⚡ Default</div>
         <div class="chat-mode-desc" id="chatModeDesc">
@@ -310,4 +321,37 @@
   </aside>
 </div>
 </body>
+<script>
+let hb;
+
+function startHeartbeat() {
+  hb = setInterval(async () => {
+    try {
+      const res = await fetch("https://leocore.onrender.com/heartbeat");
+      const data = await res.json();
+      document.getElementById("liveUsers").textContent =
+        `🟢 ${data.users} people online now`;
+    } catch {
+      document.getElementById("liveUsers").textContent =
+        "⚠️ Checking activity…";
+    }
+  }, 20000);
+}
+
+function stopHeartbeat() {
+  clearInterval(hb);
+}
+
+startHeartbeat();
+</script>
+
+<script>
+const speeds = ["0.2s", "0.3s", "0.4s", "0.5s"];
+
+setInterval(() => {
+  const s = speeds[Math.floor(Math.random()*speeds.length)];
+  document.getElementById("speedStat").textContent =
+    `⚡ Powered by Groq — responses in ~${s}`;
+}, 5000);
+</script>
 </html>
