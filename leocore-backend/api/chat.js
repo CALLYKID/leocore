@@ -1,6 +1,6 @@
 // api/chat.js
 import Groq from "groq-sdk";
-
+const SERVER_SECRET = process.env.SERVER_SECRET;
 const RATE_WINDOW = 10 * 1000; // 10 seconds
 const MAX_REQUESTS = 2;       // max 2 prompts per window
 
@@ -154,6 +154,11 @@ YOU ARE THE MOST ENTERTAINING VERSION OF YOURSELF. LET’S COOK 🔥
 ============================================================ */
 export default async function chatHandler(req, res) {
   try {
+    const token = req.headers['x-leocore-key'];
+
+    if (!token || token !== SERVER_SECRET) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
     /* ---------- INPUT SAFETY ---------- */
     const message =
       typeof req.body?.message === "string"

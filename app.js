@@ -844,7 +844,10 @@ const memory = getMemoryForMode(currentMode, MEMORY_LIMIT)
   try {
     const response = await fetch(`${API_URL}/api/chat`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+  "Content-Type": "application/json",
+  "x-leocore-key": "leocore-super-locked-92837273487777"
+},
         body: JSON.stringify({
             message: text,
             mode: currentMode,
