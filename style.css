@@ -59,25 +59,33 @@
   z-index: -1;
 
   background: linear-gradient(
-    120deg,
+    135deg,
     #001f4d,
     #562b9d,
     #0078ff,
     #001f4d
   );
-  background-size: 300% 300%;
-  animation: slowGradient 15s ease-in-out infinite;
-
-  filter: brightness(1.4);
+  
+  background-size: 350% 350%;
+  animation: leoCoreFlow 22s linear infinite;
 }
 
-@keyframes slowGradient {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes neonDrift {
+  0% { filter: hue-rotate(0deg); transform: scale(1); }
+  50% { filter: hue-rotate(45deg); transform: scale(1.03); }
+  100% { filter: hue-rotate(0deg); transform: scale(1); }
+}
+#bgTint {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+
+  background: rgba(0,0,0,0);
+  transition: background 0.9s ease-in-out;
 }
   
-  .bg-soften {
+.bg-soften {
     position: absolute;
     inset: 0;
     z-index: 1;
@@ -1486,7 +1494,7 @@ body.chat-freeze .stream-ring {
 }
 body.chat-freeze #bg-root, 
 body.chat-freeze .bg-reactor {
-  filter: grayscale(0.5) brightness(0.7);
+  filter: grayscale(0.01) brightness(1.1);
   opacity: 0.5;
 }
 body.chat-open #bg-root,
@@ -1721,15 +1729,59 @@ body.chat-open .mode-card::after {
   margin: 0 auto;
   padding: 18px;
 }
-#bgLayer::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  pointer-events:none;
 
-  background: radial-gradient(
-    circle at 50% 20%,
-    rgba(255,255,255,0.15),
-    rgba(0,0,0,0.4) 60%
+body.mode-default #bgTint {
+  background: linear-gradient(120deg,
+    rgba(0, 234, 255, 0.28),
+    rgba(138, 60, 255, 0.28)
   );
+}
+
+body.mode-study #bgTint {
+  background: linear-gradient(120deg,
+    rgba(0, 255, 170, 0.32),
+    rgba(0, 140, 255, 0.28)
+  );
+}
+
+body.mode-research #bgTint {
+  background: linear-gradient(120deg,
+    rgba(180, 0, 255, 0.32),
+    rgba(0, 200, 255, 0.28)
+  );
+}
+
+body.mode-deep #bgTint {
+  background: linear-gradient(120deg,
+    rgba(10, 30, 120, 0.38),
+    rgba(0, 8, 50, 0.42)
+  );
+}
+
+body.mode-chill #bgTint {
+  background: linear-gradient(120deg,
+    rgba(0, 255, 255, 0.30),
+    rgba(255, 0, 255, 0.26)
+  );
+}
+
+body.mode-precision #bgTint {
+  background: linear-gradient(120deg,
+    rgba(255,255,255,0.22),
+    rgba(180, 220, 255, 0.22)
+  );
+}
+
+body.mode-flame #bgTint {
+  background: linear-gradient(120deg,
+    rgba(255, 0, 70, 0.76),
+    rgba(255, 150, 0, 0.32)
+  );
+}
+@keyframes leoCoreFlow {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 50% 100%; }
+  50%  { background-position: 100% 50%; }
+  75%  { background-position: 50% 0%; }
+  100% { background-position: 0% 50%; }
 }

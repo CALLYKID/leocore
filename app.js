@@ -396,7 +396,12 @@ function setMode(key) {
   
   const m = MODE_MAP[key] || MODE_MAP.default;
   currentMode = key;
-
+document.body.classList.forEach(c => {
+  if (c.startsWith("mode-")) document.body.classList.remove(c);
+});
+setTimeout(() => {
+  document.body.classList.add(`mode-${key}`);
+}, 2);
   chatMode.textContent = m.label;
   chatModeDesc.textContent = m.desc;
 
