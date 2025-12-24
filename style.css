@@ -1785,3 +1785,6 @@ body.mode-flame #bgTint {
   75%  { background-position: 50% 0%; }
   100% { background-position: 0% 50%; }
 }
+#bg-root {
+  transition: background 0.8s ease-in-out, filter 0.8s ease;
+}
