@@ -111,6 +111,7 @@ function getFPS(callback) {
 
 function enableThermalMode() {
   if (thermalActive || userPowerSave) return;
+  if (!document.body.classList.contains("chat-open")) return;
   thermalActive = true;
   document.body.classList.add("chat-freeze");
   
@@ -133,17 +134,17 @@ function disableThermalMode() {
 });
   console.log("❄️ Thermal Mode DISABLED");
 }
-
+setTimeout(() => {
 getFPS(fps => {
   thermalSamples.push(fps);
-  if (thermalSamples.length > 6) thermalSamples.shift();
+  if (thermalSamples.length > 10) thermalSamples.shift();
 
   const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
 
   const now = Date.now();
   if (now - lastThermalSwitch < THERMAL_COOLDOWN) return;
 
-  if (avg < 45) {
+  if (avg < 35) {
     enableThermalMode();
     lastThermalSwitch = now;
   }
@@ -153,6 +154,8 @@ getFPS(fps => {
     lastThermalSwitch = now;
   }
 });
+});
+}, 3000);
 /* ================= SAFE FETCH WITH RETRY ================= */
 async function fetchWithRetry(url, options, retries = 4, delay = 1800) {
   for (let i = 0; i < retries; i++) {
