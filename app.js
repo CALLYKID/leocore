@@ -86,6 +86,8 @@ if (lp) lp.textContent = userPowerSave ? "ON" : "OFF";
 ================================================ */
 let thermalSamples = [];
 let thermalActive = false;
+let lastThermalSwitch = 0;
+const THERMAL_COOLDOWN = 4000; // 4s
 
 function getFPS(callback) {
   let last = performance.now();
@@ -138,12 +140,19 @@ getFPS(fps => {
 
   const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
 
-  // enter protection aggressively
-if (avg < 45) enableThermalMode();
+  const now = Date.now();
+  if (now - lastThermalSwitch < THERMAL_COOLDOWN) return;
 
-// exit protection slowly (prevents flip-flop)
-if (avg > 62) disableThermalMode();
-});  
+  if (avg < 45) {
+    enableThermalMode();
+    lastThermalSwitch = now;
+  }
+
+  if (avg > 62) {
+    disableThermalMode();
+    lastThermalSwitch = now;
+  }
+});
 /* ================= SAFE FETCH WITH RETRY ================= */
 async function fetchWithRetry(url, options, retries = 4, delay = 1800) {
   for (let i = 0; i < retries; i++) {
@@ -428,11 +437,6 @@ function openChat() {
 });
 
   clearTimeout(freezeTimeout);
-  freezeTimeout = setTimeout(() => {
-  if (!userPowerSave) {
-    document.body.classList.add("chat-freeze");
-  }
-}, 1800);
 }
 
 function closeChat() {
