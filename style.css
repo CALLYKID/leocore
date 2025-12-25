@@ -1733,3 +1733,25 @@ textarea, input {
     margin-right: auto;
   }
 }
+/* ===== DESKTOP FIX: stop center popping during stream ===== */
+@media (min-width: 900px) {
+
+  /* Chat container NEVER centers */
+  .chat-messages,
+  #chatMessages {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Default state of ALL messages = left */
+  .chat-message {
+    align-self: flex-start !important;
+    transform-origin: left top !important;
+  }
+
+  /* User messages override to right */
+  .chat-message.user {
+    align-self: flex-end !important;
+    transform-origin: right top !important;
+  }
+}
