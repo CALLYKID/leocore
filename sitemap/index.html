@@ -1,35 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Sitemap — LeoCore</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sitemap — LeoCore</title>
 
-  <style>
-    body{
-      background:#050a15;
-      color:white;
-      font-family: system-ui;
-      padding:18px;
-      max-width:800px;
-      margin:auto;
-    }
-    a{color:#00eaff;font-size:15px;}
-  </style>
+<style>
+  body{
+    background:#050a15;
+    color:white;
+    font-family:system-ui,-apple-system,Segoe UI;
+    padding:18px;
+    max-width:900px;
+    margin:auto;
+  }
+
+  h1{
+    font-weight:900;
+    letter-spacing:.3px;
+  }
+
+  .desc{
+    opacity:.8;
+    margin-bottom:18px;
+  }
+
+  .section{
+    margin-top:24px;
+    padding:14px 18px;
+    border-radius:14px;
+    background:linear-gradient(180deg,#0b1629,#070d18);
+    border:1px solid rgba(255,255,255,.15);
+  }
+
+  .section h2{
+    margin:0 0 10px;
+    font-size:18px;
+  }
+
+  ul{
+    margin:0;
+    padding-left:16px;
+  }
+
+  li{
+    margin:6px 0;
+  }
+
+  a{
+    color:#00eaff;
+    text-decoration:none;
+  }
+
+  a:hover{
+    text-decoration:underline;
+  }
+
+  footer{
+    margin-top:30px;
+    opacity:.7;
+  }
+
+</style>
 </head>
 
 <body>
 
-<h1>LeoCore Sitemap</h1>
+<h1>Sitemap</h1>
+<p class="desc">A structured overview of the LeoCore website and pages.</p>
 
-<ul>
-  <li><a href="/">Home</a></li>
-  <li><a href="/privacy">Privacy Policy</a></li>
-  <li><a href="/terms">Terms</a></li>
-  <li><a href="/contact">Contact</a></li>
-</ul>
+<div class="section">
+  <h2>Main Pages</h2>
+  <ul>
+    <li><a href="/">Home</a></li>
+    <li><a href="/chat">Chat</a></li>
+    <li><a href="/contact.html">Contact</a></li>
+    <li><a href="/privacy.html">Privacy Policy</a></li>
+  </ul>
+</div>
 
-<p><a href="/">Back to LeoCore</a></p>
+<div class="section">
+  <h2>LeoCore Modes</h2>
+  <ul>
+    <li>Default Mode</li>
+    <li>Study Mode</li>
+    <li>Research Mode</li>
+    <li>Deep Mode</li>
+    <li>Chill Mode</li>
+    <li>Precision Mode</li>
+    <li>Flame Mode</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Support & Legal</h2>
+  <ul>
+    <li><a href="/contact.html">Contact Support</a></li>
+    <li><a href="/privacy.html">Privacy Policy</a></li>
+    <li><a href="/terms.html">Terms (coming soon)</a></li>
+  </ul>
+</div>
+
+<footer>
+  © LeoCore — AI for Students & Productivity
+</footer>
 
 </body>
 </html>
