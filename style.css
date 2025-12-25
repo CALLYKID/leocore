@@ -1678,154 +1678,39 @@ body.mode-flame #bgTint {
 textarea, input {
   font-family: inherit !important;
 }
-/* ================================
-   DESKTOP — TRUE PREMIUM EXPERIENCE
-================================ */
 @media (min-width: 900px) {
 
-  /* --------- PAGE LAYOUT --------- */
-  .app-wrapper {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 90px 50px 70px;
-  }
-
-  .intent-strip {
-    max-width: 1050px;
-    margin: 28px auto 36px;
-  }
-
-  .modes-wrapper {
-    max-width: 1050px;
-    margin: 0 auto;
-  }
-
-  .lc-footer {
-    max-width: 1300px;
-    margin: 46px auto 0;
-    border-radius: 22px !important;
-    width: auto;
-  }
-
-  /* --------- CHAT PANEL FULL SCREEN --------- */
-  .chat-panel {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-  }
-
-  /* --------- CHAT WRAPPER --------- */
-  #chatMessages {
+  #chatMessages,
+  .chat-messages {
     max-width: 1100px;
     margin: 0 auto;
-
-    display: flex;
-    flex-direction: column;
-    align-items: stretch !important; /* stop centering */
-  }
-
-  /* ===== BUBBLE BEHAVIOR ===== */
-
-  /* Base bubble */
-  .chat-message {
-    width: fit-content;     /* naturally shrink to text */
-    max-width: 82%;         /* wrapping cap */
-    display: inline-block;
-    text-align: left;
-  }
-
-  /* AI left */
-  .chat-message.leocore {
-    align-self: flex-start !important;
-  }
-
-  /* User right */
-  .chat-message.user {
-    align-self: flex-end !important;
-  }
-
-  /* typing bubble sizing */
-  .chat-message.leocore.thinking {
-    max-width: 50%;
-  }
-}
-/* ================================
-   DESKTOP — TRUE PREMIUM MODE
-================================ */
-@media (min-width: 900px) {
-
-  /* ---------- MAIN HOME LAYOUT ---------- */
-  .app-wrapper {
-    max-width: 1500px;
-    margin: 0 auto;
-    padding: 90px 80px 80px;
-  }
-
-  .intent-strip {
-    max-width: 1200px;
-    margin: 34px auto 40px;
-  }
-
-  .modes-wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .mode-card {
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .lc-footer {
-    max-width: 1500px;
-    margin: 60px auto 0;
-    border-radius: 22px !important;
-    width: auto;
-  }
-
-  /* ---------- DESKTOP CHAT FULL SCREEN ---------- */
-  .chat-panel {
-    width: 100vw !important;
-    max-width: 100vw !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    border-radius: 0 !important;
-  }
-
-  /* ---------- CHAT CONTAINER ---------- */
-  .chat-messages,
-  #chatMessages {
-    max-width: 1100px;
-    margin: 0 auto;
-
     display: flex;
     flex-direction: column;
     align-items: stretch !important;
     justify-content: flex-start !important;
   }
 
-  /* ---------- MESSAGE BUBBLE BEHAVIOR ---------- */
   .chat-message {
     width: fit-content;
     max-width: 82%;
     text-align: left;
-    display: inline-block;
   }
 
-  /* AI LEFT */
   .chat-message.leocore {
     align-self: flex-start !important;
   }
 
-  /* USER RIGHT */
   .chat-message.user {
     align-self: flex-end !important;
   }
 
-  /* Typing bubble sane size */
   .chat-message.leocore.thinking {
     max-width: 50%;
+  }
+
+  .chat-panel {
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
   }
 }
