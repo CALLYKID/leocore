@@ -1740,3 +1740,11 @@ textarea, input {
     margin-inline: auto;
   }
 }
+@media (min-width: 900px) {
+  .intent-strip {
+    max-width: 805px;     /* main control */
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
