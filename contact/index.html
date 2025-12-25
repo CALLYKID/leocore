@@ -6,15 +6,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
+    /* FORCE CLEAN PRODUCT FONT */
+    *{
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+      "Helvetica Neue", sans-serif !important;
+      letter-spacing:.2px;
+    }
+
     body{
       background:#050a15;
       color:white;
-      font-family: system-ui;
       padding:18px;
       max-width:800px;
       margin:auto;
     }
+
     p{opacity:.85;}
+
     input, textarea{
       width:100%;
       padding:10px;
@@ -24,15 +33,37 @@
       border:1px solid rgba(255,255,255,.2);
       color:white;
     }
+
     button{
-      margin-top:10px;
-      padding:10px 18px;
-      border-radius:10px;
+      margin-top:12px;
+      padding:12px 20px;
+      border-radius:12px;
       border:none;
       background:#00eaff;
       color:black;
-      font-weight:700;
+      font-weight:800;
+      cursor:pointer;
+      font-size:15px;
+      transition:.3s ease;
     }
+
+    button:hover{
+      transform:scale(.97);
+    }
+
+    /* SUCCESS ANIMATION */
+    @keyframes successPulse{
+      0%{transform:scale(1); box-shadow:0 0 0 rgba(0,234,255,0);}
+      50%{transform:scale(1.04); box-shadow:0 0 22px rgba(0,234,255,.7);}
+      100%{transform:scale(1); box-shadow:0 0 0 rgba(0,234,255,0);}
+    }
+
+    .success{
+      background:linear-gradient(135deg,#00ffaa,#00eaff);
+      color:#00121a !important;
+      animation:successPulse .9s ease backwards;
+    }
+
     a{color:#00eaff;}
   </style>
 </head>
@@ -42,17 +73,61 @@
 <h1>Contact</h1>
 <p>Have questions about LeoCore? Reach out below.</p>
 
-<form>
+<form id="contactForm">
   <label>Name</label>
-  <input placeholder="Your name">
+  <input id="nameInput" placeholder="Your name">
 
   <label>Message</label>
-  <textarea rows="5" placeholder="Type your message..."></textarea>
+  <textarea id="msgInput" rows="5" placeholder="Type your message..."></textarea>
 
-  <button disabled>Submit (coming soon)</button>
+  <button id="contactBtn" type="submit">Submit</button>
 </form>
 
 <p><a href="/">Back to LeoCore</a></p>
 
+<script>
+const form = document.getElementById("contactForm");
+const btn = document.getElementById("contactBtn");
+
+form.addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const name = document.getElementById("nameInput").value.trim();
+  const message = document.getElementById("msgInput").value.trim();
+
+  if(!name || !message){
+    btn.textContent = "Please fill everything";
+    btn.style.background = "#ff4b4b";
+    btn.style.color = "white";
+    setTimeout(()=>resetButton(), 1200);
+    return;
+  }
+
+  const email = "support@leocore.app"; // change when you get domain email
+  const subject = encodeURIComponent("LeoCore Support Message");
+  const body = encodeURIComponent(`Name: ${name}\n\nMessage:\n${message}`);
+
+  // open email client
+  window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+
+  // success UX
+  btn.classList.add("success");
+  btn.textContent = "Message Ready ✓";
+  btn.disabled = true;
+
+  // redirect after 1.5s
+  setTimeout(() => {
+    window.location.href = "/";
+  }, 1500);
+});
+
+function resetButton(){
+  btn.classList.remove("success");
+  btn.textContent = "Submit";
+  btn.disabled = false;
+  btn.style.background = "#00eaff";
+  btn.style.color = "black";
+}
+</script>
 </body>
 </html>
