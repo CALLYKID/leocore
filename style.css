@@ -1727,3 +1727,16 @@ textarea, input {
     align-self: flex-start !important;
   }
 }
+@media (min-width: 900px) {
+  .modes-wrapper {
+    width: 95%;
+    max-width: 1200px;
+    margin: 28px auto;
+  }
+
+  .mode-card {
+    width: 100%;
+    max-width: 1050px;
+    margin-inline: auto;
+  }
+}
