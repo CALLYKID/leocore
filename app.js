@@ -229,6 +229,17 @@ const MODE_KEYS = Object.keys(MODE_MAP);
 const chatOverlay  = document.getElementById("chat-overlay");
 const chatCloseBtn = document.getElementById("chatCloseBtn");
 const chatMessages = document.getElementById("chatMessages");
+const webIndicator = document.getElementById("webSearchIndicator");
+
+function showWebIndicator(){
+  webIndicator.classList.remove("hidden");
+  setTimeout(()=>webIndicator.classList.add("show"),10);
+}
+
+function hideWebIndicator(){
+  webIndicator.classList.remove("show");
+  setTimeout(()=>webIndicator.classList.add("hidden"),180);
+}
 const chatForm     = document.getElementById("chatForm");
 const chatInput    = document.getElementById("chatInput");
 const chatMode     = document.getElementById("chatMode");
@@ -920,6 +931,8 @@ const memory = getMemoryForMode(currentMode, MEMORY_LIMIT)
   
   try {
     controller = new AbortController();
+// only show if backend is actually taking time
+let webTimer = setTimeout(() => showWebIndicator(), 450);
 
 const response = await fetch(`${API_URL}/api/chat`, {
   method: "POST",
@@ -934,10 +947,14 @@ const response = await fetch(`${API_URL}/api/chat`, {
     memory,
     profile
   }),
-  signal: controller.signal   // <-- THIS MAKES STOP WORK
+  signal: controller.signal
 });
 
+// if AI responds fast → don't show indicator
+clearTimeout(webTimer);
+
     const reader = response.body.getReader();
+    hideWebIndicator();
     const decoder = new TextDecoder();
 
     let fullText = "";
