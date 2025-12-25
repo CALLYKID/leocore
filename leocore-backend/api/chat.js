@@ -372,8 +372,8 @@ ${webData?.answer || "No direct answer found."}
 Useful Sources:
 ${(webData?.results || []).map(r => `- ${r.title}: ${r.url}`).join("\n")}
 `
-} : null
-    : null
+}
+  : null
 ].filter(Boolean)
 });
 
