@@ -1,5 +1,6 @@
 // api/chat.js
 import Groq from "groq-sdk";
+import fetch from "node-fetch";
 /* ============================================================
    TAVILY WEB SEARCH
 ============================================================ */
@@ -17,7 +18,10 @@ async function tavilySearch(query) {
       })
     });
 
-    return await res.json();
+    const data = await res.json();
+    console.log("TAVILY RAW:", JSON.stringify(data, null, 2));
+    return data;
+
   } catch (err) {
     console.error("TAVILY ERROR:", err);
     return null;
@@ -101,13 +105,25 @@ Extra Behaviour Rules:
 - Do NOT say you are outdated.
 - Use browsing calmly and confidently when needed.
 `;
+function buildSearchQuery(userText){
+  return `
+Answer ONLY with verified facts.
+Search football match history, official federation sources and trusted news.
+Do not guess.
+
+Question: ${userText}
+`;
+}
 function needsBrowsing(text){
   const keys = [
-    "today","latest","right now","current",
-    "release","update","news","who won",
-    "2024","2025","price","weather",
-    "breaking","new"
-  ];
+ "today","latest","current","right now",
+ "update","news","breaking",
+ "2024","2025",
+ "price","weather",
+ "match","beat","won","lost","score",
+ "football","fifa","uefa","caf",
+ "ballon","league","cup"
+];
 
   text = text.toLowerCase();
   return keys.some(k => text.includes(k));
@@ -277,7 +293,7 @@ let webData = null;
 
 if (needsBrowsing(message)) {
   console.log("🌍 Browsing enabled for:", message);
-  webData = await tavilySearch(message);
+ webData = await tavilySearch(buildSearchQuery(message));
 }
 const userId =
   typeof req.body?.userId === "string" && req.body.userId.trim()
@@ -363,16 +379,20 @@ const completion = await createGroqStreamWithRetry({
   { role: "system", content: systemPrompt },
   ...safeMemory,
   { role: "user", content: message },
-  webData ? {
-  role: "assistant",
-  content: `
-WEB SEARCH SUMMARY:
-${webData?.answer || "No direct answer found."}
+  webData
+  ? {
+      role: "assistant",
+      content: `
+WEB DATA:
+${webData?.answer || "No verified answer available."}
 
-Useful Sources:
-${(webData?.results || []).map(r => `- ${r.title}: ${r.url}`).join("\n")}
-`
+${
+  webData?.results?.length
+    ? "Sources:\n" + webData.results.map(r => `- ${r.title}`).join("\n")
+    : "No reliable sources found."
 }
+`
+    }
   : null
 ].filter(Boolean)
 });
