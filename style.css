@@ -1730,28 +1730,13 @@ textarea, input {
 @media (min-width: 900px) {
   .modes-wrapper {
     width: 95%;
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 28px auto;
   }
 
   .mode-card {
     width: 100%;
-    max-width: 1050px;
+    max-width: 950px;
     margin-inline: auto;
-  }
-}
-@media (min-width: 900px) {
-
-  .mode-card {
-  width: 33.33vw;
-  max-width: none !important;
-  width: clamp(600px, 33.33vw, 900px);
-  }
-
-  .modes-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    
   }
 }
