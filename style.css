@@ -1755,3 +1755,37 @@ textarea, input {
     transform-origin: right top !important;
   }
 }
+/* ===== NEVER CENTER. NOT EVEN ON THE FIRST MESSAGE ===== */
+@media (min-width: 900px) {
+
+  /* Force layout left from the start */
+  .chat-messages,
+  #chatMessages {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Default spawn for ANY message = LEFT */
+  .chat-message {
+    align-self: flex-start !important;
+    transform-origin: left top !important;
+  }
+
+  /* User stays right */
+  .chat-message.user {
+    align-self: flex-end !important;
+    transform-origin: right top !important;
+  }
+
+  /* Typing bubble must also be left */
+  .chat-message.leocore.thinking {
+    align-self: flex-start !important;
+  }
+
+  /* The emptyState sometimes centers the container — choke it */
+  #emptyState {
+    align-self: stretch !important;
+  }
+}
