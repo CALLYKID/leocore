@@ -1740,3 +1740,18 @@ textarea, input {
     margin-inline: auto;
   }
 }
+@media (min-width: 900px) {
+
+  .mode-card {
+  width: 33.33vw;
+  max-width: none !important;
+  width: clamp(600px, 33.33vw, 900px);
+  }
+
+  .modes-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    
+  }
+}
