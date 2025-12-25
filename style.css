@@ -1750,3 +1750,81 @@ textarea, input {
     max-width: 50%;
   }
 }
+/* ================================
+   DESKTOP — WIDER, STRONGER, SEXIER
+================================ */
+@media (min-width: 900px) {
+
+  /* Main app width */
+  .app-wrapper {
+    max-width: 1500px;      /* was 1300 */
+    margin: 0 auto;
+    padding: 90px 80px 80px; /* wider sides */
+  }
+
+  /* Intent bar */
+  .intent-strip {
+    max-width: 1200px;      /* was 1050 */
+    margin: 34px auto 40px;
+  }
+
+  /* Mode section wrapper */
+  .modes-wrapper {
+    max-width: 1200px;      /* was 1050 */
+    margin: 0 auto;
+  }
+
+  /* Individual mode cards wider + thicker presence */
+  .mode-card {
+    max-width: 900px;       /* controls “column width” */
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Footer matches everything */
+  .lc-footer {
+    max-width: 1500px;
+    margin: 60px auto 0;
+    border-radius: 22px !important;
+    width: auto;
+  }
+}
+/* ===============================
+   DESKTOP CHAT ALIGNMENT FIX
+================================ */
+@media (min-width: 900px) {
+
+  /* REAL chat container used in desktop mode */
+  .chat-messages {
+    max-width: 1100px;
+    margin: 0 auto;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: stretch !important;   /* STOP CENTERING */
+    justify-content: flex-start !important;
+  }
+
+  /* Base bubble sizing */
+  .chat-message {
+    width: fit-content;
+    max-width: 82%;
+    text-align: left;
+  }
+
+  /* AI — Left */
+  .chat-message.leocore {
+    align-self: flex-start !important;
+  }
+
+  /* USER — Right */
+  .chat-message.user {
+    align-self: flex-end !important;
+  }
+
+  /* typing bubble */
+  .chat-message.leocore.thinking {
+    max-width: 50%;
+  }
+}
