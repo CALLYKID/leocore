@@ -1748,3 +1748,45 @@ textarea, input {
     margin-right: auto;
   }
 }
+/* =========================================
+   LEOCORE PREMIUM NEON SCROLLBAR (DESKTOP)
+   ========================================= */
+
+/* 1. The width of the entire scrollbar area */
+::-webkit-scrollbar {
+  width: 8px;
+  background: rgba(6, 10, 18, 0.5); /* Semi-transparent to blend with BG */
+}
+
+/* 2. The background track (the part the thumb slides on) */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* 3. The sliding handle (The Thumb) */
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    180deg,
+    var(--neon-a), /* #00eaff */
+    var(--neon-b)  /* #8a3cff */
+  );
+  border-radius: 20px;
+  border: 2px solid rgba(6, 18, 30, 0.8); /* Creates a "gap" effect */
+  box-shadow: 0 0 10px rgba(0, 234, 255, 0.4);
+}
+
+/* 4. Hover state - makes it glow brighter when touched */
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    180deg,
+    #00ffff,
+    #a25fff
+  );
+  box-shadow: 0 0 15px rgba(0, 234, 255, 0.8);
+}
+
+/* 5. Firefox Support (Firefox uses different properties) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--neon-a) transparent;
+}
