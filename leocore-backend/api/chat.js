@@ -1,6 +1,5 @@
 // api/chat.js
 import Groq from "groq-sdk";
-import fetch from "node-fetch";
 /* ============================================================
    TAVILY WEB SEARCH
 ============================================================ */
@@ -13,7 +12,7 @@ async function tavilySearch(query) {
         api_key: process.env.TAVILY_KEY,
         query,
         search_depth: "advanced",
-        include_answers: true,
+        include_answer: true,
         max_results: 5
       })
     });
@@ -297,7 +296,7 @@ if (recent.length >= MAX_REQUESTS) {
   return res.status(429).json({
     error: true,
     message: "You're sending messages too fast. Take a breath 😄",
-    waitSeconds: Math.ceil(RATE_WINDOW / 6000)
+    waitSeconds: Math.ceil(RATE_WINDOW / 1000)
   });
 }
 
@@ -364,8 +363,16 @@ const completion = await createGroqStreamWithRetry({
   { role: "system", content: systemPrompt },
   ...safeMemory,
   { role: "user", content: message },
-  webData
-    ? { role: "assistant", content: `WEB SEARCH DATA:\n${JSON.stringify(webData)}` }
+  webData ? {
+  role: "assistant",
+  content: `
+WEB SEARCH SUMMARY:
+${webData?.answer || "No direct answer found."}
+
+Useful Sources:
+${(webData?.results || []).map(r => `- ${r.title}: ${r.url}`).join("\n")}
+`
+} : null
     : null
 ].filter(Boolean)
 });
