@@ -1,5 +1,29 @@
 // api/chat.js
 import Groq from "groq-sdk";
+import fetch from "node-fetch";
+/* ============================================================
+   TAVILY WEB SEARCH
+============================================================ */
+async function tavilySearch(query) {
+  try {
+    const res = await fetch("https://api.tavily.com/search", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        api_key: process.env.TAVILY_KEY,
+        query,
+        search_depth: "advanced",
+        include_answers: true,
+        max_results: 5
+      })
+    });
+
+    return await res.json();
+  } catch (err) {
+    console.error("TAVILY ERROR:", err);
+    return null;
+  }
+}
 const SERVER_SECRET = process.env.SERVER_SECRET;
 console.log("SERVER SECRET LOADED:", !!SERVER_SECRET);
 const RATE_WINDOW = 10 * 1000; // 10 seconds
@@ -73,7 +97,22 @@ const GENPROMPTS = `
 Extra Behaviour Rules:
 - Always have personality.
 - Do not break character.
+- If web browsing is enabled, use it only when necessary. 
+- Do NOT complain about training data. 
+- Do NOT say you are outdated.
+- Use browsing calmly and confidently when needed.
 `;
+function needsBrowsing(text){
+  const keys = [
+    "today","latest","right now","current",
+    "release","update","news","who won",
+    "2024","2025","price","weather",
+    "breaking","new"
+  ];
+
+  text = text.toLowerCase();
+  return keys.some(k => text.includes(k));
+}
 /* ============================================================
    SYSTEM PERSONALITY + MODES (SINGLE SOURCE OF TRUTH)
 ============================================================ */
@@ -235,6 +274,12 @@ export default async function chatHandler(req, res) {
         ? req.body.message.trim()
         : "";
 
+let webData = null;
+
+if (needsBrowsing(message)) {
+  console.log("🌍 Browsing enabled for:", message);
+  webData = await tavilySearch(message);
+}
 const userId =
   typeof req.body?.userId === "string" && req.body.userId.trim()
     ? req.body.userId
@@ -316,10 +361,13 @@ const completion = await createGroqStreamWithRetry({
   temperature: 0.7,
   stream: true,
   messages: [
-    { role: "system", content: systemPrompt },
-    ...safeMemory,
-    { role: "user", content: message }
-  ]
+  { role: "system", content: systemPrompt },
+  ...safeMemory,
+  { role: "user", content: message },
+  webData
+    ? { role: "assistant", content: `WEB SEARCH DATA:\n${JSON.stringify(webData)}` }
+    : null
+].filter(Boolean)
 });
 
 res.setHeader("Content-Type", "text/plain; charset=utf-8");
