@@ -11,6 +11,12 @@ let rafScroll = null;
 const MEMORY_LIMIT = 8;
 let userPowerSave = false;
 
+
+window.addEventListener("beforeunload", () => {
+  finalizeThinkingBubbleIfNeeded();
+  saveCurrentChat();
+});
+
 /* ================= USER ID ================= */
 const USER_ID =
   localStorage.getItem("leocore_uid") ||
@@ -227,10 +233,10 @@ const chatForm     = document.getElementById("chatForm");
 const chatInput    = document.getElementById("chatInput");
 const chatMode     = document.getElementById("chatMode");
 const chatModeDesc = document.getElementById("chatModeDesc");
-const sendBtn      = document.getElementById("sendBtn");
-
 const chatClearBtn = document.getElementById("clearChat");
 
+const sendBtn = document.getElementById("sendBtn");
+const stopBtn = document.getElementById("stopBtn");
 chatClearBtn?.addEventListener("click", () => {
   const ok = confirm("Clear this conversation?");
   if (!ok) return;
@@ -392,6 +398,7 @@ function initModes() {
 function setMode(key) {
   if (document.body.classList.contains("chat-open")) {
     saveCurrentChat();
+    finalizeThinkingBubbleIfNeeded();
   }
   
   const m = MODE_MAP[key] || MODE_MAP.default;
@@ -535,6 +542,30 @@ function smoothToBottom(el) {
   });
 }
 
+let autoScrollCancel = false;
+
+function forceScrollToBottom() {
+  autoScrollCancel = false;
+
+  const smoothStep = () => {
+    if (autoScrollCancel) return;
+
+    chatMessages.scrollTo({
+      top: chatMessages.scrollHeight,
+      behavior: "smooth"
+    });
+
+    // keep nudging just like ChatGPT until we actually reach the bottom
+    if (Math.abs(
+      chatMessages.scrollHeight -
+      (chatMessages.scrollTop + chatMessages.clientHeight)
+    ) > 4) {
+      requestAnimationFrame(smoothStep);
+    }
+  };
+
+  smoothStep();
+}
 let isTicking = false;
 
 chatMessages.addEventListener("scroll", () => {
@@ -569,6 +600,8 @@ chatMessages.addEventListener("scroll", () => {
   lastScrollTop = Math.max(st, 0);
 }, { passive: true });
 
+chatMessages.addEventListener("wheel", () => autoScrollCancel = true, { passive:true });
+chatMessages.addEventListener("touchstart", () => autoScrollCancel = true, { passive:true });
 
 /* ================= EMPTY STATE ================= */
 const EMPTY_STATES = {
@@ -727,6 +760,7 @@ function renderMessage(text, role) {
 
 
 function createLeoOrbitalBubble() {
+  setStreamingState(true);
   hideEmptyState();
 
   const el = document.createElement("div");
@@ -786,33 +820,66 @@ if (userLockedScroll) {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-  setStreamingState(false);
-  controller = null;
-  saveCurrentChat();
+setStreamingState(false);
+controller = null;
+saveCurrentChat();
+forceScrollToBottom();
 }
 
 
 const MIN_STREAM_TIME = 600; // ms
 let streamStartTime = 0;
 
-function setStreamingState(on) {
+function setStreamingState(on){
   isStreaming = on;
-  if (on) {
-    streamStartTime = performance.now();
-    sendBtn.classList.add("streaming");
-  } else {
-    const elapsed = performance.now() - streamStartTime;
-    const delay = Math.max(0, MIN_STREAM_TIME - elapsed);
-    setTimeout(() => {
-      sendBtn.classList.remove("streaming");
-    }, delay);
+
+  if(on){
+    sendBtn.classList.add("hidden");
+    stopBtn.classList.remove("hidden");
+  }else{
+    stopBtn.classList.add("hidden");
+    sendBtn.classList.remove("hidden");
   }
 }
+
+stopBtn.addEventListener("click", () => {
+  if(!isStreaming) return;
+
+  stopRequested = true;
+  if(controller) controller.abort();
+
+  // Turn thinking bubble into permanent saved bubble
+  const thinking = document.querySelector(".chat-message.leocore.thinking");
+  if(thinking){
+    thinking.classList.remove("thinking");
+    const loader = thinking.querySelector(".orbit-loader");
+    if(loader) loader.remove();
+  }
+
+  setStreamingState(false);
+  saveCurrentChat();
+  finalizeThinkingBubbleIfNeeded();
+  forceScrollToBottom();
+});
 
 /* ================= SEND MESSAGE ================= */
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
+  
+  if (chatInput.value.trim() === "/reset") {
+  localStorage.removeItem("leocore_chats_v1");
+  alert("All LeoCore chats deleted on this device.");
+  chatInput.value = "";
+  return;
+}
 
+// block submit fully if empty
+const text = chatInput.value.trim();
+if (!text) return;
+
+// enable stop only when REAL message exists
+sendBtn.classList.add("hidden");
+stopBtn.classList.remove("hidden");
   /* STOP MODE */
   if (isStreaming) {
     stopRequested = true;
@@ -824,13 +891,12 @@ chatForm.addEventListener("submit", async (e) => {
   stopRequested = false;
   controller = null;
 
-  const text = chatInput.value.trim();
-  if (!text) return;
 
   addMessage(text, "user");
   chatInput.value = "";
   chatInput.style.height = "auto";
   saveCurrentChat();
+  finalizeThinkingBubbleIfNeeded();
 requestAnimationFrame(() => {
   chatMessages.scrollTop = chatMessages.scrollHeight;
 });
@@ -853,20 +919,23 @@ const memory = getMemoryForMode(currentMode, MEMORY_LIMIT)
   const profile = loadProfile();
   
   try {
-    const response = await fetch(`${API_URL}/api/chat`, {
-        method: "POST",
-        headers: {
-  "Content-Type": "application/json",
-  "x-leocore-key": "leocore-super-locked-92837273487777"
-},
-        body: JSON.stringify({
-            message: text,
-            mode: currentMode,
-            userId: USER_ID,
-            memory,
-            profile
-        })
-    });
+    controller = new AbortController();
+
+const response = await fetch(`${API_URL}/api/chat`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-leocore-key": "leocore-super-locked-92837273487777"
+  },
+  body: JSON.stringify({
+    message: text,
+    mode: currentMode,
+    userId: USER_ID,
+    memory,
+    profile
+  }),
+  signal: controller.signal   // <-- THIS MAKES STOP WORK
+});
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
@@ -876,6 +945,7 @@ const memory = getMemoryForMode(currentMode, MEMORY_LIMIT)
     let lastWordCount = 0;
 
     while (true) {
+      if (stopRequested) break;
       const { value, done } = await reader.read();
       if (done) break;
 
@@ -921,6 +991,8 @@ while (lastWordCount < words.length) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 
   await new Promise(r => setTimeout(r, 25));
+  saveCurrentChat();
+  finalizeThinkingBubbleIfNeeded();
 }
     }
     
@@ -929,6 +1001,7 @@ while (lastWordCount < words.length) {
 
     setStreamingState(false);
     saveCurrentChat();
+    finalizeThinkingBubbleIfNeeded();
     
     requestAnimationFrame(() => {
   chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -948,6 +1021,16 @@ document.addEventListener("DOMContentLoaded", () => {
   chatInput.addEventListener("input", () => {
     chatInput.style.height = "auto";
     chatInput.style.height = chatInput.scrollHeight + "px";
+
+    const hasText = chatInput.value.trim().length > 0;
+
+if(hasText){
+      sendBtn.classList.remove("disabled");
+      sendBtn.disabled = false;
+    } else {
+      sendBtn.classList.add("disabled");
+      sendBtn.disabled = true;
+    }
   });
 });
 /* ================= INTENT STRIP ROTATING TEXT ================= */
@@ -1054,6 +1137,22 @@ const MODE_META = {
     desc: "Bold, energetic, creative responses."
   }
 };
+
+
+function finalizeThinkingBubbleIfNeeded() {
+  const b = document.querySelector(".chat-message.leocore.thinking");
+  if (!b) return;
+
+  const text = b.querySelector(".reply-text")?.textContent.trim();
+
+  if (text && text.length > 0) {
+    b.classList.remove("thinking");
+    const loader = b.querySelector(".orbit-loader");
+    if (loader) loader.remove();
+    saveCurrentChat();
+    forceScrollToBottom();
+  }
+}
 warmBackend();
 initHeroTyping();
 initModes();

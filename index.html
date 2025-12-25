@@ -250,20 +250,21 @@
     </div>
 
     <form class="chat-input-bar" id="chatForm" autocomplete="off">
-      <textarea
-  id="chatInput"
-  placeholder="Message LeoCore…"
-  spellcheck="false"
-  autocomplete="off"
-  rows="1"
-></textarea>
-      <button type="submit" id="sendBtn" aria-label="Send">
-        <span class="morph-core"></span>
-        <span class="morph-arm a"></span>
-        <span class="morph-arm b"></span>
-        <span class="stream-ring"></span>
-      </button>
-    </form>
+
+  <button type="button" id="attachBtn" class="chat-tool-btn">+</button>
+
+  <textarea
+    id="chatInput"
+    placeholder="Message LeoCore…"
+    spellcheck="false"
+    autocomplete="off"
+    rows="1"
+  ></textarea>
+
+<button type="submit" id="sendBtn"></button>
+<button type="button" id="stopBtn" class="hidden"></button>
+
+</form>
 
   </div>
 </div>
