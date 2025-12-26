@@ -1,4 +1,5 @@
 // api/chat.js
+import 'dotenv/config';
 import Groq from "groq-sdk";
 import fetch from "node-fetch";
 /* ============================================================
@@ -8,9 +9,11 @@ async function tavilySearch(query) {
   try {
     const res = await fetch("https://api.tavily.com/search", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.TAVILY_API_KEY}`
+      },
       body: JSON.stringify({
-        api_key: process.env.TAVILY_KEY,
         query,
         search_depth: "advanced",
         include_answer: true,
@@ -27,6 +30,7 @@ async function tavilySearch(query) {
     return null;
   }
 }
+
 const SERVER_SECRET = process.env.SERVER_SECRET;
 console.log("SERVER SECRET LOADED:", !!SERVER_SECRET);
 const RATE_WINDOW = 10 * 1000; // 10 seconds
@@ -105,28 +109,14 @@ Extra Behaviour Rules:
 - Do NOT say you are outdated.
 - Use browsing calmly and confidently when needed.
 `;
-function buildSearchQuery(userText){
-  return `
-Answer ONLY with verified facts.
-Search football match history, official federation sources and trusted news.
-Do not guess.
+const NEWS_TERMS = /\b(today|latest|current|breaking|recent|news|update)\b/;
+const SPORTS_TERMS = /\b(score|match|won|beat|defeated|league|cup)\b/;
+const currentYear = new Date().getFullYear();
+const YEAR_TERMS = new RegExp(`\\b(${currentYear}|${currentYear + 1})\\b`);
 
-Question: ${userText}
-`;
-}
 function needsBrowsing(text){
-  const keys = [
- "today","latest","current","right now",
- "update","news","breaking",
- "2024","2025",
- "price","weather",
- "match","beat","won","lost","score",
- "football","fifa","uefa","caf",
- "ballon","league","cup"
-];
-
   text = text.toLowerCase();
-  return keys.some(k => text.includes(k));
+  return NEWS_TERMS.test(text) || SPORTS_TERMS.test(text) || YEAR_TERMS.test(text);
 }
 /* ============================================================
    SYSTEM PERSONALITY + MODES (SINGLE SOURCE OF TRUTH)
@@ -285,16 +275,37 @@ export default async function chatHandler(req, res) {
     }
     /* ---------- INPUT SAFETY ---------- */
     const message =
-      typeof req.body?.message === "string"
-        ? req.body.message.trim()
-        : "";
+  typeof req.body?.message === "string"
+    ? req.body.message.trim()
+    : "";
+
+if (!message) {
+  return res.json({
+    reply: "Say something and I’ll respond."
+  });
+}
 
 let webData = null;
 
+const BROWSE_COOLDOWN = 3000;
+if (!globalThis.lastBrowse) globalThis.lastBrowse = 0;
+
 if (needsBrowsing(message)) {
-  console.log("🌍 Browsing enabled for:", message);
- webData = await tavilySearch(buildSearchQuery(message));
+  if (Date.now() - globalThis.lastBrowse > BROWSE_COOLDOWN) {
+    console.log("🌍 Browsing enabled for:", message);
+    webData = await tavilySearch(message);
+    globalThis.lastBrowse = Date.now();
+  } else {
+    console.log("⏳ Skipping browsing spam");
+  }
 }
+
+if (!webData || webData.error || !webData.answer) {
+  console.log("❌ Tavily failed, continuing without browsing");
+  webData = null;
+}
+
+
 const userId =
   typeof req.body?.userId === "string" && req.body.userId.trim()
     ? req.body.userId
@@ -327,11 +338,7 @@ recent.push(now);
       ? req.body.memory
       : [];
 
-    if (!message) {
-      return res.json({
-        reply: "Say something and I’ll respond."
-      });
-    }
+
 
 const rawProfile =
   typeof req.body?.profile === "object" && req.body.profile !== null
@@ -381,15 +388,17 @@ const completion = await createGroqStreamWithRetry({
   { role: "user", content: message },
   webData
   ? {
-      role: "assistant",
+      role: "system",
       content: `
-WEB DATA:
-${webData?.answer || "No verified answer available."}
+You have verified web data. 
+Use ONLY this as truth. Do not contradict it.
+
+Answer: ${webData?.answer || "No verified answer available."}
 
 ${
   webData?.results?.length
-    ? "Sources:\n" + webData.results.map(r => `- ${r.title}`).join("\n")
-    : "No reliable sources found."
+    ? "Sources:\n" + webData.results.map(r => `- ${r.title} (${r.url})`).join("\n")
+    : ""
 }
 `
     }

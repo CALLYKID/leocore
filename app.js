@@ -954,7 +954,7 @@ const response = await fetch(`${API_URL}/api/chat`, {
 clearTimeout(webTimer);
 
     const reader = response.body.getReader();
-    hideWebIndicator();
+    
     const decoder = new TextDecoder();
 
     let fullText = "";
@@ -969,6 +969,7 @@ clearTimeout(webTimer);
       const chunk = decoder.decode(value, { stream: true });
       fullText += chunk;
 
+     hideWebIndicator();
       const loader = leoBubble.querySelector(".orbit-loader");
       if (loader) {
         loader.remove();
