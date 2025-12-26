@@ -38,7 +38,7 @@ Just **speed**, **usefulness**, and **vibes**.
 - 🔬 Research-style structured answers
 - 🧘 Chill conversation mode
 - 🎯 Precision short-form mode
-- 🔥 Creative “Flame” mode
+- 🔥 Creative “Roast” mode
 - 🎨 Clean, modern neon UI
 - 📴 Optional battery saver mode
 - 🕶️ No account required
@@ -56,7 +56,7 @@ Just **speed**, **usefulness**, and **vibes**.
 | Deep Mode | https://leocore.vercel.app/modes/deep |
 | Chill Mode | https://leocore.vercel.app/modes/chill |
 | Precision Mode | https://leocore.vercel.app/modes/precision |
-| Flame Mode | https://leocore.vercel.app/modes/flame |
+| Roast Mode | https://leocore.vercel.app/modes/roast |
 | About | https://leocore.vercel.app/about |
 | Privacy Policy | https://leocore.vercel.app/privacy |
 | Terms | https://leocore.vercel.app/terms |

@@ -39,6 +39,9 @@
   body.chat-open {
     overflow: hidden;
     height: 100%;
+    width: 100%;
+    position: fixed;
+    
   }
   
   #bg-root {
@@ -388,13 +391,14 @@
   }
   
   .chat-panel {
-    position: relative;
+    position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    height: calc(var(--vh, 1vh) * 100);
+    inset: 0;
+    height: 100dvh 
     max-height: 100dvh;
-    z-index: 1;
+    z-index: 101;
     pointer-events: auto;
     background: linear-gradient(
       180deg,
@@ -472,9 +476,10 @@
   }
   
   .chat-mode-desc {
-    font-size: 12.5px;
+    font-size: 6.7px;
     opacity: 0.7;
     margin-top: 2px;
+    display: none; 
   }
   
   .chat-close {
@@ -796,6 +801,8 @@
     flex-direction: column;
     gap: 2px;
     min-width: 0;
+    justify-content: center;
+    text-align: center;
   }
   
   .mode-title {
@@ -1475,7 +1482,7 @@ body.chat-freeze .bg-reactor {
   padding-left: 14px;
   padding-right: 14px;
   overflow-anchor: none;
-  padding-top: 70px;
+  padding-top: 52px !important;
 }
 
 .chat-message.leocore p {
@@ -1562,12 +1569,12 @@ body.mode-precision #bgTint {
   );
 }
 
-body.mode-flame #bgTint {
-  background: linear-gradient(120deg,
-    rgba(255, 0, 70, 0.76),
-    rgba(255, 150, 0, 0.32)
-  );
+body.mode-roast {
+  --neon-a: #ff0055; /* Hot Pink/Red */
+  --neon-b: #5500ff; /* Deep Purple */
+  --bg-accent: rgba(255, 0, 85, 0.05);
 }
+
 @keyframes leoCoreFlow {
   0%   { background-position: 0% 50%; }
   25%  { background-position: 50% 100%; }
@@ -1691,6 +1698,8 @@ textarea, input {
   #chatMessages {
     width: 100%;
     max-width: none !important;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 
     margin: 0 !important;
     padding-left: 40px;
@@ -1735,6 +1744,7 @@ textarea, input {
     width: 100%;
     max-width: 800px;
     margin-inline: auto;
+    will-change: transform;
   }
 }
 @media (min-width: 900px) {
@@ -1854,48 +1864,36 @@ textarea, input {
 .hidden{
   display: none;
 }
-.web-indicator{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  width:fit-content;
 
-  padding:8px 12px;
-  margin:10px auto;
-  border-radius:12px;
-
-  font-size:13px;
-  color:#fff;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-
-  opacity:0;
-  transform:translateY(6px);
-  transition:.25s ease;
+/* COMPACT HEADER FIX */
+.chat-panel {
+  /* Ensure the panel starts at the very top */
+  padding-top: 0 !important;
 }
 
-.web-indicator.show{
-  opacity:1;
-  transform:translateY(0);
+.chat-header {
+  /* Reduced padding significantly */
+  padding: 8px 12px !important;
+  /* Use safe-area-inset for modern phones but keep it tight */
+  padding-top: calc(env(safe-area-inset-top, 0px) + 6px) !important;
+  
+  /* Force a smaller height */
+  min-height: 50px; 
+  display: grid;
+  grid-template-columns: 40px 1fr 60px; /* Precise layout */
+  align-items: center;
+  gap: 8px;
 }
 
-.web-indicator .dot{
-  width:6px;
-  height:6px;
-  background:white;
-  border-radius:50%;
-  opacity:.6;
-  animation: pulse 1.2s infinite ease-in-out;
+@media (max-width: 600px) {
+  .chat-mode {
+    font-size: 14px !important;
+    line-height: 1.2;
+  }
+
+/* NATIVE-FEEL BUTTONS */
+.chat-back-btn, .chat-clear-btn {
+  height: 32px !important;
+  width: auto;
+  font-size: 13px !important;
 }
-
-.web-indicator .dot:nth-child(1){ animation-delay:0s; }
-.web-indicator .dot:nth-child(2){ animation-delay:.15s; }
-.web-indicator .dot:nth-child(3){ animation-delay:.3s; }
-
-@keyframes pulse{
-  0%,80%,100%{ opacity:.2; transform:scale(.7); }
-  40%{ opacity:1; transform:scale(1); }
-}
-
-.hidden{ display:none!important; }

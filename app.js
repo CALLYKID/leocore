@@ -1,4 +1,4 @@
-  /* ===========================================================
+/* ===========================================================
    LEOCORE APP.JS — FINAL STABLE BUILD
 ============================================================ */
 
@@ -169,10 +169,12 @@ async function fetchWithRetry(url, options, retries = 4, delay = 1800) {
       return res;
     } catch (err) {
       if (i === retries - 1) throw err;
+      // Removed the undefined webTimer reference
       await new Promise(r => setTimeout(r, delay));
     }
   }
 }
+
 /* ================= HERO FAKE TYPING ================= */
 function initHeroTyping() {
   const el = document.getElementById("hero-text");
@@ -220,7 +222,7 @@ const MODE_MAP = {
   deep: { label: "🧠 Deep", desc: "Long-form reasoning and insights" },
   chill: { label: "😎 Chill", desc: "Casual, friendly conversation" },
   precision: { label: "🎯 Precision", desc: "Short, exact, no fluff answers" },
-  flame: { label: "🔥 Flame", desc: "Creative, bold, high-energy responses" }
+  roast: { label: "💀 Roast", desc: "Brutally honest, sarcastic, and judgmental" }
 };
 
 const MODE_KEYS = Object.keys(MODE_MAP);
@@ -656,10 +658,14 @@ const EMPTY_STATES = {
       sub: "Short answers. No fluff."
     }
   ],
-  flame: [
+  roast: [
     {
-      title: "Let’s cook.",
-      sub: "Say the idea — I’ll bring the energy."
+      title: "Ready to get cooked?",
+      sub: "Ask something stupid. I dare you."
+    },
+    {
+      title: "Oh, you're back.",
+      sub: "Try to be interesting this time, okay?"
     }
   ]
 };
@@ -693,9 +699,11 @@ const MODE_SUGGESTIONS = {
     "Answer this fast",
     "Give short answers",
   ],
-  flame: [
-    "Be bold",
-    "Give me something crazy creative",
+  roast: [
+    "Roast my latest life choice",
+    "Tell me why my code is bad",
+    "Give me a reality check",
+    "Judge my music taste"
   ]
 };
 function showEmptyState() {
@@ -877,180 +885,118 @@ stopBtn.addEventListener("click", () => {
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   
-  if (chatInput.value.trim() === "/reset") {
-  localStorage.removeItem("leocore_chats_v1");
-  alert("All LeoCore chats deleted on this device.");
-  chatInput.value = "";
-  return;
-}
+  const text = chatInput.value.trim();
+  if (!text) return;
 
-// block submit fully if empty
-const text = chatInput.value.trim();
-if (!text) return;
-
-// enable stop only when REAL message exists
-sendBtn.classList.add("hidden");
-stopBtn.classList.remove("hidden");
-  /* STOP MODE */
-  if (isStreaming) {
-    stopRequested = true;
-    if (controller) controller.abort();
-    setStreamingState(false);
+  if (text === "/reset") {
+    localStorage.removeItem("leocore_chats_v1");
+    alert("All LeoCore chats deleted.");
+    chatInput.value = "";
     return;
   }
 
+  /* 1. Reset State & UI */
   stopRequested = false;
-  controller = null;
-
-
+  setStreamingState(true);
   addMessage(text, "user");
   chatInput.value = "";
   chatInput.style.height = "auto";
-  saveCurrentChat();
-  finalizeThinkingBubbleIfNeeded();
-requestAnimationFrame(() => {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
+  
   const leoBubble = createLeoOrbitalBubble();
-  requestAnimationFrame(() => {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-if (!hasRealMessages()) {
-  showEmptyState();
-}
-  await new Promise(requestAnimationFrame);
-  controller = new AbortController();
+  const textEl = leoBubble.querySelector(".reply-text");
+  
+  // Jump to bottom immediately after adding bubbles
+  requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
 
-const memory = getMemoryForMode(currentMode, MEMORY_LIMIT)
-  .map(m => ({
+  const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
     role: m.role === "leocore" ? "assistant" : "user",
     content: m.content
   }));
-  
-  const profile = loadProfile();
-  
+
+  let webTimer = null;
+  controller = new AbortController();
+
   try {
-    controller = new AbortController();
-// only show if backend is actually taking time
-let webTimer = setTimeout(() => showWebIndicator(), 450);
+    /* 2. Web Search Indicator Logic */
+    const triggerWords = ["today", "news", "weather", "score", "/web", "latest"];
+    if (triggerWords.some(w => text.toLowerCase().includes(w)) && currentMode !== 'roast') {
+      webTimer = setTimeout(() => showWebIndicator(), 800);
+    }
 
-const response = await fetch(`${API_URL}/api/chat`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "x-leocore-key": "leocore-super-locked-92837273487777"
-  },
-  body: JSON.stringify({
-    message: text,
-    mode: currentMode,
-    userId: USER_ID,
-    memory,
-    profile
-  }),
-  signal: controller.signal
-});
+    const response = await fetch(`${API_URL}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-leocore-key": "leocore-super-locked-92837273487777"
+      },
+      body: JSON.stringify({ message: text, mode: currentMode, userId: USER_ID, memory, profile: loadProfile() }),
+      signal: controller.signal
+    });
 
-// if AI responds fast → don't show indicator
-clearTimeout(webTimer);
+    if (webTimer) clearTimeout(webTimer);
 
     const reader = response.body.getReader();
-    
     const decoder = new TextDecoder();
-
     let fullText = "";
-    const textEl = leoBubble.querySelector(".reply-text");
     let lastWordCount = 0;
 
+    /* 3. The Stream Loop */
     while (true) {
-      if (stopRequested) break;
       const { value, done } = await reader.read();
-      if (done) break;
+      if (done || stopRequested) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      fullText += chunk;
+      fullText += decoder.decode(value, { stream: true });
 
-     hideWebIndicator();
+      // Clean up UI as soon as first token arrives
+      hideWebIndicator();
       const loader = leoBubble.querySelector(".orbit-loader");
       if (loader) {
         loader.remove();
         leoBubble.classList.remove("thinking");
       }
 
-// --- SMART LIVE MARKDOWN WORD STREAMING ---
-const words = fullText.split(/(\s+)/);
-const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
+      const words = fullText.split(/(\s+)/);
+      const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
+      let throttle = false;
 
-let throttle = false;
+      while (lastWordCount < words.length) {
+        if (stopRequested) break;
+        lastWordCount++;
+        const current = words.slice(0, lastWordCount).join("");
 
-while (lastWordCount < words.length) {
+        // SMART RENDER: Only use InnerHTML if markdown is present to save CPU
+        if (markdownTriggers.test(current)) {
+          if (!throttle) {
+            throttle = true;
+            textEl.innerHTML = formatLeoReply(current);
+            setTimeout(() => { throttle = false; }, 100); 
+          }
+        } else {
+          textEl.textContent = current;
+        }
 
-  if (stopRequested) return;
-
-  lastWordCount++;
-
-  const current = words.slice(0, lastWordCount).join("");
-
-  // Detect if formatting is even needed
-  const needsFormat = markdownTriggers.test(current);
-
-  if (needsFormat) {
-    if (!throttle) {
-      throttle = true;
-
-      textEl.innerHTML = formatLeoReply(current);
-
-      setTimeout(() => throttle = false, 120);
+        if (userLockedScroll) chatMessages.scrollTop = chatMessages.scrollHeight;
+        await new Promise(r => setTimeout(r, 20)); // "Typing" feel
+      }
     }
-  } else {
-    textEl.textContent = current;
-  }
 
-  if (userLockedScroll)
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-  await new Promise(r => setTimeout(r, 25));
-  saveCurrentChat();
-  finalizeThinkingBubbleIfNeeded();
-}
-    }
-    
+    /* 4. Finalize - CRITICAL: Call these AFTER the loop, not during */
     textEl.innerHTML = formatLeoReply(fullText);
-    if (textEl) textEl.style.paddingBottom = "2px";
-
-    setStreamingState(false);
-    saveCurrentChat();
+    saveCurrentChat(); 
     finalizeThinkingBubbleIfNeeded();
-    
-    requestAnimationFrame(() => {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
 
-} catch (err) {
+  } catch (err) {
+    if (webTimer) clearTimeout(webTimer);
+    hideWebIndicator();
     if (err.name !== "AbortError") {
-      leoBubble.textContent = "WAKING LEOCORE🙂🙊";
+      leoBubble.textContent = "CONNECTION LOST... Tap to retry? 🙂";
     }
+  } finally {
     setStreamingState(false);
-}
+    requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
+  }
 });
-document.addEventListener("DOMContentLoaded", () => {
-  const chatInput = document.getElementById("chatInput");
-  if (!chatInput) return;
 
-  chatInput.addEventListener("input", () => {
-    chatInput.style.height = "auto";
-    chatInput.style.height = chatInput.scrollHeight + "px";
-
-    const hasText = chatInput.value.trim().length > 0;
-
-if(hasText){
-      sendBtn.classList.remove("disabled");
-      sendBtn.disabled = false;
-    } else {
-      sendBtn.classList.add("disabled");
-      sendBtn.disabled = true;
-    }
-  });
-});
 /* ================= INTENT STRIP ROTATING TEXT ================= */
 
 function initIntentStrip() {
@@ -1150,10 +1096,10 @@ const MODE_META = {
     title: "Precision Mode | LeoCore — Short Exact Answers",
     desc: "No fluff. Just direct, precise answers."
   },
-  flame: {
-    title: "Flame Mode | LeoCore — Creative Powerful AI",
-    desc: "Bold, energetic, creative responses."
-  }
+  roast: {
+  title: "Roast Mode | LeoCore — Get Cooked by AI",
+  desc: "The AI with zero filter. LeoCore Roast Mode delivers brutal honesty, high-tier sarcasm, and judgmental genius. Enter at your own risk. 💀"
+}
 };
 
 

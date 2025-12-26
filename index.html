@@ -22,7 +22,7 @@
   <meta property="og:image" content="https://leocore.vercel.app/android-chrome-512x512.png" />
 
   <title>LeoCore — Free AI Chat with Study, Research & Deep Modes</title>
-  <meta name="description" content="LeoCore is a fast, free AI chat app with multiple modes like Study, Research, Deep, Chill, and Flame. No paywalls. No limits." />
+  <meta name="description" content="LeoCore is a fast, free AI chat app with multiple modes like Study, Research, Deep, Chill, and Roast. No paywalls. No limits." />
 
   <!-- Icons -->
   <link rel="icon" href="/favicon.ico">
@@ -38,7 +38,7 @@
     html, body { background: #000; }
   </style>
 
-  <link rel="stylesheet" href="/style.css?v=liquid004">
+  <link rel="stylesheet" href="/style.css?v=liquid009">
 </head>
 
 <body>
@@ -173,18 +173,18 @@
         </div>
       </div>
 
-      <!-- FLAME -->
-      <div class="mode-card" data-mode="flame">
+      <!-- ROAST -->
+      <div class="mode-card" data-mode="roast">
         <div class="mode-row">
-          <span class="mode-icon">🔥</span>
-          <span class="mode-name">Flame</span>
+          <span class="mode-icon">💀</span>
+          <span class="mode-name">Roast</span>
           <span class="mode-toggle">
             <span class="chevron"></span>
           </span>
         </div>
         <div class="mode-expand">
-          <p>Creative, bold, high-energy responses.</p>
-          <button class="mode-start">Start with Flame</button>
+          <p>Enter at your own risk.</p>
+          <button class="mode-start">Start with Roast</button>
         </div>
       </div>
 
@@ -202,7 +202,7 @@
 <a href="/modes/study" class="mode-link" data-mode="study">Study Mode</a>
 <a href="/modes/research" class="mode-link" data-mode="research">Research mode</a>
 <a href="/modes/deep">Deep Mode</a>
-<a href="/modes/flame">Flame Mode</a>
+<a href="/modes/roast">Roast Mode</a>
     </div>
 
     <div class="f-col">
@@ -243,10 +243,7 @@
 
     <div class="chat-messages" id="chatMessages">
       <div id="webSearchIndicator" class="web-indicator hidden">
-  <span class="dot"></span>
-  <span class="dot"></span>
-  <span class="dot"></span>
-  Searching the web…
+  <span id="webText">Searching the web</span>
 </div>
       <div id="emptyState">
         <div class="empty-title"></div>
@@ -291,7 +288,8 @@
       <a class="menu-link" href="/modes/default">⚡ Default Chat</a>
 <a class="menu-link" href="/modes/study">📘 Study</a>
 <a class="menu-link" href="/modes/deep">🧠 Deep</a>
-<a class="menu-link" href="/modes/flame">🔥 Flame</a>
+<a class="menu-link" href="/modes/roast">💀
+  Roast</a>
     </div>
 
 <div class="menu-section">
