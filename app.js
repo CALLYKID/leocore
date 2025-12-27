@@ -881,7 +881,7 @@ chatForm.addEventListener("submit", async (e) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-leocore-key": "SERVER_SECRET"
+        "x-leocore-key": "dev-local-key"
       },
       body: JSON.stringify({ 
         message: text, 
@@ -1102,7 +1102,9 @@ const MODE_META = {
 }
 };
 
-window.visualViewport.addEventListener('resize', () => {
+
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
   if (isStreaming || document.querySelector('.leo-thinking-standalone')) {
     // If the keyboard opens while we are waiting/streaming, snap to bottom
     requestAnimationFrame(() => {
@@ -1110,6 +1112,8 @@ window.visualViewport.addEventListener('resize', () => {
     });
   }
 });
+}
+
 
 
 warmBackend();

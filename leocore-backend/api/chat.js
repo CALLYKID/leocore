@@ -122,20 +122,16 @@ const SPORTS_TERMS = /\b(who won the match|last night's game|league table)\b/;
 
 function needsBrowsing(text, mode) {
   const input = text.toLowerCase();
-  
-  // 1. DISABLE for specific modes that don't need real-time facts
+
   const skipModes = ['roast', 'chill', 'precision', 'reading'];
   if (skipModes.includes(mode)) return false;
 
-  // 2. FORCE search if user uses a command
-  if (input.startsWith("/web ") || input.includes("search the web for")) return true;
+  if (input.startsWith("/web ")) return true;
 
-  // 3. Only search if it looks like a specific real-time query
-  const hasTimeRef = /\b(today|yesterday|now|currently|tonight)\b/.test(input);
-  const isQuestion = input.includes("?") || /^(what|who|how|where|is)\b/.test(input);
+  const realtimeHints = /\b(today|yesterday|now|currently|tonight|latest|recent|update)\b/;
+  const infoHints = /\b(news|weather|score|match|stock|price|ranking|results)\b/;
 
-  // Trigger ONLY if it's a question AND has a news/sports/time keyword
-  return isQuestion && (NEWS_TERMS.test(input) || SPORTS_TERMS.test(input) || hasTimeRef);
+  return realtimeHints.test(input) || infoHints.test(input);
 }
 
 /* ============================================================
@@ -295,10 +291,18 @@ export default async function chatHandler(req, res) {
       return res.status(413).json({ error: "Payload too large" });
     }
 
-    const token = req.headers['x-leocore-key'];
-    if (!token || token !== SERVER_SECRET) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
+    const SERVER_SECRET = process.env.SERVER_SECRET;
+const DEV_KEY = "dev-local-key";
+const isDev = process.env.NODE_ENV !== "production";
+
+const token = req.headers["x-leocore-key"];
+
+if (!token || token !== SERVER_SECRET) {
+  // allow dev key ONLY when not in production
+  if (!(isDev && token === DEV_KEY)) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+}
 
     /* ---------- INPUT PREP ---------- */
     // Use destructuring to keep things clean and avoid redeclaring variables
