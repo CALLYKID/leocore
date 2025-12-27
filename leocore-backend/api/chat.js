@@ -33,8 +33,13 @@ async function tavilySearch(query) {
 
 const SERVER_SECRET = process.env.SERVER_SECRET;
 console.log("SERVER SECRET LOADED:", !!SERVER_SECRET);
+<<<<<<< HEAD
 const RATE_WINDOW = 10 * 3000; // 10 seconds
 const MAX_REQUESTS = 2;       // max 2 prompts per window
+=======
+const RATE_WINDOW = 10 * 1000; // 10 seconds
+const MAX_REQUESTS = 3;       // max 2 prompts per window
+>>>>>>> 31f7458 (revet)
 
 const userRate = new Map();
 

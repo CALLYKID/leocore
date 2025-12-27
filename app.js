@@ -840,6 +840,7 @@ chatForm.addEventListener("submit", async (e) => {
   chatInput.value = "";
   chatInput.style.height = "auto";
   
+<<<<<<< HEAD
   const leoBubble = createLeoStreamingBlock();
 const textEl = leoBubble.querySelector(".reply-text");
 
@@ -868,6 +869,39 @@ controller = new AbortController();
       signal: controller.signal
     });
 
+=======
+  const leoBubble = createLeoOrbitalBubble();
+  const textEl = leoBubble.querySelector(".reply-text");
+  
+  // Jump to bottom immediately after adding bubbles
+  requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
+
+  const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
+    role: m.role === "leocore" ? "assistant" : "user",
+    content: m.content
+  }));
+
+  let webTimer = null;
+  controller = new AbortController();
+
+  try {
+    /* 2. Web Search Indicator Logic */
+    const triggerWords = ["today", "news", "weather", "score", "/web", "latest"];
+    if (triggerWords.some(w => text.toLowerCase().includes(w)) && currentMode !== 'roast') {
+      webTimer = setTimeout(() => showWebIndicator(), 800);
+    }
+
+    const response = await fetch(`${API_URL}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-leocore-key": "leocore-super-locked-92837273487777"
+      },
+      body: JSON.stringify({ message: text, mode: currentMode, userId: USER_ID, memory, profile: loadProfile() }),
+      signal: controller.signal
+    });
+
+>>>>>>> 31f7458 (revet)
     if (webTimer) clearTimeout(webTimer);
 
     const reader = response.body.getReader();
@@ -884,6 +918,7 @@ controller = new AbortController();
 
       // Clean up UI as soon as first token arrives
       hideWebIndicator();
+<<<<<<< HEAD
       
       
 
@@ -916,6 +951,43 @@ leoBubble.classList.remove("streaming");
 leoBubble.classList.add("final-ai");
 
 saveCurrentChat();
+=======
+      const loader = leoBubble.querySelector(".orbit-loader");
+      if (loader) {
+        loader.remove();
+        leoBubble.classList.remove("thinking");
+      }
+
+      const words = fullText.split(/(\s+)/);
+      const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
+      let throttle = false;
+
+      while (lastWordCount < words.length) {
+        if (stopRequested) break;
+        lastWordCount++;
+        const current = words.slice(0, lastWordCount).join("");
+
+        // SMART RENDER: Only use InnerHTML if markdown is present to save CPU
+        if (markdownTriggers.test(current)) {
+          if (!throttle) {
+            throttle = true;
+            textEl.innerHTML = formatLeoReply(current);
+            setTimeout(() => { throttle = false; }, 100); 
+          }
+        } else {
+          textEl.textContent = current;
+        }
+
+        if (userLockedScroll) chatMessages.scrollTop = chatMessages.scrollHeight;
+        await new Promise(r => setTimeout(r, 20)); // "Typing" feel
+      }
+    }
+
+    /* 4. Finalize - CRITICAL: Call these AFTER the loop, not during */
+    textEl.innerHTML = formatLeoReply(fullText);
+    saveCurrentChat(); 
+    finalizeThinkingBubbleIfNeeded();
+>>>>>>> 31f7458 (revet)
 
   } catch (err) {
     if (webTimer) clearTimeout(webTimer);
