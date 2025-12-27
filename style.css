@@ -59,18 +59,18 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
-  z-index: -1;
+  z-index: 0;
 
   background: linear-gradient(
     135deg,
     #001f4d,
     #562b9d,
-    #0078ff,
     #001f4d
   );
   
-  background-size: 350% 350%;
-  animation: leoCoreFlow 22s linear infinite;
+  background-size: 400% 400%;
+  animation: leoCoreFlow 40s ease-in-out infinite;
+  transform: translateZ(0); 
 }
 
 @keyframes neonDrift {
@@ -85,7 +85,7 @@
   pointer-events: none;
 
   background: rgba(0,0,0,0);
-  transition: background 0.9s ease-in-out;
+  transition: background-color 0.8s linear !important; 
 }
   
 .bg-soften {
@@ -429,6 +429,7 @@
     top: 0;
     bottom: 0;
     box-shadow: none;
+    background: #05070a !important;
   }
   
   .chat-header {
@@ -570,12 +571,8 @@
   backface-visibility: hidden;
     padding: 14px;
     flex-shrink: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(12,18,30,0.9),
-      rgba(6,10,18,0.97)
-    );
-    border-top: 1px solid rgba(255,255,255,0.06);
+    background: #05070a !important;
+    border-top: 1px solid rgba(255,255,255,0.08);
     pointer-events: auto;
     touch-action: manipulation;
   }
@@ -1458,6 +1455,7 @@ body.chat-freeze .bg-reactor {
   padding-right: 14px;
   overflow-anchor: none;
   padding-top: 52px !important;
+  padding-bottom: 40px;
 }
 
 .chat-message.leocore p {
@@ -1504,54 +1502,48 @@ body.chat-freeze .bg-reactor {
   padding: 18px;
 }
 
-body.mode-default #bgTint {
-  background: linear-gradient(120deg,
-    rgba(0, 234, 255, 0.28),
-    rgba(138, 60, 255, 0.28)
-  );
-}
+/* Default / LeoCore - Cyan */
+body.mode-default #bgTint { background: rgba(0, 234, 255, 0.15); }
+body.mode-default .chat-message.leocore { border-left-color: #00eaff !important; }
 
-body.mode-study #bgTint {
-  background: linear-gradient(120deg,
-    rgba(0, 255, 170, 0.32),
-    rgba(0, 140, 255, 0.28)
-  );
-}
+/* Study Mode - Emerald */
+body.mode-study #bgTint { background: rgba(0, 255, 170, 0.15); }
+body.mode-study .chat-message.leocore { border-left-color: #00ffaa !important; }
 
-body.mode-research #bgTint {
-  background: linear-gradient(120deg,
-    rgba(180, 0, 255, 0.32),
-    rgba(0, 200, 255, 0.28)
-  );
-}
+/* Research Mode - Indigo/Purple */
+body.mode-research #bgTint { background: rgba(180, 0, 255, 0.15); }
+body.mode-research .chat-message.leocore { border-left-color: #b400ff !important; }
 
-body.mode-deep #bgTint {
-  background: linear-gradient(120deg,
-    rgba(10, 30, 120, 0.38),
-    rgba(0, 8, 50, 0.42)
-  );
-}
+/* Reading Mode - Amber/Gold */
+body.mode-reading #bgTint { background: rgba(255, 191, 0, 0.15); }
+body.mode-reading .chat-message.leocore { border-left-color: #ffbf00 !important; }
 
-body.mode-chill #bgTint {
-  background: linear-gradient(120deg,
-    rgba(0, 255, 255, 0.30),
-    rgba(255, 0, 255, 0.26)
-  );
-}
+/* Deep Mode - Midnight Blue */
+body.mode-deep #bgTint { background: rgba(10, 30, 120, 0.25); }
+body.mode-deep .chat-message.leocore { border-left-color: #0a1e78 !important; }
 
-body.mode-precision #bgTint {
-  background: linear-gradient(120deg,
-    rgba(255,255,255,0.22),
-    rgba(180, 220, 255, 0.22)
-  );
-}
+/* Chill Mode - Magenta */
+body.mode-chill #bgTint { background: rgba(255, 0, 255, 0.15); }
+body.mode-chill .chat-message.leocore { border-left-color: #ff00ff !important; }
 
-body.mode-roast {
-  --neon-a: #ff0055; /* Hot Pink/Red */
-  --neon-b: #5500ff; /* Deep Purple */
-  --bg-accent: rgba(255, 0, 85, 0.05);
-}
+/* Precision Mode - Silver/White */
+body.mode-precision #bgTint { background: rgba(255, 255, 255, 0.12); }
+body.mode-precision .chat-message.leocore { border-left-color: #ffffff !important; }
 
+/* Roast Mode - Hot Pink/Red */
+body.mode-roast #bgTint { background: rgba(255, 0, 85, 0.18); }
+body.mode-roast .chat-message.leocore { border-left-color: #ff0055 !important; }
+
+/* Global Smooth Transition Fix */
+#bgTint {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  /* Reduced blur and used background-color transition to stop flashing */
+  transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background-color;
+}
 @keyframes leoCoreFlow {
   0%   { background-position: 0% 50%; }
   25%  { background-position: 50% 100%; }
@@ -1584,24 +1576,33 @@ body.mode-roast {
   overflow-wrap: anywhere;
   border-radius: 14px;
   animation: messageSettle .45s ease;
+  contain: layout style;
+  transform: translateZ(0);
 }
 
 /* USER — RIGHT */
 .chat-message.user {
   align-self: flex-end;
   max-width: 78%;
-  padding: 10px 14px;
-  background: rgba(0,120,255,.9);
-  color: white;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2)
+  color: #fff;
+  font-size: 14.5px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  border-radius: 18px 18px 4px 18px 
+  line-height: 1.7;
 }
 
 /* AI — LEFT */
 .chat-message.leocore {
   align-self: flex-start;
+  width: 96;
   max-width: 96%;
-  padding: 14px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
+  padding: 16px 14px;
+  font-size: 16px; 
+  background: transparent !important;
+  border: none !important;
 }
 
 /* Typing bubble */
@@ -1867,6 +1868,181 @@ textarea, input {
 html {
   scrollbar-gutter: stable both-edges;
 }
+/* =========================================
+   SPECIALIZED MODE SIDE BORDERS
+   ========================================= */
+
+/* Base style for the side border */
+.chat-message.leocore {
+  position: relative;
+  border-left: 3px solid transparent !important; /* Placeholder for the glow */
+  padding-left: 20px !important; /* Space for the border */
+  transition: border-color 0.5s ease;
+}
+
+/* Default / LeoCore Mode */
+body.mode-default .chat-message.leocore {
+  border-left-color: var(--neon-a) !important; /* Cyan */
+}
+
+/* Study Mode - Greenish */
+body.mode-study .chat-message.leocore {
+  border-left-color: #00ffaa !important;
+}
+
+/* Research Mode - Purple/Indigo */
+body.mode-research .chat-message.leocore {
+  border-left-color: #b400ff !important;
+}
+
+body.mode-reading .chat-message.leocore {
+  border-left-color: #ffbf00 !important;
+}
+
+/* Deep Mode - Dark Blue */
+body.mode-deep .chat-message.leocore {
+  border-left-color: #0a1e78 !important;
+}
+
+/* Chill Mode - Magenta/Cyan Mix */
+body.mode-chill .chat-message.leocore {
+  border-left-color: #ff00ff !important;
+}
+
+/* Precision Mode - White/Silver */
+body.mode-precision .chat-message.leocore {
+  border-left-color: #ffffff !important;
+}
+
+/* Roast Mode - Hot Pink/Red */
+body.mode-roast .chat-message.leocore {
+  border-left-color: #ff0055 !important;
+}
+
+/* OPTIONAL: Add a subtle glow to the side border */
+.chat-message.leocore::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 15%;
+  height: 70%;
+  width: 2px;
+  background: inherit;
+  filter: blur(4px);
+  opacity: 0.6;
+  border-radius: 10px;
+  z-index: -1;
+}
+.reply-text {
+    transition: all 0.2s ease-out;
+}
+
+/* Optional: Subtle animation for the streaming block */
+.streaming .reply-text {
+    animation: pulse-opacity 2s infinite ease-in-out;
+}
+
+@keyframes pulse-opacity {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.85; }
+}
+
+
+
+/* =========================================
+   SPECIALIZED USER SIDE BORDERS
+   ========================================= */
+
+/* Base style for the user side border */
+.chat-message.user {
+  position: relative;
+  border-right: 3px solid transparent !important;
+  padding-right: 18px !important;
+  transition: border-color 0.5s ease;
+  /* Premium asymmetric corners */
+  border-radius: 18px 18px 4px 18px !important;
+}
+
+/* Default / LeoCore Mode */
+body.mode-default .chat-message.user {
+  border-right-color: var(--neon-a) !important;
+}
+
+/* Study Mode */
+body.mode-study .chat-message.user {
+  border-right-color: #00ffaa !important;
+}
+
+/* Research Mode */
+body.mode-research .chat-message.user {
+  border-right-color: #b400ff !important;
+}
+
+/* Reading Mode */
+body.mode-reading .chat-message.user {
+  border-right-color: #ffbf00 !important;
+}
+
+/* Deep Mode */
+body.mode-deep .chat-message.user {
+  border-right-color: #0a1e78 !important;
+}
+
+/* Chill Mode */
+body.mode-chill .chat-message.user {
+  border-right-color: #ff00ff !important;
+}
+
+/* Precision Mode */
+body.mode-precision .chat-message.user {
+  border-right-color: #ffffff !important;
+}
+
+/* Roast Mode */
+body.mode-roast .chat-message.user {
+  border-right-color: #ff0055 !important;
+}
+
+/* Mirror the glow effect for User bubbles */
+.chat-message.user::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 15%;
+  height: 70%;
+  width: 2px;
+  background: inherit;
+  filter: blur(4px);
+  opacity: 0.6;
+  border-radius: 10px;
+  z-index: -1;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1900,15 +2076,23 @@ html {
     max-width: none !important;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    
 
     margin: 0 !important;
     padding-left: 40px;
     padding-right: 40px;
+    gap: 24px; 
 
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
     justify-content: flex-start !important;
+    
+    transform: translateZ(0); 
+  will-change: scroll-position;
+  overflow-anchor: auto !important; 
+  render off-screen bubbles */
+  contain: content; 
   }
 
   /* Messages stack normally */

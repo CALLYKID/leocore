@@ -10,7 +10,9 @@ let userLockedScroll = true;
 let rafScroll = null;
 const MEMORY_LIMIT = 8;
 let userPowerSave = false;
-
+let streamBuffer = "";
+let wordQueue = []; 
+let isDisplaying = false; 
 
 window.addEventListener("beforeunload", () => {
   saveCurrentChat();
@@ -282,56 +284,32 @@ window.addEventListener("load", () => {
 function formatLeoReply(text) {
   if (!text) return "";
 
-  // --- 0️⃣ SECURITY: Escape HTML first ---
-  text = text
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  // ESCAPE HTML (Security)
+  text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-  // --- 1️⃣ Handle Bold: **text** OR __text__ ---
+  // BOLD (Handling unfinished tags)
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');
-
-  // --- 2️⃣ Headings: ## or ### turn into styled titles ---
-  text = text.replace(/^###\s?(.*)$/gm,
-    '<div style="font-size:15px;font-weight:700;margin:8px 0 4px">$1</div>'
-  );
-  text = text.replace(/^##\s?(.*)$/gm,
-    '<div style="font-size:17px;font-weight:800;margin:10px 0 6px">$1</div>'
-  );
-
-  // --- 3️⃣ Numbered lists ---
-  text = text.replace(/^\s*(\d+)\.\s+(.*)/gm,
-    '<div style="margin-left:12px;margin-bottom:4px">$1. $2</div>'
-  );
-
-  // --- 4️⃣ Bullet lists (- or *) ---
-  text = text.replace(/^\s*[\-\*]\s+(.*)/gm,
-    '<div style="margin-left:12px;margin-bottom:4px">• $1</div>'
-  );
-
-  // --- 5️⃣ Inline Code ---
-  text = text.replace(/`([^`]+)`/g,
-    '<code style="background:rgba(255,255,255,0.12);padding:3px 6px;border-radius:6px;">$1</code>'
-  );
-
-// --- 6️⃣ Paragraph Spacing ---
-text = text
-  .replace(/\r/g, "")
-  .replace(/\n{3,}/g, "\n\n")
-  .trim();
-
-let parts = text
-  .split(/\n\n/)
-  .map(p => p.trim())
-  .filter(p => p.length > 0)
-  .map(p => p.replace(/\n/g, "<br>"));
-
-text = parts
-  .map(p => `<div style="margin: 6px 0; line-height: 1.6">${p}</div>`)
-  .join("");
   
-return text;
+  // HEADINGS (Only trigger if the line is finished or has a space)
+  text = text.replace(/^###\s+(.*)$/gm, '<div class="h3-style">$1</div>');
+  text = text.replace(/^##\s+(.*)$/gm, '<div class="h2-style">$1</div>');
+
+  // LISTS
+  text = text.replace(/^\s*[\-\*]\s+(.*)/gm, '<div class="li-style">• $1</div>');
+  text = text.replace(/^\s*(\d+)\.\s+(.*)/gm, '<div class="li-style">$1. $2</div>');
+
+  // CODE
+  text = text.replace(/`([^`]+)`/g, '<code class="code-style">$1</code>');
+
+  // PARAGRAPHS (The most important for UX)
+  let parts = text.split(/\n\n+/).map(p => {
+    p = p.trim().replace(/\n/g, "<br>");
+    return `<div style="margin-bottom: 12px; line-height: 1.6;">${p}</div>`;
+  });
+
+  return parts.join("");
 }
+
 /* ================ CHAT STORAGE ================= */
 const CHAT_STORE_KEY = "leocore_chats_v1";
 
@@ -820,15 +798,23 @@ function setStreamingState(on){
 }
 
 stopBtn.addEventListener("click", () => {
-  if (!isStreaming) return;
+  // If we aren't doing anything, ignore
+  if (!isStreaming && !isDisplaying) return; 
 
   stopRequested = true;
   if (controller) controller.abort();
 
-  setStreamingState(false);
+  // Clear everything immediately
+  wordQueue = []; 
+  isStreaming = false;
+  isDisplaying = false;
+  
+  setStreamingState(false); // Switch button back to "Send"
   saveCurrentChat();
   forceScrollToBottom();
 });
+
+
 
 function createThinkingMessage() {
   hideEmptyState();
@@ -851,45 +837,35 @@ function createThinkingMessage() {
 let leoBubble = null;
 let textEl = null;
 let leoBubbleCreated = false;
-/* ================= SEND MESSAGE ================= */
+/* ================= SEND MESSAGE (LIVE STREAMING) ================= */
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   
   const text = chatInput.value.trim();
-  if (!text) return;
-
-  if (text === "/reset") {
-    localStorage.removeItem("leocore_chats_v1");
-    alert("All LeoCore chats deleted.");
-    chatInput.value = "";
-    return;
-  }
-
+  if (!text || isStreaming) return;
+  
+  streamBuffer = "";
+  wordQueue = [];
   stopRequested = false;
+
   setStreamingState(true);
   addMessage(text, "user");
   chatInput.value = "";
   chatInput.style.height = "auto";
+  
   let thinkingEl = createThinkingMessage();
   leoBubble = null;
-textEl = null;
-leoBubbleCreated = false;
-
+  textEl = null;
+  leoBubbleCreated = false;
 
   const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
     role: m.role === "leocore" ? "assistant" : "user",
     content: m.content
   }));
 
-  let webTimer = null;
   controller = new AbortController();
-
+  
   try {
-    const triggerWords = ["today", "news", "weather", "score", "/web", "latest"];
-    if (triggerWords.some(w => text.toLowerCase().includes(w)) && currentMode !== 'roast') {
-      webTimer = setTimeout(() => showWebIndicator(), 800);
-    }
-
     const response = await fetch(`${API_URL}/api/chat`, {
       method: "POST",
       headers: {
@@ -906,85 +882,109 @@ leoBubbleCreated = false;
       signal: controller.signal
     });
 
-    if (webTimer) clearTimeout(webTimer);
-
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let fullText = "";
-    let lastWordCount = 0;
 
     while (true) {
       const { value, done } = await reader.read();
       if (done || stopRequested) break;
 
-      fullText += decoder.decode(value, { stream: true });
-      hideWebIndicator();
+      const chunk = decoder.decode(value, { stream: true });
+      
+      // Update the raw buffer immediately for the parser
+      streamBuffer += chunk;
+      
       hideThinking();
-      // create bubble only when stream actually starts
-if (!leoBubbleCreated) {
-  leoBubbleCreated = true;
 
-  // 🚨 REMOVE THINKING BUBBLE IMMEDIATELY
-  if (thinkingEl) {
-    thinkingEl.remove();
-    thinkingEl = null;
-  }
-
-  leoBubble = createLeoStreamingBlock();
-  textEl = leoBubble.querySelector(".reply-text");
-}
-
-      const words = fullText.split(/(\s+)/);
-      const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
-      let throttle = false;
-
-      while (lastWordCount < words.length) {
-        if (stopRequested) break;
-        lastWordCount++;
-
-        const current = words.slice(0, lastWordCount).join("");
-
-        if (markdownTriggers.test(current)) {
-          if (!throttle) {
-            throttle = true;
-            textEl.innerHTML = formatLeoReply(current);
-            setTimeout(() => throttle = false, 100);
-          }
-        } else {
-          textEl.textContent = current;
-        }
-
-        if (userLockedScroll)
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-
-        await new Promise(r => setTimeout(r, 20));
+      if (!leoBubbleCreated) {
+        leoBubbleCreated = true;
+        if (thinkingEl) thinkingEl.remove();
+        leoBubble = createLeoStreamingBlock();
+        textEl = leoBubble.querySelector(".reply-text");
+        processQueue(); 
       }
+
+      // We just need to signal the queue that data exists
+      wordQueue.push(chunk); 
     }
 
-    textEl.innerHTML = formatLeoReply(fullText);
-    leoBubble.classList.remove("streaming");
-    leoBubble.classList.add("final-ai");
-    saveCurrentChat();
-
   } catch (err) {
-    if (webTimer) clearTimeout(webTimer);
-    hideWebIndicator();
-
     if (err.name !== "AbortError") {
       if (leoBubble) leoBubble.textContent = "CONNECTION LOST... Tap to retry 🙂";
     }
-if (thinkingEl) thinkingEl.remove();
+    if (thinkingEl) thinkingEl.remove();
   } finally {
-    if (thinkingEl) {
-  thinkingEl.remove();
-  thinkingEl = null;
-}
-    setStreamingState(false);
-    requestAnimationFrame(() =>
-      chatMessages.scrollTop = chatMessages.scrollHeight
-    );
+    isStreaming = false; 
+    if (!stopRequested) {
+      setTimeout(() => {
+        if (leoBubble) {
+          leoBubble.classList.remove("streaming");
+          leoBubble.classList.add("final-ai");
+        }
+        saveCurrentChat();
+      }, 500); 
+    }
   }
 });
+
+
+
+let displayedBuffer = ""; 
+
+async function processQueue() {
+  if (isDisplaying) return;
+  isDisplaying = true;
+  displayedBuffer = ""; // Reset for new message
+
+  while (wordQueue.length > 0 || isStreaming) {
+    if (stopRequested) break;
+
+    if (wordQueue.length > 0) {
+      // Get the next chunk from the stream
+      const chunk = wordQueue.shift();
+      
+      // Split the chunk into individual words and spaces
+      // This ensures that "Hello world" doesn't pop in at once
+      const parts = chunk.split(/(\s+)/);
+
+      for (let part of parts) {
+        if (stopRequested) break;
+
+        displayedBuffer += part;
+        
+        if (textEl) {
+          // Update the UI with the formatted text so far
+          textEl.innerHTML = formatLeoReply(displayedBuffer);
+          
+          // Force scroll to keep up with the typing
+          if (userLockedScroll) jumpToBottom(chatMessages);
+        }
+
+        // --- SPEED CONTROL ---
+        // 35ms is a natural "GPT-style" speed. 
+        // 20ms = very fast | 60ms = slow and steady
+        await new Promise(r => setTimeout(r, 15)); 
+      }
+    } else {
+      // Short pause if the queue is empty but API is still streaming
+      await new Promise(r => setTimeout(r, 20));
+    }
+  }
+
+  isDisplaying = false;
+  setStreamingState(false); 
+  
+  // Final polish: Ensure the raw buffer and displayed text match perfectly
+  if (textEl && !stopRequested) {
+    textEl.innerHTML = formatLeoReply(streamBuffer);
+  }
+  
+  stopRequested = false;
+}
+
+
+
+
 
 /* ================= INTENT STRIP ROTATING TEXT ================= */
 
