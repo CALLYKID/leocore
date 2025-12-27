@@ -833,48 +833,14 @@ chatForm.addEventListener("submit", async (e) => {
     return;
   }
 
-  /* 1. Reset State & UI */
   stopRequested = false;
   setStreamingState(true);
   addMessage(text, "user");
   chatInput.value = "";
   chatInput.style.height = "auto";
-  
-<<<<<<< HEAD
+
   const leoBubble = createLeoStreamingBlock();
-const textEl = leoBubble.querySelector(".reply-text");
-
-let webTimer = null;
-  try {
-    
-    const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
-  role: m.role === "leocore" ? "assistant" : "user",
-  content: m.content
-}));
-
-controller = new AbortController();
-    /* 2. Web Search Indicator Logic */
-    const triggerWords = ["today", "news", "weather", "score", "/web", "latest"];
-    if (triggerWords.some(w => text.toLowerCase().includes(w)) && currentMode !== 'roast') {
-      webTimer = setTimeout(() => showWebIndicator(), 800);
-    }
-
-    const response = await fetch(`${API_URL}/api/chat`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-leocore-key": "leocore-super-locked-92837273487777"
-      },
-      body: JSON.stringify({ message: text, mode: currentMode, userId: USER_ID, memory, profile: loadProfile() }),
-      signal: controller.signal
-    });
-
-=======
-  const leoBubble = createLeoOrbitalBubble();
   const textEl = leoBubble.querySelector(".reply-text");
-  
-  // Jump to bottom immediately after adding bubbles
-  requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
 
   const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
     role: m.role === "leocore" ? "assistant" : "user",
@@ -885,7 +851,6 @@ controller = new AbortController();
   controller = new AbortController();
 
   try {
-    /* 2. Web Search Indicator Logic */
     const triggerWords = ["today", "news", "weather", "score", "/web", "latest"];
     if (triggerWords.some(w => text.toLowerCase().includes(w)) && currentMode !== 'roast') {
       webTimer = setTimeout(() => showWebIndicator(), 800);
@@ -897,11 +862,16 @@ controller = new AbortController();
         "Content-Type": "application/json",
         "x-leocore-key": "leocore-super-locked-92837273487777"
       },
-      body: JSON.stringify({ message: text, mode: currentMode, userId: USER_ID, memory, profile: loadProfile() }),
+      body: JSON.stringify({ 
+        message: text, 
+        mode: currentMode, 
+        userId: USER_ID, 
+        memory, 
+        profile: loadProfile() 
+      }),
       signal: controller.signal
     });
 
->>>>>>> 31f7458 (revet)
     if (webTimer) clearTimeout(webTimer);
 
     const reader = response.body.getReader();
@@ -909,18 +879,12 @@ controller = new AbortController();
     let fullText = "";
     let lastWordCount = 0;
 
-    /* 3. The Stream Loop */
     while (true) {
       const { value, done } = await reader.read();
       if (done || stopRequested) break;
 
       fullText += decoder.decode(value, { stream: true });
-
-      // Clean up UI as soon as first token arrives
       hideWebIndicator();
-<<<<<<< HEAD
-      
-      
 
       const words = fullText.split(/(\s+)/);
       const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
@@ -929,75 +893,44 @@ controller = new AbortController();
       while (lastWordCount < words.length) {
         if (stopRequested) break;
         lastWordCount++;
+
         const current = words.slice(0, lastWordCount).join("");
 
-        // SMART RENDER: Only use InnerHTML if markdown is present to save CPU
         if (markdownTriggers.test(current)) {
           if (!throttle) {
             throttle = true;
             textEl.innerHTML = formatLeoReply(current);
-            setTimeout(() => { throttle = false; }, 100); 
+            setTimeout(() => throttle = false, 100);
           }
         } else {
           textEl.textContent = current;
         }
 
-        if (userLockedScroll) chatMessages.scrollTop = chatMessages.scrollHeight;
-        await new Promise(r => setTimeout(r, 20)); // "Typing" feel
-      }
-    }
-textEl.innerHTML = formatLeoReply(fullText);
-leoBubble.classList.remove("streaming");
-leoBubble.classList.add("final-ai");
+        if (userLockedScroll)
+          chatMessages.scrollTop = chatMessages.scrollHeight;
 
-saveCurrentChat();
-=======
-      const loader = leoBubble.querySelector(".orbit-loader");
-      if (loader) {
-        loader.remove();
-        leoBubble.classList.remove("thinking");
-      }
-
-      const words = fullText.split(/(\s+)/);
-      const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
-      let throttle = false;
-
-      while (lastWordCount < words.length) {
-        if (stopRequested) break;
-        lastWordCount++;
-        const current = words.slice(0, lastWordCount).join("");
-
-        // SMART RENDER: Only use InnerHTML if markdown is present to save CPU
-        if (markdownTriggers.test(current)) {
-          if (!throttle) {
-            throttle = true;
-            textEl.innerHTML = formatLeoReply(current);
-            setTimeout(() => { throttle = false; }, 100); 
-          }
-        } else {
-          textEl.textContent = current;
-        }
-
-        if (userLockedScroll) chatMessages.scrollTop = chatMessages.scrollHeight;
-        await new Promise(r => setTimeout(r, 20)); // "Typing" feel
+        await new Promise(r => setTimeout(r, 20));
       }
     }
 
-    /* 4. Finalize - CRITICAL: Call these AFTER the loop, not during */
     textEl.innerHTML = formatLeoReply(fullText);
-    saveCurrentChat(); 
-    finalizeThinkingBubbleIfNeeded();
->>>>>>> 31f7458 (revet)
+    leoBubble.classList.remove("streaming");
+    leoBubble.classList.add("final-ai");
+    saveCurrentChat();
 
   } catch (err) {
     if (webTimer) clearTimeout(webTimer);
     hideWebIndicator();
+
     if (err.name !== "AbortError") {
-      leoBubble.textContent = "CONNECTION LOST... Tap to retry? 🙂";
+      leoBubble.textContent = "CONNECTION LOST... Tap to retry 🙂";
     }
+
   } finally {
     setStreamingState(false);
-    requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
+    requestAnimationFrame(() =>
+      chatMessages.scrollTop = chatMessages.scrollHeight
+    );
   }
 });
 
