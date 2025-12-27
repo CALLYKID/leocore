@@ -231,6 +231,17 @@ const chatOverlay  = document.getElementById("chat-overlay");
 const chatCloseBtn = document.getElementById("chatCloseBtn");
 const chatMessages = document.getElementById("chatMessages");
 const webIndicator = document.getElementById("webSearchIndicator");
+const leoThinking = document.getElementById("leoThinking");
+
+function showThinking(){
+  leoThinking.classList.remove("hidden");
+  requestAnimationFrame(()=>leoThinking.classList.add("show"));
+}
+
+function hideThinking(){
+  leoThinking.classList.remove("show");
+  setTimeout(()=>leoThinking.classList.add("hidden"), 180);
+}
 
 function showWebIndicator(){
   webIndicator.classList.remove("hidden");
@@ -819,6 +830,27 @@ stopBtn.addEventListener("click", () => {
   forceScrollToBottom();
 });
 
+function createThinkingMessage() {
+  hideEmptyState();
+
+  const el = document.createElement("div");
+  el.className = "leo-thinking-standalone";
+
+  el.innerHTML = `
+    <div class="leo-thinking-orbit">
+      <div class="leo-core">L</div>
+      <div class="orbit"></div>
+    </div>
+  `;
+
+  chatMessages.appendChild(el);
+  jumpToBottom(chatMessages);
+  return el;
+}
+// ===== STREAM UI STATE =====
+let leoBubble = null;
+let textEl = null;
+let leoBubbleCreated = false;
 /* ================= SEND MESSAGE ================= */
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -838,9 +870,11 @@ chatForm.addEventListener("submit", async (e) => {
   addMessage(text, "user");
   chatInput.value = "";
   chatInput.style.height = "auto";
+  let thinkingEl = createThinkingMessage();
+  leoBubble = null;
+textEl = null;
+leoBubbleCreated = false;
 
-  const leoBubble = createLeoStreamingBlock();
-  const textEl = leoBubble.querySelector(".reply-text");
 
   const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
     role: m.role === "leocore" ? "assistant" : "user",
@@ -885,6 +919,20 @@ chatForm.addEventListener("submit", async (e) => {
 
       fullText += decoder.decode(value, { stream: true });
       hideWebIndicator();
+      hideThinking();
+      // create bubble only when stream actually starts
+if (!leoBubbleCreated) {
+  leoBubbleCreated = true;
+
+  // 🚨 REMOVE THINKING BUBBLE IMMEDIATELY
+  if (thinkingEl) {
+    thinkingEl.remove();
+    thinkingEl = null;
+  }
+
+  leoBubble = createLeoStreamingBlock();
+  textEl = leoBubble.querySelector(".reply-text");
+}
 
       const words = fullText.split(/(\s+)/);
       const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
@@ -923,10 +971,14 @@ chatForm.addEventListener("submit", async (e) => {
     hideWebIndicator();
 
     if (err.name !== "AbortError") {
-      leoBubble.textContent = "CONNECTION LOST... Tap to retry 🙂";
+      if (leoBubble) leoBubble.textContent = "CONNECTION LOST... Tap to retry 🙂";
     }
-
+if (thinkingEl) thinkingEl.remove();
   } finally {
+    if (thinkingEl) {
+  thinkingEl.remove();
+  thinkingEl = null;
+}
     setStreamingState(false);
     requestAnimationFrame(() =>
       chatMessages.scrollTop = chatMessages.scrollHeight

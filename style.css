@@ -32,7 +32,7 @@
   body {
     text-shadow: 0 0 0.01px rgba(255,255,255,0.01);
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: auto !important;
     overscroll-behavior: none;
   }
   
@@ -122,6 +122,7 @@
     position: relative;
     z-index: 10;
     isolation: isolate;
+    overflow:visible !important;
   
     min-height: calc(var(--vh, 1vh) * 100);
     height: auto;
@@ -1741,7 +1742,6 @@ textarea, input {
 .chat-panel {
   /* Ensure the panel starts at the very top */
   padding-top: 0 !important;
-<<<<<<< HEAD
 }
 
 .chat-header {
@@ -1758,143 +1758,134 @@ textarea, input {
   gap: 8px;
 }
 
-=======
-}
-
-.chat-header {
-  /* Reduced padding significantly */
-  padding: 8px 12px !important;
-  /* Use safe-area-inset for modern phones but keep it tight */
-  padding-top: calc(env(safe-area-inset-top, 0px) + 6px) !important;
-  
-  /* Force a smaller height */
-  min-height: 50px; 
-  display: grid;
-  grid-template-columns: 40px 1fr 60px; /* Precise layout */
-  align-items: center;
-  gap: 8px;
-}
-
->>>>>>> 31f7458 (revet)
 
 /* NATIVE-FEEL BUTTONS */
 .chat-back-btn, .chat-clear-btn {
   height: 32px !important;
   width: auto;
   font-size: 13px !important;
-<<<<<<< HEAD
 }
-/* DESKTOP: Real fix */
-@media (min-width: 900px) {
-
-  /* Panel full screen always */
-  .chat-panel {
-    width: 100vw !important;
-    max-width: none !important;
-    height: 100vh !important;
-    border-radius: 0 !important;
-  }
-
-  /* Chat container expands full width */
-  #chatMessages {
-    width: 100%;
-    max-width: none !important;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-
-    margin: 0 !important;
-    padding-left: 40px;
-    padding-right: 40px;
-
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-  }
-
-  /* Messages stack normally */
-  .chat-message {
-    width: fit-content;
-    max-width: 80%;
-    text-align: left;
-  }
-
-  /* AI left */
-  .chat-message.leocore {
-    align-self: flex-start !important;
-  }
-
-  /* User right */
-  .chat-message.user {
-    align-self: flex-end !important;
-  }
-
-  /* Typing bubble must also stay left */
-  .chat-message.leocore.thinking {
-    align-self: flex-start !important;
-  }
+/* Container */
+.leo-thinking-orbit {
+  width: 60px;
+  height: 60px;
+  position: relative;
+  display: grid;
+  place-items: center;
 }
-@media (min-width: 900px) {
-  .modes-wrapper {
-    width: 95%;
-    max-width: 950px;
-    margin: 28px auto;
-  }
 
-  .mode-card {
-    width: 100%;
-    max-width: 800px;
-    margin-inline: auto;
-    will-change: transform;
-  }
-}
-@media (min-width: 900px) {
-  .intent-strip {
-    max-width: 805px;     /* main control */
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-/* ================================
-   LEOCORE CHATGPT STYLE RESPONSE
-   AI = conversational block
-   User = bubble
-================================ */
-
-/* Container stays normal */
-.chat-messages {
+/* Core */
+.leo-core {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00eaff, #006aff 70%);
+  
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  color: white;
+
+  border: 1.5px solid rgba(0,255,255,.7);
+
+  animation: corePulse 1.6s ease-in-out infinite;
 }
 
-/* USER stays bubble right */
-.chat-message.user {
-  align-self: flex-end;
-  max-width: 78%;
-  padding: 10px 14px;
-  border-radius: 14px;
-  background: rgba(0,120,255,.9);
-  color: white;
-=======
->>>>>>> 31f7458 (revet)
+/* 🔥 Strong pulse */
+@keyframes corePulse {
+  0% {
+    box-shadow:
+      0 0 14px rgba(0,255,255,.7),
+      0 0 26px rgba(0,153,255,.5);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 22px rgba(0,255,255,1),
+      0 0 40px rgba(0,153,255,.8);
+    transform: scale(1.08);
+  }
+
+  100% {
+    box-shadow:
+      0 0 14px rgba(0,255,255,.7),
+      0 0 26px rgba(0,153,255,.5);
+    transform: scale(1);
+  }
 }
+
+/* 🌊 Expanding aura ripple */
+.leo-thinking-orbit::after {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1.8px solid rgba(0,255,255,.6);
+  animation: ripple 1.6s ease-out infinite;
+  filter: drop-shadow(0 0 12px rgba(0,255,255,.7));
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.6);
+    opacity: .9;
+  }
+
+  60% {
+    transform: scale(1.15);
+    opacity: .4;
+  }
+
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* ✨ Thin elegant ring (no spinner vibes) */
+.orbit {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 1.3px dashed rgba(0,255,255,.35);
+  position: absolute;
+  inset: 0;
+  animation: haloDrift 3.6s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(0,255,255,.4));
+}
+
+@keyframes haloDrift {
+  to { transform: rotate(360deg); }
+}
+/* Prevent layout shift when scrollbar disappears */
+html {
+  scrollbar-gutter: stable both-edges;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* DESKTOP: Real fix */
 @media (min-width: 900px) {
 
-<<<<<<< HEAD
-/* REMOVE AI bubble */
-.chat-message.leocore:not(.thinking) {
-  width: 100%;
-  max-width: 860px;
-  align-self: flex-start !important;
-
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  margin: 6px 0;
-=======
   /* Panel full screen always */
   .chat-panel {
     width: 100vw !important;
@@ -1941,7 +1932,6 @@ textarea, input {
   .chat-message.leocore.thinking {
     align-self: flex-start !important;
   }
->>>>>>> 31f7458 (revet)
 }
 @media (min-width: 900px) {
   .modes-wrapper {
@@ -1950,99 +1940,6 @@ textarea, input {
     margin: 28px auto;
   }
 
-<<<<<<< HEAD
-/* AI Inner Block — ChatGPT feel */
-.chat-message.leocore:not(.thinking) .reply-text {
-  display: block;
-
-  padding: 16px 18px 16px 18px;
-  border-radius: 18px;
-
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.15);
-
-  font-size: 15px;
-  line-height: 1.6;
-  white-space: normal !important;
-
-  box-shadow: 0 10px 28px rgba(0,0,0,.45);
-}
-
-/* Paragraph spacing */
-.chat-message.leocore:not(.thinking) p {
-  margin: 10px 0;
-}
-
-/* Lists readable */
-.chat-message.leocore:not(.thinking) ul,
-.chat-message.leocore:not(.thinking) ol {
-  margin: 8px 0 12px 22px;
-}
-
-/* Bold clean */
-.chat-message.leocore strong {
-  font-weight: 700;
-}
-
-/* Typing bubble stays compact */
-.chat-message.leocore.thinking {
-  max-width: 55%;
-}
-
-/* FIX Android text wrapping */
-.chat-message .reply-text {
-  white-space: pre-line !important;
-}
-.chat-message.leocore.final-ai {
-  width: 100%;
-  max-width: 860px;
-  background: none !important;
-  border: none !important;
-  padding: 0 !important;
-  align-self: flex-start !important;
-}
-
-.chat-message.leocore.final-ai .reply-text {
-  background: rgba(255,255,255,.08);
-  border: 1px solid rgba(255,255,255,.15);
-  padding: 16px 18px;
-  border-radius: 18px;
-  box-shadow: 0 10px 28px rgba(0,0,0,.45);
-  line-height: 1.6;
-  white-space: pre-line !important;
-}
-.chat-message.leocore.no-bubble {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  margin: 6px 0;
-}
-
-.chat-message.leocore.no-bubble .reply-text {
-  background: none !important;
-}
-/* REMOVE AI BUBBLE LOOK COMPLETELY */
-.chat-message.leocore.no-bubble {
-  background: none !important;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-
-  padding: 0 !important;
-  border-radius: 0 !important;
-
-  margin: 10px 0;
-}
-
-/* also override child wrapper just in case */
-.chat-message.leocore.no-bubble .reply-text {
-  background: none !important;
-  border: none !important;
-  box-shadow: none !important;
-  outline: none !important;
-  border-radius: 0 !important;
-=======
   .mode-card {
     width: 100%;
     max-width: 800px;
@@ -2057,5 +1954,27 @@ textarea, input {
     margin-left: auto;
     margin-right: auto;
   }
->>>>>>> 31f7458 (revet)
+}
+/* MOBILE — HIDE SCROLLBAR COMPLETELY */
+@media (max-width: 900px) {
+
+  /* Chrome / Edge / Brave */
+  *::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: none !important;
+  }
+
+  /* iOS Safari fix */
+  html, body {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+@media (min-width: 900px) {
+  html {
+    scrollbar-gutter: stable both-edges;
+  }
 }
