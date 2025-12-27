@@ -844,6 +844,7 @@ chatForm.addEventListener("submit", async (e) => {
   const text = chatInput.value.trim();
   if (!text || isStreaming) return;
   
+  // Reset state
   streamBuffer = "";
   wordQueue = [];
   stopRequested = false;
@@ -853,7 +854,17 @@ chatForm.addEventListener("submit", async (e) => {
   chatInput.value = "";
   chatInput.style.height = "auto";
   
+  // --- FIX START ---
+  // Blur the input or force a scroll anchor immediately to handle keyboard shift
+  setTimeout(() => {
+    jumpToBottom(chatMessages);
+  }, 50); 
+
   let thinkingEl = createThinkingMessage();
+  // Ensure the thinking bubble is visible even as the keyboard pushes UI
+  thinkingEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  // --- FIX END ---
+
   leoBubble = null;
   textEl = null;
   leoBubbleCreated = false;
@@ -1091,6 +1102,14 @@ const MODE_META = {
 }
 };
 
+window.visualViewport.addEventListener('resize', () => {
+  if (isStreaming || document.querySelector('.leo-thinking-standalone')) {
+    // If the keyboard opens while we are waiting/streaming, snap to bottom
+    requestAnimationFrame(() => {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  }
+});
 
 
 warmBackend();

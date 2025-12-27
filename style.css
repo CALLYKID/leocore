@@ -1832,6 +1832,14 @@ textarea, input {
   filter: drop-shadow(0 0 12px rgba(0,255,255,.7));
 }
 
+.leo-thinking-standalone {
+  /* Ensure the bubble has a consistent height so the scroll doesn't twitch */
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 @keyframes ripple {
   0% {
     transform: scale(0.6);
