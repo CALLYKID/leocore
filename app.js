@@ -881,7 +881,7 @@ chatForm.addEventListener("submit", async (e) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "x-leocore-key": "leocore-super-locked-92837273487777"
+        "x-leocore-key": "SERVER_SECRET"
       },
       body: JSON.stringify({ 
         message: text, 
