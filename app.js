@@ -13,7 +13,6 @@ let userPowerSave = false;
 
 
 window.addEventListener("beforeunload", () => {
-  finalizeThinkingBubbleIfNeeded();
   saveCurrentChat();
 });
 
@@ -411,7 +410,7 @@ function initModes() {
 function setMode(key) {
   if (document.body.classList.contains("chat-open")) {
     saveCurrentChat();
-    finalizeThinkingBubbleIfNeeded();
+    
   }
   
   const m = MODE_MAP[key] || MODE_MAP.default;
@@ -466,14 +465,15 @@ function openChat() {
 }
 
 function closeChat() {
+  saveCurrentChat(); // <<< ADD THIS
   chatOverlay.setAttribute("aria-hidden", "true");
 
   clearTimeout(freezeTimeout);
   document.body.classList.remove("chat-open");
 
-if (!userPowerSave) {
-  document.body.classList.remove("chat-freeze");
-}
+  if (!userPowerSave) {
+    document.body.classList.remove("chat-freeze");
+  }
 }
 document.getElementById("lowPowerToggle")?.addEventListener("click", () => {
   userPowerSave = !userPowerSave;
@@ -766,83 +766,30 @@ function addMessage(text, type) {
 function renderMessage(text, role) {
   const el = document.createElement("div");
   el.className = `chat-message ${role}`;
-  
-  // If it's the AI (leocore), use marked to parse the markdown
+
   if (role === "leocore") {
+    el.classList.add("no-bubble");
     el.innerHTML = formatLeoReply(text);
   } else {
-    el.textContent = text; // Keep user messages as plain text for safety
+    el.textContent = text;
   }
-  
+
   chatMessages.appendChild(el);
+  return el;
 }
 
 
-function createLeoOrbitalBubble() {
-  setStreamingState(true);
+function createLeoStreamingBlock() {
   hideEmptyState();
 
   const el = document.createElement("div");
-  el.className = "chat-message leocore thinking";
-  el.innerHTML = `
-    <div class="orbit-loader">
-      <span></span><span></span><span></span>
-    </div>
-    <div class="reply-text"></div>
-  `;
+  el.className = "chat-message leocore final-ai streaming no-bubble";
+  el.innerHTML = `<div class="reply-text"></div>`;
 
   chatMessages.appendChild(el);
   jumpToBottom(chatMessages);
 
   return el;
-}
-
-/* ================= STREAM SIMULATION ================= */
-async function streamIntoBubble(el, text) {
-  stopRequested = false;
-  let firstToken = true;
-  setStreamingState(true);
-
-  const textEl = el.querySelector(".reply-text") || el;
-
-  // IMPORTANT: Set initial lock state before loop starts
-  userLockedScroll = isNearBottom(chatMessages, 50);
-if (userLockedScroll) {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-  for (let i = 0; i < text.length; i++) {
-    if (stopRequested) {
-      setStreamingState(false);
-      return;
-    }
-
-    if (firstToken) {
-      const loader = el.querySelector(".orbit-loader");
-      if (loader) loader.remove();
-      el.classList.remove("thinking");
-      firstToken = false;
-    }
-
-    textEl.innerHTML = formatLeoReply(text.slice(0, i + 1));
-
-    // ONLY scroll if the user hasn't manually scrolled up
-    if (userLockedScroll) {
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    await new Promise(requestAnimationFrame);
-  }
-
-  // Final smooth scroll only if still locked
-  if (userLockedScroll) {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-setStreamingState(false);
-controller = null;
-saveCurrentChat();
-forceScrollToBottom();
 }
 
 
@@ -862,22 +809,13 @@ function setStreamingState(on){
 }
 
 stopBtn.addEventListener("click", () => {
-  if(!isStreaming) return;
+  if (!isStreaming) return;
 
   stopRequested = true;
-  if(controller) controller.abort();
-
-  // Turn thinking bubble into permanent saved bubble
-  const thinking = document.querySelector(".chat-message.leocore.thinking");
-  if(thinking){
-    thinking.classList.remove("thinking");
-    const loader = thinking.querySelector(".orbit-loader");
-    if(loader) loader.remove();
-  }
+  if (controller) controller.abort();
 
   setStreamingState(false);
   saveCurrentChat();
-  finalizeThinkingBubbleIfNeeded();
   forceScrollToBottom();
 });
 
@@ -902,21 +840,18 @@ chatForm.addEventListener("submit", async (e) => {
   chatInput.value = "";
   chatInput.style.height = "auto";
   
-  const leoBubble = createLeoOrbitalBubble();
-  const textEl = leoBubble.querySelector(".reply-text");
-  
-  // Jump to bottom immediately after adding bubbles
-  requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
+  const leoBubble = createLeoStreamingBlock();
+const textEl = leoBubble.querySelector(".reply-text");
 
-  const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
-    role: m.role === "leocore" ? "assistant" : "user",
-    content: m.content
-  }));
-
-  let webTimer = null;
-  controller = new AbortController();
-
+let webTimer = null;
   try {
+    
+    const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
+  role: m.role === "leocore" ? "assistant" : "user",
+  content: m.content
+}));
+
+controller = new AbortController();
     /* 2. Web Search Indicator Logic */
     const triggerWords = ["today", "news", "weather", "score", "/web", "latest"];
     if (triggerWords.some(w => text.toLowerCase().includes(w)) && currentMode !== 'roast') {
@@ -949,11 +884,8 @@ chatForm.addEventListener("submit", async (e) => {
 
       // Clean up UI as soon as first token arrives
       hideWebIndicator();
-      const loader = leoBubble.querySelector(".orbit-loader");
-      if (loader) {
-        loader.remove();
-        leoBubble.classList.remove("thinking");
-      }
+      
+      
 
       const words = fullText.split(/(\s+)/);
       const markdownTriggers = /(\*\*|__|`|#|\d+\.\s|-\s|\n\n)/;
@@ -979,11 +911,11 @@ chatForm.addEventListener("submit", async (e) => {
         await new Promise(r => setTimeout(r, 20)); // "Typing" feel
       }
     }
+textEl.innerHTML = formatLeoReply(fullText);
+leoBubble.classList.remove("streaming");
+leoBubble.classList.add("final-ai");
 
-    /* 4. Finalize - CRITICAL: Call these AFTER the loop, not during */
-    textEl.innerHTML = formatLeoReply(fullText);
-    saveCurrentChat(); 
-    finalizeThinkingBubbleIfNeeded();
+saveCurrentChat();
 
   } catch (err) {
     if (webTimer) clearTimeout(webTimer);
@@ -1103,20 +1035,7 @@ const MODE_META = {
 };
 
 
-function finalizeThinkingBubbleIfNeeded() {
-  const b = document.querySelector(".chat-message.leocore.thinking");
-  if (!b) return;
 
-  const text = b.querySelector(".reply-text")?.textContent.trim();
-
-  if (text && text.length > 0) {
-    b.classList.remove("thinking");
-    const loader = b.querySelector(".orbit-loader");
-    if (loader) loader.remove();
-    saveCurrentChat();
-    forceScrollToBottom();
-  }
-}
 warmBackend();
 initHeroTyping();
 initModes();
