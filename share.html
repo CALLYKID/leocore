@@ -70,63 +70,74 @@ body{
 .chat{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:14px;
+  padding-bottom:40px;
 }
 
 /* ===== MESSAGE BUBBLES ===== */
 .msg{
-  padding:14px 14px;
-  border-radius:14px;
-  max-width:95%;
-  animation:pop .3s ease;
+  padding:14px 16px;
+  border-radius:18px;
+  max-width:90%;
+  animation:pop .25s ease;
   display:flex;
   gap:10px;
-}
-
-.msg span{
   line-height:1.45rem;
+  word-wrap:break-word;
+  white-space:pre-wrap;
 }
 
-/* user bubble */
+/* USER BUBBLE */
 .user{
   background:#0b1220;
   border:1px solid #2c3b50;
   align-self:flex-start;
+  box-shadow:0 0 12px rgba(0,0,0,0.6);
 }
 
-/* leocore bubble */
+/* AI BUBBLE */
 .leocore{
   align-self:flex-end;
-  background:linear-gradient(140deg, rgba(0,255,200,0.12), rgba(0,160,255,0.1));
-  border:1px solid rgba(0,255,200,0.45);
+  background:linear-gradient(140deg, rgba(0,255,200,0.12), rgba(0,160,255,0.14));
+  border:1px solid rgba(0,255,200,0.55);
+  box-shadow:0 0 15px rgba(0,255,180,0.25);
 }
 
-/* ===== AVATARS ===== */
+/* TEXT INSIDE */
+.msg span{
+  display:block;
+  font-size:15px;
+  line-height:1.55rem;
+  letter-spacing:.2px;
+}
+
+/* AVATAR */
 .avatar{
-  width:32px;
-  height:32px;
+  width:34px;
+  height:34px;
   border-radius:50%;
   background:#09101f;
-  border:1px solid rgba(255,255,255,.4);
+  border:1px solid rgba(255,255,255,.25);
   display:flex;
   align-items:center;
   justify-content:center;
   font-size:14px;
+  flex-shrink:0;
 }
 
-/* user avatar */
+/* USER AVATAR */
 .avatar.u{
   border-color:#648aff;
 }
 
-/* AI avatar */
+/* AI AVATAR */
 .avatar.ai{
   border-color:#00ffc6;
 }
 
-/* ===== ANIMATIONS ===== */
+/* CLEANER ANIMATION */
 @keyframes pop{
-  from{ transform:translateY(6px); opacity:0; }
+  from{ transform:translateY(10px); opacity:0; }
   to{ transform:translateY(0); opacity:1;}
 }
 
