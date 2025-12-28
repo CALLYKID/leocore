@@ -291,12 +291,6 @@ export default async function chatHandler(req, res) {
       return res.status(413).json({ error: "Payload too large" });
     }
 
-    const SERVER_SECRET = process.env.SERVER_SECRET;
-const DEV_KEY = "dev-local-key";
-const isDev = process.env.NODE_ENV !== "production";
-
-const token = req.headers["x-leocore-key"];
-
 
 
     /* ---------- INPUT PREP ---------- */
