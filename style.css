@@ -22,16 +22,16 @@
   }
   
   html,
-  body {
-    margin: 0;
-    width: 100%;
-    height: calc(var(--vh, 1vh) * 100);
-    overflow-x: hidden;
-    background: #000;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    color: #fff;
-    color-scheme: dark;
-  }
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: #000;
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color: #fff;
+  color-scheme: dark;
+}
   
   body {
     text-shadow: 0 0 0.01px rgba(255,255,255,0.01);
@@ -105,7 +105,7 @@
     z-index: 2;
     background: radial-gradient(40% 60% at 25% 30%, rgba(0,234,255,0.09), transparent 60%),
       radial-gradient(50% 70% at 75% 70%, rgba(138,60,255,0.08), transparent 65%);
-    filter: blur(6px);
+    filter: blur(2px);
     opacity: 0.85;
   }
   
@@ -120,23 +120,21 @@
     );
   }
   
-  .app-wrapper {
-    position: relative;
-    z-index: 10;
-    isolation: isolate;
-    overflow:visible ;
-  
-    min-height: calc(var(--vh, 1vh) * 100);
-    height: auto;
-  
-    padding: 72px 18px 56px;
-    display: flex;
-    flex-direction: column;
-    scroll-behavior: smooth;
-    overscroll-behavior: contain;
+.app-wrapper {
+  position: relative;
+  z-index: 10;
+  isolation: isolate;
+
+  min-height: 100vh; 
+  display: flex;
+  flex-direction: column;
+
+  padding: 72px 18px 0 !important;
     animation: fadeUp .8s cubic-bezier(.22,.61,.36,1) both;
   }
-  
+  .modes-wrapper {
+  flex: 1;
+}
   
   .center-wrapper {
     display: flex;
@@ -144,6 +142,7 @@
     align-items: center;
     gap: 10px;
     margin: 16px;
+    flex: 1;
   }
   /*=====SECTION 2 — HOME UI (intent strip + modes)=====*/
   .main-title {
@@ -896,75 +895,62 @@
       0 12px 30px rgba(0,0,0,0.55);
   }
   
-  /* IMPORTANT: Prevent extra scroll after footer */
-  .app-wrapper {
-    padding-bottom: 0 ;
-  }
+
 /* ========= SECTION 9 ---LeoCore Minimal Premium Footer (DEDUPED) ========= */
 
 .lc-footer {
-  margin-top: 26px;
+  margin-top: 15px;
+
+  width: calc(100% + 36px);
   margin-left: -18px;
   margin-right: -18px;
-  width: calc(100% + 36px);
 
-  padding: 10px 0 10px;
-  padding-bottom: env(safe-area-inset-bottom, 18px);
+  padding: 8px 14px calc(env(safe-area-inset-bottom, 10px) + 6px);
 
+  font-size: 12px;
   text-align: center;
-  font-size: 12.5px;
-  letter-spacing: .3px;
+  letter-spacing: .35px;
 
-  color: #eaf9ff;
-  opacity: .95;
+  color: rgba(225,245,255,.9);
 
   background: linear-gradient(
     180deg,
-    rgba(8,14,24,0.82),
-    rgba(6,10,18,0.9)
+    rgba(6,10,20,0.96),
+    rgba(4,8,16,1)
   );
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(2px);
 
-  border-top: 1px solid rgba(255,255,255,0.12); 
-  box-shadow: 0 -10px 30px rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 
-  position: relative;
-  border-radius: 0 ;
+  border-top: 1px solid rgba(0,255,255,.18);
+
+  /* KEY CHANGE → no rounded bubble = no “cut off” feeling */
+  border-radius: 0;
+
+box-shadow:
+    0 -25px 45px rgba(0, 255, 255, 0.18),      /* main neon aura */
+    0 -10px 35px rgba(0, 0, 0, 0.85),          /* keeps depth strong */
+    inset 0 1px 2px rgba(255,255,255,0.1);     /* polish edge */
+    
+    background: linear-gradient(
+  180deg,
+  rgba(0,255,255,0.1),
+  rgba(8,18,35,1)
+);
 }
 
-/* gentle neon top glow */
-.lc-footer::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-top: 1px solid rgba(0,234,255,0.6);
-  filter: blur(2px);
-  opacity: .8;
-  pointer-events: none;
+.lc-footer a {
+  color: #7fe8ff;
+  text-decoration: none;
 }
 
-/* layout inside footer */
-.f-top {
-  padding: 6px 18px 4px;
+.lc-footer a:hover {
+  text-decoration: underline;
 }
 
-.f-col h4 {
-  margin: 0 0 4px;
-  font-size: 13px;
-  opacity: .92;
-}
-
-.f-col p,
-.f-col a {
-  font-size: 12.5px;
-}
-
-.f-bottom {
-  padding-top: 6px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  font-size: 12px;
-  opacity: .85;
+.lc-footer .dot {
+  opacity: .6;
+  margin: 0 6px;
 }
   /* ====================== SECRION 10 ---COOL DROPDOWN CHEVRON ====================== */
   .mode-toggle {
@@ -1236,12 +1222,7 @@
     0 10px 30px rgba(0,0,0,.5);
 }
 /*section 13 app wrapper duplicate hack*/
-  .app-wrapper {
-    height: 100%;       /* <-- THIS is what you were missing */
-    min-height: calc(var(--vh, 1vh) * 100);
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
+ 
   .reply-text {
     white-space: pre-wrap;
   }
@@ -1572,7 +1553,7 @@ body.mode-roast .chat-message.leocore { border-left-color: #ff0055 ; }
   overflow-wrap: anywhere;
   border-radius: 14px;
   animation: messageSettle .45s ease;
-  contain: layout style;
+  
   transform: translateZ(0);
 }
 
@@ -2014,7 +1995,7 @@ body.mode-roast .chat-message.user {
   filter: blur(4px);
   opacity: 0.6;
   border-radius: 10px;
-  z-index: -1;
+  z-index: 0;
 }
 
 /* ===============================
@@ -2028,11 +2009,11 @@ body.mode-roast .chat-message.user {
 
 .app-wrapper { z-index: 10; }
 
-#menuOverlay { z-index: 400; }
-#chat-overlay { z-index: 500 !important; }
-.chat-backdrop { z-index: 501 !important; }
-.chat-panel { z-index: 502 !important; }
-.chat-header { z-index: 503 !important; }
+#menuOverlay { z-index: 20; }
+#chat-overlay { z-index: 50 !important; }
+.chat-backdrop { z-index: 70 !important; }
+.chat-panel { z-index: 90 !important; }
+.chat-header { z-index: 100 !important; }
 
 /* ===============================
    FIX: CHAT PANEL NEVER FLOATS
@@ -2100,6 +2081,10 @@ html, body {
   will-change: transform;
   transition: transform .45s cubic-bezier(.22,.61,.36,1),
               opacity .3s ease;
+overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===============================
@@ -2116,10 +2101,6 @@ html, body {
   min-height: 68px;
 }
 
-/* Strong anchor: keep scroll pinned to bottom */
-#chatMessages > :last-child {
-  overflow-anchor: auto;
-}
 .leo-thinking-standalone {
   min-height: 72px;
   display: flex;
@@ -2140,8 +2121,194 @@ html, body {
   margin-top: 6px;
   margin-bottom: 6px;
 }
+.chat-message.leocore {
+  position: relative;
+  z-index: 2;
+}
+#chatMessages {
+  isolation: isolate;
+}
+.chat-message.leocore::after {
+  z-index: 1;
+}
+.chat-message.user {
+  position: relative;
+  z-index: 2;
+}
+.chat-message.user::after {
+  z-index: 1;
+}
+.chat-message.leocore,
+.chat-message.user {
+  overflow: visible;
+}
+
+/* Ensure glow effects never block the actual buttons */
+.intent-strip::before,
+.mode-card::before,
+.mode-card::after,
+.chat-header::before,
+.chat-message::after {
+  pointer-events: none !important;
+  user-select: none;
+}
+/* Forces the input bar to stay pinned to the actual bottom */
+.chat-input-bar {
+  padding-bottom: calc(env(safe-area-inset-bottom, 14px) + 10px) !important;
+}
+
+
 /*===========END OF FIX ===========*/
 
+/*====SECTION 24 IMAGE PREVIEW HELPER+ UPLOAD + SHARE =========*/
+
+#imagePreviewContainer {
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  background: rgba(10, 15, 25, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(2px);
+}
+
+#imagePreviewContainer.hidden { display: none !important; }
+
+#imagePreview {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid var(--neon-a);
+}
+
+#removeImageBtn {
+  margin-left: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #ff4a4a;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  display: grid;
+  place-items: center;
+} 
+/* Fix for the new Upload button */
+#uploadBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%; /* Circular like Send button */
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: 0.2s ease;
+  flex-shrink: 0;
+}
+
+#uploadBtn:active {
+  transform: scale(0.92);
+  background: rgba(255, 255, 255, 0.2);
+}
+/* Premium Share Button Style */
+#shareBtn {
+  background: rgba(0, 255, 204, 0.1); 
+  color: #00ffcc;
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  font-weight: 600;
+}
+
+#shareBtn:hover {
+  background: rgba(0, 255, 204, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.3);
+}
+.chat-message.user.image-bubble {
+    background: transparent; /* Removes the text bubble background from around the image */
+    padding: 4px;
+    align-self: flex-end;
+}
+
+.chat-message.user img {
+    border: 2px solid var(--accent-color, #00ffcc);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    display: block;
+}
+/* --- SECTION 25 STORAGE MENU STYLING --- */
+
+.storage-section {
+  margin-top: 20px;
+}
+
+.storage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 12px;
+}
+
+.storage-label {
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 800;
+}
+
+.storage-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  color: #00ffcc;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+}
+
+/* --- THE PROGRESS BAR --- */
+.storage-bar-container {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.storage-bar-fill {
+  height: 100%;
+  width: 0%; /* Managed by JS */
+  background: linear-gradient(90deg, #00ffcc, #0099ff);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.6);
+  transition: width 1s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+}
+
+.storage-note {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 15px;
+  line-height: 1.4;
+}
+
+/* --- DANGER BUTTON --- */
+.danger-zone-btn {
+  width: 100%;
+  margin-top: 25px;
+  background: rgba(255, 77, 77, 0.1);
+  border: 1px solid rgba(255, 77, 77, 0.3);
+  color: #ff4d4d;
+  padding: 12px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.danger-zone-btn:hover {
+  background: #ff4d4d;
+  color: white;
+  box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+}
 
 
 
@@ -2178,7 +2345,8 @@ html, body {
 
 
 
-/*==========SECTION 24  DESKTOP: Real fix =========== */
+
+/*==========SECTION XX  DESKTOP: Real fix =========== */
 @media (min-width: 900px) {
 
   /* Panel full screen always */
@@ -2212,9 +2380,9 @@ html, body {
   will-change: scroll-position;
   overflow-anchor: auto ; 
  /* render off-screen bubbles */
-  contain: content; 
   padding-top: 92px ;
   padding-bottom: 40px;
+  isolation: isolate;
   overflow-y: auto;
   }
 
@@ -2225,10 +2393,6 @@ html, body {
     text-align: left;
   }
 
-  /* AI left */
-  .chat-message.leocore {
-    align-self: flex-start ;
-  }
 
   /* User right */
   .chat-message.user {
@@ -2283,5 +2447,31 @@ html, body {
 @media (min-width: 900px) {
   html {
     scrollbar-gutter: stable both-edges;
+  }
+}
+@media (min-width: 900px) {
+
+  /* Pull the hero closer to the mode section */
+  .center-wrapper {
+    margin-top: 40px;
+    margin-bottom: 16px;    /* <-- THIS removes that giant empty canyon */
+    text-align: center;
+  }
+
+  /* Reduce that huge intent strip gap */
+  .intent-strip {
+    margin-top: 10px;
+    margin-bottom: 18px;
+  }
+
+  /* Bring modes up tighter */
+  .modes-wrapper {
+    margin-top: 10px;
+  }
+
+  /* Optional polish — keep everything nicely centered width-wise */
+  .mode-selector {
+    margin-left: auto;
+    margin-right: auto;
   }
 }

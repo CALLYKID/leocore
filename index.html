@@ -2,18 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
-  />
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HJQL69N043"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-HJQL69N043');
-</script>
-  <!-- SEO / META -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-HJQL69N043"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-HJQL69N043');
+  </script>
   <meta name="google-site-verification" content="pbW7l_nCjL1D0HqGCBQx2sQA8LFbFrwpe-PhHa2mnd0" />
   <meta property="og:title" content="LeoCore — Free AI Chat with Multiple Modes" />
   <meta property="og:description" content="Fast, free AI chat with Study, Research, Deep & Chill modes. No paywalls." />
@@ -24,7 +20,6 @@
   <title>LeoCore — Free AI Chat with Study, Research & Deep Modes</title>
   <meta name="description" content="LeoCore is a fast, free AI chat app with multiple modes like Study, Research, Deep, Chill, and Roast. No paywalls. No limits." />
 
-  <!-- Icons -->
   <link rel="icon" href="/favicon.ico">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -33,53 +28,74 @@
   <link rel="canonical" href="https://leocore.vercel.app/" />
   <meta name="theme-color" content="#0b1020">
 
-  <!-- Prevent white flash -->
   <style>
     html, body { background: #000; }
+    /* Preview container styling */
+    #imagePreviewContainer {
+      position: relative;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      margin: 10px;
+      width: fit-content;
+    }
+    #imagePreview {
+      max-height: 60px;
+      border-radius: 5px;
+    }
+    #removeImageBtn {
+      margin-left: 10px;
+      background: #ff4a4a;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hidden { display: none !important; }
   </style>
-
   <link rel="stylesheet" href="/style.css?v=liquid009">
 </head>
 
 <body>
 
-<!-- ================= BACKGROUND ================= -->
 <div id="bg-root" aria-hidden="true">
-<div id="bgLayer"></div>
-<div id="bgTint"></div>
+  <div id="bgLayer"></div>
+  <div id="bgTint"></div>
   <div class="bg-soften"></div>
   <div class="bg-vignette"></div>
   <div class="bg-bloom"></div>
 </div>
 
-<!-- ================= UI ================= -->
 <div class="app-wrapper">
 
-  <!-- ================= HEADER ================= -->
   <section class="center-wrapper">
     <h1 class="main-title">LeoCore AI Chat</h1>
     <p class="subtitle">Free AI chat with multiple modes</p>
     <button id="menuBtn" class="menu-btn">☰</button>
   </section>
 
-  <!-- ================= INTENT STRIP (NEW HERO) ================= -->
   <div class="intent-strip">
-  <div class="intent-rotator">
-    <span class="intent-word active">Ask</span>
-    <span class="intent-word">Study</span>
-    <span class="intent-word">Research</span>
-    <span class="intent-word">Read</span>
+    <div class="intent-rotator">
+      <span class="intent-word active">Ask</span>
+      <span class="intent-word">Study</span>
+      <span class="intent-word">Research</span>
+      <span class="intent-word">Read</span>
+    </div>
+    <div class="intent-sub">What do you want to do?</div>
   </div>
-  <div class="intent-sub">What do you want to do?</div>
-</div>
 
-  <!-- ================= MODE SELECTOR ================= -->
   <section class="modes-wrapper">
     <h2 class="section-title">Choose Your Mode</h2>
-
     <div class="mode-selector">
 
-      <!-- DEFAULT -->
       <div class="mode-card active" data-mode="default">
         <div class="mode-row">
           <span class="mode-icon">⚡</span>
@@ -93,7 +109,6 @@
         </div>
       </div>
 
-      <!-- STUDY -->
       <div class="mode-card" data-mode="study">
         <div class="mode-row">
           <span class="mode-icon">📘</span>
@@ -106,7 +121,6 @@
         </div>
       </div>
 
-      <!-- RESEARCH -->
       <div class="mode-card" data-mode="research">
         <div class="mode-row">
           <span class="mode-icon">🔬</span>
@@ -119,7 +133,6 @@
         </div>
       </div>
 
-      <!-- READING -->
       <div class="mode-card" data-mode="reading">
         <div class="mode-row">
           <span class="mode-icon">📖</span>
@@ -132,7 +145,6 @@
         </div>
       </div>
 
-      <!-- DEEP -->
       <div class="mode-card" data-mode="deep">
         <div class="mode-row">
           <span class="mode-icon">🧠</span>
@@ -145,7 +157,6 @@
         </div>
       </div>
 
-      <!-- CHILL -->
       <div class="mode-card" data-mode="chill">
         <div class="mode-row">
           <span class="mode-icon">😎</span>
@@ -158,14 +169,11 @@
         </div>
       </div>
 
-      <!-- PRECISION -->
       <div class="mode-card" data-mode="precision">
         <div class="mode-row">
           <span class="mode-icon">🎯</span>
           <span class="mode-name">Precision</span>
-          <span class="mode-toggle">
-            <span class="chevron"></span>
-          </span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
         </div>
         <div class="mode-expand">
           <p>Short, exact, no fluff answers.</p>
@@ -173,14 +181,11 @@
         </div>
       </div>
 
-      <!-- ROAST -->
       <div class="mode-card" data-mode="roast">
         <div class="mode-row">
           <span class="mode-icon">💀</span>
           <span class="mode-name">Roast</span>
-          <span class="mode-toggle">
-            <span class="chevron"></span>
-          </span>
+          <span class="mode-toggle"><span class="chevron"></span></span>
         </div>
         <div class="mode-expand">
           <p>Enter at your own risk.</p>
@@ -190,66 +195,39 @@
 
     </div>
   </section>
+
 <footer class="lc-footer">
-  <div class="f-top">
-    <div class="f-col">
-      <h4>LeoCore</h4>
-      <p>Fast. Free. Powerful AI chat — built for real people.</p>
-    </div>
-
-    <div class="f-col">
-      <h4>Product</h4>
-<a href="/modes/study" class="mode-link" data-mode="study">Study Mode</a>
-<a href="/modes/research" class="mode-link" data-mode="research">Research mode</a>
-<a href="/modes/deep">Deep Mode</a>
-<a href="/modes/roast">Roast Mode</a>
-    </div>
-
-    <div class="f-col">
-      <h4>Legal</h4>
-      <a href="/privacy">Privacy Policy</a>
-<a href="/terms">Terms of Service</a>
-<a href="/contact">Contact</a>
-<a href="/sitemap">Sitemap</a>
-    </div>
-  </div>
-
-  <div class="f-bottom">
-    © 2025 LeoCore — All rights reserved.
-  </div>
+  <span>© 2025 LeoCore</span>
+  <span class="dot">•</span>
+  <a href="/privacy">Privacy</a>
+  <span class="dot">•</span>
+  <a href="/terms">Terms</a>
 </footer>
 </div>
+
 <div id="leoThinking">
-  <span class="dots">
-    <i></i><i></i><i></i>
-  </span>
+  <span class="dots"><i></i><i></i><i></i></span>
   <span class="txt">LeoCore is thinking...</span>
 </div>
-<!-- ================= CHAT OVERLAY (UNCHANGED) ================= -->
+
 <div id="chat-overlay" aria-hidden="true">
   <div class="chat-backdrop"></div>
-
   <div class="chat-panel">
 
     <div class="chat-header" id="chatHeader">
       <button class="chat-back-btn" id="chatCloseBtn" aria-label="Close chat">‹</button>
-
       <div class="chat-header-center">
         <div class="chat-mode" id="chatMode">⚡ Default</div>
-        <div class="chat-mode-desc" id="chatModeDesc">
-          Balanced answers for everyday questions
-        </div>
+        <div class="chat-mode-desc" id="chatModeDesc">Balanced answers for everyday questions</div>
       </div>
-
-      <button id="clearChat" class="chat-clear-btn" aria-label="Clear conversation">
-        Clear
-      </button>
+      <div style="display:flex; gap: 8px;">
+        <button id="shareBtn" class="chat-clear-btn" style="background: rgba(0,255,204,0.1); color: #00ffcc;">Share</button>
+        <button id="clearChat" class="chat-clear-btn" aria-label="Clear conversation">Clear</button>
+      </div>
     </div>
 
     <div class="chat-messages" id="chatMessages">
-      <div id="webSearchIndicator" class="web-indicator hidden">
-  <span id="webText">Searching the web</span>
-</div>
+      <div id="webSearchIndicator" class="web-indicator hidden"><span id="webText">Searching the web</span></div>
       <div id="emptyState">
         <div class="empty-title"></div>
         <div class="empty-sub"></div>
@@ -257,67 +235,78 @@
       </div>
     </div>
 
+    <div id="imagePreviewContainer" class="hidden">
+      <img id="imagePreview" src="" alt="Preview">
+      <button type="button" id="removeImageBtn">×</button>
+    </div>
+
     <form class="chat-input-bar" id="chatForm" autocomplete="off">
+      <button type="button" id="uploadBtn" class="chat-tool-btn">+</button>
+      <input type="file" id="imageUpload" accept="image/*" style="display:none;">
 
-  <button type="button" id="attachBtn" class="chat-tool-btn">+</button>
+      <textarea id="chatInput" placeholder="Message LeoCore…" spellcheck="false" autocomplete="off" rows="1"></textarea>
 
-  <textarea
-    id="chatInput"
-    placeholder="Message LeoCore…"
-    spellcheck="false"
-    autocomplete="off"
-    rows="1"
-  ></textarea>
-
-<button type="submit" id="sendBtn"></button>
-<button type="button" id="stopBtn" class="hidden"></button>
-
-</form>
-
+      <button type="submit" id="sendBtn"></button>
+      <button type="button" id="stopBtn" class="hidden"></button>
+    </form>
   </div>
 </div>
 
 <script src="/app.js?v=9999" defer></script>
-<div id="menuOverlay" aria-hidden="true">
-  <div class="menu-backdrop"></div>
 
+<div id="menuOverlay" aria-hidden="true">
+  
+  <div class="menu-backdrop"></div>
   <aside class="menu-panel">
-    
     <div class="menu-top">
       <h2 class="menu-title">LeoCore</h2>
       <button id="menuClose" class="menu-close">×</button>
     </div>
-
     <div class="menu-section">
       <h4>Quick Access</h4>
       <a class="menu-link" href="/modes/default">⚡ Default Chat</a>
-<a class="menu-link" href="/modes/study">📘 Study</a>
-<a class="menu-link" href="/modes/deep">🧠 Deep</a>
-<a class="menu-link" href="/modes/roast">💀
-  Roast</a>
+      <a class="menu-link" href="/modes/study">📘 Study</a>
+      <a class="menu-link" href="/modes/deep">🧠 Deep</a>
+      <a class="menu-link" href="/modes/roast">💀 Roast</a>
     </div>
+    <div class="menu-section">
+      <h4>Performance</h4>
+      <div class="menu-link" id="lowPowerToggle">
+        <span>🔋</span> Battery Saver: <b id="lpStatus">OFF</b>
+      </div>
+    </div>
+    
 
-<div class="menu-section">
-  <h4>Performance</h4>
-  <div class="menu-link" id="lowPowerToggle">
-    <span>🔋</span> Battery Saver: <b id="lpStatus">OFF</b>
-  </div>
-</div>
-
-
+  
     <div class="menu-section">
       <h4>Navigation</h4>
       <a class="menu-link" href="/">🏠 Home</a>
       <a class="menu-link" href="/about">ℹ️ About</a>
     </div>
-
     <div class="menu-section">
       <h4>Legal</h4>
       <a class="menu-link" href="/privacy">Privacy Policy</a>
       <a class="menu-link" href="/terms">Terms of Service</a>
     </div>
-
+    
+     <div class="storage-section">
+      <div class="storage-header">
+        <span class="storage-label">SYSTEM STORAGE</span>
+        <span id="storagePercent" class="storage-value">0%</span>
+      </div>
+      
+      <div class="storage-bar-container">
+        <div id="storageBarFill" class="storage-bar-fill"></div>
+      </div>
+      
+      <p class="storage-note">Conversations are stored locally on your device.</p>
+      
+      <button onclick="if(confirm('Wipe all data?')) { localStorage.clear(); location.reload(); }" class="danger-zone-btn">
+        PERMANENT WIPE
+      </button>
+    </div>
   </aside>
 </div>
+
 </body>
 </html>

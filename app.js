@@ -1,5 +1,5 @@
 /* ===========================================================
-   LEOCORE APP.JS — FINAL STABLE BUILD
+   LEOCORE APP.JS — FINAL STABLE BUILD (REFINED)
 ============================================================ */
 
 /* ================= GLOBAL STATE ================= */
@@ -27,23 +27,15 @@ const USER_ID =
     return id;
   })();
   
-  /* ================= PROFILE MEMORY ================= */
+/* ================= PROFILE MEMORY ================= */
 const PROFILE_KEY = "leocore_profile_v1";
 
 function loadProfile() {
   try {
     const data = JSON.parse(localStorage.getItem(PROFILE_KEY));
-    return data || {
-      joined: Date.now(),
-      messagesSent: 0,
-      streak: 0
-    };
+    return data || { joined: Date.now(), messagesSent: 0, streak: 0 };
   } catch {
-    return {
-      joined: Date.now(),
-      messagesSent: 0,
-      streak: 0
-    };
+    return { joined: Date.now(), messagesSent: 0, streak: 0 };
   }
 }
 
@@ -62,57 +54,37 @@ const API_URL =
     
 /* ================= VIEWPORT LOCK ================= */
 function setVh() {
-  document.documentElement.style.setProperty(
-    "--vh",
-    window.innerHeight * 0.01 + "px"
-  );
+  document.documentElement.style.setProperty("--vh", window.innerHeight * 0.01 + "px");
 }
 setVh();
 window.addEventListener("resize", setVh);
 window.addEventListener("orientationchange", setVh);
 
-// Restore saved power mode
 userPowerSave = localStorage.getItem("lpMode") === "1";
-if (userPowerSave) {
-  document.body.classList.add("chat-freeze");
-}
+if (userPowerSave) document.body.classList.add("chat-freeze");
 const lp = document.getElementById("lpStatus");
 if (lp) lp.textContent = userPowerSave ? "ON" : "OFF";
+
 /* ================= BACKEND WARM ================= */
- async function warmBackend() {
-  try {
-    await fetch(`${API_URL}/ping`, {
-      method: "GET",
-      cache: "no-store"
-    });
-  } catch {}
+async function warmBackend() {
+  try { await fetch(`${API_URL}/ping`, { method: "GET", cache: "no-store" }); } catch {}
 }
 
-/* ================================================
-   AUTO THERMAL CONTROL — PHASE 1
-================================================ */
+/* ================= AUTO THERMAL CONTROL ================= */
 let thermalSamples = [];
 let thermalActive = false;
 let lastThermalSwitch = 0;
-const THERMAL_COOLDOWN = 4000; // 4s
+const THERMAL_COOLDOWN = 4000;
 
 function getFPS(callback) {
   let last = performance.now();
   let frames = 0;
-
   function frame() {
     const now = performance.now();
     frames++;
-
-    if (now >= last + 1000) {
-      callback(frames);
-      frames = 0;
-      last = now;
-    }
-
+    if (now >= last + 1000) { callback(frames); frames = 0; last = now; }
     requestAnimationFrame(frame);
   }
-
   requestAnimationFrame(frame);
 }
 
@@ -121,92 +93,89 @@ function enableThermalMode() {
   if (!document.body.classList.contains("chat-open")) return;
   thermalActive = true;
   document.body.classList.add("chat-freeze");
-  
-  requestAnimationFrame(() => {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-  console.log("🔥 Thermal Mode ENABLED");
+  requestAnimationFrame(() => chatMessages.scrollTo({ top: chatMessages.scrollHeight }));
 }
 
 function disableThermalMode() {
   if (!thermalActive) return;
   thermalActive = false;
-
-  if (!userPowerSave) {
-    document.body.classList.remove("chat-freeze");
-  }
-  
-  requestAnimationFrame(() => {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-  console.log("❄️ Thermal Mode DISABLED");
+  if (!userPowerSave) document.body.classList.remove("chat-freeze");
+  requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
 }
+
 setTimeout(() => {
   getFPS(fps => {
     thermalSamples.push(fps);
     if (thermalSamples.length > 10) thermalSamples.shift();
-
     const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
     const now = Date.now();
     if (now - lastThermalSwitch < THERMAL_COOLDOWN) return;
-
-    if (avg < 35) {
-      enableThermalMode();
-      lastThermalSwitch = now;
-    }
-
-    if (avg > 62) {
-      disableThermalMode();
-      lastThermalSwitch = now;
-    }
+    if (avg < 35) { enableThermalMode(); lastThermalSwitch = now; }
+    if (avg > 62) { disableThermalMode(); lastThermalSwitch = now; }
   });
 }, 3000);
-/* ================= SAFE FETCH WITH RETRY ================= */
-async function fetchWithRetry(url, options, retries = 4, delay = 1800) {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const res = await fetch(url, options);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res;
-    } catch (err) {
-      if (i === retries - 1) throw err;
-      // Removed the undefined webTimer reference
-      await new Promise(r => setTimeout(r, delay));
-    }
+
+/* ================= IMAGE & SHARE LOGIC ================= */
+const imageUpload = document.getElementById('imageUpload');
+const uploadBtn = document.getElementById('uploadBtn');
+const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+const imagePreview = document.getElementById('imagePreview');
+const removeImageBtn = document.getElementById('removeImageBtn');
+const shareBtn = document.getElementById("shareBtn");
+
+let selectedImageBase64 = null;
+
+async function shareChat() {
+  const messages = getMemoryForMode(currentMode, 20);
+  const shareText = messages.map(m => `${m.role === 'user' ? '👤' : '🤖'}: ${m.content}`).join('\n\n');
+  if (navigator.share) {
+    try { await navigator.share({ title: `LeoCore - ${currentMode} Mode`, text: shareText, url: window.location.href }); } catch (err) {}
+  } else {
+    navigator.clipboard.writeText(shareText);
+    alert("Chat copied to clipboard!");
   }
+}
+
+shareBtn?.addEventListener("click", shareChat);
+uploadBtn?.addEventListener('click', () => imageUpload.click());
+
+imageUpload?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const compressed = await compressImage(reader.result);
+    selectedImageBase64 = compressed;
+    imagePreview.src = compressed;
+    imagePreviewContainer.classList.remove('hidden');
+    uploadBtn.style.color = "#00ffcc"; 
+    jumpToBottom(chatMessages);
+  };
+  reader.readAsDataURL(file);
+});
+
+function clearImagePreview() {
+  selectedImageBase64 = null;
+  imagePreview.src = "";
+  imagePreviewContainer.classList.add('hidden');
+  imageUpload.value = "";
+  uploadBtn.style.color = ""; 
 }
 
 /* ================= HERO FAKE TYPING ================= */
 function initHeroTyping() {
   const el = document.getElementById("hero-text");
   if (!el) return;
-
-  const phrases = [
-    "Message LeoCore",
-    "Build me a plan",
-    "Help me revise",
-    "I'm ready",
-    "Give me a funny joke",
-    "Let's chat"
-  ];
-
+  const phrases = ["Message LeoCore", "Build me a plan", "Help me revise", "I'm ready", "Give me a funny joke", "Let's chat"];
   let p = 0, c = 0, mode = "type";
-
   (function loop() {
     const t = phrases[p];
-
     if (mode === "type") {
       el.textContent = t.slice(0, ++c);
-      if (c === t.length) {
-        mode = "pause";
-        setTimeout(() => (mode = "delete"), 1200);
-      }
+      if (c === t.length) { mode = "pause"; setTimeout(() => (mode = "delete"), 1200); }
     } else if (mode === "delete") {
       el.textContent = t.slice(0, --c);
-      if (c === 0) {
-        mode = "type";
-        p = (p + 1) % phrases.length;
-      }
+      if (c === 0) { mode = "type"; p = (p + 1) % phrases.length; }
     }
     setTimeout(loop, mode === "delete" ? 40 : 70);
   })();
@@ -214,7 +183,6 @@ function initHeroTyping() {
 
 /* ================= MODES ================= */
 let currentMode = "default";
-
 const MODE_MAP = {
   default: { label: "⚡ Default", desc: "Balanced answers for everyday questions" },
   study: { label: "📘 Study", desc: "Clear explanations with examples" },
@@ -225,7 +193,6 @@ const MODE_MAP = {
   precision: { label: "🎯 Precision", desc: "Short, exact, no fluff answers" },
   roast: { label: "💀 Roast", desc: "Brutally honest, sarcastic, and judgmental" }
 };
-
 const MODE_KEYS = Object.keys(MODE_MAP);
 
 /* ================= DOM REFS ================= */
@@ -234,79 +201,41 @@ const chatCloseBtn = document.getElementById("chatCloseBtn");
 const chatMessages = document.getElementById("chatMessages");
 const webIndicator = document.getElementById("webSearchIndicator");
 const leoThinking = document.getElementById("leoThinking");
-
-function showThinking(){
-  leoThinking.classList.remove("hidden");
-  requestAnimationFrame(()=>leoThinking.classList.add("show"));
-}
-
-function hideThinking(){
-  leoThinking.classList.remove("show");
-  setTimeout(()=>leoThinking.classList.add("hidden"), 180);
-}
-
-function showWebIndicator(){
-  webIndicator.classList.remove("hidden");
-  setTimeout(()=>webIndicator.classList.add("show"),10);
-}
-
-function hideWebIndicator(){
-  webIndicator.classList.remove("show");
-  setTimeout(()=>webIndicator.classList.add("hidden"),180);
-}
 const chatForm     = document.getElementById("chatForm");
 const chatInput    = document.getElementById("chatInput");
 const chatMode     = document.getElementById("chatMode");
 const chatModeDesc = document.getElementById("chatModeDesc");
 const chatClearBtn = document.getElementById("clearChat");
-
 const sendBtn = document.getElementById("sendBtn");
 const stopBtn = document.getElementById("stopBtn");
-chatClearBtn?.addEventListener("click", () => {
-  const ok = confirm("Clear this conversation?");
-  if (!ok) return;
-
-  clearCurrentModeChat();
-});
-
 const intentStrip = document.querySelector(".intent-strip");
+
+function showThinking(){ leoThinking.classList.remove("hidden"); requestAnimationFrame(()=>leoThinking.classList.add("show")); }
+function hideThinking(){ leoThinking.classList.remove("show"); setTimeout(()=>leoThinking.classList.add("hidden"), 180); }
+
+chatClearBtn?.addEventListener("click", () => {
+  if (confirm("Clear this conversation?")) clearCurrentModeChat();
+});
 
 intentStrip?.addEventListener("click", () => {
   setMode("default");
   history.pushState({}, "", "/modes/default");
   openChat();
 });
-window.addEventListener("load", () => {
-  const vid = document.getElementById("bg-video");
-  vid?.play().catch(() => {});
-});
 
 function formatLeoReply(text) {
   if (!text) return "";
-
-  // ESCAPE HTML (Security)
   text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-  // BOLD (Handling unfinished tags)
+  text = text.replace(/^---$/gm, '<hr class="style-hr">');
+  text = text.replace(/^>\s+(.*)$/gm, '<blockquote class="quote-style">$1</blockquote>');
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  
-  // HEADINGS (Only trigger if the line is finished or has a space)
+  text = text.replace(/`([^`]+)`/g, '<code class="code-style">$1</code>');
   text = text.replace(/^###\s+(.*)$/gm, '<div class="h3-style">$1</div>');
   text = text.replace(/^##\s+(.*)$/gm, '<div class="h2-style">$1</div>');
-
-  // LISTS
-  text = text.replace(/^\s*[\-\*]\s+(.*)/gm, '<div class="li-style">• $1</div>');
-  text = text.replace(/^\s*(\d+)\.\s+(.*)/gm, '<div class="li-style">$1. $2</div>');
-
-  // CODE
-  text = text.replace(/`([^`]+)`/g, '<code class="code-style">$1</code>');
-
-  // PARAGRAPHS (The most important for UX)
   let parts = text.split(/\n\n+/).map(p => {
     p = p.trim().replace(/\n/g, "<br>");
-    return `<div style="margin-bottom: 12px; line-height: 1.6;">${p}</div>`;
+    return `<div class="p-container">${p}</div>`;
   });
-
   return parts.join("");
 }
 
@@ -314,414 +243,178 @@ function formatLeoReply(text) {
 const CHAT_STORE_KEY = "leocore_chats_v1";
 
 function loadAllChats() {
-  try {
-    const data = JSON.parse(localStorage.getItem(CHAT_STORE_KEY));
-    return data || {};
-  } catch {
-    return {};
-  }
+  try { return JSON.parse(localStorage.getItem(CHAT_STORE_KEY)) || {}; } catch { return {}; }
 }
 
 function saveCurrentChat() {
   const allChats = loadAllChats();
-
   allChats[currentMode] = {
     messages: [...chatMessages.children]
-      .filter(el =>
-        (el.classList.contains("user") || el.classList.contains("leocore")) &&
-        !el.classList.contains("thinking")
-      )
-      .map(el => ({
-        role: el.classList.contains("user") ? "user" : "leocore",
-        // USE textContent here so we save raw text for the AI memory
-        content: el.textContent 
-      })),
+      .filter(el => (el.classList.contains("user") || el.classList.contains("leocore")) && !el.classList.contains("thinking"))
+      .map(el => {
+        const img = el.querySelector('img');
+        return { role: el.classList.contains("user") ? "user" : "leocore", content: el.textContent, image: img ? img.src : null };
+      }),
     updatedAt: Date.now()
   };
-
-  localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(allChats));
+  try {
+    let serializedData = JSON.stringify(allChats);
+    while (serializedData.length > 4000000) { 
+      let purged = false;
+      for (let mode in allChats) {
+        if (allChats[mode].messages) {
+          for (let msg of allChats[mode].messages) { if (msg.image) { msg.image = null; purged = true; break; } }
+        }
+        if (purged) break;
+      }
+      if (!purged) {
+        const oldestMode = Object.keys(allChats).sort((a, b) => allChats[a].updatedAt - allChats[b].updatedAt)[0];
+        allChats[oldestMode].messages.shift();
+      }
+      serializedData = JSON.stringify(allChats);
+    }
+    localStorage.setItem(CHAT_STORE_KEY, serializedData);
+  } catch (e) {}
 }
 
 function restoreChatForMode(mode) {
   const allChats = loadAllChats();
   const data = allChats[mode];
-
-  // Remove only real chat message bubbles
-[...chatMessages.children].forEach(el => {
-  if (!el.id || el.id !== "emptyState") {
-    el.remove();
-  }
-});
-
-hideEmptyState();
-
-  if (!data || !Array.isArray(data.messages) || data.messages.length === 0) {
-    showEmptyState();
-    return;
-  }
-
-  data.messages.forEach(msg => {
-    renderMessage(msg.content, msg.role);
-  });
-
+  [...chatMessages.children].forEach(el => { if (!el.id || el.id !== "emptyState") el.remove(); });
+  hideEmptyState();
+  if (!data || !Array.isArray(data.messages) || data.messages.length === 0) { showEmptyState(); return; }
+  data.messages.forEach(msg => renderMessage(msg.content, msg.role, msg.image));
   jumpToBottom(chatMessages);
 }
 
 function getMemoryForMode(mode, limit = 8) {
-  const allChats = loadAllChats();
-  const data = allChats[mode];
-
-  if (!data || !Array.isArray(data.messages)) return [];
-
-  return data.messages.slice(-limit);
+  const data = loadAllChats()[mode];
+  return (data && Array.isArray(data.messages)) ? data.messages.slice(-limit) : [];
 }
 
 function clearCurrentModeChat() {
   const allChats = loadAllChats();
-
-  if (allChats[currentMode]) {
-    delete allChats[currentMode];
-    localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(allChats));
-  }
-
-  chatMessages.innerHTML = "";
+  if (allChats[currentMode]) { delete allChats[currentMode]; localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(allChats)); }
+  [...chatMessages.children].forEach(el => { if (el.id !== "emptyState") el.remove(); });
   showEmptyState();
 }
 
-/* ================= MODE INIT ================= */
+function compressImage(base64Str, maxWidth = 1024) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const scale = maxWidth / img.width;
+      canvas.width = scale < 1 ? maxWidth : img.width;
+      canvas.height = scale < 1 ? img.height * scale : img.height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.7));
+    };
+  });
+}
+
+/* ================= MODES & UI ================= */
 function initModes() {
   const path = window.location.pathname.toLowerCase();
-  if (!path.startsWith("/modes/")) {
-    setMode("default");
-  }
+  if (!path.startsWith("/modes/")) setMode("default");
 }
 
 function setMode(key) {
-  if (document.body.classList.contains("chat-open")) {
-    saveCurrentChat();
-    
-  }
-  
+  if (document.body.classList.contains("chat-open")) saveCurrentChat();
   const m = MODE_MAP[key] || MODE_MAP.default;
   currentMode = key;
-document.body.classList.forEach(c => {
-  if (c.startsWith("mode-")) document.body.classList.remove(c);
-});
-setTimeout(() => {
-  document.body.classList.add(`mode-${key}`);
-}, 2);
+  document.body.classList.forEach(c => { if (c.startsWith("mode-")) document.body.classList.remove(c); });
+  setTimeout(() => document.body.classList.add(`mode-${key}`), 2);
   chatMode.textContent = m.label;
   chatModeDesc.textContent = m.desc;
-
   restoreChatForMode(key);
   updateMetaForMode(key);
 }
 
 function updateMetaForMode(mode) {
   const meta = MODE_META[mode] || MODE_META.default;
-
   document.title = meta.title;
-
   let desc = document.querySelector('meta[name="description"]');
-  if (!desc) {
-    desc = document.createElement("meta");
-    desc.name = "description";
-    document.head.appendChild(desc);
-  }
-
+  if (!desc) { desc = document.createElement("meta"); desc.name = "description"; document.head.appendChild(desc); }
   desc.content = meta.desc;
 }
-/* ================= CHAT OPEN / CLOSE ================= */
-let freezeTimeout;
 
 function openChat() {
   chatOverlay.setAttribute("aria-hidden", "false");
   document.body.classList.add("chat-open");
   warmBackend();
-
-  if (!hasRealMessages()) {
-    showEmptyState();
-  }
+  if (!hasRealMessages()) showEmptyState();
   requestAnimationFrame(() => {
-  if (chatMessages.scrollHeight <= chatMessages.clientHeight) {
-    chatMessages.scrollTop = 0;      // Force top if short chat
-  } else {
-    chatMessages.scrollTop = chatMessages.scrollHeight;  // Normal bottom stick
-  }
-});
-
-  clearTimeout(freezeTimeout);
+    chatMessages.scrollTop = (chatMessages.scrollHeight <= chatMessages.clientHeight) ? 0 : chatMessages.scrollHeight;
+  });
 }
 
 function closeChat() {
-  saveCurrentChat(); // <<< ADD THIS
+  saveCurrentChat();
   chatOverlay.setAttribute("aria-hidden", "true");
-
-  clearTimeout(freezeTimeout);
   document.body.classList.remove("chat-open");
-
-  if (!userPowerSave) {
-    document.body.classList.remove("chat-freeze");
-  }
-}
-document.getElementById("lowPowerToggle")?.addEventListener("click", () => {
-  userPowerSave = !userPowerSave;
-  localStorage.setItem("lpMode", userPowerSave ? "1" : "0");
-
-  if (userPowerSave) {
-    document.body.classList.add("chat-freeze");
-    document.getElementById("lpStatus").textContent = "ON";
-  } else {
-    document.body.classList.remove("chat-freeze");
-    document.getElementById("lpStatus").textContent = "OFF";
-  }
-  
-  requestAnimationFrame(() => {
-  chatMessages.scrollTop = chatMessages.scrollHeight;
-});
-});
-
-/* ================= CLICK BINDINGS (MODE CARDS) ================= */
-
-chatCloseBtn.addEventListener("click", () => {
-  history.pushState({}, "", "/");
-  closeChat();
-});
-
-// Bind new mode-card UI
-document.querySelectorAll(".mode-card").forEach(card => {
-  const mode = card.dataset.mode;
-  const startBtn = card.querySelector(".mode-start");
-const toggle = card.querySelector(".mode-toggle");
-
-/* DROPDOWN ONLY ON CHEVRON */
-toggle.addEventListener("click", (e) => {
-  e.stopPropagation();
-
-  document.querySelectorAll(".mode-card").forEach(c => {
-    if (c !== card) c.classList.remove("active");
-  });
-
-  card.classList.toggle("active");
-});
-
-  /* =========================
-     2️⃣ START BUTTON
-  ==========================*/
-  startBtn?.addEventListener("click", (e) => {
-    e.stopPropagation();
-    setMode(mode || "default");
-    history.pushState({}, "", `/modes/${mode}`);
-    openChat();
-  });
-
-  /* =========================
-     3️⃣ CARD BODY = OPEN CHAT
-     (but ignore dropdown clicks)
-  ==========================*/
-  card.addEventListener("click", (e) => {
-    if (e.target.closest(".mode-toggle")) return; // <-- IMPORTANT
-
-    setMode(mode || "default");
-    history.pushState({}, "", `/modes/${mode}`);
-    openChat();
-  });
-});
-
-/* ================= SCROLL HELPERS ================= */
-function isNearBottom(el, threshold = 80) {
-  return el.scrollHeight - el.scrollTop - el.clientHeight < threshold;
+  if (!userPowerSave) document.body.classList.remove("chat-freeze");
 }
 
-function jumpToBottom(el) {
-  el.scrollTop = el.scrollHeight;
-}
-
-function smoothToBottom(el) {
-  el.scrollTo({
-    top: el.scrollHeight,
-    behavior: "smooth"
-  });
-}
-
-let autoScrollCancel = false;
+/* ================= SCROLL & INPUT ================= */
+function isNearBottom(el, threshold = 80) { return el.scrollHeight - el.scrollTop - el.clientHeight < threshold; }
+function jumpToBottom(el) { el.scrollTop = el.scrollHeight; }
 
 function forceScrollToBottom() {
-  autoScrollCancel = false;
-
+  let autoScrollCancel = false;
   const smoothStep = () => {
     if (autoScrollCancel) return;
-
-    chatMessages.scrollTo({
-      top: chatMessages.scrollHeight,
-      behavior: "smooth"
-    });
-
-    // keep nudging just like ChatGPT until we actually reach the bottom
-    if (Math.abs(
-      chatMessages.scrollHeight -
-      (chatMessages.scrollTop + chatMessages.clientHeight)
-    ) > 4) {
+    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: "smooth" });
+    if (Math.abs(chatMessages.scrollHeight - (chatMessages.scrollTop + chatMessages.clientHeight)) > 4) {
       requestAnimationFrame(smoothStep);
     }
   };
-
   smoothStep();
 }
-let isTicking = false;
 
 chatMessages.addEventListener("scroll", () => {
-  if (!isTicking) {
-    window.requestAnimationFrame(() => {
-      const distance = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
-      
-      // If user is more than 30px from bottom, they are definitely looking at history
-      userLockedScroll = (distance < 30);
-      
-      isTicking = false;
-    });
-    isTicking = true;
-  }
+  const distance = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
+  userLockedScroll = (distance < 30);
 }, { passive: true });
-let lastScrollTop = 0;
-
-chatMessages.addEventListener("scroll", () => {
-  const st = chatMessages.scrollTop;
-  const header = document.getElementById("chatHeader");
-  if (!header) return;
-
-  if (st > lastScrollTop + 6) {
-    // scrolling DOWN → hide header
-    header.classList.add("hide");
-  } 
-  else if (st < lastScrollTop - 6) {
-    // scrolling UP → show header
-    header.classList.remove("hide");
-  }
-
-  lastScrollTop = Math.max(st, 0);
-}, { passive: true });
-
-chatMessages.addEventListener("wheel", () => autoScrollCancel = true, { passive:true });
-chatMessages.addEventListener("touchstart", () => autoScrollCancel = true, { passive:true });
 
 /* ================= EMPTY STATE ================= */
 const EMPTY_STATES = {
-  default: [
-    {
-      title: "What are we starting with?",
-      sub: "Say anything — I’ll take it from there."
-    },
-    {
-      title: "Let’s get into it.",
-      sub: "What’s on your mind right now?"
-    }
-  ],
-  study: [
-    {
-      title: "What are we studying today?",
-      sub: "Name the topic — I’ll explain it clearly."
-    }
-  ],
-  research: [
-    {
-      title: "What are we analysing?",
-      sub: "I’ll keep it structured and factual."
-    }
-  ],
-  deep: [
-    {
-      title: "What do you want to think through?",
-      sub: "Take your time. I’ll go deep with you."
-    }
-  ],
-  chill: [
-    {
-      title: "What’s up?",
-      sub: "No pressure — just talk."
-    }
-  ],
-  precision: [
-    {
-      title: "What’s the question?",
-      sub: "Short answers. No fluff."
-    }
-  ],
-  roast: [
-    {
-      title: "Ready to get cooked?",
-      sub: "Ask something stupid. I dare you."
-    },
-    {
-      title: "Oh, you're back.",
-      sub: "Try to be interesting this time, okay?"
-    }
-  ]
+  default: [{ title: "What are we starting with?", sub: "Say anything — I’ll take it from there." }],
+  study: [{ title: "What are we studying today?", sub: "Name the topic — I’ll explain it clearly." }],
+  research: [{ title: "What are we analysing?", sub: "I’ll keep it structured and factual." }],
+  deep: [{ title: "What do you want to think through?", sub: "Take your time. I’ll go deep with you." }],
+  chill: [{ title: "What’s up?", sub: "No pressure — just talk." }],
+  precision: [{ title: "What’s the question?", sub: "Short answers. No fluff." }],
+  roast: [{ title: "Ready to get cooked?", sub: "Ask something stupid. I dare you." }]
 };
+
 const MODE_SUGGESTIONS = {
-  default: [
-    "Help me with something",
-    "Explain something to me",
-    "Give me advice"
-  ],
-  study: [
-    "Explain photosynthesis simply",
-    "Help me revise chemistry",
-    "Give me exam questions",
-    "Teach me a topic"
-  ],
-  research: [
-    "Give me a structured analysis",
-    "Compare two ideas deeply",
-    "Explain pros and cons",
-  ],
-  deep: [
-    "Help me think through a problem",
-    "Explain this in depth",
-  ],
-  chill: [
-    "Talk to me",
-    "Tell me something interesting",
-    "Make me laugh"
-  ],
-  precision: [
-    "Answer this fast",
-    "Give short answers",
-  ],
-  roast: [
-    "Roast my latest life choice",
-    "Tell me why my code is bad",
-    "Give me a reality check",
-    "Judge my music taste"
-  ]
+  default: ["Help me with something", "Explain something to me", "Give me advice"],
+  study: ["Explain photosynthesis simply", "Help me revise chemistry"],
+  roast: ["ROAST ME", "Judge my music taste"]
 };
+
 function showEmptyState() {
   const el = document.getElementById("emptyState");
   if (!el) return;
-
   const pool = EMPTY_STATES[currentMode] || EMPTY_STATES.default;
   const pick = pool[Math.floor(Math.random() * pool.length)];
-
   el.querySelector(".empty-title").textContent = pick.title;
   el.querySelector(".empty-sub").textContent = pick.sub;
-
   const sugContainer = document.getElementById("emptySuggestions");
   sugContainer.innerHTML = "";
-
   const sugList = MODE_SUGGESTIONS[currentMode] || MODE_SUGGESTIONS.default;
-
   sugList.forEach(text => {
     const btn = document.createElement("button");
     btn.textContent = text;
-
     btn.addEventListener("click", () => {
       chatInput.value = text;
       chatForm.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
     });
-
     sugContainer.appendChild(btn);
   });
-
   el.style.display = "grid";
 }
 
@@ -731,288 +424,175 @@ function hideEmptyState() {
 }
 
 function hasRealMessages() {
-  return [...chatMessages.children].some(el =>
-    el.classList.contains("user") ||
-    el.classList.contains("leocore")
-  );
+  return [...chatMessages.children].some(el => el.classList.contains("user") || el.classList.contains("leocore"));
 }
 
-/* ================= MESSAGE HELPERS ================= */
-function addMessage(text, type) {
+/* ================= MESSAGING ================= */
+function addMessage(content, type, isImage = false) {
   hideEmptyState();
-
   const el = document.createElement("div");
   el.className = `chat-message ${type}`;
-  el.textContent = text;
-
+  if (isImage) {
+    const img = document.createElement("img");
+    img.src = content;
+    img.style.maxWidth = "100px";
+    img.style.borderRadius = "12px";
+    el.appendChild(img);
+    el.classList.add("image-bubble");
+  } else { el.textContent = content; }
   chatMessages.appendChild(el);
-
-  if (isNearBottom(chatMessages)) {
-    jumpToBottom(chatMessages);
-  }
+  if (isNearBottom(chatMessages)) jumpToBottom(chatMessages);
 }
 
-function renderMessage(text, role) {
+function renderMessage(text, role, imageData = null) {
   const el = document.createElement("div");
   el.className = `chat-message ${role}`;
-
   if (role === "leocore") {
     el.classList.add("no-bubble");
     el.innerHTML = formatLeoReply(text);
   } else {
-    el.textContent = text;
+    if (imageData) {
+      const img = document.createElement("img");
+      img.src = imageData;
+      img.style.width = "120px"; img.style.borderRadius = "8px"; img.style.display = "block";
+      img.style.marginBottom = text ? "8px" : "0";
+      el.appendChild(img);
+    }
+    if (text) { const txtSpan = document.createElement("span"); txtSpan.textContent = text; el.appendChild(txtSpan); }
   }
-
   chatMessages.appendChild(el);
   return el;
 }
-
 
 function createLeoStreamingBlock() {
   hideEmptyState();
-
   const el = document.createElement("div");
   el.className = "chat-message leocore final-ai streaming no-bubble";
   el.innerHTML = `<div class="reply-text"></div>`;
-
   chatMessages.appendChild(el);
   jumpToBottom(chatMessages);
-
   return el;
 }
 
-
-const MIN_STREAM_TIME = 600; // ms
-let streamStartTime = 0;
-
 function setStreamingState(on){
   isStreaming = on;
-
-  if(on){
-    sendBtn.classList.add("hidden");
-    stopBtn.classList.remove("hidden");
-  }else{
-    stopBtn.classList.add("hidden");
-    sendBtn.classList.remove("hidden");
-  }
+  if(on){ sendBtn.classList.add("hidden"); stopBtn.classList.remove("hidden"); }
+  else{ stopBtn.classList.add("hidden"); sendBtn.classList.remove("hidden"); }
 }
 
 stopBtn.addEventListener("click", () => {
-  // If we aren't doing anything, ignore
-  if (!isStreaming && !isDisplaying) return; 
-
+  if (!isStreaming && !isDisplaying) return;
   stopRequested = true;
   if (controller) controller.abort();
-
-  // Clear everything immediately
-  wordQueue = []; 
-  isStreaming = false;
-  isDisplaying = false;
-  
-  setStreamingState(false); // Switch button back to "Send"
+  wordQueue = []; isStreaming = false; isDisplaying = false;
+  setStreamingState(false);
   saveCurrentChat();
   forceScrollToBottom();
 });
 
-
-
 function createThinkingMessage() {
   hideEmptyState();
-
   const el = document.createElement("div");
   el.className = "chat-message leocore thinking leo-thinking-standalone";
-
-  el.innerHTML = `
-    <div class="leo-thinking-orbit">
-      <div class="leo-core">L</div>
-      <div class="orbit"></div>
-    </div>
-  `;
-
+  el.innerHTML = `<div class="leo-thinking-orbit"><div class="leo-core">L</div><div class="orbit"></div></div>`;
   chatMessages.appendChild(el);
   jumpToBottom(chatMessages);
   return el;
 }
-// ===== STREAM UI STATE =====
-let leoBubble = null;
-let textEl = null;
-let leoBubbleCreated = false;
-/* ================= SEND MESSAGE (LIVE STREAMING) ================= */
+
+/* ================= SENDING LOGIC ================= */
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-  
   const text = chatInput.value.trim();
-  if (!text || isStreaming) return;
   
+    // --- ADD THIS BLOCK BACK IN ---
   if (text === "/leoreset") {
-  localStorage.removeItem(CHAT_STORE_KEY);
-  chatMessages.innerHTML = "";
-  showEmptyState();
-  alert("All chats cleared across modes");
-  chatInput.value = "";
-  return;
-}
-  // Reset state
-  streamBuffer = "";
-  wordQueue = [];
-  stopRequested = false;
-
-  setStreamingState(true);
-  addMessage(text, "user");
-  chatInput.value = "";
-  chatInput.style.height = "auto";
+    localStorage.removeItem(CHAT_STORE_KEY);
+    chatMessages.innerHTML = "";
+    showEmptyState();
+    alert("All chats cleared across modes");
+    chatInput.value = "";
+    return;
+  }
+  // ------------------------------
   
-  // --- FIX START ---
-  // Blur the input or force a scroll anchor immediately to handle keyboard shift
-  setTimeout(() => {
-    jumpToBottom(chatMessages);
-  }, 50); 
+  if ((!text && !selectedImageBase64) || isStreaming) return;
+  
+  streamBuffer = ""; wordQueue = []; stopRequested = false;
+  setStreamingState(true);
+  
+  if (text) addMessage(text, "user");
+  if (selectedImageBase64) addMessage(selectedImageBase64, "user", true);
 
+  chatInput.value = ""; chatInput.style.height = "auto";
   let thinkingEl = createThinkingMessage();
-
-  // --- FIX END ---
-
-  leoBubble = null;
-  textEl = null;
-  leoBubbleCreated = false;
+  let leoBubbleCreated = false;
+  let leoBubble = null;
+  let textEl = null;
 
   const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
-    role: m.role === "leocore" ? "assistant" : "user",
-    content: m.content
+    role: m.role === "leocore" ? "assistant" : "user", content: m.content
   }));
 
   controller = new AbortController();
-  
   try {
     const response = await fetch(`${API_URL}/api/chat`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-leocore-key": "dev-local-key"
-      },
-      body: JSON.stringify({ 
-        message: text, 
-        mode: currentMode, 
-        userId: USER_ID, 
-        memory, 
-        profile: loadProfile() 
-      }),
+      headers: { "Content-Type": "application/json", "x-leocore-key": "dev-local-key" },
+      body: JSON.stringify({ message: text, mode: currentMode, userId: USER_ID, memory, profile: loadProfile(), image: selectedImageBase64 }),
       signal: controller.signal
     });
-
+    clearImagePreview();
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-
     while (true) {
       const { value, done } = await reader.read();
       if (done || stopRequested) break;
-
       const chunk = decoder.decode(value, { stream: true });
-      
-      // Update the raw buffer immediately for the parser
       streamBuffer += chunk;
-      
-      hideThinking();
-
       if (!leoBubbleCreated) {
         leoBubbleCreated = true;
         if (thinkingEl) thinkingEl.remove();
         leoBubble = createLeoStreamingBlock();
         textEl = leoBubble.querySelector(".reply-text");
-        processQueue(); 
+        processQueue(textEl);
       }
-
-      // We just need to signal the queue that data exists
-      wordQueue.push(chunk); 
+      wordQueue.push(chunk);
     }
-
   } catch (err) {
-    if (err.name !== "AbortError") {
-      if (leoBubble) leoBubble.textContent = "CONNECTION LOST... Tap to retry 🙂";
-    }
-    if (thinkingEl) thinkingEl.remove();
+    if (err.name !== "AbortError") { if (thinkingEl) thinkingEl.remove(); addMessage("Error connecting to LeoCore.", "leocore"); }
   } finally {
-    isStreaming = false; 
-    if (!stopRequested) {
-      setTimeout(() => {
-        if (leoBubble) {
-          leoBubble.classList.remove("streaming");
-          leoBubble.classList.add("final-ai");
-        }
-        saveCurrentChat();
-      }, 500); 
-    }
+    isStreaming = false;
+    if (!stopRequested) setTimeout(() => { if (leoBubble) leoBubble.classList.remove("streaming"); saveCurrentChat(); }, 500);
   }
 });
 
-
-
-let displayedBuffer = ""; 
-
-async function processQueue() {
+async function processQueue(textEl) {
   if (isDisplaying) return;
   isDisplaying = true;
-  displayedBuffer = ""; // Reset for new message
-
+  let displayedBuffer = "";
   while (wordQueue.length > 0 || isStreaming) {
     if (stopRequested) break;
-
     if (wordQueue.length > 0) {
-      // Get the next chunk from the stream
-      const chunk = wordQueue.shift();
-      
-      // Split the chunk into individual words and spaces
-      // This ensures that "Hello world" doesn't pop in at once
-      const parts = chunk.split(/(\s+)/);
-
+      const parts = wordQueue.shift().split(/(\s+)/);
       for (let part of parts) {
         if (stopRequested) break;
-
         displayedBuffer += part;
-        
-        if (textEl) {
-          // Update the UI with the formatted text so far
-          textEl.innerHTML = formatLeoReply(displayedBuffer);
-          
-          // Force scroll to keep up with the typing
-          if (userLockedScroll) jumpToBottom(chatMessages);
-        }
-
-        // --- SPEED CONTROL ---
-        // 35ms is a natural "GPT-style" speed. 
-        // 20ms = very fast | 60ms = slow and steady
-        await new Promise(r => setTimeout(r, 15)); 
+        if (textEl) textEl.innerHTML = formatLeoReply(displayedBuffer);
+        if (userLockedScroll) jumpToBottom(chatMessages);
+        await new Promise(r => setTimeout(r, 15));
       }
-    } else {
-      // Short pause if the queue is empty but API is still streaming
-      await new Promise(r => setTimeout(r, 20));
-    }
+    } else { await new Promise(r => setTimeout(r, 20)); }
   }
-
-  isDisplaying = false;
-  setStreamingState(false); 
-  
-  // Final polish: Ensure the raw buffer and displayed text match perfectly
-  if (textEl && !stopRequested) {
-    textEl.innerHTML = formatLeoReply(streamBuffer);
-  }
-  
-  stopRequested = false;
+  isDisplaying = false; setStreamingState(false);
+  if (textEl && !stopRequested) textEl.innerHTML = formatLeoReply(streamBuffer);
 }
 
-
-
-
-
-/* ================= INTENT STRIP ROTATING TEXT ================= */
-
+/* ================= INTENT & MENU (FINAL) ================= */
 function initIntentStrip() {
   const words = document.querySelectorAll(".intent-word");
   if (!words.length) return;
-
-  let index = 0;
-  words[index].classList.add("active");
-
+  let index = 0; words[index].classList.add("active");
   setInterval(() => {
     words[index].classList.remove("active");
     index = (index + 1) % words.length;
@@ -1020,121 +600,53 @@ function initIntentStrip() {
   }, 2200);
 }
 
-initIntentStrip();
 const menuBtn = document.getElementById("menuBtn");
 const menuOverlay = document.getElementById("menuOverlay");
 const menuClose = document.getElementById("menuClose");
 
-menuBtn?.addEventListener("click", () => {
-  menuOverlay.setAttribute("aria-hidden", "false");
-});
-
-menuClose?.addEventListener("click", () => {
-  menuOverlay.setAttribute("aria-hidden", "true");
-});
-
-// ================= URL MODE ROUTER =================
-function initURLMode() {
-  const path = window.location.pathname.toLowerCase();
-
-  if (!path.startsWith("/modes/")) return;
-
-  const mode = path.split("/")[2];
-
-  if (MODE_KEYS.includes(mode)) {
-    setMode(mode);
-    openChat();
-  }
+function updateStorageMeter() {
+  const data = localStorage.getItem(CHAT_STORE_KEY) || "";
+  const used = data.length;
+  const limit = 5000000;
+  const percent = Math.min((used / limit) * 100, 100).toFixed(1);
+  const fill = document.getElementById("storageBarFill");
+  const text = document.getElementById("storagePercent");
+  if (fill && text) { fill.style.width = percent + "%"; text.textContent = percent + "%"; fill.style.background = percent > 80 ? "#ff4d4d" : "#00ffcc"; }
 }
 
-window.addEventListener("DOMContentLoaded", () => {
-  initURLMode();
-});
-document.querySelectorAll(".mode-link").forEach(link => {
-  link.addEventListener("click", (e) => {
-    e.preventDefault();
+menuBtn?.addEventListener("click", () => { menuOverlay.setAttribute("aria-hidden", "false"); updateStorageMeter(); });
+menuClose?.addEventListener("click", () => menuOverlay.setAttribute("aria-hidden", "true"));
 
-    const mode = link.dataset.mode;
-
-    if (mode) {
-      history.pushState({}, "", `/modes/${mode}`);
-      setMode(mode);
-      openChat();
+document.querySelectorAll(".mode-card").forEach(card => {
+  const mode = card.dataset.mode;
+  card.addEventListener("click", (e) => {
+    if (e.target.closest(".mode-toggle")) {
+      document.querySelectorAll(".mode-card").forEach(c => { if (c !== card) c.classList.remove("active"); });
+      card.classList.toggle("active");
+      return;
     }
+    setMode(mode || "default");
+    history.pushState({}, "", `/modes/${mode}`);
+    openChat();
   });
 });
+
+chatCloseBtn.addEventListener("click", () => { history.pushState({}, "", "/"); closeChat(); });
+
 window.addEventListener("popstate", () => {
   const path = window.location.pathname.toLowerCase();
-
-  if (!path.startsWith("/modes/")) {
-    closeChat();
-    return;
-  }
-
+  if (!path.startsWith("/modes/")) { closeChat(); return; }
   const mode = path.split("/")[2];
-
-  if (MODE_KEYS.includes(mode)) {
-    setMode(mode);
-    openChat();
-  }
+  if (MODE_KEYS.includes(mode)) { setMode(mode); openChat(); }
 });
+
 const MODE_META = {
-  default: {
-    title: "LeoCore — Fast Free AI Chat",
-    desc: "LeoCore gives fast, powerful AI chat with multiple modes. Free. No paywalls."
-  },
-  study: {
-    title: "Study Mode | LeoCore — Learn Better, Faster",
-    desc: "LeoCore Study Mode helps you understand topics clearly with explanations, examples, and guidance."
-  },
-  research: {
-    title: "Research Mode | LeoCore — Deep AI Analysis",
-    desc: "Structured, factual research responses with depth and clarity."
-  },
-  deep: {
-    title: "Deep Mode | LeoCore — Think Deeper",
-    desc: "Long thoughtful reasoning, insights and deep thinking support."
-  },
-  chill: {
-    title: "Chill Mode | LeoCore — Casual AI Chat",
-    desc: "Relaxed friendly conversation. Just talk."
-  },
-  precision: {
-    title: "Precision Mode | LeoCore — Short Exact Answers",
-    desc: "No fluff. Just direct, precise answers."
-  },
-  roast: {
-  title: "Roast Mode | LeoCore — Get Cooked by AI",
-  desc: "The AI with zero filter. LeoCore Roast Mode delivers brutal honesty, high-tier sarcasm, and judgmental genius. Enter at your own risk. 💀"
-}
+  default: { title: "LeoCore — Fast Free AI Chat", desc: "LeoCore gives fast, powerful AI chat with multiple modes." },
+  roast: { title: "Roast Mode | LeoCore", desc: "Get cooked by AI." }
 };
 
-
-if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', () => {
-  if (isStreaming || document.querySelector('.leo-thinking-standalone')) {
-    // If the keyboard opens while we are waiting/streaming, snap to bottom
-    requestAnimationFrame(() => {
-      chatMessages.scrollTop = chatMessages.scrollHeight;
-    });
-  }
-});
-}
-
-const chat = document.getElementById("chatMessages");
-
-const stickBottom = () => {
-  chat.scrollTop = chat.scrollHeight;
-};
-
-new MutationObserver(() => {
-  if (document.activeElement === chatInput) {
-    requestAnimationFrame(stickBottom);
-  }
-}).observe(chat, { childList: true });
-
-window.visualViewport?.addEventListener("resize", stickBottom);
-
-warmBackend();
+/* ================= STARTUP ================= */
+initIntentStrip();
 initHeroTyping();
 initModes();
+warmBackend();
