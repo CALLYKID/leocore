@@ -844,6 +844,14 @@ chatForm.addEventListener("submit", async (e) => {
   const text = chatInput.value.trim();
   if (!text || isStreaming) return;
   
+  if (text === "/leoreset") {
+  localStorage.removeItem(CHAT_STORE_KEY);
+  chatMessages.innerHTML = "";
+  showEmptyState();
+  alert("All chats cleared across modes");
+  chatInput.value = "";
+  return;
+}
   // Reset state
   streamBuffer = "";
   wordQueue = [];
