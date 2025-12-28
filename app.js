@@ -820,7 +820,7 @@ function createThinkingMessage() {
   hideEmptyState();
 
   const el = document.createElement("div");
-  el.className = "leo-thinking-standalone";
+  el.className = "chat-message leocore thinking leo-thinking-standalone";
 
   el.innerHTML = `
     <div class="leo-thinking-orbit">
@@ -861,8 +861,7 @@ chatForm.addEventListener("submit", async (e) => {
   }, 50); 
 
   let thinkingEl = createThinkingMessage();
-  // Ensure the thinking bubble is visible even as the keyboard pushes UI
-  thinkingEl.scrollIntoView({ behavior: 'smooth', block: 'end' });
+
   // --- FIX END ---
 
   leoBubble = null;
@@ -1114,7 +1113,19 @@ if (window.visualViewport) {
 });
 }
 
+const chat = document.getElementById("chatMessages");
 
+const stickBottom = () => {
+  chat.scrollTop = chat.scrollHeight;
+};
+
+new MutationObserver(() => {
+  if (document.activeElement === chatInput) {
+    requestAnimationFrame(stickBottom);
+  }
+}).observe(chat, { childList: true });
+
+window.visualViewport?.addEventListener("resize", stickBottom);
 
 warmBackend();
 initHeroTyping();
