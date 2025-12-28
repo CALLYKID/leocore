@@ -1,0 +1,36 @@
+<div id="sharedChat"></div>
+
+<script>
+(async () => {
+  const params = new URLSearchParams(window.location.search);
+  let id = params.get("id");
+
+  // fallback to /share/123 style
+  if (!id) {
+    const parts = window.location.pathname.split("/");
+    id = parts.pop() || parts.pop(); 
+  }
+
+  if (!id) {
+    document.getElementById("sharedChat").innerText = "No share ID provided 😭";
+    return;
+  }
+
+  const res = await fetch(`https://leocore.onrender.com/api/share/${id}`);
+
+  if (!res.ok) {
+    document.getElementById("sharedChat").innerText = "Chat not found 💀";
+    return;
+  }
+
+  const chat = await res.json();
+  const box = document.getElementById("sharedChat");
+
+  chat.forEach(m => {
+    const div = document.createElement("div");
+    div.className = m.role === "user" ? "user" : "leocore";
+    div.textContent = m.content || "";
+    box.appendChild(div);
+  });
+})();
+</script>

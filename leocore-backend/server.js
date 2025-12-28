@@ -47,6 +47,30 @@ app.get("/ping", (req, res) => {
 // AI Chat (POST ONLY)
 app.post("/api/chat", chatHandler);
 
+// ================= SHARE STORE =================
+const sharedChats = new Map();
+
+// Save shared chat
+app.post("/api/share", async (req, res) => {
+  const { id, chat } = req.body;
+  if (!id || !chat) return res.status(400).json({ error: "Invalid" });
+
+  sharedChats.set(id, {
+    chat,
+    created: Date.now()
+  });
+
+  res.json({ success: true });
+});
+
+// Load shared chat
+app.get("/api/share/:id", async (req, res) => {
+  const data = sharedChats.get(req.params.id);
+  if (!data) return res.status(404).json({ error: "Not found" });
+
+  res.json(data.chat);
+});
+
 // Root
 app.get("/", (req, res) => {
   res.send("LeoCore backend is running");

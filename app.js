@@ -126,14 +126,35 @@ const shareBtn = document.getElementById("shareBtn");
 let selectedImageBase64 = null;
 
 async function shareChat() {
-  const messages = getMemoryForMode(currentMode, 20);
-  const shareText = messages.map(m => `${m.role === 'user' ? '👤' : '🤖'}: ${m.content}`).join('\n\n');
-  if (navigator.share) {
-    try { await navigator.share({ title: `LeoCore - ${currentMode} Mode`, text: shareText, url: window.location.href }); } catch (err) {}
-  } else {
-    navigator.clipboard.writeText(shareText);
-    alert("Chat copied to clipboard!");
+  const messages = getMemoryForMode(currentMode, 30);
+  if (!messages || messages.length === 0) {
+    alert("No chat to share.");
+    return;
   }
+
+  const id = crypto.randomUUID();
+
+  await fetch(`${API_URL}/api/share`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id, chat: messages })
+  });
+
+  const link = `https://leocore.vercel.app/share/${id}`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "LeoCore Chat",
+        text: "Check out this LeoCore conversation",
+        url: link
+      });
+      return;
+    } catch {}
+  }
+
+  await navigator.clipboard.writeText(link);
+  alert("Share link copied!");
 }
 
 shareBtn?.addEventListener("click", shareChat);
