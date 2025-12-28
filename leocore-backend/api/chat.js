@@ -297,12 +297,7 @@ const isDev = process.env.NODE_ENV !== "production";
 
 const token = req.headers["x-leocore-key"];
 
-if (!token || token !== SERVER_SECRET) {
-  // allow dev key ONLY when not in production
-  if (!(isDev && token === DEV_KEY)) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-}
+
 
     /* ---------- INPUT PREP ---------- */
     // Use destructuring to keep things clean and avoid redeclaring variables
