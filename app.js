@@ -269,32 +269,60 @@ function loadAllChats() {
 
 function saveCurrentChat() {
   const allChats = loadAllChats();
+
   allChats[currentMode] = {
     messages: [...chatMessages.children]
-      .filter(el => (el.classList.contains("user") || el.classList.contains("leocore")) && !el.classList.contains("thinking"))
+      .filter(el =>
+        (el.classList.contains("user") || el.classList.contains("leocore")) &&
+        !el.classList.contains("thinking")
+      )
       .map(el => {
-        const img = el.querySelector('img');
-        return { role: el.classList.contains("user") ? "user" : "leocore", content: el.textContent, image: img ? img.src : null };
+        const img = el.querySelector("img");
+        const role = el.classList.contains("user") ? "user" : "leocore";
+
+        return {
+          role,
+          content: role === "leocore"
+            ? el.innerHTML   // keep full formatted HTML
+            : el.textContent, // plain text for user
+          image: img ? img.src : null
+        };
       }),
+    
     updatedAt: Date.now()
   };
+
   try {
     let serializedData = JSON.stringify(allChats);
-    while (serializedData.length > 4000000) { 
+
+    while (serializedData.length > 4000000) {
       let purged = false;
+
       for (let mode in allChats) {
         if (allChats[mode].messages) {
-          for (let msg of allChats[mode].messages) { if (msg.image) { msg.image = null; purged = true; break; } }
+          for (let msg of allChats[mode].messages) {
+            if (msg.image) {
+              msg.image = null;
+              purged = true;
+              break;
+            }
+          }
         }
         if (purged) break;
       }
+
       if (!purged) {
-        const oldestMode = Object.keys(allChats).sort((a, b) => allChats[a].updatedAt - allChats[b].updatedAt)[0];
+        const oldestMode = Object.keys(allChats)
+          .sort((a, b) => allChats[a].updatedAt - allChats[b].updatedAt)[0];
+
         allChats[oldestMode].messages.shift();
       }
+
       serializedData = JSON.stringify(allChats);
     }
+
     localStorage.setItem(CHAT_STORE_KEY, serializedData);
+
   } catch (e) {}
 }
 
@@ -469,9 +497,9 @@ function renderMessage(text, role, imageData = null) {
   const el = document.createElement("div");
   el.className = `chat-message ${role}`;
   if (role === "leocore") {
-    el.classList.add("no-bubble");
-    el.innerHTML = formatLeoReply(text);
-  } else {
+  el.classList.add("no-bubble");
+  el.innerHTML = text;   // NO re-formatting
+}else {
     if (imageData) {
       const img = document.createElement("img");
       img.src = imageData;
