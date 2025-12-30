@@ -362,22 +362,31 @@ function compressImage(base64Str, maxWidth = 1024) {
 }
 
 /* ================= MODES & UI ================= */
+/* ================= MODES & UI ================= */
 function initModes() {
   const path = window.location.pathname.toLowerCase();
-  if (!path.startsWith("/modes/")) setMode("default");
+  
+  // 1. If we are NOT on a mode-specific path, just set default and stay on home
+  if (!path.startsWith("/modes/")) {
+    setMode("default");
+    return;
+  }
+
+  // 2. If we ARE on a mode path (e.g., /modes/study)
+  const mode = path.split("/")[2];
+  if (MODE_KEYS.includes(mode)) {
+    setMode(mode);
+    
+    // 3. THE FIX: Open the chat overlay automatically on load
+    // We use a tiny delay to ensure the DOM is ready for the transition
+    requestAnimationFrame(() => {
+        openChat();
+    });
+  } else {
+    setMode("default");
+  }
 }
 
-function setMode(key) {
-  if (document.body.classList.contains("chat-open")) saveCurrentChat();
-  const m = MODE_MAP[key] || MODE_MAP.default;
-  currentMode = key;
-  document.body.classList.forEach(c => { if (c.startsWith("mode-")) document.body.classList.remove(c); });
-  setTimeout(() => document.body.classList.add(`mode-${key}`), 2);
-  chatMode.textContent = m.label;
-  chatModeDesc.textContent = m.desc;
-  restoreChatForMode(key);
-  updateMetaForMode(key);
-}
 
 function updateMetaForMode(mode) {
   const meta = MODE_META[mode] || MODE_META.default;
