@@ -766,6 +766,45 @@ lpBtn?.addEventListener("click", () => {
   }
 });
 
+/* ================= GLOBAL SYSTEM WIPE ================= */
+const globalWipeBtn = document.getElementById("globalWipeBtn");
+
+globalWipeBtn?.addEventListener("click", () => {
+  const modalTitle = clearModal.querySelector("h3");
+  const modalDesc = clearModal.querySelector("p");
+  const modalConfirm = document.getElementById("confirmClear");
+
+  // 1. Change modal to "System Reset" style
+  modalTitle.textContent = "Nuke All Data?";
+  modalDesc.textContent = "This will wipe every chat, your profile, and all settings. It's like you were never here.";
+  modalConfirm.textContent = "CONFIRM WIPE";
+  modalConfirm.classList.add("glow-pulse");
+
+  // 2. Open Modal and close Sidebar
+  clearModal.classList.remove("hidden");
+  menuOverlay.setAttribute("aria-hidden", "true");
+
+  // 3. One-time Global Action
+  modalConfirm.onclick = () => {
+    if (navigator.vibrate) navigator.vibrate([50, 50, 50, 50, 200]);
+    localStorage.clear();
+    location.reload();
+  };
+
+  if (navigator.vibrate) navigator.vibrate(30);
+});
+
+// Reset the modal back to "Chat Clear" mode when cancelled
+cancelBtn?.addEventListener("click", () => {
+  const modalConfirm = document.getElementById("confirmClear");
+  modalConfirm.classList.remove("glow-pulse");
+  modalConfirm.onclick = null; // Let the original chat-clear logic take over
+  
+  // Reset texts back to default
+  clearModal.querySelector("h3").textContent = "Clear Conversation?";
+  clearModal.querySelector("p").textContent = "This will permanently wipe the chat history for this mode.";
+  modalConfirm.textContent = "Wipe Chat";
+});
 
 
 
