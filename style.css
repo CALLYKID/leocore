@@ -1093,6 +1093,10 @@ box-shadow:
   height: 100%;
   width: 78%;
   max-width: 340px;
+  overscroll-behavior: contain; 
+    
+    /* Optional: Makes scrolling smooth on mobile */
+    -webkit-overflow-scrolling: touch; 
 
   padding: 16px 14px;
   padding-top: calc(env(safe-area-inset-top) + 10px);
