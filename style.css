@@ -1085,36 +1085,47 @@ box-shadow:
   opacity: 1;
 }
 
-/* LEFT PANEL */
+/* UPDATED LEFT PANEL STABILITY */
 .menu-panel {
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  width: 78%;
-  max-width: 340px;
-  overscroll-behavior: contain; 
-    
-    /* Optional: Makes scrolling smooth on mobile */
-    -webkit-overflow-scrolling: touch; 
-
+  width: 82%; /* Slightly wider for premium feel */
+  max-width: 320px;
+  
+  /* FIXED: Force GPU Layering to stop the 'rubbish' glitch */
+  transform: translate3d(-105%, 0, 0); 
+  will-change: transform;
+  backface-visibility: hidden;
+  
+  display: flex;
+  flex-direction: column;
   padding: 16px 14px;
-  padding-top: calc(env(safe-area-inset-top) + 10px);
+  padding-top: calc(env(safe-area-inset-top) + 20px);
 
-  background: linear-gradient(
-    180deg,
-    rgba(10,16,28,0.92),
-    rgba(4,8,16,0.96)
-  );
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(2px);
-
-  border-right: 1px solid rgba(255,255,255,0.12);
-  box-shadow: 0 0 40px rgba(0,234,255,0.25);
-
-  transform: translateX(-110%);
-  transition: transform .45s cubic-bezier(.22,.61,.36,1);
+  background: linear-gradient(180deg, #0a101c 0%, #040810 100%);
+  border-right: 1px solid rgba(0, 234, 255, 0.15);
+  box-shadow: 20px 0 50px rgba(0,0,0,0.8);
+  
+  /* FIXED: Stop the jittery scrolling inside the menu */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  z-index: 401;
 }
+
+#menuOverlay[aria-hidden="false"] .menu-panel {
+  transform: translate3d(0, 0, 0);
+}
+
+/* Optimize the links so they don't trigger layout shifts */
+.menu-link {
+  transform: translateZ(0);
+  flex-shrink: 0; /* Keeps them from squishing */
+}
+
 
 #menuOverlay[aria-hidden="false"] .menu-panel {
   transform: translateX(0);
@@ -2250,7 +2261,7 @@ overflow-y: auto;
 .storage-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
+  align-items: flex-end
   margin-bottom: 12px;
 }
 
@@ -2313,7 +2324,173 @@ overflow-y: auto;
   color: white;
   box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
 }
+/* SECTION 26  Container for the dots and menu */
+/* The container */
+.header-actions {
+  position: relative;
+  z-index: 2000;
+}
 
+/* The modern "Meatball" menu button */
+.dots-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dots-btn:active {
+  transform: scale(0.9);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* The Modern Floating Menu */
+.header-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 190px;
+  
+  /* Thick Glassmorphism: High visibility, low transparency */
+  background: rgba(20, 26, 42, 0.92); 
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  
+  /* Brighten the border so the shape is clear against dark chats */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 8px;
+  
+  /* Deep shadow to lift it off the UI */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  
+  transform-origin: top right;
+  transition: 
+    opacity 0.2s ease-out,
+    transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 9999;
+}
+
+/* Ensure dropdown items pop against the darker background */
+.dropdown-item {
+  color: #ffffff; /* Pure white for max contrast */
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* "Hidden" state with a slight shrink-away effect */
+.header-dropdown.hidden {
+  display: flex !important; /* Keep it in DOM for animation */
+  opacity: 0;
+  transform: scale(0.8) translateY(-10px);
+  pointer-events: none;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  color: #efefef;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item.danger {
+  color: #ff5f5f;
+}
+
+.dropdown-item.danger:hover {
+  background: rgba(255, 77, 77, 0.15);
+}
+.dropdown-item.danger {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 4px;
+  padding-top: 12px;
+  color: #ff5f5f;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  transition: opacity 0.3s ease;
+}
+
+.modal-content {
+  background: rgba(20, 26, 42, 0.95);
+  backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 28px;
+  padding: 30px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+  transform: scale(1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Pop-in animation */
+.modal-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.modal-overlay.hidden .modal-content {
+  transform: scale(0.7) translateY(20px);
+}
+
+.modal-icon { font-size: 40px; margin-bottom: 15px; }
+.modal-content h3 { color: #fff; margin-bottom: 10px; font-size: 1.4rem; }
+.modal-content p { color: #aaa; line-height: 1.5; margin-bottom: 25px; }
+
+.modal-actions { display: flex; gap: 12px; }
+
+.modal-btn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.modal-btn:active { transform: scale(0.95); }
+
+.modal-btn.secondary { background: rgba(255,255,255,0.08); color: #fff; }
+.modal-btn.danger { background: #ff4d4d; color: #fff; box-shadow: 0 10px 20px rgba(255, 77, 77, 0.2); }
 
 
 
