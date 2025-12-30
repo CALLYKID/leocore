@@ -234,9 +234,6 @@ const intentStrip = document.querySelector(".intent-strip");
 function showThinking(){ leoThinking.classList.remove("hidden"); requestAnimationFrame(()=>leoThinking.classList.add("show")); }
 function hideThinking(){ leoThinking.classList.remove("show"); setTimeout(()=>leoThinking.classList.add("hidden"), 180); }
 
-chatClearBtn?.addEventListener("click", () => {
-  if (confirm("Clear this conversation?")) clearCurrentModeChat();
-});
 
 intentStrip?.addEventListener("click", () => {
   setMode("default");
@@ -694,8 +691,96 @@ const MODE_META = {
   roast: { title: "Roast Mode | LeoCore", desc: "Get cooked by AI." }
 };
 
+
+/* ================= HEADER DROPDOWN ================= */
+const menuDots = document.getElementById("menuDots");
+const headerDropdown = document.getElementById("headerDropdown");
+
+menuDots?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const isOpening = headerDropdown.classList.contains("hidden");
+  headerDropdown.classList.toggle("hidden");
+  if (isOpening && navigator.vibrate) navigator.vibrate(8);
+});
+
+// Close when clicking outside or scrolling chat
+document.addEventListener("click", (e) => {
+  if (headerDropdown && !headerDropdown.contains(e.target)) {
+    headerDropdown.classList.add("hidden");
+  }
+});
+
+chatMessages?.addEventListener("scroll", () => {
+  headerDropdown?.classList.add("hidden");
+}, { passive: true });
+
+/* ================= CUSTOM CONFIRMATION MODAL ================= */
+const clearModal = document.getElementById("customConfirm");
+const cancelBtn = document.getElementById("cancelClear");
+const confirmBtn = document.getElementById("confirmClear");
+
+// Replacing the old project-style chatClearBtn listener
+// Ensure your dropdown 'Clear' button has the ID 'clearChat'
+document.getElementById("clearChat")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  clearModal.classList.remove("hidden");
+  headerDropdown.classList.add("hidden"); // Close the menu
+  if (navigator.vibrate) navigator.vibrate(15);
+});
+
+cancelBtn?.addEventListener("click", () => {
+  clearModal.classList.add("hidden");
+});
+
+confirmBtn?.addEventListener("click", () => {
+  clearCurrentModeChat(); // Your existing wipe function
+  clearModal.classList.add("hidden");
+  // Optional: Add a haptic double-tap for success
+  if (navigator.vibrate) navigator.vibrate([10, 50, 10]); 
+});
+
+
+
 /* ================= STARTUP ================= */
-initIntentStrip();
-initHeroTyping();
-initModes();
-warmBackend();
+
+
+/* ================= BATTERY MODE TOGGLE FIX ================= */
+// Match the ID "lowPowerToggle" from your HTML
+const lpBtn = document.getElementById("lowPowerToggle"); 
+const lpStatus = document.getElementById("lpStatus");
+
+lpBtn?.addEventListener("click", () => {
+  // 1. Flip the state logic
+  userPowerSave = !userPowerSave;
+  
+  // 2. Update the text in the menu
+  if (lpStatus) lpStatus.textContent = userPowerSave ? "ON" : "OFF";
+  
+  // 3. Apply the visual freeze & save to memory
+  if (userPowerSave) {
+    document.body.classList.add("chat-freeze");
+    localStorage.setItem("lpMode", "1");
+  } else {
+    document.body.classList.remove("chat-freeze");
+    localStorage.setItem("lpMode", "0");
+  }
+});
+
+
+
+
+/* ================= STARTUP ================= */
+function initApp() {
+  initIntentStrip();
+  initHeroTyping();
+  initModes();
+  warmBackend();
+  
+  // Re-sync Battery UI on refresh
+  if (userPowerSave && lpStatus) {
+    lpStatus.textContent = "ON";
+  }
+}
+
+// Run the startup
+initApp();

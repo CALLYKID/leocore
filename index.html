@@ -214,17 +214,31 @@
   <div class="chat-backdrop"></div>
   <div class="chat-panel">
 
-    <div class="chat-header" id="chatHeader">
-      <button class="chat-back-btn" id="chatCloseBtn" aria-label="Close chat">‹</button>
-      <div class="chat-header-center">
-        <div class="chat-mode" id="chatMode">⚡ Default</div>
-        <div class="chat-mode-desc" id="chatModeDesc">Balanced answers for everyday questions</div>
-      </div>
-      <div style="display:flex; gap: 8px;">
-        <button id="shareBtn" class="chat-clear-btn" style="background: rgba(0,255,204,0.1); color: #00ffcc;">Share</button>
-        <button id="clearChat" class="chat-clear-btn" aria-label="Clear conversation">Clear</button>
-      </div>
-    </div>
+<div class="chat-header" id="chatHeader">
+  <button class="chat-back-btn" id="chatCloseBtn">‹</button>
+  <div class="chat-header-center">
+    <div class="chat-mode" id="chatMode">⚡ Default</div>
+    <div class="chat-mode-desc" id="chatModeDesc">Balanced answers...</div>
+  </div>
+  
+<div class="header-actions">
+  <button type="button" id="menuDots" class="dots-btn" aria-label="More options">
+    <span>⋮</span>
+  </button>
+  
+  <div id="headerDropdown" class="header-dropdown hidden">
+    <button type="button" id="shareBtn" class="dropdown-item">
+      <span>📤</span> Share
+    </button>
+    <div style="height: 1px; background: rgba(255,255,255,0.1); margin: 4px 8px;"></div>
+    <button type="button" id="clearChat" class="dropdown-item danger">
+      <span>🗑️</span> Clear Chat
+    </button>
+  </div>
+</div>
+
+</div>
+
 
     <div class="chat-messages" id="chatMessages">
       <div id="webSearchIndicator" class="web-indicator hidden"><span id="webText">Searching the web</span></div>
@@ -309,4 +323,16 @@
 </div>
 
 </body>
+<div id="customConfirm" class="modal-overlay hidden">
+  <div class="modal-content">
+    <div class="modal-icon">⚠️</div>
+    <h3>Clear Conversation?</h3>
+    <p>This will permanently wipe the chat history for this mode. You can't undo this.</p>
+    <div class="modal-actions">
+      <button id="cancelClear" class="modal-btn secondary">Cancel</button>
+      <button id="confirmClear" class="modal-btn danger">Wipe Chat</button>
+    </div>
+  </div>
+</div>
+
 </html>
