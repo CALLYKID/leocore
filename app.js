@@ -362,7 +362,6 @@ function compressImage(base64Str, maxWidth = 1024) {
 }
 
 /* ================= MODES & UI ================= */
-/* ================= MODES & UI ================= */
 function initModes() {
   const path = window.location.pathname.toLowerCase();
   
@@ -378,7 +377,6 @@ function initModes() {
     setMode(mode);
     
     // 3. THE FIX: Open the chat overlay automatically on load
-    // We use a tiny delay to ensure the DOM is ready for the transition
     requestAnimationFrame(() => {
         openChat();
     });
@@ -387,12 +385,38 @@ function initModes() {
   }
 }
 
+// THIS WAS THE MISSING PIECE!
+function setMode(key) {
+  // Save current progress before switching
+  if (document.body.classList.contains("chat-open")) saveCurrentChat();
+  
+  const m = MODE_MAP[key] || MODE_MAP.default;
+  currentMode = key;
+
+  // Update Body Class for CSS styling
+  document.body.classList.forEach(c => { 
+    if (c.startsWith("mode-")) document.body.classList.remove(c); 
+  });
+  setTimeout(() => document.body.classList.add(`mode-${key}`), 2);
+
+  // Update Header UI
+  if (chatMode) chatMode.textContent = m.label;
+  if (chatModeDesc) chatModeDesc.textContent = m.desc;
+
+  // Load chat history for this specific mode
+  restoreChatForMode(key);
+  updateMetaForMode(key);
+}
 
 function updateMetaForMode(mode) {
   const meta = MODE_META[mode] || MODE_META.default;
   document.title = meta.title;
   let desc = document.querySelector('meta[name="description"]');
-  if (!desc) { desc = document.createElement("meta"); desc.name = "description"; document.head.appendChild(desc); }
+  if (!desc) { 
+    desc = document.createElement("meta"); 
+    desc.name = "description"; 
+    document.head.appendChild(desc); 
+  }
   desc.content = meta.desc;
 }
 
@@ -412,6 +436,7 @@ function closeChat() {
   document.body.classList.remove("chat-open");
   if (!userPowerSave) document.body.classList.remove("chat-freeze");
 }
+
 
 /* ================= SCROLL & INPUT ================= */
 function isNearBottom(el, threshold = 80) { return el.scrollHeight - el.scrollTop - el.clientHeight < threshold; }
