@@ -1,277 +1,178 @@
+/**
+ * LEOCORE AI — MISSION CRITICAL HANDLER
+ * Version: 4.1 (Master Build)
+ * Status: Production Stable (Dec 30, 2025)
+ */
+
 import 'dotenv/config';
 import Groq from "groq-sdk";
-import fetch from "node-fetch";
 
-// --- HELPERS (Keep these exactly as you had them) ---
-async function tavilySearch(query) {
-  try {
-    const res = await fetch("https://api.tavily.com/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${process.env.TAVILY_API_KEY}` },
-      body: JSON.stringify({ query, search_depth: "advanced", include_answer: true, max_results: 5 })
-    });
-    return await res.json();
-  } catch (err) { return null; }
+// ============================================================
+// 1. DYNAMIC MODEL CONFIGURATIONS
+// ============================================================
+const MODE_CONFIGS = {
+  default:   { model: "llama-3.1-8b-instant",       temp: 0.6, memLimit: 12 },
+  study:     { model: "llama-3.3-70b-versatile",     temp: 0.3, memLimit: 20 },
+  research:  { model: "llama-3.3-70b-versatile",     temp: 0.2, memLimit: 25 },
+  deep:      { model: "llama-3.3-70b-versatile",     temp: 0.7, memLimit: 30 },
+  chill:     { model: "llama-3.1-8b-instant",       temp: 0.8, memLimit: 15 },
+  precision: { model: "llama-3.3-70b-versatile",     temp: 0.1, memLimit: 10 },
+  roast:     { model: "llama-3.1-8b-instant",       temp: 1.0, memLimit: 12 },
+  // Stable Llama 4 Scout ID for multimodal reasoning
+  vision:    { model: "meta-llama/llama-4-scout-17b-16e-instruct", temp: 0.5, memLimit: 10 }
+};
+
+// ============================================================
+// 2. CORE SYSTEM PROMPTS (THE BRAIN)
+// ============================================================
+const GLOBAL_RULES = `CORE DIRECTIVE: You are LeoCore. 
+1. Tone: Casual Gen Z style. Use slangs occasionally, and be relatable.
+2. Format: Use natural spacing and line breaks.
+3. Character: Act like a supportive, witty partner, not a robot.
+4. Speak in plain text, but do NOT remove standard spaces or emojis.
+5. Do NOT use HTML tags or markup or divs when speaking.
+Output Format: STRICT PLAIN TEXT ONLY. 
+6. PROHIBITED: Never use <div>, <span>, <p>, or any HTML/XML tags.
+7. PROHIBITED: No markdown bold (**) or headers (###). Just plain text.
+`;
+
+const MODE_PROMPTS = {
+  study: "You are a genius tutor. Break down complex topics into simple steps. Be encouraging but firm.",
+  roast: "You are a savage comedian. Use heavy sarcasm and roast the user's questions. Stay witty and sharp.",
+  chill: "You are a relaxed friend. Use very casual slang, stay low-energy, and keep vibes positive.",
+  deep: "You are a philosophical sage. Think deeply about the hidden meaning behind every question.",
+  precision: "You are a high-speed processor. Give short, factual, and extremely accurate answers. No fluff."
+};
+
+
+const VISION_ANCHOR = `IMAGE PROTOCOL ENABLED: 
+Analyze the provided visual data. Refer to it as 'the image' or 'the picture'. 
+If the user asks a general question, use visual context to enhance the answer.`;
+
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// ============================================================
+// 3. UTILITIES & HELPERS
+// ============================================================
+
+function stripFormatting(text = "") {
+  if (typeof text !== 'string') return text;
+  // Only remove bold/headers if you must, but DO NOT trim the edges of every chunk
+  return text.replace(/[*#_`]/g, ""); 
 }
 
-const userRate = new Map();
-const groq = process.env.GROQ_API_KEY ? new Groq({ apiKey: process.env.GROQ_API_KEY }) : null;
 
-async function createGroqStreamWithRetry(payload, retries = 3) {
-  let attempt = 0;
-  while (attempt < retries) {
-    try { return await groq.chat.completions.create(payload); }
-    catch (err) {
-      attempt++;
-      if (err.status !== 429 || attempt >= retries) throw err;
-      const wait = Number(err?.response?.headers?.["retry-after"]) || 5;
-      await new Promise(r => setTimeout(r, wait * 1000));
-    }
+async function distillMemory(history) {
+  try {
+    const response = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: "Summarize this chat in 2 dense sentences. Keep it high-level." },
+        ...history
+      ]
+    });
+  } catch (error) {
+    return null;
   }
 }
 
-// --- CONFIG ---
-const SYSTEM_PROMPTS = {
+// ============================================================
+// 4. MAIN EXPORTED HANDLER
+// ============================================================
 
-  default: `
-You are LeoCore Default Mode.
-PRIMARY GOAL: Be genuinely helpful, human-feeling, reliable, confident, and clear.
-Tone: calm, friendly, reassuring. Not cringe. Not robotic. Not over-excited.
-Depth: Medium depth explanations. Do not overwhelm unless needed.
-Emoji: Allowed but only lightly. Never spam. Keep responses clean.
-Behavior:
-- Always sound composed and emotionally intelligent
-- Avoid massive paragraphs unless needed
-- Prefer structured thought but still conversational
-- Be supportive without sounding fake
-- Never hallucinate confidently
-Structure Pattern:
-1) Brief acknowledgement / connection
-2) Clear helpful explanation
-3) Actionable takeaway or guidance
-4) Optional gentle follow up question when appropriate
-Brand Personality: Smart, stable, trustworthy, slightly witty when appropriate.
-No hashtags. No roleplay formatting. No asterisks.
-`,
-
-  study: `
-You are LeoCore in STUDY MODE.
-Identity: A supportive tutor who explains in a way real students understand without shame.
-Tone: Encouraging, patient, non-judgmental. Never belittle the user.
-Depth: Medium to Deep depending on question difficulty.
-Emoji: Minimal. Only when it helps clarity.
-Rules:
-- Break concepts into understandable pieces
-- Give step-by-step guidance
-- Use simple analogies when useful
-- Summarize clearly at the end
-- Offer optional practice ideas or checks for understanding
-Forbidden:
-- Overly academic jargon
-- Talking like a textbook
-- Making user feel dumb
-Structure:
-1) Check understanding level
-2) Clear explanation
-3) Step-by-step breakdown
-4) Short summary
-5) Optional extra help
-`,
-
-  research: `
-You are LeoCore in RESEARCH MODE.
-Identity: Serious analytical assistant.
-Tone: Professional, factual, logical, objective.
-Depth: Deep analysis when needed. Highly structured. High clarity.
-Emoji: None.
-Behavior:
-- Well organized responses
-- Evidence style tone
-- Balanced reasoning
-- No fluff, no chatty tone
-- Label sections when appropriate
-Structure:
-1) Define the topic/problem
-2) Structured analysis or breakdown
-3) Clear reasoning
-4) Concise conclusion
-Never speculate wildly. If uncertain, say so.
-`,
-
-  reading: `
-You are LeoCore Reading Mode.
-Purpose: Simplify and summarise text clearly.
-Tone: calm, clear, educational.
-Behavior:
-- Summarise without losing meaning
-- Highlight key ideas
-- Make it understandable
-- Avoid unnecessary commentary
-`,
-
-  deep: `
-You are LeoCore in DEEP MODE.
-Identity: A wise, emotionally intelligent mentor.
-Tone: reflective, thoughtful, grounded, and meaningful.
-Depth: Very deep and introspective when appropriate.
-Length: Longer responses allowed but still readable.
-Emoji: Very minimal.
-Behavior:
-- Acknowledge emotions
-- Validate feelings
-- Provide perspective without preaching
-- Offer grounded, realistic guidance
-Structure:
-1) Emotional acknowledgment
-2) Insightful perspective
-3) Meaningful explanation
-4) Gentle closing guidance
-Never dramatic. Never fake empathy. Be genuinely grounded.
-`,
-
-  chill: `
-You are LeoCore in CHILL MODE.
-Identity: Calm, cool supportive friend energy.
-Tone: Relaxed, friendly, smooth.
-Depth: Light to medium.
-Length: Shorter than default but still meaningful.
-Emoji: Allowed, but controlled.
-Behavior:
-- Reduce stress
-- Keep vibe light
-- Be reassuring
-- Mild humor allowed when appropriate
-Purpose: make user feel comfortable and supported.
-`,
-
-  precision: `
-You are LeoCore in PRECISION MODE.
-Identity: Direct, powerful, straight to the point.
-Tone: Professional, efficient, focused.
-Depth: High clarity. Minimal words.
-Length: Short, but correct.
-Emoji: None.
-Rules:
-- No waffle
-- No unnecessary explanation
-- Deliver answer quickly and cleanly
-Structure:
-1) Direct answer
-2) Short clarification if needed
-Done.
-`,
-
-  roast: `
-You are LeoCore ROAST MODE.
-Identity: Playfully savage but never genuinely harmful.
-Tone: witty, sarcastic, confident, FUNNY. But controlled.
-Rules:
-- ROAST THE SITUATION, not identity, race, gender, religion, etc.
-- No emotional harm
-- No bullying
-- If user seems hurt, STOP
-Structure:
-1) Funny playful roast setup
-2) Clever punchline
-3) Lighthearted positive finish so they still feel good
-Purpose: Entertainment, humor, playful teasing without cruelty.
-`
-};
-
-const MODE_MODELS = {
-  deep: "llama-3.3-70b-versatile",
-  research: "llama-3.3-70b-versatile",
-  study: "llama-3.3-70b-versatile",
-  vision: "meta-llama/llama-4-scout-17b-16e-instruct", // Upgraded model
-  default: "llama-3.1-8b-instant"
-};
-
-const ALLOWED_ORIGINS = new Set(["https://leocore.vercel.app", "https://leocore.onrender.com", "http://localhost:3000"]);
-
-function needsBrowsing(text, mode) {
-  const input = text.toLowerCase();
-  if (!['default', 'research', 'deep'].includes(mode)) return false;
-  return /\b(today|now|latest|breaking|news|weather|score|stock|update)\b/.test(input) || input.startsWith("/web ");
-}
-
-// --- MAIN HANDLER ---
 export default async function chatHandler(req, res) {
+  // A. CORS Headers
+  const origin = req.headers.origin;
+  res.setHeader("Access-Control-Allow-Origin", origin || "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.status(204).end();
+
   try {
-    const origin = req.headers.origin;
-    if (origin && ALLOWED_ORIGINS.has(origin)) res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Leocore-Key");
-    if (req.method === "OPTIONS") return res.status(204).end();
+    // B. Extraction
+    const { message, mode, memory = [], image = null } = req.body;
+    const config = MODE_CONFIGS[mode] || MODE_CONFIGS.default;
 
-    const { message, mode = "default", memory = [], profile = {}, userId, image = null } = req.body;
-    if (!message?.trim() && !image) return res.status(400).end();
-
-    // 1. Image Size Safety
-    if (image && image.length > 4000000) {
-       res.setHeader("Content-Type", "text/plain; charset=utf-8");
-       return res.status(413).send("Image is too large. Try a smaller version.");
-    }
-
-    // 2. Web Search logic
-    let webData = null;
-    if (message && message.length > 5 && needsBrowsing(message, mode)) {
-      if (Date.now() - (globalThis.lastBrowse || 0) > 5000) {
-        webData = await tavilySearch(message);
-        globalThis.lastBrowse = Date.now();
+    // C. THE IMAGE HUNTER (Visual Persistence)
+    // We scan history for the most recent image URL if none is provided in the current request
+    const findLastImage = () => {
+      for (let i = memory.length - 1; i >= 0; i--) {
+        const m = memory[i];
+        if (Array.isArray(m.content)) {
+          const imgObj = m.content.find(c => c.type === 'image_url');
+          if (imgObj) return imgObj.image_url.url;
+        }
       }
+      return null;
+    };
+
+    const activeImage = image || findLastImage();
+    const activeModel = activeImage ? MODE_CONFIGS.vision.model : config.model;
+
+    // D. Assemble System Context
+    let summaryText = "";
+    if (memory.length > 25) {
+      const summary = await distillMemory(memory.slice(0, 15));
+      if (summary) summaryText = `[PAST CONTEXT: ${summary}]`;
     }
 
-    // 3. Rate Limiting
-    const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    const history = (userRate.get(userId || clientIp) || []).filter(t => Date.now() - t < 10000);
-    if (history.length >= 3) {
-      res.setHeader("Content-Type", "text/plain; charset=utf-8");
-      return res.status(429).send("Sending too fast! Take a breath.");
+    // Look up the specific personality, or use a blank string if it's the default mode
+const modePersonality = MODE_PROMPTS[mode] || "Act as a relatable and helpful assistant.";
+
+const apiMessages = [
+  { 
+    role: "system", 
+    content: `${GLOBAL_RULES}\nSPECIFIC MODE INSTRUCTIONS: ${modePersonality}\n${summaryText}` 
+  }
+];
+
+
+    if (activeImage) {
+      apiMessages.push({ role: "system", content: VISION_ANCHOR });
     }
-    history.push(Date.now());
-    userRate.set(userId || clientIp, history);
 
-    // 4. Memory & System Prompt
-    const systemPrompt = `${SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.default}\nUser Profile: ${JSON.stringify(profile)}\nRules: No asterisks. Personality active.`;
-    const limit = image ? 3 : (mode === 'precision' ? 4 : 8); // Vision stability fix
-    const safeMemory = memory.filter(m => m.content && (m.role === "user" || m.role === "assistant")).slice(-limit);
+    // E. Add Cleaned History
+    const historySlice = memory.slice(-config.memLimit).map(m => ({
+      role: m.role,
+      content: Array.isArray(m.content) ? m.content : stripFormatting(m.content)
+    }));
+    apiMessages.push(...historySlice);
 
-    const apiMessages = [{ role: "system", content: systemPrompt }, ...safeMemory];
-    if (webData?.answer) apiMessages.push({ role: "system", content: `Web context: ${webData.answer}` });
-
-    // 5. Build Content (Image vs Text)
-    if (image) {
+    // F. Final Turn Injection (Multi-turn Vision)
+    if (activeImage) {
+      // We physically re-send the image so the model "sees" it in the current turn
       apiMessages.push({
         role: "user",
         content: [
-          { type: "text", text: message?.trim() || "Analyze this image." },
-          { type: "image_url", image_url: { url: image } }
+          { type: "image_url", image_url: { url: activeImage } },
+          { type: "text", text: stripFormatting(message) || "Analyze the image." }
         ]
       });
     } else {
-      apiMessages.push({ role: "user", content: message });
+      apiMessages.push({ role: "user", content: stripFormatting(message) });
     }
 
-    const selectedModel = image ? MODE_MODELS.vision : (MODE_MODELS[mode] || MODE_MODELS.default);
-
-    const completion = await createGroqStreamWithRetry({
-      model: selectedModel,
-      temperature: 0.5,
+    // G. Execute Stream
+    const completion = await groq.chat.completions.create({
+      model: activeModel,
+      messages: apiMessages,
+      temperature: config.temp,
       stream: true,
-      messages: apiMessages
+      stop: ["**", "###", "```", "<ul>"] // Hard-stop for markdown/HTML
     });
 
     res.setHeader("Content-Type", "text/plain; charset=utf-8");
     res.setHeader("Transfer-Encoding", "chunked");
 
     for await (const chunk of completion) {
-      const delta = chunk?.choices?.[0]?.delta?.content;
-      if (delta) res.write(delta);
+      const text = chunk.choices[0]?.delta?.content || "";
+      res.write(stripFormatting(text));
     }
     res.end();
+
   } catch (err) {
-    console.error("GROQ_ERROR:", err.message);
-    if (!res.headersSent) res.status(500).json({ error: "Something went wrong" });
-    res.end();
+    console.error("LEOCORE CRITICAL ERROR:", err);
+    if (err.status === 429) return res.status(429).send("Capacity full. Wait 5s.");
+    if (!res.headersSent) res.status(500).send("Internal System Error.");
   }
 }

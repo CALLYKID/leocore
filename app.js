@@ -840,20 +840,45 @@ cancelBtn?.addEventListener("click", () => {
   modalConfirm.textContent = "Wipe Chat";
 });
 
-
-
 /* ================= STARTUP ================= */
-function initApp() {
+async function initApp() {
+  const splash = document.getElementById("splashScreen");
+  const log = document.getElementById("boot-log");
+  const fill = document.getElementById("load-fill");
+  
+  // High-end user messaging
+  const sequence = [
+    { t: "Establishing Neural Link", p: "100%" },
+    { t: "Completed", p: "100%" }
+  ];
+
+  // Run your existing backend/UI logic
   initIntentStrip();
   initHeroTyping();
-  initModes();
+  initModes(); 
   warmBackend();
-  
-  // Re-sync Battery UI on refresh
-  if (userPowerSave && lpStatus) {
-    lpStatus.textContent = "ON";
-  }
+
+  let step = 0;
+  const timer = setInterval(() => {
+    if (step < sequence.length) {
+      log.textContent = sequence[step].t;
+      fill.style.width = sequence[step].p;
+      step++;
+    }
+  }, 400);
+
+  setTimeout(() => {
+    clearInterval(timer);
+    if (splash) {
+      // THE "NATIVE" TRANSITION: Scale up slightly and fade
+      splash.style.transition = "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)";
+      splash.style.opacity = "0";
+      splash.style.transform = "scale(1.05)"; 
+      
+      setTimeout(() => splash.style.display = "none", 800);
+    }
+    if (navigator.vibrate) navigator.vibrate(10); 
+  }, 500); 
 }
 
-// Run the startup
 initApp();

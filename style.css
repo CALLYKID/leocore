@@ -2538,6 +2538,55 @@ overflow-y: auto;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*==========SECTION XX  DESKTOP: Real fix =========== */
 @media (min-width: 900px) {
 
@@ -2549,53 +2598,7 @@ overflow-y: auto;
     border-radius: 0 ;
   }
 
-  /* Chat container expands full width */
-  #chatMessages {
-    width: 100%;
-    flex: 1;  
-    max-width: none ;
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
-    
 
-    margin: 0 ;
-    padding-left: 40px;
-    padding-right: 40px;
-    gap: 24px; 
-
-    display: flex ;
-    flex-direction: column ;
-    align-items: flex-start ;
-    justify-content: flex-start ;
-    
-    transform: translateZ(0); 
-  will-change: scroll-position;
-  overflow-anchor: auto ; 
- /* render off-screen bubbles */
-  padding-top: 92px ;
-  padding-bottom: 40px;
-  isolation: isolate;
-  overflow-y: auto;
-  }
-
-  /* Messages stack normally */
-  .chat-message {
-    width: fit-content;
-    max-width: 80%;
-    text-align: left;
-  }
-
-
-  /* User right */
-  .chat-message.user {
-    align-self: flex-end ;
-  }
-
-  /* Typing bubble must also stay left */
-  .chat-message.leocore.thinking {
-    align-self: flex-start ;
-  }
-}
 @media (min-width: 900px) {
   .modes-wrapper {
     width: 95%;
@@ -2666,4 +2669,63 @@ overflow-y: auto;
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+@media (min-width: 900px) {
+    #chatMessages, 
+  .chat-input-bar {
+    width: 100% !important;
+    max-width: 850px !important; /* The "Sweet Spot" for readability */
+    margin: 0 auto !important;
+  }
+
+  /* 3. Fix the Scroll Container */
+  #chatMessages {
+    flex: 1;
+    padding-top: 100px !important; /* Space for the header */
+    padding-bottom: 40px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  /* 4. Desktop Input Bar "Floating" Style */
+  .chat-input-bar {
+    position: relative;
+    bottom: 30px; /* Lifts it off the edge */
+    background: rgba(15, 22, 36, 0.95) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 24px !important;
+    padding: 15px 20px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+    margin-bottom: 20px !important;
+    z-index: 1000;
+  }
+
+  /* 5. Message Bubble Scaling */
+  .chat-message {
+    font-size: 17px !important;
+    line-height: 1.6 !important;
+  }
+
+  .chat-message.user {
+    align-self: flex-end !important;
+    max-width: 70% !important;
+  }
+
+  .chat-message.leocore {
+    align-self: flex-start !important;
+    max-width: 85% !important;
+  }
+
+  /* 6. Fix Header width on Desktop */
+  .chat-header {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 15px 50px !important;
+  }
+}
 }
