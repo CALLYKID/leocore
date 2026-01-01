@@ -14,12 +14,16 @@
     pointer-events: none;
   }
   
-  :root {
-    --bg-dark: rgba(6, 18, 30, 0.78);
-    --neon-a: #00eaff;
-    --neon-b: #8a3cff;
-    --neon-c: #ff3bd4;
-  }
+:root {
+  /* Change from midnight black to a deep slate */
+  --bg-dark: #121826; 
+  --bg-surface: #1e2536;
+  --neon-a: #00eaff;
+  --neon-b: #8a3cff;
+  --text-strong: #ffffff;
+  --text-soft: #b0b8d1;
+}
+
   
   html,
 body {
@@ -27,14 +31,14 @@ body {
   width: 100%;
   min-height: 100%;
   overflow-x: hidden;
-  background: #000;
   font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  color: #fff;
+  background: var(--bg-dark); /* No longer pure black */
+  color: #eaf1ff;
   color-scheme: dark;
 }
   
   body {
-    text-shadow: 0 0 0.01px rgba(255,255,255,0.01);
+    text-shadow: 0 0 0.01px rgba(255,255,255,0.08);
     overflow-x: hidden;
     overflow-y: auto ;
     overscroll-behavior: none;
@@ -62,24 +66,24 @@ body {
   width: 100vw;
   height: 100vh;
   z-index: 0;
+  background: radial-gradient(circle at top, #1a233a 0%, #0d111a 100%);
+  overflow: hidden;
+}
 
-  background: linear-gradient(
-    135deg,
-    #001f4d,
-    #562b9d,
-    #001f4d
+/* The "Premium" Secret: Organic Mesh Blobs */
+#bgLayer {
+  background: radial-gradient(circle at top, #1a233a 0%, #0d111a 100%);
+}
+
+/* Make the glowing blobs slightly more opaque so they actually add light */
+#bgLayer::before {
+  background: radial-gradient(
+    circle at center,
+    rgba(138, 60, 255, 0.25) 0%, 
+    transparent 70%
   );
-  
-  background-size: 400% 400%;
-  animation: leoCoreFlow 40s ease-in-out infinite;
-  transform: translateZ(0); 
 }
 
-@keyframes neonDrift {
-  0% { filter: hue-rotate(0deg); transform: scale(1); }
-  50% { filter: hue-rotate(45deg); transform: scale(1.03); }
-  100% { filter: hue-rotate(0deg); transform: scale(1); }
-}
 #bgTint {
   position: fixed;
   inset: 0;
@@ -99,15 +103,23 @@ body {
     opacity: 0.6;
   }
   
-  .bg-bloom {
-    position: absolute;
-    inset: -12%;
-    z-index: 2;
-    background: radial-gradient(40% 60% at 25% 30%, rgba(0,234,255,0.09), transparent 60%),
-      radial-gradient(50% 70% at 75% 70%, rgba(138,60,255,0.08), transparent 65%);
-    filter: blur(2px);
-    opacity: 0.85;
-  }
+.bg-bloom {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 50% -10%, 
+    rgba(0, 234, 255, 0.12), 
+    transparent 50%
+  );
+  filter: blur(60px);
+  animation: auroraPulse 8s infinite ease-in-out;
+}
+
+@keyframes auroraPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
   
   .bg-vignette {
     position: absolute;
@@ -119,7 +131,16 @@ body {
       rgba(0,0,0,0.35)
     );
   }
-  
+  /* Add this inside #bg-root in your HTML or via CSS */
+.bg-vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.03; /* Keep it very subtle */
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3BaseFilter id='noiseFilter'%3BfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
 .app-wrapper {
   position: relative;
   z-index: 10;
@@ -257,11 +278,6 @@ body {
   
   .mode-card {
     border-radius: 18px;
-    background: linear-gradient(
-      180deg,
-      rgba(14,22,36,0.85),
-      rgba(8,14,26,0.9)
-    );
     overflow: hidden;
     box-shadow: 0 0 0 1px rgba(255,255,255,0.05),
       0 16px 40px rgba(0,0,0,0.6);
@@ -2503,6 +2519,25 @@ overflow-y: auto;
   70% { box-shadow: 0 0 0 15px rgba(255, 51, 51, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 51, 51, 0); }
 }
+.intent-strip {
+  background: linear-gradient(
+    180deg,
+    rgba(30, 37, 54, 0.05),
+    rgba(20, 26, 42, 0.98)
+  );
+  /* Brighter border for definition */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05), 
+              0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+.mode-card.active {
+  background: #23d42;
+  box-shadow: 0 0 0 1px var(--neon-a), 0 0 20px rgba(0, 234, 255, 0.05);
+}
+.main-title {
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(0, 234, 255, 0.3);
+}
 
 
 
@@ -2611,6 +2646,14 @@ overflow-y: auto;
     max-width: 800px;
     margin-inline: auto;
     will-change: transform;
+      background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%, 
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
   }
 }
 @media (min-width: 900px) {
