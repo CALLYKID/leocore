@@ -107,7 +107,8 @@ export default async function chatHandler(req, res) {
     };
 
     const activeImage = image || findLastImage();
-    const activeModel = activeImage ? MODE_CONFIGS.vision.model : config.model;
+    const activeModel = activeImage ?
+    MODE_CONFIGS.vision.model : config.model;
 
     // D. Assemble System Context
     let summaryText = "";
@@ -131,44 +132,64 @@ const apiMessages = [
       apiMessages.push({ role: "system", content: VISION_ANCHOR });
     }
 
-    // E. Add Cleaned History
-    const historySlice = memory.slice(-config.memLimit).map(m => ({
-      role: m.role,
-      content: Array.isArray(m.content) ? m.content : stripFormatting(m.content)
-    }));
-    apiMessages.push(...historySlice);
+// --- SECTION E: CLEAN HISTORY (Maintains Vision Reference) ---
+const historySlice = memory.slice(-config.memLimit).map(m => {
+  // If the historical message contains an image, we keep that structure
+  // so the model remembers seeing it in the past.
+  if (Array.isArray(m.content)) {
+    return { 
+      role: m.role, 
+      content: m.content.map(part => {
+        if (part.type === 'text') return { ...part, text: stripFormatting(part.text) };
+        return part; // Keep image_url parts as they are
+      })
+    }; 
+  }
+  return { role: m.role, content: stripFormatting(m.content) };
+});
+apiMessages.push(...historySlice);
 
-    // F. Final Turn Injection (Multi-turn Vision)
-    if (activeImage) {
-      // We physically re-send the image so the model "sees" it in the current turn
-      apiMessages.push({
-        role: "user",
-        content: [
-          { type: "image_url", image_url: { url: activeImage } },
-          { type: "text", text: stripFormatting(message) || "Analyze the image." }
-        ]
-      });
-    } else {
-      apiMessages.push({ role: "user", content: stripFormatting(message) });
-    }
+// --- SECTION F: SMART FINAL TURN ---
+const isNewImage = !!image; 
 
-    // G. Execute Stream
-    const completion = await groq.chat.completions.create({
-      model: activeModel,
-      messages: apiMessages,
-      temperature: config.temp,
-      stream: true,
-      stop: ["**", "###", "```", "<ul>"] // Hard-stop for markdown/HTML
-    });
+if (isNewImage) {
+  // Fresh upload: Send the image + text bundle
+  apiMessages.push({
+    role: "user",
+    content: [
+      { type: "image_url", image_url: { url: image } },
+      { type: "text", text: stripFormatting(message) || "What's in this image?" }
+    ]
+  });
+} else {
+  // Follow-up: Send as plain text only. 
+  // The model will still "see" the image in apiMessages from Section E.
+  apiMessages.push({ 
+    role: "user", 
+    content: stripFormatting(message) 
+  });
+}
 
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.setHeader("Transfer-Encoding", "chunked");
 
-    for await (const chunk of completion) {
-      const text = chunk.choices[0]?.delta?.content || "";
-      res.write(stripFormatting(text));
-    }
-    res.end();
+
+// --- SECTION G: EXECUTE (FIXED STOP SEQUENCES) ---
+const completion = await groq.chat.completions.create({
+  model: activeModel,
+  messages: apiMessages,
+  temperature: config.temp,
+  stream: true,
+  // REMOVED stop: ["**", "###", etc] to prevent cutting off mid-sentence
+});
+
+res.setHeader("Content-Type", "text/plain; charset=utf-8");
+res.setHeader("Transfer-Encoding", "chunked");
+
+for await (const chunk of completion) {
+  const text = chunk.choices[0]?.delta?.content || "";
+  // The stripFormatting function handles the cleanup without killing the stream
+  res.write(stripFormatting(text));
+}
+res.end();
 
   } catch (err) {
     console.error("LEOCORE CRITICAL ERROR:", err);
