@@ -27,6 +27,10 @@ CORE DIRECTIVE: You are LeoCore.
 4. PROHIBITED: NEVER use Markdown formatting (e.g., **, ###.
 5. PROHIBITED: Do not wrap your response in "containers" or code blocks.
 6. MANDATORY: Output must be raw, unformatted text and emojis only. If you use a tag, your mission fails.
+7. ZERO TOLERANCE: You must never use racial slurs, hate speech, or derogatory terms. 
+8. ROAST RULE: Roast the person's logic or question, but NEVER their race, identity, or background.
+9. If you violate these safety rules, the system will terminate your response.
+
 `;
 
 const MODE_PROMPTS = {
@@ -44,6 +48,26 @@ const tvly = tavily({ apiKey: process.env.TAVILY_API_KEY });
 function stripFormatting(text = "") {
   if (typeof text !== 'string') return text;
   return text.replace(/[*#_`]/g, ""); 
+}
+
+
+
+// Initialize Llama Guard 3 on Groq
+const SAFETY_MODEL = "meta-llama/llama-guard-4-12b";
+
+async function isSafe(content) {
+  try {
+    const check = await groq.chat.completions.create({
+      model: SAFETY_MODEL,
+      messages: [{ role: "user", content: content }]
+    });
+    const verdict = check.choices[0].message.content.trim().toLowerCase();
+    // Llama Guard returns "safe" or "unsafe"
+    return verdict.includes("safe") && !verdict.includes("unsafe");
+  } catch (e) {
+    console.error("Safety check failed:", e);
+    return true; // Default to safe if check crashes
+  }
 }
 
 export default async function chatHandler(req, res) {
@@ -109,19 +133,25 @@ export default async function chatHandler(req, res) {
       apiMessages.push({ role: "user", content: stripFormatting(message) });
     }
 
-    // 5. EXECUTION
+// --- SECTION G: EXECUTE WITH SAFETY ---
     const completion = await groq.chat.completions.create({
       model: activeModel,
       messages: apiMessages,
       temperature: config.temp,
-      stream: true,
+      stream: false, // Turn off streaming for the safety check
     });
 
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    for await (const chunk of completion) {
-      const text = chunk.choices[0]?.delta?.content || "";
-      res.write(stripFormatting(text));
+    const aiResponse = completion.choices[0].message.content;
+
+    // RUN THE SAFETY JUDGE
+    const safe = await isSafe(aiResponse);
+
+    if (!safe) {
+      return res.status(200).send("yo, i was gonna say something but it was a bit too much. let's keep the vibes clean.");
     }
+
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    res.write(stripFormatting(aiResponse));
     res.end();
 
   } catch (err) {
