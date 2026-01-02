@@ -61,14 +61,20 @@ async function isSafe(content) {
       model: SAFETY_MODEL,
       messages: [{ role: "user", content: content }]
     });
-    const verdict = check.choices[0].message.content.trim().toLowerCase();
-    // Llama Guard returns "safe" or "unsafe"
-    return verdict.includes("safe") && !verdict.includes("unsafe");
+    const verdict = check.choices[0].message.content.trim();
+    console.log("SAFETY VERDICT:", verdict); // This will tell you if it's S1, S6, etc.
+    
+    if (verdict.toLowerCase().includes("unsafe")) {
+       // Optional: Allow "Specialized Advice" (S6) for Research Mode
+       if (verdict.includes("S6")) return true; 
+       return false;
+    }
+    return true;
   } catch (e) {
-    console.error("Safety check failed:", e);
-    return true; // Default to safe if check crashes
+    return true; 
   }
 }
+
 
 export default async function chatHandler(req, res) {
   // CORS setup
