@@ -39,7 +39,9 @@ const MODE_PROMPTS = {
   roast: "You are a savage comedian. Use heavy sarcasm.",
   chill: "You are a relaxed friend. Use very casual slang.",
   deep: "You are a philosophical sage.",
-  precision: "You are a high-speed processor. Short, factual answers."
+  precision: "You are a high-speed processor. Short, factual answers.",
+  vision: "You are a visual analyst. Describe the provided image accurately and relate it to the user's question."
+
 };
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -62,10 +64,10 @@ async function isSafe(content) {
       messages: [{ role: "user", content: content }]
     });
     const verdict = check.choices[0].message.content.trim();
-    console.log("SAFETY VERDICT:", verdict); // This will tell you if it's S1, S6, etc.
     
+    // Allow S1 (Ordinary) and potentially S6 (News/Advice)
     if (verdict.toLowerCase().includes("unsafe")) {
-       // Optional: Allow "Specialized Advice" (S6) for Research Mode
+       // If the verdict contains S6, it's usually just news/facts, so let it pass
        if (verdict.includes("S6")) return true; 
        return false;
     }
@@ -76,7 +78,14 @@ async function isSafe(content) {
 }
 
 
+
 export default async function chatHandler(req, res) {
+  
+  if (!process.env.TAVILY_API_KEY || !process.env.GROQ_API_KEY) {
+  console.error("MISSING API KEYS IN PRODUCTION");
+  return res.status(500).json({ error: "Server configuration error: Missing API Keys." });
+}
+
   // CORS & Headers setup
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -91,22 +100,39 @@ export default async function chatHandler(req, res) {
     let searchContext = "";
     let sources = []; // Defined outside to avoid ReferenceError
 
-    if (mode === 'research' || mode === 'study') {
-      try {
-        const searchRes = await tvly.search(message, { searchDepth: "advanced", maxResults: 5 });
-        
-        // Context for AI "Brain"
-        searchContext = "\n[LATEST NEWS/WEB DATA]: " + 
-          searchRes.results.map(r => `${r.title}: ${r.content}`).join("\n");
+    /* ================= REFINED SEARCH LOGIC ================= */
 
-        // Clean Sources for Frontend UI
-        sources = searchRes.results.map(r => ({
-          title: r.title,
-          url: r.url,
-          favicon: `https://www.google.com/s2/favicons?domain=${new URL(r.url).hostname}`
-        }));
-      } catch (e) { console.error("Tavily Error:", e); }
+if (mode === 'research' || mode === 'study') {
+  try {
+    // 1. INTENT CHECK: Ask the smaller model if a search is actually needed
+    const intentCheck = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: "You are an assistant that decides if a user's message requires a web search. If the message is a greeting, a simple reaction (like 'wow', 'ok', 'lol'), or a follow-up that doesn't need new facts, reply 'NO'. If it is a question or a topic requiring real-time info, reply 'YES'. Reply only with one word." },
+        { role: "user", content: message }
+      ]
+    });
+
+    const needsSearch = intentCheck.choices[0].message.content.toUpperCase().includes("YES");
+
+    // 2. ONLY SEARCH IF INTENT IS 'YES'
+    if (needsSearch) {
+      const searchRes = await tvly.search(message, { searchDepth: "advanced", maxResults: 5 });
+      
+      searchContext = "\n[LATEST NEWS/WEB DATA]: " + 
+        searchRes.results.map(r => `${r.title}: ${r.content}`).join("\n");
+
+      sources = searchRes.results.map(r => ({
+        title: r.title,
+        url: r.url,
+        favicon: `https://www.google.com/s2/favicons?domain=${new URL(r.url).hostname}`
+      }));
     }
+  } catch (e) { 
+    console.error("Search/Intent Error:", e); 
+  }
+}
+
 
     // 2. VISION & MODEL SELECTION
     const findLastImage = () => {
@@ -158,9 +184,12 @@ export default async function chatHandler(req, res) {
     let aiResponse = completion.choices[0].message.content;
     const safe = await isSafe(aiResponse);
 
+    if (mode !== 'research' && mode !== 'study') {
+    const safe = await isSafe(aiResponse);
     if (!safe) {
-      aiResponse = "yo, i was gonna say something but it was a bit too much. let's keep the vibes clean.";
+        aiResponse = "yo, i was gonna say something but it was a bit too much. let's keep the vibes clean.";
     }
+}
 
     // 5. PRO DISPATCH (JSON Response for Live Sync)
     // Sending as JSON allows the frontend to grab the 'sources' array 

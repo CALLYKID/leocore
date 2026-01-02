@@ -580,65 +580,61 @@ function createThinkingMessage() {
   return el;
 }
 
-/* ================= SENDING LOGIC ================= */
+/* ================= REFINED SENDING LOGIC ================= */
 chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = chatInput.value.trim();
   
-    // --- ADD THIS BLOCK BACK IN ---
+  // Custom Command: Reset
   if (text === "/leoreset") {
     localStorage.removeItem(CHAT_STORE_KEY);
     chatMessages.innerHTML = "";
     showEmptyState();
-    alert("All chats cleared across modes");
+    alert("All chats cleared");
     chatInput.value = "";
     return;
   }
-  // ------------------------------
   
   if ((!text && !selectedImageBase64) || isStreaming) return;
   
-  streamBuffer = ""; wordQueue = []; stopRequested = false;
+  // Reset streaming states
+  streamBuffer = ""; 
+  wordQueue = []; 
+  stopRequested = false;
   setStreamingState(true);
   
+  // UI: Add User Message
   if (text) addMessage(text, "user");
   if (selectedImageBase64) addMessage(selectedImageBase64, "user", true);
 
-  chatInput.value = ""; chatInput.style.height = "auto";
+  chatInput.value = ""; 
+  chatInput.style.height = "auto";
+  
   let thinkingEl = createThinkingMessage();
-  let leoBubbleCreated = false;
-  let leoBubble = null;
-  let textEl = null;
 
-  const memory = getMemoryForMode(currentMode, MEMORY_LIMIT).map(m => ({
-    role: m.role === "leocore" ? "assistant" : "user", content: m.content
-  }));
-
-  controller = new AbortController();
   try {
     const response = await fetch(`${API_URL}/api/chat`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-leocore-key": "dev-local-key" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
         message: text, 
         mode: currentMode, 
         userId: USER_ID, 
-        memory, 
+        memory: getMemoryForMode(currentMode, MEMORY_LIMIT), 
         profile: loadProfile(), 
         image: selectedImageBase64 
-      }),
-      signal: controller.signal
+      })
     });
 
-    // --- NEW PRO LOGIC START ---
-    const data = await response.json(); // Wait for the full JSON response
+    const data = await response.json(); // Wait for full JSON payload
+    if (thinkingEl) thinkingEl.remove();
     clearImagePreview();
 
-    if (thinkingEl) thinkingEl.remove();
-
-    // 1. Render Sources First (If they exist)
+    // 1. Render Sources First (If in Research/Study mode)
     if (data.sources && data.sources.length > 0) {
-      const sourcesHTML = `
+      const sourceEl = document.createElement("div");
+      sourceEl.className = "chat-message leocore no-bubble";
+      sourceEl.innerHTML = `
         <div class="sources-container">
           ${data.sources.map(s => `
             <a href="${s.url}" target="_blank" class="source-card">
@@ -649,30 +645,28 @@ chatForm.addEventListener("submit", async (e) => {
               </div>
             </a>
           `).join('')}
-        </div>
-      `;
-      const sourceEl = document.createElement("div");
-      sourceEl.className = "chat-message leocore no-bubble";
-      sourceEl.innerHTML = sourcesHTML;
+        </div>`;
       chatMessages.appendChild(sourceEl);
     }
 
-    // 2. Now start the text response
-    leoBubble = createLeoStreamingBlock();
-    textEl = leoBubble.querySelector(".reply-text");
+    // 2. Setup Typewriter for the AI Text
+    const leoBubble = createLeoStreamingBlock();
+    const textEl = leoBubble.querySelector(".reply-text");
     
-    // Instead of streaming chunks from a reader, we process the text from the JSON
+    // Feed the wordQueue to maintain the "live" typing feel
+    streamBuffer = data.text; 
     wordQueue.push(data.text); 
     processQueue(textEl);
     
-    
   } catch (err) {
-    if (err.name !== "AbortError") { if (thinkingEl) thinkingEl.remove(); addMessage("Error connecting to LeoCore.", "leocore"); }
+    if (thinkingEl) thinkingEl.remove();
+    addMessage("Connection lost. Please try again.", "leocore");
+    setStreamingState(false);
   } finally {
     isStreaming = false;
-    if (!stopRequested) setTimeout(() => { if (leoBubble) leoBubble.classList.remove("streaming"); saveCurrentChat(); }, 500);
   }
 });
+
 
 async function processQueue(textEl) {
   if (isDisplaying) return;
