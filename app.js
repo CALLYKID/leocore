@@ -619,26 +619,53 @@ chatForm.addEventListener("submit", async (e) => {
     const response = await fetch(`${API_URL}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-leocore-key": "dev-local-key" },
-      body: JSON.stringify({ message: text, mode: currentMode, userId: USER_ID, memory, profile: loadProfile(), image: selectedImageBase64 }),
+      body: JSON.stringify({ 
+        message: text, 
+        mode: currentMode, 
+        userId: USER_ID, 
+        memory, 
+        profile: loadProfile(), 
+        image: selectedImageBase64 
+      }),
       signal: controller.signal
     });
+
+    // --- NEW PRO LOGIC START ---
+    const data = await response.json(); // Wait for the full JSON response
     clearImagePreview();
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done || stopRequested) break;
-      const chunk = decoder.decode(value, { stream: true });
-      streamBuffer += chunk;
-      if (!leoBubbleCreated) {
-        leoBubbleCreated = true;
-        if (thinkingEl) thinkingEl.remove();
-        leoBubble = createLeoStreamingBlock();
-        textEl = leoBubble.querySelector(".reply-text");
-        processQueue(textEl);
-      }
-      wordQueue.push(chunk);
+
+    if (thinkingEl) thinkingEl.remove();
+
+    // 1. Render Sources First (If they exist)
+    if (data.sources && data.sources.length > 0) {
+      const sourcesHTML = `
+        <div class="sources-container">
+          ${data.sources.map(s => `
+            <a href="${s.url}" target="_blank" class="source-card">
+              <div class="source-title">${s.title}</div>
+              <div class="source-meta">
+                <img src="${s.favicon}" class="source-icon">
+                <span>${new URL(s.url).hostname.replace('www.', '')}</span>
+              </div>
+            </a>
+          `).join('')}
+        </div>
+      `;
+      const sourceEl = document.createElement("div");
+      sourceEl.className = "chat-message leocore no-bubble";
+      sourceEl.innerHTML = sourcesHTML;
+      chatMessages.appendChild(sourceEl);
     }
+
+    // 2. Now start the text response
+    leoBubble = createLeoStreamingBlock();
+    textEl = leoBubble.querySelector(".reply-text");
+    
+    // Instead of streaming chunks from a reader, we process the text from the JSON
+    wordQueue.push(data.text); 
+    processQueue(textEl);
+    
+    
   } catch (err) {
     if (err.name !== "AbortError") { if (thinkingEl) thinkingEl.remove(); addMessage("Error connecting to LeoCore.", "leocore"); }
   } finally {

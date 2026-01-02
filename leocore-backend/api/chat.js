@@ -77,7 +77,7 @@ async function isSafe(content) {
 
 
 export default async function chatHandler(req, res) {
-  // CORS setup
+  // CORS & Headers setup
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -87,17 +87,28 @@ export default async function chatHandler(req, res) {
     const { message, mode, memory = [], image = null } = req.body;
     const config = MODE_CONFIGS[mode] || MODE_CONFIGS.default;
 
-    // 1. TAVILY SEARCH (Research/Study Mode)
+    // 1. TAVILY SEARCH (Unified & Scoped)
     let searchContext = "";
+    let sources = []; // Defined outside to avoid ReferenceError
+
     if (mode === 'research' || mode === 'study') {
       try {
         const searchRes = await tvly.search(message, { searchDepth: "advanced", maxResults: 5 });
+        
+        // Context for AI "Brain"
         searchContext = "\n[LATEST NEWS/WEB DATA]: " + 
           searchRes.results.map(r => `${r.title}: ${r.content}`).join("\n");
+
+        // Clean Sources for Frontend UI
+        sources = searchRes.results.map(r => ({
+          title: r.title,
+          url: r.url,
+          favicon: `https://www.google.com/s2/favicons?domain=${new URL(r.url).hostname}`
+        }));
       } catch (e) { console.error("Tavily Error:", e); }
     }
 
-    // 2. VISION CHECK
+    // 2. VISION & MODEL SELECTION
     const findLastImage = () => {
       for (let i = memory.length - 1; i >= 0; i--) {
         const m = memory[i];
@@ -111,22 +122,19 @@ export default async function chatHandler(req, res) {
     const activeImage = image || findLastImage();
     const activeModel = activeImage ? MODE_CONFIGS.vision.model : config.model;
 
-    // 3. SYSTEM PROMPT ASSEMBLY
+    // 3. SYSTEM PROMPT & HISTORY
     const modePersonality = MODE_PROMPTS[mode] || "Act as a helpful assistant.";
     const apiMessages = [
-      { 
-        role: "system", 
-        content: `${GLOBAL_RULES}\nMODE: ${modePersonality}\n${searchContext}` 
-      }
+      { role: "system", content: `${GLOBAL_RULES}\nMODE: ${modePersonality}\n${searchContext}` }
     ];
 
-    // 4. HISTORY & FINAL TURN
     const historySlice = memory.slice(-config.memLimit).map(m => ({
-      role: m.role,
+      role: m.role === "leocore" ? "assistant" : "user",
       content: Array.isArray(m.content) ? m.content : stripFormatting(m.content)
     }));
     apiMessages.push(...historySlice);
 
+    // Final User Turn
     if (image) {
       apiMessages.push({
         role: "user",
@@ -139,29 +147,31 @@ export default async function chatHandler(req, res) {
       apiMessages.push({ role: "user", content: stripFormatting(message) });
     }
 
-// --- SECTION G: EXECUTE WITH SAFETY ---
+    // 4. EXECUTION WITH SAFETY JUDGE
     const completion = await groq.chat.completions.create({
       model: activeModel,
       messages: apiMessages,
       temperature: config.temp,
-      stream: false, // Turn off streaming for the safety check
+      stream: false, 
     });
 
-    const aiResponse = completion.choices[0].message.content;
-
-    // RUN THE SAFETY JUDGE
+    let aiResponse = completion.choices[0].message.content;
     const safe = await isSafe(aiResponse);
 
     if (!safe) {
-      return res.status(200).send("yo, i was gonna say something but it was a bit too much. let's keep the vibes clean.");
+      aiResponse = "yo, i was gonna say something but it was a bit too much. let's keep the vibes clean.";
     }
 
-    res.setHeader("Content-Type", "text/plain; charset=utf-8");
-    res.write(stripFormatting(aiResponse));
-    res.end();
+    // 5. PRO DISPATCH (JSON Response for Live Sync)
+    // Sending as JSON allows the frontend to grab the 'sources' array 
+    // and render the carousel before starting the text animation.
+    return res.status(200).json({
+      text: stripFormatting(aiResponse),
+      sources: sources
+    });
 
   } catch (err) {
     console.error("CRITICAL ERROR:", err);
-    res.status(500).send("System Error.");
+    res.status(500).json({ error: "System Error." });
   }
 }

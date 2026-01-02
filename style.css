@@ -2538,6 +2538,52 @@ overflow-y: auto;
   color: #ffffff;
   text-shadow: 0 0 20px rgba(0, 234, 255, 0.3);
 }
+/*=======Resource desing for researching=========*/
+.sources-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 8px 0;
+  margin-bottom: 12px;
+  scrollbar-width: none; /* Hide scrollbar for clean look */
+}
+
+.source-card {
+  flex: 0 0 auto;
+  width: 140px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  transition: transform 0.2s ease;
+  text-decoration: none;
+}
+
+.source-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.source-title {
+  font-size: 11px;
+  color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.3;
+}
+
+.source-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.source-icon { width: 14px; height: 14px; border-radius: 3px; }
 
 
 
