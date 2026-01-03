@@ -6,147 +6,149 @@
 <title>LeoCore Shared Chat</title>
 
 <style>
-
-/* ===== GLOBAL ===== */
-:root{
-  --neon-a:#00ffe7;
-  --neon-b:#48a6ff;
-  --neon-c:#ff44f6;
+/* ===== GLOBAL & THEME ===== */
+:root {
+  --neon: #00ffcc;
+  --bg: #050a14;
+  --glass: rgba(255, 255, 255, 0.03);
+  --border: rgba(255, 255, 255, 0.08);
 }
 
-body{
-  margin:0;
-  background:#020b16;
-  color:white;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+body {
+  margin: 0;
+  background: var(--bg);
+  color: #e0e0e0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
 }
 
-/* ===== HEADER BAR ===== */
-.header{
-  width:100%;
-  background:linear-gradient(135deg, rgba(0,255,200,0.15), rgba(0,150,255,0.15));
-  border-bottom:1px solid rgba(0,255,200,0.4);
-  padding:18px;
-  text-align:center;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  position:sticky;
-  top:0;
-  z-index:20;
+/* ===== ANIMATED BACKGROUND ===== */
+.bg-glow {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at 50% -20%, rgba(0, 255, 204, 0.15), transparent 50%);
+  z-index: -1;
 }
 
-.header h1{
-  margin:0;
-  font-size:20px;
-  letter-spacing:.5px;
+/* ===== HEADER ===== */
+.header {
+  padding: 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0; z-index: 100;
 }
 
-/* ===== CARD WRAPPER ===== */
-.wrapper{
-  max-width:900px;
-  margin:20px auto;
-  padding:12px;
+.header h1 {
+  margin: 0; font-size: 18px; font-weight: 700;
+  letter-spacing: 1px; color: var(--neon);
+  text-transform: uppercase;
 }
 
-/* ===== CHAT INFO PANEL ===== */
-.infoCard{
-  background:linear-gradient(140deg, rgba(0,180,255,0.15), rgba(0,255,140,0.14));
-  border:1px solid rgba(0,255,200,0.5);
-  border-radius:18px;
-  padding:18px;
-  margin-bottom:14px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+/* ===== WRAPPER ===== */
+.wrapper {
+  max-width: 650px;
+  margin: 0 auto;
+  padding: 20px 16px;
 }
 
-.meta{
-  display:flex;
-  justify-content:space-between;
-  font-size:13px;
-  opacity:.8;
+/* ===== INFO CARD ===== */
+.infoCard {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 24px;
 }
 
-/* ===== CHAT ===== */
-.chat{
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-  padding-bottom:40px;
+.meta {
+  display: flex; gap: 12px;
+  font-size: 12px; color: #888;
+  margin-top: 8px;
 }
 
-/* ===== MESSAGE BUBBLES ===== */
-.msg{
-  padding:14px 16px;
-  border-radius:18px;
-  max-width:90%;
-  animation:pop .25s ease;
-  display:flex;
-  gap:10px;
-  line-height:1.45rem;
-  word-wrap:break-word;
-  white-space:pre-wrap;
+/* ===== MESSAGES ===== */
+.chat { display: flex; flex-direction: column; gap: 20px; }
+
+.msg {
+  display: flex; gap: 12px;
+  animation: fadeInUp 0.4s ease forwards;
 }
 
-/* USER BUBBLE */
-.user{
-  background:#0b1220;
-  border:1px solid #2c3b50;
-  align-self:flex-start;
-  box-shadow:0 0 12px rgba(0,0,0,0.6);
+.msg.user { flex-direction: row; }
+.msg.leocore { flex-direction: row; }
+
+/* AVATARS */
+.avatar {
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 12px; flex-shrink: 0;
 }
 
-/* AI BUBBLE */
-.leocore{
-  align-self:flex-end;
-  background:linear-gradient(140deg, rgba(0,255,200,0.12), rgba(0,160,255,0.14));
-  border:1px solid rgba(0,255,200,0.55);
-  box-shadow:0 0 15px rgba(0,255,180,0.25);
+.u-avatar { background: #1a2333; border: 1px solid #303b50; color: #648aff; }
+.ai-avatar { background: rgba(0, 255, 204, 0.1); border: 1px solid var(--neon); color: var(--neon); }
+
+/* BUBBLES */
+.bubble {
+  font-size: 15px; line-height: 1.6;
+  max-width: calc(100% - 44px);
 }
 
-/* TEXT INSIDE */
-.msg span{
-  display:block;
-  font-size:15px;
-  line-height:1.55rem;
-  letter-spacing:.2px;
+.msg.user .bubble { color: #ccc; }
+.msg.leocore .bubble { color: #eee; }
+
+/* CTA BUTTON */
+.cta-wrap {
+  margin-top: 40px; text-align: center;
+  padding-bottom: 60px;
 }
 
-/* AVATAR */
-.avatar{
-  width:34px;
-  height:34px;
-  border-radius:50%;
-  background:#09101f;
-  border:1px solid rgba(255,255,255,.25);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:14px;
-  flex-shrink:0;
+.btn-primary {
+  background: var(--neon);
+  color: #000;
+  padding: 12px 32px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  transition: transform 0.2s;
+  display: inline-block;
 }
 
-/* USER AVATAR */
-.avatar.u{
-  border-color:#648aff;
-}
+.btn-primary:active { transform: scale(0.95); }
 
-/* AI AVATAR */
-.avatar.ai{
-  border-color:#00ffc6;
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
+</style>
 
-/* CLEANER ANIMATION */
-@keyframes pop{
-  from{ transform:translateY(10px); opacity:0; }
-  to{ transform:translateY(0); opacity:1;}
-}
+<body>
+<div class="bg-glow"></div>
 
-footer{
-  opacity:.6;
-  text-align:center;
-  font-size:12px;
-  margin-top:18px;
-}
+<div class="header">
+  <h1>LeoCore Shared</h1>
+</div>
+
+<div class="wrapper">
+  <div class="infoCard">
+      <div style="font-size: 14px; font-weight: 600;">Intelligence Briefing</div>
+      <div class="meta">
+        <span id="msgCount">—</span>
+        <span id="date">—</span>
+      </div>
+  </div>
+
+  <div id="chat" class="chat"></div>
+
+  <div class="cta-wrap">
+    <a href="https://leocore.vercel.app" class="btn-primary">Try LeoCore AI Free</a>
+  </div>
+</div>
+
 
 </style>
 </head>

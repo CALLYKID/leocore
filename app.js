@@ -906,6 +906,13 @@ cancelBtn?.addEventListener("click", () => {
   modalConfirm.textContent = "Wipe Chat";
 });
 
+/* ================= SHARE BUTTON INITIALIZATION ================= */
+document.getElementById("shareBtn")?.addEventListener("click", (e) => {
+  e.preventDefault();
+  headerDropdown.classList.add("hidden"); // Close the menu
+  shareChat(); // Trigger the logic
+});
+
 /* ================= STARTUP ================= */
 async function initApp() {
   const splash = document.getElementById("splashScreen");
