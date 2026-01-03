@@ -857,7 +857,6 @@ if (lp) lp.textContent = userPowerSave ? "ON" : "OFF";
 
   // Run your existing backend/UI logic
   initIntentStrip();
-  initHeroTyping();
   initModes(); 
   warmBackend();
 
