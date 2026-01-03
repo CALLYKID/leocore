@@ -664,6 +664,8 @@ chatForm.addEventListener("submit", async (e) => {
       `;
       
       chatMessages.appendChild(sourceEl);
+      if (triggerVibe) triggerVibe(5); // Light "click" when sources pop in
+
       if (userLockedScroll) jumpToBottom(chatMessages);
     }
 
