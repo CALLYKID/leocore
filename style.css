@@ -87,11 +87,12 @@ body {
 #bgTint {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 1;
   pointer-events: none;
-
-  background: rgba(0,0,0,0);
-  transition: background-color 0.8s linear ; 
+  background-color: transparent;
+  /* Use ease-in-out and remove 'linear' to stop the flicker */
+  transition: background-color 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: background-color;
 }
   
 .bg-soften {
@@ -1401,8 +1402,10 @@ box-shadow:
 }
 
 @keyframes slowSpin {
-  to { transform: rotate(360deg); }
+  from { transform: rotate3d(0, 0, 1, 0deg); }
+  to { transform: rotate3d(0, 0, 1, 360deg); }
 }
+
 /* Pause EVERYTHING only when chat-freeze is active */
 body.chat-freeze * {
   animation-play-state: paused ;
@@ -2186,6 +2189,26 @@ overflow-y: auto;
 /* Forces the input bar to stay pinned to the actual bottom */
 .chat-input-bar {
   padding-bottom: calc(env(safe-area-inset-bottom, 14px) + 10px) !important;
+}
+/* Force clean layers for the background */
+#bg-root, #bgLayer, #bgTint {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0); /* Standard trick to trigger Hardware Acceleration correctly */
+  will-change: transform, opacity;
+}
+
+/* Chrome 'Ghosting' Fix for scrolling */
+.chat-panel, #chatMessages {
+  contain: content; /* Tells Chrome not to paint anything outside this box */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Fix for the 'Blur Glitch' in Chrome */
+.intent-strip, .mode-card, .chat-header {
+  -webkit-backdrop-filter: blur(12px); /* Chrome sometimes ignores small blur values */
+  backdrop-filter: blur(12px);
+  transform: translateZ(0);
 }
 
 
