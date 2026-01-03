@@ -632,28 +632,41 @@ chatForm.addEventListener("submit", async (e) => {
     
     
   
-    // Fix: Render Sources
+        // Render Professional Sources
     if (data.sources && data.sources.length > 0) {
       const sourceEl = document.createElement("div");
-      sourceEl.className = "chat-message leocore no-bubble";
+      sourceEl.className = "chat-message leocore no-bubble sources-container";
+      
+      const cardsHtml = data.sources.map(s => {
+        let domain = "Link";
+        try { domain = new URL(s.url).hostname.replace('www.', ''); } catch(e) {}
+        
+        // Use a reliable favicon service (Google or DuckDuckGo)
+        const iconUrl = `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+
+        return `
+          <a href="${s.url}" target="_blank" class="source-card">
+            <div class="source-header">
+              <img src="${iconUrl}" class="source-icon" loading="lazy" 
+                   onerror="this.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='">
+              <span class="source-site">${domain}</span>
+            </div>
+            <span class="source-title">${s.title}</span>
+          </a>`;
+      }).join('');
+
       sourceEl.innerHTML = `
-        <div class="sources-grid">
-          ${data.sources.map(s => {
-            const domain = new URL(s.url).hostname;
-            return `
-              <a href="${s.url}" target="_blank" class="source-card">
-                <img src="${s.favicon || 'https://www.google.com/s2/favicons?domain=' + domain}" 
-                     class="source-icon" onerror="this.src='/fallback-icon.png'">
-                <div class="source-info">
-                  <span class="source-title">${s.title}</span>
-                  <span class="source-url">${domain}</span>
-                </div>
-              </a>`;
-          }).join('')}
-        </div>`;
+        <div class="sources-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Sources Found
+        </div>
+        <div class="sources-grid">${cardsHtml}</div>
+      `;
+      
       chatMessages.appendChild(sourceEl);
       if (userLockedScroll) jumpToBottom(chatMessages);
     }
+
 
     // Setup Streaming Block
     const leoBubble = createLeoStreamingBlock();
