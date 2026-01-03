@@ -79,17 +79,31 @@ if ((mode === 'research' || mode === 'study') && BRAVE_API_KEY) {
   try {
     // 1. IMPROVED INTENT CHECK
     const intent = await groq.chat.completions.create({
-      model: "llama-3.1-8b-instant",
-      messages: [
-        { role: "system", content: "Determine if the user's latest message requires real-time information or news. Reply with exactly one word: 'YES' or 'NO'." },
-        { role: "user", content: message }
-      ],
-      max_tokens: 5,
-      temperature: 0 // Keep it deterministic
-    });
+  model: "llama-3.1-8b-instant",
+  messages: [
+    { 
+      role: "system", 
+      content: `Classify if a user query needs a real-time web search for news, current events, or specific facts.
+      
+      RULES:
+      - Reply ONLY with 'YES' or 'NO'.
+      - Do not include punctuation or explanations.
+      
+      EXAMPLES:
+      Query: "Who won the game last night?" -> YES
+      Query: "How are you doing today?" -> NO
+      Query: "Current price of Bitcoin" -> YES
+      Query: "Tell me a joke" -> NO` 
+    },
+    { role: "user", content: `Query: "${message}" ->` }
+  ],
+  max_tokens: 2, // Physical limit to prevent yapping
+  temperature: 0 // Force deterministic results
+});
 
-    const decision = intent.choices[0].message.content.trim().toUpperCase();
-    console.log(`Debug: Intent decision was [${decision}]`);
+const decision = intent.choices[0].message.content.trim().toUpperCase();
+console.log(`Debug: Intent decision was [${decision}]`);
+
 
     // 2. ROBUST CHECK (Look for YES anywhere in the response)
     if (decision.includes("YES")) {
