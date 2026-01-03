@@ -74,29 +74,51 @@ export default async function chatHandler(req, res) {
     let searchContext = "";
     let sources = [];
 
-     // --- STEP A: BRAVE SEARCH (Only for Research/Study) ---
-    if ((mode === 'research' || mode === 'study') && BRAVE_API_KEY) {
-      try {
-        // Quick Intent Check
-        const intent = await groq.chat.completions.create({
-          model: "llama-3.1-8b-instant",
-          messages: [{ role: "system", content: "Reply YES only if the query needs real-time facts." }, { role: "user", content: message }],
-          max_tokens: 5
-        });
+// --- STEP A: BRAVE SEARCH (Only for Research/Study) ---
+if ((mode === 'research' || mode === 'study') && BRAVE_API_KEY) {
+  try {
+    // 1. IMPROVED INTENT CHECK
+    const intent = await groq.chat.completions.create({
+      model: "llama-3.1-8b-instant",
+      messages: [
+        { role: "system", content: "Determine if the user's latest message requires real-time information or news. Reply with exactly one word: 'YES' or 'NO'." },
+        { role: "user", content: message }
+      ],
+      max_tokens: 5,
+      temperature: 0 // Keep it deterministic
+    });
 
-        if (intent.choices[0].message.content.toUpperCase().includes("YES")) {
-          const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(message)}&count=3`, {
-            headers: { 'X-Subscription-Token': BRAVE_API_KEY, 'Accept': 'application/json' }
-          });
-          
-          const data = await response.json();
-          if (data.web?.results) {
-            searchContext = "\n[WEB DATA]: " + data.web.results.map(r => r.description).join(" ");
-            sources = data.web.results.map(r => ({ title: r.title, url: r.url }));
-          }
+    const decision = intent.choices[0].message.content.trim().toUpperCase();
+    console.log(`Debug: Intent decision was [${decision}]`);
+
+    // 2. ROBUST CHECK (Look for YES anywhere in the response)
+    if (decision.includes("YES")) {
+      const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(message)}&count=3`, {
+        method: 'GET',
+        headers: { 
+          'X-Subscription-Token': BRAVE_API_KEY, 
+          'Accept': 'application/json' // Crucial for production stability
         }
-      } catch (err) { console.error("Search failed:", err.message); }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.text();
+        console.error(`Brave API Error: ${response.status} - ${errorData}`);
+      } else {
+        const data = await response.json();
+        if (data.web?.results && data.web.results.length > 0) {
+          // Join snippets into a clean context string
+          searchContext = "\n[CURRENT WEB DATA]: " + data.web.results.map(r => r.description).join(" ");
+          sources = data.web.results.map(r => ({ title: r.title, url: r.url }));
+          console.log(`Success: Found ${sources.length} sources.`);
+        }
+      }
     }
+  } catch (err) { 
+    console.error("Search block critical failure:", err.message); 
+  }
+}
+
 
     // 2. BUILD PROMPT
     const persona = MODE_PROMPTS[mode] || "Be a helpful assistant.";
