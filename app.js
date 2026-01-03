@@ -213,7 +213,7 @@ function saveCurrentChat() {
     .map(el => {
       const isUser = el.classList.contains("user");
       
-      // Handle Sources specifically
+      // 1. Extract Sources
       const sourceCardLinks = el.querySelectorAll(".source-card");
       let savedSources = null;
       if (sourceCardLinks.length > 0) {
@@ -224,20 +224,30 @@ function saveCurrentChat() {
         }));
       }
 
+      // 2. Extract Content (Cleaned)
       let content = "";
       if (isUser) {
         content = el.textContent;
       } else {
-        const textContainer = el.querySelector(".reply-text");
-        content = textContainer ? textContainer.innerText : el.innerText;
+        // CLONE the element so we can strip the sources out without affecting the UI
+        const tempEl = el.cloneNode(true);
+        const sourcesGrid = tempEl.querySelector(".sources-grid");
+        const sourcesLabel = tempEl.querySelector(".sources-label");
+        
+        // Remove the source elements from our temporary copy before saving text
+        if (sourcesGrid) sourcesGrid.remove();
+        if (sourcesLabel) sourcesLabel.remove();
+        
+        const textContainer = tempEl.querySelector(".reply-text");
+        content = textContainer ? textContainer.innerText.trim() : tempEl.innerText.trim();
       }
 
       const imgEl = el.querySelector("img:not(.source-icon)");
       return {
         role: isUser ? "user" : "leocore",
-        content: content,
+        content: content, // This is now JUST the AI's words
         image: imgEl ? imgEl.src : null,
-        sources: savedSources // Save the source array here!
+        sources: savedSources 
       };
     });
 
@@ -247,6 +257,7 @@ function saveCurrentChat() {
   };
   localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(allChats));
 }
+
 
 
 
@@ -512,15 +523,9 @@ function addMessage(content, type, isImage = false) {
 
 function renderMessage(text, role, imageData = null, savedSources = null) {
   const el = document.createElement("div");
-  
-  // If this message is ONLY sources (no text), add special class
-  if (savedSources && !text) {
-    el.className = `chat-message ${role} no-bubble sources-container`;
-  } else {
-    el.className = `chat-message ${role} no-bubble`;
-  }
-  
-  // 1. Restore Image if exists
+  el.className = `chat-message ${role} no-bubble`;
+
+  // 1. Render Image
   if (imageData) {
     const img = document.createElement("img");
     img.src = imageData;
@@ -528,10 +533,14 @@ function renderMessage(text, role, imageData = null, savedSources = null) {
     el.appendChild(img);
   }
 
-  // 2. Restore Sources if they exist
-  if (savedSources) {
+  // 2. Render Sources (Top)
+  if (savedSources && savedSources.length > 0) {
+    const sourceContainer = document.createElement("div");
+    sourceContainer.className = "sources-container-wrapper"; // Helpful for CSS targeting
+    
     const cardsHtml = savedSources.map(s => {
-      let domain = new URL(s.url).hostname.replace('www.', '');
+      let domain = "Link";
+      try { domain = new URL(s.url).hostname.replace('www.', ''); } catch(e) {}
       return `
         <a href="${s.url}" target="_blank" class="source-card">
           <div class="source-header">
@@ -542,17 +551,18 @@ function renderMessage(text, role, imageData = null, savedSources = null) {
         </a>`;
     }).join('');
 
-    el.innerHTML += `
+    sourceContainer.innerHTML = `
       <div class="sources-label">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         Sources Found
       </div>
       <div class="sources-grid">${cardsHtml}</div>
     `;
+    el.appendChild(sourceContainer);
   }
 
-  // 3. Restore Text if exists
-  if (text) {
+  // 3. Render Text (Bottom)
+  if (text && text.trim().length > 0) {
     const textContainer = document.createElement("div");
     textContainer.className = role === "leocore" ? "reply-text" : "";
     if (role === "leocore") {
