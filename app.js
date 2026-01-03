@@ -212,22 +212,32 @@ function saveCurrentChat() {
     .filter(el => (el.classList.contains("user") || el.classList.contains("leocore")) && !el.classList.contains("thinking"))
     .map(el => {
       const isUser = el.classList.contains("user");
-      let content = "";
+      
+      // Handle Sources specifically
+      const sourceCardLinks = el.querySelectorAll(".source-card");
+      let savedSources = null;
+      if (sourceCardLinks.length > 0) {
+        savedSources = Array.from(sourceCardLinks).map(a => ({
+          url: a.href,
+          title: a.querySelector(".source-title").textContent,
+          favicon: a.querySelector(".source-icon").src
+        }));
+      }
 
+      let content = "";
       if (isUser) {
         content = el.textContent;
       } else {
-        // Find the inner text container to avoid saving the outer DIV tags
         const textContainer = el.querySelector(".reply-text");
-        // .innerText captures only the text content, excluding HTML tags
         content = textContainer ? textContainer.innerText : el.innerText;
       }
 
-      const imgEl = el.querySelector("img");
+      const imgEl = el.querySelector("img:not(.source-icon)");
       return {
         role: isUser ? "user" : "leocore",
         content: content,
-        image: imgEl ? imgEl.src : null
+        image: imgEl ? imgEl.src : null,
+        sources: savedSources // Save the source array here!
       };
     });
 
@@ -237,6 +247,7 @@ function saveCurrentChat() {
   };
   localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(allChats));
 }
+
 
 
 async function shareChat() {
@@ -304,7 +315,7 @@ function restoreChatForMode(mode) {
   [...chatMessages.children].forEach(el => { if (!el.id || el.id !== "emptyState") el.remove(); });
   hideEmptyState();
   if (!data || !Array.isArray(data.messages) || data.messages.length === 0) { showEmptyState(); return; }
-  data.messages.forEach(msg => renderMessage(msg.content, msg.role, msg.image));
+  data.messages.forEach(msg => renderMessage(msg.content, msg.role, msg.image, msg.sources));
   jumpToBottom(chatMessages);
 }
 
@@ -499,22 +510,51 @@ function addMessage(content, type, isImage = false) {
   if (isNearBottom(chatMessages)) jumpToBottom(chatMessages);
 }
 
-function renderMessage(text, role, imageData = null) {
+function renderMessage(text, role, imageData = null, savedSources = null) {
   const el = document.createElement("div");
-  el.className = `chat-message ${role} no-bubble`;
   
+  // If this message is ONLY sources (no text), add special class
+  if (savedSources && !text) {
+    el.className = `chat-message ${role} no-bubble sources-container`;
+  } else {
+    el.className = `chat-message ${role} no-bubble`;
+  }
+  
+  // 1. Restore Image if exists
   if (imageData) {
     const img = document.createElement("img");
     img.src = imageData;
-    img.className = "chat-img-thumb"; // Use a CSS class for styling
+    img.className = "chat-img-thumb";
     el.appendChild(img);
   }
 
+  // 2. Restore Sources if they exist
+  if (savedSources) {
+    const cardsHtml = savedSources.map(s => {
+      let domain = new URL(s.url).hostname.replace('www.', '');
+      return `
+        <a href="${s.url}" target="_blank" class="source-card">
+          <div class="source-header">
+            <img src="${s.favicon}" class="source-icon">
+            <span class="source-site">${domain}</span>
+          </div>
+          <span class="source-title">${s.title}</span>
+        </a>`;
+    }).join('');
+
+    el.innerHTML += `
+      <div class="sources-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        Sources Found
+      </div>
+      <div class="sources-grid">${cardsHtml}</div>
+    `;
+  }
+
+  // 3. Restore Text if exists
   if (text) {
     const textContainer = document.createElement("div");
     textContainer.className = role === "leocore" ? "reply-text" : "";
-    
-    // If it's AI, use the formatter; if user, use plain text
     if (role === "leocore") {
       textContainer.innerHTML = formatLeoReply(text);
     } else {
@@ -526,6 +566,7 @@ function renderMessage(text, role, imageData = null) {
   chatMessages.appendChild(el);
   return el;
 }
+
 
 
 function createLeoStreamingBlock() {
