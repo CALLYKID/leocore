@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "@tavily/core": "^0.6.4"
+    "@tavily/core": "^0.6.4",
+    "brave-search": "^0.9.0"
   }
 }

@@ -120,40 +120,6 @@ const shareBtn = document.getElementById("shareBtn");
 
 let selectedImageBase64 = null;
 
-async function shareChat() {
-  const messages = getMemoryForMode(currentMode, 30);
-  if (!messages || messages.length === 0) {
-    alert("No chat to share.");
-    return;
-  }
-
-  const id = crypto.randomUUID();
-
-  await fetch(`${API_URL}/api/share`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ id, chat: messages })
-  });
-
-  const link = `https://leocore.vercel.app/share/${id}`;
-
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: "LeoCore Chat",
-        text: "Check out this LeoCore conversation",
-        url: link
-      });
-      return;
-    } catch {}
-  }
-
-  await navigator.clipboard.writeText(link);
-  alert("Share link copied!");
-}
-
-shareBtn?.addEventListener("click", shareChat);
-uploadBtn?.addEventListener('click', () => imageUpload.click());
 
 imageUpload?.addEventListener('change', (e) => {
   const file = e.target.files[0];
@@ -220,19 +186,19 @@ intentStrip?.addEventListener("click", () => {
 
 function formatLeoReply(text) {
   if (!text) return "";
-  text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  text = text.replace(/^---$/gm, '<hr class="style-hr">');
-  text = text.replace(/^>\s+(.*)$/gm, '<blockquote class="quote-style">$1</blockquote>');
-  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  text = text.replace(/`([^`]+)`/g, '<code class="code-style">$1</code>');
-  text = text.replace(/^###\s+(.*)$/gm, '<div class="h3-style">$1</div>');
-  text = text.replace(/^##\s+(.*)$/gm, '<div class="h2-style">$1</div>');
-  let parts = text.split(/\n\n+/).map(p => {
-    p = p.trim().replace(/\n/g, "<br>");
-    return `<div class="p-container">${p}</div>`;
-  });
-  return parts.join("");
+  // 1. Basic Safety
+  let formatted = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  
+  // 2. Bold/Slang emphasis
+  formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // 3. Simple line breaks for Gen Z chat style
+  formatted = formatted.replace(/\n/g, "<br>");
+  
+  // 4. Handle Emojis (Optional: wrap in span for scaling)
+  return `<div class="p-container">${formatted}</div>`;
 }
+
 
 /* ================ CHAT STORAGE ================= */
 const CHAT_STORE_KEY = "leocore_chats_v1";
@@ -240,65 +206,97 @@ const CHAT_STORE_KEY = "leocore_chats_v1";
 function loadAllChats() {
   try { return JSON.parse(localStorage.getItem(CHAT_STORE_KEY)) || {}; } catch { return {}; }
 }
-
 function saveCurrentChat() {
   const allChats = loadAllChats();
+  const messages = [...chatMessages.children]
+    .filter(el => (el.classList.contains("user") || el.classList.contains("leocore")) && !el.classList.contains("thinking"))
+    .map(el => {
+      const isUser = el.classList.contains("user");
+      let content = "";
+
+      if (isUser) {
+        content = el.textContent;
+      } else {
+        // Find the inner text container to avoid saving the outer DIV tags
+        const textContainer = el.querySelector(".reply-text");
+        // .innerText captures only the text content, excluding HTML tags
+        content = textContainer ? textContainer.innerText : el.innerText;
+      }
+
+      const imgEl = el.querySelector("img");
+      return {
+        role: isUser ? "user" : "leocore",
+        content: content,
+        image: imgEl ? imgEl.src : null
+      };
+    });
 
   allChats[currentMode] = {
-    messages: [...chatMessages.children]
-      .filter(el =>
-        (el.classList.contains("user") || el.classList.contains("leocore")) &&
-        !el.classList.contains("thinking")
-      )
-      .map(el => {
-        const img = el.querySelector("img");
-        const role = el.classList.contains("user") ? "user" : "leocore";
-
-        return {
-          role,
-          content: role === "leocore"
-            ? el.innerHTML   // keep full formatted HTML
-            : el.textContent, // plain text for user
-          image: img ? img.src : null
-        };
-      }),
-    
+    messages: messages,
     updatedAt: Date.now()
   };
+  localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(allChats));
+}
+
+
+async function shareChat() {
+  const messages = getMemoryForMode(currentMode, 30);
+  if (!messages || messages.length === 0) {
+    alert("Nothing to share yet, bestie. Send some messages first.");
+    return;
+  }
+
+  // 1. UI Feedback: Disable button and show loading
+  const originalLabel = shareBtn.innerHTML;
+  shareBtn.disabled = true;
+  shareBtn.innerHTML = "Generating...";
 
   try {
-    let serializedData = JSON.stringify(allChats);
+    // 2. Clean HTML for Sharing (Remove divs and formatting)
+    const cleanChat = messages.map(m => ({
+      role: m.role,
+      content: m.role === "leocore" 
+        ? m.content.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '') 
+        : m.content
+    }));
 
-    while (serializedData.length > 4000000) {
-      let purged = false;
+    const id = crypto.randomUUID();
 
-      for (let mode in allChats) {
-        if (allChats[mode].messages) {
-          for (let msg of allChats[mode].messages) {
-            if (msg.image) {
-              msg.image = null;
-              purged = true;
-              break;
-            }
-          }
-        }
-        if (purged) break;
-      }
+    // 3. API Call with Timeout
+    const response = await fetch(`${API_URL}/api/share`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, chat: cleanChat }),
+      signal: AbortSignal.timeout(8000) // Don't let it hang forever
+    });
 
-      if (!purged) {
-        const oldestMode = Object.keys(allChats)
-          .sort((a, b) => allChats[a].updatedAt - allChats[b].updatedAt)[0];
+    if (!response.ok) throw new Error("Server rejected the share");
 
-        allChats[oldestMode].messages.shift();
-      }
+    const link = `https://leocore.vercel.app/share/${id}`;
 
-      serializedData = JSON.stringify(allChats);
+    // 4. Native Share or Clipboard
+    if (navigator.share) {
+      await navigator.share({
+        title: "LeoCore Intelligence Chat",
+        text: "Check out this session with LeoCore:",
+        url: link
+      });
+    } else {
+      await navigator.clipboard.writeText(link);
+      alert("Link copied to clipboard! 🔗");
     }
 
-    localStorage.setItem(CHAT_STORE_KEY, serializedData);
-
-  } catch (e) {}
+  } catch (err) {
+    // 5. CATCH: Handle failures gracefully
+    console.error("Share failed:", err);
+    alert("Share failed. The server might be down or your connection is shaky.");
+  } finally {
+    // 6. FINALLY: Always reset the button state
+    shareBtn.disabled = false;
+    shareBtn.innerHTML = originalLabel;
+  }
 }
+
 
 function restoreChatForMode(mode) {
   const allChats = loadAllChats();
@@ -503,23 +501,32 @@ function addMessage(content, type, isImage = false) {
 
 function renderMessage(text, role, imageData = null) {
   const el = document.createElement("div");
-  el.className = `chat-message ${role}`;
-  if (role === "leocore") {
-  el.classList.add("no-bubble");
-  el.innerHTML = text;   // NO re-formatting
-}else {
-    if (imageData) {
-      const img = document.createElement("img");
-      img.src = imageData;
-      img.style.width = "120px"; img.style.borderRadius = "8px"; img.style.display = "block";
-      img.style.marginBottom = text ? "8px" : "0";
-      el.appendChild(img);
-    }
-    if (text) { const txtSpan = document.createElement("span"); txtSpan.textContent = text; el.appendChild(txtSpan); }
+  el.className = `chat-message ${role} no-bubble`;
+  
+  if (imageData) {
+    const img = document.createElement("img");
+    img.src = imageData;
+    img.className = "chat-img-thumb"; // Use a CSS class for styling
+    el.appendChild(img);
   }
+
+  if (text) {
+    const textContainer = document.createElement("div");
+    textContainer.className = role === "leocore" ? "reply-text" : "";
+    
+    // If it's AI, use the formatter; if user, use plain text
+    if (role === "leocore") {
+      textContainer.innerHTML = formatLeoReply(text);
+    } else {
+      textContainer.textContent = text;
+    }
+    el.appendChild(textContainer);
+  }
+
   chatMessages.appendChild(el);
   return el;
 }
+
 
 function createLeoStreamingBlock() {
   hideEmptyState();
@@ -531,17 +538,36 @@ function createLeoStreamingBlock() {
   return el;
 }
 
-function setStreamingState(on){
-  isStreaming = on;
-  if(on){ sendBtn.classList.add("hidden"); stopBtn.classList.remove("hidden"); }
-  else{ stopBtn.classList.add("hidden"); sendBtn.classList.remove("hidden"); }
+function setStreamingState(on) {
+  // Check if we are either waiting for the server OR still typing text
+  const currentlyActive = on || isStreaming || isDisplaying;
+  
+  if (currentlyActive) {
+    sendBtn.classList.add("hidden");
+    stopBtn.classList.remove("hidden");
+  } else {
+    stopBtn.classList.add("hidden");
+    sendBtn.classList.remove("hidden");
+    // Important: don't reset stopRequested here, do it in submit
+  }
 }
 
 stopBtn.addEventListener("click", () => {
+  // If nothing is happening, don't do anything
   if (!isStreaming && !isDisplaying) return;
+  
   stopRequested = true;
+  
+  // 1. Kill the network request
   if (controller) controller.abort();
-  wordQueue = []; isStreaming = false; isDisplaying = false;
+  
+  // 2. Clear the typing queue
+  wordQueue = []; 
+  
+  // 3. Force clean state
+  isStreaming = false; 
+  isDisplaying = false;
+  
   setStreamingState(false);
   saveCurrentChat();
   forceScrollToBottom();
@@ -562,109 +588,136 @@ chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = chatInput.value.trim();
   
-  // Custom Command: Reset
-  if (text === "/leoreset") {
-    localStorage.removeItem(CHAT_STORE_KEY);
-    chatMessages.innerHTML = "";
-    showEmptyState();
-    alert("All chats cleared");
-    chatInput.value = "";
-    return;
-  }
+  if ((!text && !selectedImageBase64) || isStreaming || isDisplaying) return;
   
-  if ((!text && !selectedImageBase64) || isStreaming) return;
-  
-  // Reset streaming states
+  stopRequested = false;
   streamBuffer = ""; 
   wordQueue = []; 
-  stopRequested = false;
+  isStreaming = true; 
+  
   setStreamingState(true);
   
-  // UI: Add User Message
   if (text) addMessage(text, "user");
   if (selectedImageBase64) addMessage(selectedImageBase64, "user", true);
 
+  const currentImageToProcess = selectedImageBase64;
   chatInput.value = ""; 
   chatInput.style.height = "auto";
+  clearImagePreview();
   
   let thinkingEl = createThinkingMessage();
 
   try {
+    controller = new AbortController();
     const response = await fetch(`${API_URL}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({ 
         message: text, 
         mode: currentMode, 
         userId: USER_ID, 
         memory: getMemoryForMode(currentMode, MEMORY_LIMIT), 
-        profile: loadProfile(), 
-        image: selectedImageBase64 
+        image: currentImageToProcess 
       })
     });
 
-    const data = await response.json(); // Wait for full JSON payload
-    if (thinkingEl) thinkingEl.remove();
-    clearImagePreview();
+    if (!response.ok) throw new Error("Server error");
 
-    // 1. Render Sources First (If in Research/Study mode)
+    const data = await response.json(); 
+    
+    isStreaming = false;
+    
+    if (thinkingEl) thinkingEl.remove();
+    
+    
+  
+    // Fix: Render Sources
     if (data.sources && data.sources.length > 0) {
       const sourceEl = document.createElement("div");
       sourceEl.className = "chat-message leocore no-bubble";
       sourceEl.innerHTML = `
-        <div class="sources-container">
-          ${data.sources.map(s => `
-            <a href="${s.url}" target="_blank" class="source-card">
-              <div class="source-title">${s.title}</div>
-              <div class="source-meta">
-                <img src="${s.favicon}" class="source-icon">
-                <span>${new URL(s.url).hostname.replace('www.', '')}</span>
-              </div>
-            </a>
-          `).join('')}
+        <div class="sources-grid">
+          ${data.sources.map(s => {
+            const domain = new URL(s.url).hostname;
+            return `
+              <a href="${s.url}" target="_blank" class="source-card">
+                <img src="${s.favicon || 'https://www.google.com/s2/favicons?domain=' + domain}" 
+                     class="source-icon" onerror="this.src='/fallback-icon.png'">
+                <div class="source-info">
+                  <span class="source-title">${s.title}</span>
+                  <span class="source-url">${domain}</span>
+                </div>
+              </a>`;
+          }).join('')}
         </div>`;
       chatMessages.appendChild(sourceEl);
+      if (userLockedScroll) jumpToBottom(chatMessages);
     }
 
-    // 2. Setup Typewriter for the AI Text
+    // Setup Streaming Block
     const leoBubble = createLeoStreamingBlock();
     const textEl = leoBubble.querySelector(".reply-text");
     
-    // Feed the wordQueue to maintain the "live" typing feel
     streamBuffer = data.text; 
     wordQueue.push(data.text); 
     processQueue(textEl);
     
+    
   } catch (err) {
-    if (thinkingEl) thinkingEl.remove();
-    addMessage("Connection lost. Please try again.", "leocore");
-    setStreamingState(false);
-  } finally {
     isStreaming = false;
+    if (thinkingEl) thinkingEl.remove();
+    
+    // If we aborted manually, don't show an error message
+    if (err.name !== 'AbortError' && !stopRequested) {
+      addMessage("Connection lost. Tap to retry.", "leocore");
+    }
+    setStreamingState(false);
   }
-});
+});   
+
 
 
 async function processQueue(textEl) {
   if (isDisplaying) return;
   isDisplaying = true;
+  
+  // Ensure button stays as 'Stop' during typing
+  setStreamingState(true); 
+  
   let displayedBuffer = "";
-  while (wordQueue.length > 0 || isStreaming) {
-    if (stopRequested) break;
-    if (wordQueue.length > 0) {
-      const parts = wordQueue.shift().split(/(\s+)/);
+  try {
+    while (wordQueue.length > 0) {
+      // Check for stop signal at every single word
+      if (stopRequested) break;
+
+      const currentChunk = wordQueue.shift();
+      const parts = currentChunk.split(/(\s+)/);
+      
       for (let part of parts) {
         if (stopRequested) break;
         displayedBuffer += part;
+        
         if (textEl) textEl.innerHTML = formatLeoReply(displayedBuffer);
         if (userLockedScroll) jumpToBottom(chatMessages);
-        await new Promise(r => setTimeout(r, 15));
+        
+        // Faster typing for better UX
+        await new Promise(r => setTimeout(r, 12));
       }
-    } else { await new Promise(r => setTimeout(r, 20)); }
+    }
+  } finally {
+    isDisplaying = false;
+    // Only switch button back if the network isn't also busy
+    if (!isStreaming) setStreamingState(false);
+    
+    // Finalize the text block
+    if (textEl && !stopRequested) {
+        textEl.innerHTML = formatLeoReply(streamBuffer);
+    }
+    saveCurrentChat();
   }
-  isDisplaying = false; setStreamingState(false);
-  if (textEl && !stopRequested) textEl.innerHTML = formatLeoReply(streamBuffer);
 }
+
 
 /* ================= INTENT & MENU (FINAL) ================= */
 function initIntentStrip() {

@@ -5,7 +5,6 @@
 
 import 'dotenv/config';
 import Groq from "groq-sdk";
-import { tavily } from "@tavily/core";
 
 // --- CONFIGURATION ---
 const MODE_CONFIGS = {
@@ -37,7 +36,8 @@ const MODE_PROMPTS = {
 
 // --- INITIALIZATION ---
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const tvly = process.env.TAVILY_API_KEY ? tavily({ apiKey: process.env.TAVILY_API_KEY }) : null;
+const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
+
 
 // --- UTILS ---
 function stripFormatting(text = "") {
@@ -74,30 +74,28 @@ export default async function chatHandler(req, res) {
     let searchContext = "";
     let sources = [];
 
-    // 1. FAILSAFE SEARCH (Wrapped to prevent crashing the whole request)
-    if ((mode === 'research' || mode === 'study') && tvly) {
+     // --- STEP A: BRAVE SEARCH (Only for Research/Study) ---
+    if ((mode === 'research' || mode === 'study') && BRAVE_API_KEY) {
       try {
+        // Quick Intent Check
         const intent = await groq.chat.completions.create({
           model: "llama-3.1-8b-instant",
-          messages: [
-            { role: "system", content: "Reply YES only if the user query needs real-time info or facts. Otherwise NO." },
-            { role: "user", content: message }
-          ],
+          messages: [{ role: "system", content: "Reply YES only if the query needs real-time facts." }, { role: "user", content: message }],
           max_tokens: 5
         });
 
         if (intent.choices[0].message.content.toUpperCase().includes("YES")) {
-          const searchRes = await tvly.search(message, { searchDepth: "basic", maxResults: 4 });
-          searchContext = "\n[WEB DATA]: " + searchRes.results.map(r => r.content).join(" ");
-          sources = searchRes.results.map(r => ({
-            title: r.title,
-            url: r.url,
-            favicon: `https://www.google.com/s2/favicons?domain=${new URL(r.url).hostname}`
-          }));
+          const response = await fetch(`https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(message)}&count=3`, {
+            headers: { 'X-Subscription-Token': BRAVE_API_KEY, 'Accept': 'application/json' }
+          });
+          
+          const data = await response.json();
+          if (data.web?.results) {
+            searchContext = "\n[WEB DATA]: " + data.web.results.map(r => r.description).join(" ");
+            sources = data.web.results.map(r => ({ title: r.title, url: r.url }));
+          }
         }
-      } catch (e) {
-        console.error("Search module bypassed due to error:", e.message);
-      }
+      } catch (err) { console.error("Search failed:", err.message); }
     }
 
     // 2. BUILD PROMPT
