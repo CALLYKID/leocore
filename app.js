@@ -60,11 +60,6 @@ setVh();
 window.addEventListener("resize", setVh);
 window.addEventListener("orientationchange", setVh);
 
-userPowerSave = localStorage.getItem("lpMode") === "1";
-if (userPowerSave) document.body.classList.add("chat-freeze");
-const lp = document.getElementById("lpStatus");
-if (lp) lp.textContent = userPowerSave ? "ON" : "OFF";
-
 /* ================= BACKEND WARM ================= */
 async function warmBackend() {
   try { await fetch(`${API_URL}/ping`, { method: "GET", cache: "no-store" }); } catch {}
@@ -183,24 +178,6 @@ function clearImagePreview() {
   uploadBtn.style.color = ""; 
 }
 
-/* ================= HERO FAKE TYPING ================= */
-function initHeroTyping() {
-  const el = document.getElementById("hero-text");
-  if (!el) return;
-  const phrases = ["Message LeoCore", "Build me a plan", "Help me revise", "I'm ready", "Give me a funny joke", "Let's chat"];
-  let p = 0, c = 0, mode = "type";
-  (function loop() {
-    const t = phrases[p];
-    if (mode === "type") {
-      el.textContent = t.slice(0, ++c);
-      if (c === t.length) { mode = "pause"; setTimeout(() => (mode = "delete"), 1200); }
-    } else if (mode === "delete") {
-      el.textContent = t.slice(0, --c);
-      if (c === 0) { mode = "type"; p = (p + 1) % phrases.length; }
-    }
-    setTimeout(loop, mode === "delete" ? 40 : 70);
-  })();
-}
 
 /* ================= MODES ================= */
 let currentMode = "default";
@@ -755,7 +732,7 @@ menuDots?.addEventListener("click", (e) => {
   e.stopPropagation();
   const isOpening = headerDropdown.classList.contains("hidden");
   headerDropdown.classList.toggle("hidden");
-  if (isOpening && navigator.vibrate) navigator.vibrate(8);
+  if (isOpening && triggerVibe) triggerVibe(8);
 });
 
 // Close when clicking outside or scrolling chat
@@ -780,7 +757,7 @@ document.getElementById("clearChat")?.addEventListener("click", (e) => {
   e.preventDefault();
   clearModal.classList.remove("hidden");
   headerDropdown.classList.add("hidden"); // Close the menu
-  if (navigator.vibrate) navigator.vibrate(15);
+  if (triggerVibe) triggerVibe(15);
 });
 
 cancelBtn?.addEventListener("click", () => {
@@ -791,7 +768,7 @@ confirmBtn?.addEventListener("click", () => {
   clearCurrentModeChat(); // Your existing wipe function
   clearModal.classList.add("hidden");
   // Optional: Add a haptic double-tap for success
-  if (navigator.vibrate) navigator.vibrate([10, 50, 10]); 
+  if (triggerVibe) triggerVibe([10, 50, 10]); 
 });
 
 
@@ -841,12 +818,12 @@ globalWipeBtn?.addEventListener("click", () => {
 
   // 3. One-time Global Action
   modalConfirm.onclick = () => {
-    if (navigator.vibrate) navigator.vibrate([50, 50, 50, 50, 200]);
+    if (triggerVibe) triggerVibe([50, 50, 50, 50, 200]);
     localStorage.clear();
     location.reload();
   };
 
-  if (navigator.vibrate) navigator.vibrate(30);
+  if (triggerVibe) triggerVibe(30);
 });
 
 // Reset the modal back to "Chat Clear" mode when cancelled
@@ -873,6 +850,11 @@ async function initApp() {
     { t: "Completed", p: "100%" }
   ];
 
+userPowerSave = localStorage.getItem("lpMode") === "1";
+if (userPowerSave) document.body.classList.add("chat-freeze");
+const lp = document.getElementById("lpStatus");
+if (lp) lp.textContent = userPowerSave ? "ON" : "OFF";
+
   // Run your existing backend/UI logic
   initIntentStrip();
   initHeroTyping();
@@ -898,8 +880,20 @@ async function initApp() {
       
       setTimeout(() => splash.style.display = "none", 800);
     }
-    if (navigator.vibrate) navigator.vibrate(10); 
+    if (triggerVibe) triggerVibe(10); 
   }, 500); 
+}
+
+/* ================= HAPTICS HELPER ================= */
+function triggerVibe(ms) {
+  try {
+    // Check if the browser supports it and if we aren't in power save
+    if (navigator.vibrate && !userPowerSave) {
+      navigator.vibrate(ms);
+    }
+  } catch (err) {
+    // Silently catch security/permission blocks from Googlebot/Browsers
+  }
 }
 
 initApp();
