@@ -81,13 +81,13 @@ body {
     rgba(138, 60, 255, 0.12) 0%, 
     transparent 50%
   );
-  filter: blur(40px);
+  filter: blur(2px);
 }
 
 #bgTint {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 10;
   pointer-events: none;
   background-color: transparent;
   transition: background-color 1.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -112,7 +112,7 @@ body {
     rgba(0, 234, 255, 0.12), 
     transparent 50%
   );
-  filter: blur(60px);
+  filter: blur(5px);
   animation: auroraPulse 8s infinite ease-in-out;
 }
 
@@ -930,22 +930,12 @@ body {
 
   color: rgba(225,245,255,.9);
 
-  background: linear-gradient(
-    180deg,
-    rgba(6,10,20,0.96),
-    rgba(4,8,16,1)
-  );
-
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
   border-top: 1px solid rgba(0,255,255,.18);
 
   /* KEY CHANGE → no rounded bubble = no “cut off” feeling */
   border-radius: 0;
 
 box-shadow:
-    0 -25px 45px rgba(0, 255, 255, 0.18),      /* main neon aura */
     0 -10px 35px rgba(0, 0, 0, 0.85),          /* keeps depth strong */
     inset 0 1px 2px rgba(255,255,255,0.1);     /* polish edge */
     
@@ -2206,8 +2196,8 @@ overflow-y: auto;
 
 /* Fix for the 'Blur Glitch' in Chrome */
 .intent-strip, .mode-card, .chat-header {
-  -webkit-backdrop-filter: blur(12px); /* Chrome sometimes ignores small blur values */
-  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(7px); /* Chrome sometimes ignores small blur values */
+  backdrop-filter: blur(6px);
   transform: translateZ(0);
 }
 
@@ -2399,8 +2389,8 @@ overflow-y: auto;
   
   /* Thick Glassmorphism: High visibility, low transparency */
   background: rgba(20, 26, 42, 0.92); 
-  backdrop-filter: blur(30px) saturate(200%);
-  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  backdrop-filter: blur(5px) saturate(200%);
+  -webkit-backdrop-filter: blur(4px) saturate(200%);
   
   /* Brighten the border so the shape is clear against dark chats */
   border: 1px solid rgba(255, 255, 255, 0.18);
@@ -2478,7 +2468,7 @@ overflow-y: auto;
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2489,7 +2479,7 @@ overflow-y: auto;
 
 .modal-content {
   background: rgba(20, 26, 42, 0.95);
-  backdrop-filter: blur(30px) saturate(200%);
+  backdrop-filter: blur(10px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 28px;
   padding: 30px;
@@ -2653,6 +2643,130 @@ overflow-y: auto;
 .chat-img-thumb:hover {
   transform: scale(1.02);
 }
+
+
+.center-wrapper {
+  margin: 0 auto !important;
+  gap: 5px !important; /* Tightens space between title and intent strip */
+}
+
+.modes-wrapper {
+  margin-top: 0 !important; /* Moves cards up immediately after the strip */
+}
+
+/* SURGICAL FIX: CHAT STABILITY */
+#chat-overlay[aria-hidden="false"] .chat-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  background: #05070a !important; /* Pure solid dark background */
+  inset: 0 !important;
+  height: 100dvh !important;
+  border-radius: 0 !important;
+}
+
+#chatMessages {
+  padding-top: 80px !important; /* Protects messages from being under the header */
+  padding-bottom: 20px !important;
+  flex-grow: 1 !important;
+}
+/* SURGICAL FIX: CLICKABILITY */
+.chat-header, .chat-input-bar, .dots-btn, .chat-back-btn {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+/* Stops background glows from stealing clicks */
+.intent-strip::before, .mode-card::before, .chat-header::before {
+  pointer-events: none !important;
+}
+/* SURGICAL FIX: PERFORMANCE */
+#bg-root, #bgLayer, #bgTint {
+  will-change: transform;
+  transform: translateZ(0); /* Force Hardware Acceleration */
+  pointer-events: none !important;
+}
+
+.chat-panel {
+  contain: size layout style; /* Stops the browser from re-calculating the whole page */
+}
+
+/* --- BUTTERY SCROLL OPTIMIZATION --- */
+
+/* 1. Prevent "Elastic" bounce on the main body to keep it stable */
+html, body {
+  overscroll-behavior-y: none;
+  scroll-behavior: smooth;
+}
+
+/* 2. Hardware acceleration for the chat and menus */
+#chatMessages, 
+.menu-panel, 
+  /* This creates a 'Compositor Layer' - moves work to GPU */
+  will-change: transform;
+  transform: translateZ(0);
+  
+  /* Enables native momentum scrolling for iOS */
+  -webkit-overflow-scrolling: touch;
+  
+  /* Keeps the scroll 'stuck' to the container, preventing laggy page shifts */
+  overscroll-behavior-y: contain;
+  
+  /* Performance: only renders messages currently in view */
+  content-visibility: auto;
+}
+
+/* 3. Smooth out the Mode Card spring effect */
+.mode-card {
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#chatMessages {
+  /* This prevents the browser from worrying about elements 
+     outside the viewable area */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+/* --- LIQUID PERFORMANCE OVERRIDES --- */
+
+#chatMessages {
+  /* Forces the GPU to pre-draw the chat area so there is 0% stutter */
+  will-change: transform;
+  transform: translateZ(0);
+  
+  /* Native momentum physics for iPhone/Android */
+  -webkit-overflow-scrolling: touch;
+  
+  /* Prevents the 'Elastic' body bounce which makes web apps feel laggy */
+  overscroll-behavior-y: contain;
+  
+  /* Performance: Only paints what is actually on screen */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* Smoother transition for the chat appearance */
+.chat-panel {
+  transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Make sure images don't cause 'jank' while loading */
+.chat-img-thumb {
+  aspect-ratio: auto;
+  content-visibility: auto;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2887,3 +3001,6 @@ overflow-y: auto;
   }
 }
 }
+
+
+

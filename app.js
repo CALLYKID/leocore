@@ -344,7 +344,7 @@ function restoreChatForMode(mode) {
   hideEmptyState();
   if (!data || !Array.isArray(data.messages) || data.messages.length === 0) { showEmptyState(); return; }
   data.messages.forEach(msg => renderMessage(msg.content, msg.role, msg.image, msg.sources));
-  jumpToBottom(chatMessages);
+  butteryScroll();
 }
 
 function getMemoryForMode(mode, limit = 8) {
@@ -454,19 +454,21 @@ function closeChat() {
 
 /* ================= SCROLL & INPUT ================= */
 function isNearBottom(el, threshold = 80) { return el.scrollHeight - el.scrollTop - el.clientHeight < threshold; }
-function jumpToBottom(el) { el.scrollTop = el.scrollHeight; }
+/* ================= BUTTERY SCROLL LOGIC ================= */
+function butteryScroll() {
+  const el = chatMessages;
+  if (!el || !userLockedScroll) return; // Only scroll if user hasn't scrolled up manually
 
-function forceScrollToBottom() {
-  let autoScrollCancel = false;
-  const smoothStep = () => {
-    if (autoScrollCancel) return;
-    chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: "smooth" });
-    if (Math.abs(chatMessages.scrollHeight - (chatMessages.scrollTop + chatMessages.clientHeight)) > 4) {
-      requestAnimationFrame(smoothStep);
-    }
-  };
-  smoothStep();
+  // requestAnimationFrame is the "Butter" — it tells the GPU to 
+  // sync the scroll with the physical screen refresh
+  requestAnimationFrame(() => {
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: 'smooth' 
+    });
+  });
 }
+
 
 chatMessages.addEventListener("scroll", () => {
   const distance = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
@@ -546,7 +548,7 @@ function addMessage(content, type, isImage = false) {
   }
   
   chatMessages.appendChild(el);
-  if (isNearBottom(chatMessages)) jumpToBottom(chatMessages);
+  butteryScroll();
 }
 
 
@@ -617,7 +619,7 @@ function createLeoStreamingBlock() {
   el.className = "chat-message leocore final-ai streaming no-bubble";
   el.innerHTML = `<div class="reply-text"></div>`;
   chatMessages.appendChild(el);
-  jumpToBottom(chatMessages);
+  butteryScroll();
   return el;
 }
 
@@ -653,7 +655,7 @@ stopBtn.addEventListener("click", () => {
   
   setStreamingState(false);
   saveCurrentChat();
-  forceScrollToBottom();
+  butteryScroll();
 });
 
 function createThinkingMessage() {
@@ -662,7 +664,7 @@ function createThinkingMessage() {
   el.className = "chat-message leocore thinking leo-thinking-standalone";
   el.innerHTML = `<div class="leo-thinking-orbit"><div class="leo-core">L</div><div class="orbit"></div></div>`;
   chatMessages.appendChild(el);
-  jumpToBottom(chatMessages);
+  butteryScroll();
   return el;
 }
 
@@ -757,7 +759,7 @@ if (needsSearch) {
       chatMessages.appendChild(sourceEl);
       if (triggerVibe) triggerVibe(5); // Light "click" when sources pop in
 
-      if (userLockedScroll) jumpToBottom(chatMessages);
+      if (userLockedScroll) butteryScroll();
     }
 
 
@@ -787,16 +789,12 @@ if (needsSearch) {
 async function processQueue(textEl) {
   if (isDisplaying) return;
   isDisplaying = true;
-  
-  // Ensure button stays as 'Stop' during typing
   setStreamingState(true); 
   
   let displayedBuffer = "";
   try {
     while (wordQueue.length > 0) {
-      // Check for stop signal at every single word
       if (stopRequested) break;
-
       const currentChunk = wordQueue.shift();
       const parts = currentChunk.split(/(\s+)/);
       
@@ -805,24 +803,24 @@ async function processQueue(textEl) {
         displayedBuffer += part;
         
         if (textEl) textEl.innerHTML = formatLeoReply(displayedBuffer);
-        if (userLockedScroll) jumpToBottom(chatMessages);
         
-        // Faster typing for better UX
+        // TRIGGER THE BUTTER HERE
+        butteryScroll(); 
+        
         await new Promise(r => setTimeout(r, 12));
       }
     }
   } finally {
     isDisplaying = false;
-    // Only switch button back if the network isn't also busy
     if (!isStreaming) setStreamingState(false);
-    
-    // Finalize the text block
     if (textEl && !stopRequested) {
         textEl.innerHTML = formatLeoReply(streamBuffer);
+        butteryScroll(); // Final scroll catch
     }
     saveCurrentChat();
   }
 }
+
 
 
 /* ================= INTENT & MENU (FINAL) ================= */
@@ -846,10 +844,19 @@ function updateStorageMeter() {
   const used = data.length;
   const limit = 5000000;
   const percent = Math.min((used / limit) * 100, 100).toFixed(1);
+  
   const fill = document.getElementById("storageBarFill");
   const text = document.getElementById("storagePercent");
-  if (fill && text) { fill.style.width = percent + "%"; text.textContent = percent + "%"; fill.style.background = percent > 80 ? "#ff4d4d" : "#00ffcc"; }
+
+  // SAFE CHECK: This prevents the "null" error if the menu is closed or missing
+  if (fill && text) { 
+    fill.style.width = percent + "%"; 
+    text.textContent = percent + "%"; 
+    fill.style.background = percent > 80 ? "#ff4d4d" : "#00ffcc"; 
+  }
 }
+
+
 
 menuBtn?.addEventListener("click", () => { menuOverlay.setAttribute("aria-hidden", "false"); updateStorageMeter(); });
 menuClose?.addEventListener("click", () => menuOverlay.setAttribute("aria-hidden", "true"));
@@ -1010,44 +1017,41 @@ async function initApp() {
   const log = document.getElementById("boot-log");
   const fill = document.getElementById("load-fill");
   
-  // High-end user messaging
   const sequence = [
     { t: "Establishing Neural Link", p: "100%" },
     { t: "Completed", p: "100%" }
   ];
 
-userPowerSave = localStorage.getItem("lpMode") === "1";
-if (userPowerSave) document.body.classList.add("chat-freeze");
-const lp = document.getElementById("lpStatus");
-if (lp) lp.textContent = userPowerSave ? "ON" : "OFF";
-
-  // Run your existing backend/UI logic
   initIntentStrip();
   initModes(); 
   warmBackend();
 
-  let step = 0;
-  const timer = setInterval(() => {
-    if (step < sequence.length) {
-      log.textContent = sequence[step].t;
-      fill.style.width = sequence[step].p;
-      step++;
-    }
-  }, 400);
+  // SAFE CHECK: Only run the animation if the progress bar exists
+  if (log && fill) {
+    let step = 0;
+    const timer = setInterval(() => {
+      if (step < sequence.length) {
+        log.textContent = sequence[step].t;
+        fill.style.width = sequence[step].p;
+        step++;
+      }
+    }, 400);
 
-  setTimeout(() => {
-    clearInterval(timer);
-    if (splash) {
-      // THE "NATIVE" TRANSITION: Scale up slightly and fade
-      splash.style.transition = "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)";
-      splash.style.opacity = "0";
-      splash.style.transform = "scale(1.05)"; 
-      
-      setTimeout(() => splash.style.display = "none", 800);
-    }
-    if (triggerVibe) triggerVibe(10); 
-  }, 500); 
+    setTimeout(() => {
+      clearInterval(timer);
+      if (splash) {
+        splash.style.transition = "all 0.8s cubic-bezier(0.16, 1, 0.3, 1)";
+        splash.style.opacity = "0";
+        splash.style.transform = "scale(1.05)"; 
+        setTimeout(() => splash.style.display = "none", 800);
+      }
+    }, 500); 
+  } else if (splash) {
+    // FALLBACK: If logs are missing, just hide the splash screen so the site works
+    splash.style.display = "none";
+  }
 }
+
 
 /* ================= HAPTICS HELPER ================= */
 function triggerVibe(ms) {
