@@ -13,6 +13,7 @@ let userPowerSave = false;
 let streamBuffer = "";
 let wordQueue = []; 
 let isDisplaying = false; 
+let selectedImageBase64 = null; // Ensure this is global
 
 window.addEventListener("beforeunload", () => {
   saveCurrentChat();
@@ -110,31 +111,12 @@ setTimeout(() => {
   });
 }, 3000);
 
-/* ================= IMAGE & SHARE LOGIC ================= */
+/* ================= IMAGE & PREVIEW LOGIC ================= */
 const imageUpload = document.getElementById('imageUpload');
 const uploadBtn = document.getElementById('uploadBtn');
 const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 const imagePreview = document.getElementById('imagePreview');
 const removeImageBtn = document.getElementById('removeImageBtn');
-const shareBtn = document.getElementById("shareBtn");
-
-let selectedImageBase64 = null;
-
-
-imageUpload?.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onloadend = async () => {
-    const compressed = await compressImage(reader.result);
-    selectedImageBase64 = compressed;
-    imagePreview.src = compressed;
-    imagePreviewContainer.classList.remove('hidden');
-    uploadBtn.style.color = "#00ffcc"; 
-    jumpToBottom(chatMessages);
-  };
-  reader.readAsDataURL(file);
-});
 
 function clearImagePreview() {
   selectedImageBase64 = null;
@@ -143,6 +125,41 @@ function clearImagePreview() {
   imageUpload.value = "";
   uploadBtn.style.color = ""; 
 }
+
+removeImageBtn?.addEventListener('click', clearImagePreview);
+
+uploadBtn?.addEventListener('click', () => {
+  imageUpload.click();
+});
+
+imageUpload?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const compressed = await compressImage(reader.result, 1024); 
+    selectedImageBase64 = compressed;
+    imagePreview.src = compressed;
+    imagePreviewContainer.classList.remove('hidden');
+    uploadBtn.style.color = "#00ffcc"; 
+  };
+  reader.readAsDataURL(file);
+});
+
+
+// 3. FIX: Click to Preview (Fullscreen)
+function openFullscreenPreview(src) {
+  const overlay = document.createElement("div");
+  // Inline styles to ensure it works even if CSS is cached
+  overlay.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;";
+  overlay.innerHTML = `<img src="${src}" style="max-width:95%;max-height:95%;border-radius:8px;box-shadow:0 0 30px rgba(0,0,0,0.5);">`;
+  
+  overlay.onclick = () => overlay.remove();
+  document.body.appendChild(overlay);
+  if (triggerVibe) triggerVibe(5);
+}
+
+
 
 
 /* ================= MODES ================= */
@@ -464,13 +481,19 @@ const EMPTY_STATES = {
   deep: [{ title: "What do you want to think through?", sub: "Take your time. I’ll go deep with you." }],
   chill: [{ title: "What’s up?", sub: "No pressure — just talk." }],
   precision: [{ title: "What’s the question?", sub: "Short answers. No fluff." }],
+  reading: [{ title: "Paste the text.", sub: "I'll summarize it, simplify it, or find the hidden meaning." }],
   roast: [{ title: "Ready to get cooked?", sub: "Ask something stupid. I dare you." }]
 };
 
 const MODE_SUGGESTIONS = {
-  default: ["Help me with something", "Explain something to me", "Give me advice"],
-  study: ["Explain photosynthesis simply", "Help me revise chemistry"],
-  roast: ["ROAST ME", "Judge my music taste"]
+  default:   ["Help me with a project", "Give me life advice", "Write a creative caption"],
+  study:     ["Explain photosynthesis", "Quiz me on history", "Create a revision plan"],
+  research:  ["Latest tech trends", "Deep dive into AI history", "Fact check a rumor"],
+  deep:      ["What is consciousness?", "The future of humanity", "Analyze this paradox"],
+  chill:     ["Recommend a movie", "Tell me a joke", "What's good on Netflix?"],
+  precision: ["Define 'Entropy'", "Convert 50c to F", "Summary of World War 2"],
+  roast:     ["Roast my music taste", "Judge my life choices", "Roast this app"],
+  reading:   ["Summarize this text", "Explain the tone", "Simplify this paragraph"]
 };
 
 function showEmptyState() {
@@ -509,17 +532,23 @@ function addMessage(content, type, isImage = false) {
   hideEmptyState();
   const el = document.createElement("div");
   el.className = `chat-message ${type}`;
+  
   if (isImage) {
     const img = document.createElement("img");
     img.src = content;
-    img.style.maxWidth = "100px";
-    img.style.borderRadius = "12px";
+    img.className = "chat-img-thumb"; 
+    // ADD THIS LINE: It enables clicking the image the moment it appears
+    img.onclick = () => openFullscreenPreview(content); 
     el.appendChild(img);
     el.classList.add("image-bubble");
-  } else { el.textContent = content; }
+  } else { 
+    el.textContent = content; 
+  }
+  
   chatMessages.appendChild(el);
   if (isNearBottom(chatMessages)) jumpToBottom(chatMessages);
 }
+
 
 function renderMessage(text, role, imageData = null, savedSources = null) {
   const el = document.createElement("div");
@@ -529,9 +558,12 @@ function renderMessage(text, role, imageData = null, savedSources = null) {
   if (imageData) {
     const img = document.createElement("img");
     img.src = imageData;
-    img.className = "chat-img-thumb";
+    img.loading = "lazy"; // Adds that extra layer of butter-smooth scrolling
+    img.className = "chat-img-thumb"; 
+    img.onclick = () => openFullscreenPreview(imageData); // THIS ENABLES PREVIEW
     el.appendChild(img);
   }
+
 
   // 2. Render Sources (Top)
   if (savedSources && savedSources.length > 0) {
@@ -639,6 +671,15 @@ chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = chatInput.value.trim();
   
+  // Shows indicator for everything except Vision
+const needsSearch = currentMode !== 'vision'; 
+
+
+if (needsSearch) {
+  webIndicator.classList.remove("hidden");
+  webIndicator.textContent = "Checking facts...";
+}
+  const currentImageToProcess = selectedImageBase64;
   if ((!text && !selectedImageBase64) || isStreaming || isDisplaying) return;
   
   stopRequested = false;
@@ -649,9 +690,8 @@ chatForm.addEventListener("submit", async (e) => {
   setStreamingState(true);
   
   if (text) addMessage(text, "user");
-  if (selectedImageBase64) addMessage(selectedImageBase64, "user", true);
+  if (currentImageToProcess) addMessage(currentImageToProcess, "user", true);
 
-  const currentImageToProcess = selectedImageBase64;
   chatInput.value = ""; 
   chatInput.style.height = "auto";
   clearImagePreview();

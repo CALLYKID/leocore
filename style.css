@@ -2639,6 +2639,20 @@ overflow-y: auto;
     overflow: hidden;
     font-weight: 400;
 }
+/* Fix massive images in chat */
+.chat-img-thumb {
+  max-width: 200px; /* Limits width */
+  max-height: 200px; /* Limits height */
+  border-radius: 12px;
+  object-fit: cover; /* Keeps aspect ratio clean */
+  cursor: pointer;
+  transition: transform 0.2s;
+  border: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 3px;
+}
+.chat-img-thumb:hover {
+  transform: scale(1.02);
+}
 
 
 

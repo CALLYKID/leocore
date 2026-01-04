@@ -8,14 +8,15 @@ import Groq from "groq-sdk";
 
 // --- CONFIGURATION ---
 const MODE_CONFIGS = {
-  default:   { model: "llama-3.1-8b-instant",       temp: 0.6, memLimit: 12 },
+  default:   { model: "llama-3.1-8b-instant",       temp: 0.5, memLimit: 12 },
   study:     { model: "llama-3.3-70b-versatile",     temp: 0.3, memLimit: 20 },
   research:  { model: "llama-3.3-70b-versatile",     temp: 0.2, memLimit: 25 },
   deep:      { model: "llama-3.3-70b-versatile",     temp: 0.7, memLimit: 30 },
-  chill:     { model: "llama-3.1-8b-instant",       temp: 0.8, memLimit: 15 },
+  chill:     { model: "llama-3.1-8b-instant",       temp: 0.5, memLimit: 15 },
   precision: { model: "llama-3.3-70b-versatile",     temp: 0.1, memLimit: 10 },
-  roast:     { model: "llama-3.1-8b-instant",       temp: 1.0, memLimit: 12 },
-  vision:    { model: "llama-3.2-11b-vision-preview", temp: 0.5, memLimit: 10 }
+  roast:     { model: "llama-3.1-8b-instant",       temp: 0.8, memLimit: 12 },
+  reading:   { model: "llama-3.3-70b-versatile",     temp: 0.4, memLimit: 20 },
+  vision:    { model: "meta-llama/llama-4-scout-17b-16e-instruct", temp: 0.5, memLimit: 10 }
 };
 
 const GLOBAL_RULES = `CORE DIRECTIVE: You are LeoCore. 
@@ -29,6 +30,7 @@ const MODE_PROMPTS = {
   research: "You are a lead investigator. Use the provided search data to be extremely thorough.",
   roast: "You are a savage comedian. Use heavy sarcasm.",
   chill: "You are a relaxed friend. Use very casual slang.",
+  reading: "You are a reading assistant. Summarize the content, explain difficult words, and highlight key takeaways.",
   deep: "You are a philosophical sage.",
   precision: "You are a high-speed processor. Short, factual answers.",
   vision: "You are a visual analyst. Describe the provided image accurately."
@@ -75,33 +77,38 @@ export default async function chatHandler(req, res) {
     let sources = [];
 
 // --- STEP A: BRAVE SEARCH (Only for Research/Study) ---
-if ((mode === 'research' || mode === 'study') && BRAVE_API_KEY) {
+// This checks if the mode is anything EXCEPT vision (since vision usually doesn't need search context)
+if (mode !== 'vision' && BRAVE_API_KEY) {
   try {
-    // 1. IMPROVED INTENT CHECK
-    const intent = await groq.chat.completions.create({
+// 1. ADVANCED INTENT CLASSIFIER
+const intentResponse = await groq.chat.completions.create({
   model: "llama-3.1-8b-instant",
   messages: [
     { 
       role: "system", 
-      content: `Classify if a user query needs a real-time web search for news, current events, or specific facts.
+      content: `You are the Search Gatekeeper for LeoCore. 
+      Analyze the query and output ONLY "YES" or "NO".
       
-      RULES:
-      - Reply ONLY with 'YES' or 'NO'.
-      - Do not include punctuation or explanations.
+      YES if the query involves:
+      - Real-time events, news, or sports scores.
+      - Factual data that changes (stock prices, weather, movie releases).
+      - Specific technical errors or "How-to" steps for new software.
+      - Comparisons of products (e.g., "iPhone 16 vs S25").
       
-      EXAMPLES:
-      Query: "Who won the game last night?" -> YES
-      Query: "How are you doing today?" -> NO
-      Query: "Current price of Bitcoin" -> YES
-      Query: "Tell me a joke" -> NO` 
+      NO if the query is:
+      - Casual conversation ("how are you", "what's up").
+      - Opinion-based or philosophical ("what is love", "roast me").
+      - Simple math or logic.
+      - Asking about LeoCore's personality or rules.` 
     },
-    { role: "user", content: `Query: "${message}" ->` }
+    { role: "user", content: `Query: "${message}"` }
   ],
-  max_tokens: 2, // Physical limit to prevent yapping
-  temperature: 0 // Force deterministic results
+  max_tokens: 2,
+  temperature: 0
 });
 
-const decision = intent.choices[0].message.content.trim().toUpperCase();
+const decision = intentResponse.choices[0].message.content.trim().toUpperCase();
+
 console.log(`Debug: Intent decision was [${decision}]`);
 
 
