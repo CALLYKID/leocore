@@ -1153,53 +1153,54 @@ function toggleVoice() {
 
     recognition = new SpeechRecognition();
     recognition.continuous = true;
-    recognition.interimResults = true; // Crucial for live streaming
+    recognition.interimResults = true;
     recognition.lang = 'en-US';
 
     recognition.onstart = () => {
-        isVoiceActive = true;
-        document.body.classList.add('is-listening');
-        actionBtn.dataset.state = "recording"; 
-        btnIcon.textContent = "🛑"; 
-        if (typeof triggerVibe === "function") triggerVibe(15);
-    };
+    isVoiceActive = true;
+    document.body.classList.add('is-listening');
+    actionBtn.dataset.state = "recording"; // Sets the CSS state
+    btnIcon.textContent = "🛑"; // Icon change
+    if (typeof triggerVibe === "function") triggerVibe(15);
+};
 
     recognition.onresult = (event) => {
-        let liveTranscript = "";
-        
-        // Loop through all results in the current session
-        for (let i = 0; i < event.results.length; i++) {
-            liveTranscript += event.results[i][0].transcript;
+    let final_transcript = "";
+    let interim_transcript = "";
+
+    for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+            final_transcript += event.results[i][0].transcript;
+        } else {
+            interim_transcript += event.results[i][0].transcript;
         }
+    }
+    
+    // Update the input field with the final text plus what it's still hearing
+    chatInput.value = final_transcript || interim_transcript;
+    
+    // Auto-expand the textarea
+    chatInput.style.height = 'auto';
+    chatInput.style.height = chatInput.scrollHeight + 'px';
 
-        // 1. Immediately push text to input bar
-        chatInput.value = liveTranscript;
-        
-        // 2. Live resize the input bar so text doesn't hide
-        chatInput.style.height = 'auto';
-        chatInput.style.height = chatInput.scrollHeight + 'px';
+    // Morph the icon to "Send" since there is now text
+    actionBtn.dataset.state = "send";
+    btnIcon.textContent = "➔";
+};
 
-        // 3. Update button to "Send" state visually
-        if (liveTranscript.trim().length > 0) {
-            actionBtn.dataset.state = "send";
-            btnIcon.textContent = "➔";
-        }
-    };
-
-    recognition.onerror = (err) => {
-        console.error("Speech Error:", err.error);
-        stopVoiceAndSubmit();
-    };
-
+    recognition.onerror = () => stopVoice();
     recognition.onend = () => {
-        isVoiceActive = false;
-        document.body.classList.remove('is-listening');
-        // Reset icon only if user didn't speak anything
-        if (chatInput.value.trim().length === 0) {
-            actionBtn.dataset.state = "mic";
-            btnIcon.textContent = "၊၊||၊";
-        }
-    };
+    isVoiceActive = false;
+    document.body.classList.remove('is-listening');
+    // Important: Clean up the data-state
+    if (chatInput.value.trim().length > 0) {
+        actionBtn.dataset.state = "send";
+        btnIcon.textContent = "➔";
+    } else {
+        actionBtn.dataset.state = "mic";
+        btnIcon.textContent = "၊၊||၊";
+    }
+};
 
     recognition.start();
 }
@@ -1210,17 +1211,18 @@ function stopVoiceAndSubmit() {
         recognition = null;
     }
     
-    // Slight delay to ensure the final "isFinal" result is caught
+    // Crucial: Give the DOM 100ms to register the final transcript 
+    // and then trigger the send logic
     setTimeout(() => {
-        const text = chatInput.value.trim();
-        if (text.length > 0) {
-            // Use requestSubmit to trigger your existing chatForm listener
+        if (chatInput.value.trim().length > 0) {
             chatForm.requestSubmit();
+
         } else {
+            // If empty, just reset the icon
             actionBtn.dataset.state = "mic";
             btnIcon.textContent = "၊၊||၊";
         }
-    }, 200);
+    }, 150);
 }
 
 
