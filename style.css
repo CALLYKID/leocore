@@ -617,88 +617,7 @@ body {
     color: rgba(255,255,255,0.55);
   }
   
-  /* ==============================  
-   CHATGPT SEND BUTTON PURE CSS  
-============================== */
-#sendBtn{
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: none;
 
-  background: white;
-  cursor: pointer;
-
-  display: grid;
-  place-items: center;
-
-  transition: .2s ease;
-  position: relative;
-}
-
-/* ChatGPT triangle arrow */
-#sendBtn::before{
-  content: "";
-  width: 0;
-  height: 0;
-
-  border-left: 12px solid black;
-  border-top: 7px solid transparent;
-  border-bottom: 7px solid transparent;
-
-  transform: translateX(2px) rotate(3deg);
-}
-
-/* press effect */
-#sendBtn:active{
-  transform: scale(.92);
-}
-
-
-/* DISABLED STATE */
-#sendBtn.disabled{
-  opacity: .45;
-  cursor: default;
-}
-
-/* ==============================  
-   CHATGPT STOP BUTTON PURE CSS  
-============================== */
-#stopBtn{
-  height: 44px;
-  padding: 0 18px;
-
-  border-radius: 10px;
-  border: none;
-
-  background: black;
-  color: white;
-
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  position: relative;
-
-  transition: .2s ease;
-}
-#sendBtn.disabled {
-  opacity: .4;
-  pointer-events: none;
-  transform: none ;
-}
-/* Stop icon */
-#stopBtn::before{
-  content: "";
-  width: 14px;
-  height: 14px;
-  background: white;
-  border-radius: 4px;
-}
-
-/* press feel */
-#stopBtn:active{
-  transform: scale(.94);
-}
 
 /* hide helper */
 .hidden{
@@ -2752,6 +2671,84 @@ html, body {
 .chat-img-thumb {
   aspect-ratio: auto;
   content-visibility: auto;
+}
+/* 1. THE PULSE: Only triggers when the button is in 'recording' state */
+#actionBtn[data-state="recording"] {
+    background: rgba(255, 77, 77, 0.2) !important;
+    color: #ff4d4d !important;
+    border-color: #ff4d4d !important;
+    box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+    animation: micPulse 1.5s infinite ease-in-out;
+}
+
+/* 2. THE INPUT GLOW: Triggers when the body has the listening class */
+body.is-listening #chatInput {
+    border-color: #ff4d4d !important;
+    box-shadow: inset 0 0 10px rgba(255, 77, 77, 0.1), 0 0 10px rgba(255, 77, 77, 0.2);
+}
+
+/* 3. THE KEYFRAME */
+@keyframes micPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+/* Ensure the button never shows if the Stop Square is active */
+#stopBtn:not(.hidden) ~ #actionBtn {
+  display: none !important;
+}
+
+/* Mic Recording Animation */
+#actionBtn[data-state="recording"] {
+  background: rgba(255, 74, 74, 0.2) !important;
+  color: #ff4a4a !important;
+  border: 1px solid #ff4a4a !important;
+  box-shadow: 0 0 20px rgba(255, 74, 74, 0.4);
+  animation: micPulse 1.5s infinite ease-in-out;
+}
+
+/* Input Glow when listening */
+body.is-listening #chatInput {
+  border-color: #ff4a4a !important;
+  box-shadow: 0 0 15px rgba(255, 74, 74, 0.2);
+}
+
+@keyframes micPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+/* --- CLEAN INPUT BUTTON LOGIC --- */
+
+/* 1. Hide by default using a single reliable class */
+.hidden {
+  display: none !important;
+}
+
+/* 2. Send Button Styling */
+#sendBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: white;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+/* 3. Stop Button Styling (The Square) */
+#stopBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #ff4a4a; /* Red for stop is more intuitive */
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
 }
 
 

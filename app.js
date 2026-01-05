@@ -124,7 +124,11 @@ function clearImagePreview() {
   imagePreviewContainer.classList.add('hidden');
   imageUpload.value = "";
   uploadBtn.style.color = ""; 
+
+  // Check if we should switch back to Mic
+  updateButtonState(); 
 }
+
 
 removeImageBtn?.addEventListener('click', clearImagePreview);
 
@@ -142,9 +146,15 @@ imageUpload?.addEventListener('change', (e) => {
     imagePreview.src = compressed;
     imagePreviewContainer.classList.remove('hidden');
     uploadBtn.style.color = "#00ffcc"; 
+
+    // --- ADD THIS TO MORPH THE BUTTON ---
+    actionBtn.dataset.state = "send";
+    btnIcon.textContent = "➔";
+    // ------------------------------------
   };
   reader.readAsDataURL(file);
 });
+
 
 
 // 3. FIX: Click to Preview (Fullscreen)
@@ -624,18 +634,27 @@ function createLeoStreamingBlock() {
 }
 
 function setStreamingState(on) {
-  // Check if we are either waiting for the server OR still typing text
-  const currentlyActive = on || isStreaming || isDisplaying;
+  const isBusy = on || isStreaming || isDisplaying;
   
-  if (currentlyActive) {
-    sendBtn.classList.add("hidden");
-    stopBtn.classList.remove("hidden");
+  if (isBusy) {
+    actionBtn.classList.add("hidden"); 
+    stopBtn.classList.remove("hidden"); 
   } else {
     stopBtn.classList.add("hidden");
-    sendBtn.classList.remove("hidden");
-    // Important: don't reset stopRequested here, do it in submit
+    actionBtn.classList.remove("hidden");
+    
+    // Refresh the icon based on whether the user typed something
+    if (chatInput.value.trim().length > 0) {
+        actionBtn.dataset.state = "send";
+        btnIcon.textContent = "➔";
+    } else {
+        actionBtn.dataset.state = "mic";
+        btnIcon.textContent = "၊၊||၊";
+    }
   }
 }
+
+
 
 stopBtn.addEventListener("click", () => {
   // If nothing is happening, don't do anything
@@ -1052,6 +1071,17 @@ async function initApp() {
   }
 }
 
+function updateMicUI(active) {
+  const btn = document.getElementById('micBtn');
+  if (active) {
+    btn.classList.add('active');
+    document.body.classList.add('is-listening');
+  } else {
+    btn.classList.remove('active');
+    document.body.classList.remove('is-listening');
+  }
+}
+
 
 /* ================= HAPTICS HELPER ================= */
 function triggerVibe(ms) {
@@ -1064,5 +1094,138 @@ function triggerVibe(ms) {
     // Silently catch security/permission blocks from Googlebot/Browsers
   }
 }
+
+/* ================= ACTION BUTTON CONTROLLER ================= */
+const actionBtn = document.getElementById("actionBtn");
+const btnIcon = document.getElementById("btnIcon");
+
+// 1. Morph Button on Typing OR Image Selection
+const updateButtonState = () => {
+    if (isVoiceActive || isStreaming || isDisplaying) return;
+
+    // Check if there is text OR an image selected
+    const hasContent = chatInput.value.trim().length > 0 || selectedImageBase64 !== null;
+
+    if (hasContent) {
+        actionBtn.dataset.state = "send";
+        btnIcon.textContent = "➔";
+    } else {
+        actionBtn.dataset.state = "mic";
+        btnIcon.textContent = "၊၊||၊";
+    }
+};
+
+// Listen for typing
+chatInput.addEventListener("input", updateButtonState);
+
+
+// 2. Logic for Clicking the Action Button
+actionBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevents double-triggering
+
+    if (actionBtn.dataset.state === "send") {
+        chatForm.requestSubmit(); // Standard way to trigger form submit
+    } else {
+        toggleVoice();
+    }
+});
+function stopVoice() {
+    if (recognition) {
+        recognition.stop();
+        console.log("Voice recognition stopped.");
+    }
+}
+
+
+/* ================= VOICE STREAMING ENGINE ================= */
+let recognition = null;
+let isVoiceActive = false;
+
+function toggleVoice() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) return alert("Microphone not supported on this browser.");
+
+    if (isVoiceActive) {
+        stopVoiceAndSubmit();
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true; // Crucial for live streaming
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+        isVoiceActive = true;
+        document.body.classList.add('is-listening');
+        actionBtn.dataset.state = "recording"; 
+        btnIcon.textContent = "🛑"; 
+        if (typeof triggerVibe === "function") triggerVibe(15);
+    };
+
+    recognition.onresult = (event) => {
+        let liveTranscript = "";
+        
+        // Loop through all results in the current session
+        for (let i = 0; i < event.results.length; i++) {
+            liveTranscript += event.results[i][0].transcript;
+        }
+
+        // 1. Immediately push text to input bar
+        chatInput.value = liveTranscript;
+        
+        // 2. Live resize the input bar so text doesn't hide
+        chatInput.style.height = 'auto';
+        chatInput.style.height = chatInput.scrollHeight + 'px';
+
+        // 3. Update button to "Send" state visually
+        if (liveTranscript.trim().length > 0) {
+            actionBtn.dataset.state = "send";
+            btnIcon.textContent = "➔";
+        }
+    };
+
+    recognition.onerror = (err) => {
+        console.error("Speech Error:", err.error);
+        stopVoiceAndSubmit();
+    };
+
+    recognition.onend = () => {
+        isVoiceActive = false;
+        document.body.classList.remove('is-listening');
+        // Reset icon only if user didn't speak anything
+        if (chatInput.value.trim().length === 0) {
+            actionBtn.dataset.state = "mic";
+            btnIcon.textContent = "၊၊||၊";
+        }
+    };
+
+    recognition.start();
+}
+
+function stopVoiceAndSubmit() {
+    if (recognition) {
+        recognition.stop();
+        recognition = null;
+    }
+    
+    // Slight delay to ensure the final "isFinal" result is caught
+    setTimeout(() => {
+        const text = chatInput.value.trim();
+        if (text.length > 0) {
+            // Use requestSubmit to trigger your existing chatForm listener
+            chatForm.requestSubmit();
+        } else {
+            actionBtn.dataset.state = "mic";
+            btnIcon.textContent = "၊၊||၊";
+        }
+    }, 200);
+}
+
+
+
+
+
 
 initApp();

@@ -299,11 +299,22 @@
     <form class="chat-input-bar" id="chatForm" autocomplete="off">
       <button type="button" id="uploadBtn" class="chat-tool-btn">+</button>
       <input type="file" id="imageUpload" accept="image/*" style="display:none;">
+     
+
 
       <textarea id="chatInput" placeholder="Message LeoCore…" spellcheck="false" autocomplete="off" rows="1"></textarea>
+<div class="input-actions">
+  <button type="button" id="actionBtn" class="chat-tool-btn primary" data-state="mic">
+    <span id="btnIcon">၊၊||၊</span>
+  </button>
+  
+  <button type="button" id="stopBtn" class="chat-tool-btn hidden">
+    <span class="stop-icon">■</span>
+  </button>
+</div>
 
-      <button type="submit" id="sendBtn"></button>
-      <button type="button" id="stopBtn" class="hidden"></button>
+
+      
     </form>
   </div>
 </div>
