@@ -2750,11 +2750,7 @@ body.is-listening #chatInput {
   place-items: center;
   flex-shrink: 0;
 }
-.seo-section {
-  opacity: 0.9;
-  visibility: hidden;
-  font-size: 14px;
-}
+
 
 
 

@@ -429,6 +429,7 @@ function setMode(key) {
 
   // Load chat history for this specific mode
   restoreChatForMode(key);
+  updateCanonicalForMode(key);
   updateMetaForMode(key);
 }
 
@@ -903,14 +904,15 @@ window.addEventListener("popstate", () => {
   if (MODE_KEYS.includes(mode)) { setMode(mode); openChat(); }
 });
 
-let canonical = document.querySelector("link[rel='canonical']");
-if (!canonical) {
-  canonical = document.createElement("link");
-  canonical.rel = "canonical";
-  document.head.appendChild(canonical);
+function updateCanonicalForMode(mode) {
+  let canonical = document.querySelector("link[rel='canonical']");
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.appendChild(canonical);
+  }
+  canonical.href = `${location.origin}/modes/${mode}`;
 }
-canonical.href = location.origin + `/modes/${mode}`;
-
 const MODE_META = {
   default: {
     title: "LeoCore — Fast Free AI Chat",
