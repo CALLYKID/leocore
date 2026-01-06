@@ -1,0 +1,23 @@
+{
+  "short_name": "LeoCore",
+  "name": "LeoCore AI Intelligence",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0b1020",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#0b1020",
+  "description": "Fast, free AI chat with multiple intelligent modes."
+}
