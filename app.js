@@ -1278,19 +1278,49 @@ if ('serviceWorker' in navigator) {
       .catch(err => console.log('LeoCore PWA: Failed', err));
   });
 }
-/* ================= PWA INSTALL LOGIC ================= */
-let deferredPrompt;
+/* ================= UNIVERSAL INSTALL ENGINE ================= */
 const pwaBtn = document.getElementById('pwaInstallBtn');
+const isIos = true // /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+let deferredPrompt;
 
+/**
+ * 1. Initialize Visibility
+ * On Android, we stay hidden until the browser fires the event.
+ * On iOS, we force show the button because Safari doesn't have an event.
+ */
+function initInstallVisibility() {
+  if (isStandalone) return; // Don't show if already installed
+
+  if (isIos) {
+    pwaBtn?.classList.remove('hidden');
+    // Optional: Change text for iPhone users
+    const label = pwaBtn?.querySelector('.main-label');
+    if (label) label.textContent = "Install LeoCore";
+  }
+}
+
+/**
+ * 2. Android/Chrome specific event
+ */
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
-  // This reveals the button only when the app is ready to be installed
+  // Reveal button for Android
   if (pwaBtn) pwaBtn.classList.remove('hidden');
 });
 
+/**
+ * 3. Handling the "Wanna Touch" Click
+ */
 pwaBtn?.addEventListener('click', async () => {
-  if (deferredPrompt) {
+  if (typeof triggerVibe === "function") triggerVibe(15);
+
+  if (isIos) {
+    // iPhone doesn't support direct install, show the sexy sheet
+    showIosInstallSheet();
+  } else if (deferredPrompt) {
+    // Android direct install
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
@@ -1299,17 +1329,45 @@ pwaBtn?.addEventListener('click', async () => {
     deferredPrompt = null;
   }
 });
-pwaBtn?.addEventListener('click', async () => {
-  if (deferredPrompt) {
-    // Add a haptic "click" feel
-    if (navigator.vibrate) navigator.vibrate(10); 
-    
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    
-    if (outcome === 'accepted') {
-      pwaBtn.classList.add('hidden');
-    }
-    deferredPrompt = null;
-  }
+
+/**
+ * 4. The Sexy iOS Sheet
+ */
+function showIosInstallSheet() {
+  // Check if sheet already exists to prevent duplicates
+  if (document.querySelector('.ios-install-sheet')) return;
+
+  const sheet = document.createElement('div');
+  sheet.className = 'ios-install-sheet';
+  sheet.innerHTML = `
+    <div class="sheet-content">
+      <div class="sheet-bar"></div>
+      <div class="sheet-header">Install LeoCore</div>
+      <div class="sheet-body">
+        <div class="step">
+          <span class="step-num">1</span>
+          <p>Tap the <strong>Share</strong> icon in Safari <span class="ios-share-icon">⎋</span></p>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          <p>Scroll and select <strong>'Add to Home Screen'</strong></p>
+        </div>
+      </div>
+      <button class="sheet-close-btn" onclick="this.closest('.ios-install-sheet').classList.add('hide'); setTimeout(()=>this.closest('.ios-install-sheet').remove(), 300)">Got it</button>
+    </div>
+  `;
+  document.body.appendChild(sheet);
+  
+  // Trigger animation
+  setTimeout(() => sheet.classList.add('show'), 10);
+}
+
+// Run visibility check on startup
+initInstallVisibility();
+
+// Hide button if app is installed successfully
+window.addEventListener('appinstalled', () => {
+  pwaBtn?.classList.add('hidden');
+  deferredPrompt = null;
 });
+

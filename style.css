@@ -2831,10 +2831,101 @@ body.is-listening #chatInput {
   30% { left: 150%; }
   100% { left: 150%; }
 }
-/* Show the button if the device is iOS OR if the install prompt is ready */
-.show-install {
-  display: flex !important;
+/* iOS Install Sheet Styling */
+.ios-install-sheet {
+  position: fixed;
+  bottom: -100%; /* Start off-screen */
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
 }
+
+.ios-install-sheet.show {
+  bottom: 0;
+}
+
+.sheet-content {
+  background: #1c1c1e; /* iOS Dark Mode Grey */
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+  padding-bottom: 40px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+}
+
+.sheet-bar {
+  width: 40px;
+  height: 5px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+  margin: 0 auto 15px;
+}
+
+.sheet-header {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.sheet-body {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255,255,255,0.05);
+  padding: 12px;
+  border-radius: 12px;
+}
+
+.step-num {
+  background: #007aff; /* Apple Blue */
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.ios-share-icon {
+  font-size: 1.2rem;
+  margin-left: 5px;
+  color: #007aff;
+}
+
+.sheet-close-btn {
+  width: 100%;
+  background: #007aff;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.ios-install-sheet.hide {
+  bottom: -100%;
+}
+
 
 
 
