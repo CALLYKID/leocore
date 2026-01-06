@@ -1280,7 +1280,7 @@ if ('serviceWorker' in navigator) {
 }
 /* ================= UNIVERSAL INSTALL ENGINE ================= */
 const pwaBtn = document.getElementById('pwaInstallBtn');
-const isIos = true // /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
 let deferredPrompt;
 
