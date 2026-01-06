@@ -1271,3 +1271,10 @@ function stopVoiceAndSubmit() {
 
 
 initApp();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('LeoCore PWA: Active'))
+      .catch(err => console.log('LeoCore PWA: Failed', err));
+  });
+}
