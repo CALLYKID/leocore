@@ -2759,6 +2759,78 @@ body.is-listening #chatInput {
   place-items: center;
   flex-shrink: 0;
 }
+/* Install Button "Wanna Touch" Styling */
+.install-glow {
+  position: relative;
+  margin: 15px 10px;
+  padding: 14px !important;
+  background: linear-gradient(135deg, rgba(0, 255, 204, 0.1), rgba(0, 255, 204, 0.05)) !important;
+  border: 1px solid rgba(0, 255, 204, 0.3) !important;
+  border-radius: 16px !important;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.install-glow:active {
+  transform: scale(0.96);
+  background: rgba(0, 255, 204, 0.2) !important;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+}
+
+.install-content {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 2;
+  position: relative;
+}
+
+.install-icon {
+  font-size: 1.4rem;
+  filter: drop-shadow(0 0 5px rgba(0, 255, 204, 0.5));
+}
+
+.install-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.main-label {
+  font-weight: 800;
+  color: #00ffcc;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+}
+
+.sub-label {
+  font-size: 0.7rem;
+  opacity: 0.6;
+  color: #fff;
+}
+
+/* Moving Shine Effect */
+.shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transform: skewX(-20deg);
+  animation: shimmer-flow 3s infinite;
+}
+
+@keyframes shimmer-flow {
+  0% { left: -100%; }
+  30% { left: 150%; }
+  100% { left: 150%; }
+}
 
 
 
