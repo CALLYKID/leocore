@@ -279,9 +279,8 @@ body {
   
   .mode-card {
     border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 0 0 1px rgba(255,255,255,0.05),
-      0 16px 40px rgba(0,0,0,0.6);
+    
+   
     transition: box-shadow 0.25s ease,
       transform 0.2s ease;
     position: relative;
@@ -929,22 +928,32 @@ box-shadow:
   }
   /* ================= SECTION 11 APPLE + LEOCORE DROPDOWN MAGIC ================= */
   
-  /* Card animation feel */
-  .mode-card {
-    transition:
-      box-shadow: 0 6px 16px rgba(0,0,0,0.5),
-      transform .25s cubic-bezier(.22,.61,.36,1),
-      background .35s ease;
-  }
+/* ================= SECTION 11 — FIXED STABILITY ================= */
+
+/* Card animation feel */
+.mode-card {
+  /* Added 'transform' to the transition list and fixed the colon error */
+  transition: 
+    box-shadow 0.3s ease, 
+    transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), 
+    background 0.35s ease;
   
-  /* When opening: subtle lift + glow */
-  .mode-card.active {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow:
-      0 0 0 1.2px rgba(0,234,255,.45),
-      0 0 32px rgba(0,234,255,.35),
-      0 26px 58px rgba(0,0,0,.85);
-  }
+  /* Critical: prevents flickering during scale changes */
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+  will-change: transform, box-shadow;
+}
+
+/* When opening/held: subtle lift + glow */
+.mode-card.active {
+  transform: translateY(-4px) scale(1.02); /* Slightly more pronounced for feedback */
+  box-shadow:
+    0 0 0 1.2px rgba(0,234,255,.45),
+    0 0 32px rgba(0,234,255,.35),
+    0 26px 58px rgba(0,0,0,.85);
+  z-index: 10; /* Ensures the active card stays on top of others */
+}
+
   
   /* Smooth container expansion */
   .mode-expand {
@@ -2998,6 +3007,4 @@ body.is-listening #chatInput {
   }
 }
 }
-
-
 
