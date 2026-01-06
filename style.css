@@ -2831,6 +2831,10 @@ body.is-listening #chatInput {
   30% { left: 150%; }
   100% { left: 150%; }
 }
+/* Show the button if the device is iOS OR if the install prompt is ready */
+.show-install {
+  display: flex !important;
+}
 
 
 
