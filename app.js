@@ -903,9 +903,47 @@ window.addEventListener("popstate", () => {
   if (MODE_KEYS.includes(mode)) { setMode(mode); openChat(); }
 });
 
+let canonical = document.querySelector("link[rel='canonical']");
+if (!canonical) {
+  canonical = document.createElement("link");
+  canonical.rel = "canonical";
+  document.head.appendChild(canonical);
+}
+canonical.href = location.origin + `/modes/${mode}`;
+
 const MODE_META = {
-  default: { title: "LeoCore — Fast Free AI Chat", desc: "LeoCore gives fast, powerful AI chat with multiple modes." },
-  roast: { title: "Roast Mode | LeoCore", desc: "Get cooked by AI." }
+  default: {
+    title: "LeoCore — Fast Free AI Chat",
+    desc: "LeoCore is a fast, free AI chat platform with multiple intelligent modes for everyday use."
+  },
+  study: {
+    title: "Study Mode AI | LeoCore",
+    desc: "Study Mode on LeoCore helps students learn faster with clear explanations, examples, and structured answers."
+  },
+  research: {
+    title: "Research AI Chat | LeoCore",
+    desc: "LeoCore Research Mode provides structured, factual, and in-depth AI-powered analysis for serious research."
+  },
+  reading: {
+    title: "Reading & Summarization AI | LeoCore",
+    desc: "Use LeoCore Reading Mode to summarize, simplify, and analyze text instantly."
+  },
+  deep: {
+    title: "Deep Thinking AI | LeoCore",
+    desc: "LeoCore Deep Mode explores complex ideas with long-form reasoning and thoughtful insights."
+  },
+  precision: {
+    title: "Precision AI Answers | LeoCore",
+    desc: "LeoCore Precision Mode delivers short, exact, no-fluff AI answers."
+  },
+  chill: {
+    title: "Casual AI Chat | LeoCore",
+    desc: "Chat casually with LeoCore in Chill Mode for relaxed, friendly AI conversations."
+  },
+  roast: {
+    title: "Roast Mode AI | LeoCore",
+    desc: "Get brutally honest, sarcastic, and savage AI responses with LeoCore Roast Mode."
+  }
 };
 
 
