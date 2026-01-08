@@ -486,6 +486,7 @@ chatMessages.addEventListener("scroll", () => {
   userLockedScroll = (distance < 30);
 }, { passive: true });
 
+
 /* ================= EMPTY STATE ================= */
 const EMPTY_STATES = {
   default: [{ title: "What are we starting with?", sub: "Say anything — I’ll take it from there." }],
@@ -550,7 +551,6 @@ function addMessage(content, type, isImage = false) {
     const img = document.createElement("img");
     img.src = content;
     img.className = "chat-img-thumb"; 
-    // ADD THIS LINE: It enables clicking the image the moment it appears
     img.onclick = () => openFullscreenPreview(content); 
     el.appendChild(img);
     el.classList.add("image-bubble");
@@ -559,8 +559,10 @@ function addMessage(content, type, isImage = false) {
   }
   
   chatMessages.appendChild(el);
-  butteryScroll();
+  // Remove butteryScroll() here if you want ONLY the manual scroll-to-top to work
+  return el; // <--- ADD THIS
 }
+
 
 
 function renderMessage(text, role, imageData = null, savedSources = null) {
@@ -693,14 +695,12 @@ chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = chatInput.value.trim();
   
-  // Shows indicator for everything except Vision
-const needsSearch = currentMode !== 'vision'; 
+  const needsSearch = currentMode !== 'vision'; 
+  if (needsSearch) {
+    webIndicator.classList.remove("hidden");
+    webIndicator.textContent = "Checking facts...";
+  }
 
-
-if (needsSearch) {
-  webIndicator.classList.remove("hidden");
-  webIndicator.textContent = "Checking facts...";
-}
   const currentImageToProcess = selectedImageBase64;
   if ((!text && !selectedImageBase64) || isStreaming || isDisplaying) return;
   
@@ -711,8 +711,19 @@ if (needsSearch) {
   
   setStreamingState(true);
   
-  if (text) addMessage(text, "user");
-  if (currentImageToProcess) addMessage(currentImageToProcess, "user", true);
+  // --- UPDATED SCROLL LOGIC ---
+  let userMsgEl;
+  if (text) userMsgEl = addMessage(text, "user");
+  if (currentImageToProcess) userMsgEl = addMessage(currentImageToProcess, "user", true);
+  
+setTimeout(() => {
+  if (userMsgEl) {
+    userMsgEl.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start'
+    });
+  }
+}, 50);
 
   chatInput.value = ""; 
   chatInput.style.height = "auto";
@@ -806,40 +817,46 @@ if (needsSearch) {
 
 
 
+/* ================= FREE-SCROLL STREAMING ENGINE ================= */
 async function processQueue(textEl) {
   if (isDisplaying) return;
   isDisplaying = true;
-  setStreamingState(true); 
   
   let displayedBuffer = "";
+  const textNode = document.createTextNode("");
+  textEl.innerHTML = ""; 
+  textEl.appendChild(textNode);
+
   try {
     while (wordQueue.length > 0) {
       if (stopRequested) break;
       const currentChunk = wordQueue.shift();
+      const delay = wordQueue.length > 50 ? 2 : 10; // Dynamic speed
       const parts = currentChunk.split(/(\s+)/);
       
       for (let part of parts) {
         if (stopRequested) break;
         displayedBuffer += part;
         
-        if (textEl) textEl.innerHTML = formatLeoReply(displayedBuffer);
+        // Update content WITHOUT forcing a scroll
+        textNode.nodeValue = displayedBuffer;
         
-        // TRIGGER THE BUTTER HERE
-        butteryScroll(); 
-        
-        await new Promise(r => setTimeout(r, 12));
+        await new Promise(r => setTimeout(r, delay));
       }
     }
   } finally {
     isDisplaying = false;
     if (!isStreaming) setStreamingState(false);
+    
     if (textEl && !stopRequested) {
         textEl.innerHTML = formatLeoReply(streamBuffer);
-        butteryScroll(); // Final scroll catch
     }
+    // No more snapping to bottom here!
     saveCurrentChat();
   }
 }
+
+
 
 
 
