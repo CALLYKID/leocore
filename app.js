@@ -640,14 +640,19 @@ function setStreamingState(on) {
   const isBusy = on || isStreaming || isDisplaying;
   
   if (isBusy) {
-    actionBtn.classList.add("hidden"); 
-    stopBtn.classList.remove("hidden"); 
+    // Hide Mic/Send, Show Stop
+    actionBtn?.classList.add("hidden"); 
+    stopBtn?.classList.remove("hidden"); 
   } else {
-    stopBtn.classList.add("hidden");
-    actionBtn.classList.remove("hidden");
+    // Show Mic/Send, Hide Stop
+    stopBtn?.classList.add("hidden");
+    actionBtn?.classList.remove("hidden");
     
+    // Safety check: Ensure the form itself is visible
+    chatForm.style.display = "flex"; 
+
     // Refresh the icon based on whether the user typed something
-    if (chatInput.value.trim().length > 0) {
+    if (chatInput.value.trim().length > 0 || selectedImageBase64 !== null) {
         actionBtn.dataset.state = "send";
         btnIcon.textContent = "➔";
     } else {
@@ -656,6 +661,7 @@ function setStreamingState(on) {
     }
   }
 }
+
 
 
 

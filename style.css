@@ -1893,6 +1893,8 @@ body.mode-roast .chat-message.leocore {
   transition: border-color 0.5s ease;
   /* Premium asymmetric corners */
   border-radius: 18px 18px 4px 18px ;
+  scroll-margin-top: 100px; /* Adjust based on your header height */
+  transition: transform 0.3s ease;
 }
 
 /* Default / LeoCore Mode */
@@ -2925,7 +2927,22 @@ body.is-listening #chatInput {
 .ios-install-sheet.hide {
   bottom: -100%;
 }
+/* Use a smaller runway or apply it to a pseudo-element */
+#chatMessages:has(.thinking), 
+#chatMessages:has(.streaming) {
+    /* Reduced from 80vh to 40vh to prevent extreme layout shifts */
+    padding-bottom: 40vh !important;
+    transition: padding-bottom 0.3s ease;
+}
 
+/* Force the input area to stay put */
+.chat-input-area {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+    background: var(--bg-color); /* Match your app background */
+    flex-shrink: 0;
+}
 
 
 
@@ -3135,6 +3152,7 @@ body.is-listening #chatInput {
     flex-direction: column;
     overflow-y: auto !important;
     overflow-x: hidden !important;
+    scroll-behavior: smooth;
   }
 
   /* 4. Desktop Input Bar "Floating" Style */
