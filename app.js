@@ -47,6 +47,10 @@ function saveProfile(patch) {
   return updated;
 }
 
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+
 /* ================= API CONFIG ================= */
 const API_URL =
   location.hostname === "localhost" || location.protocol === "file:"
