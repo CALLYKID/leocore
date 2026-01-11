@@ -3153,6 +3153,7 @@ body.is-listening #chatInput {
     overflow-y: auto !important;
     overflow-x: hidden !important;
     scroll-behavior: smooth;
+    overflow-anchor: none;
   }
 
   /* 4. Desktop Input Bar "Floating" Style */
