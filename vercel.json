@@ -12,7 +12,7 @@
       "headers": [
         { "key": "Content-Type", "value": "text/plain" }
       ]
-    }
+    },
     {
       "source": "/(.*).(jpg|jpeg|png|css|js)",
       "headers": [
