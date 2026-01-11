@@ -1,4 +1,4 @@
-const CACHE_NAME = 'leocore-v1';
+const CACHE_NAME = 'leocore-v2'; // Increment this whenever you deploy
 const ASSETS = [
   '/',
   '/index.html',
@@ -7,12 +7,37 @@ const ASSETS = [
   '/android-chrome-192x192.png'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+// Install event — cache assets
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
+  );
 });
 
-// The FETCH event is MANDATORY for the install popup
+// Activate event — remove old caches
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(names => 
+      Promise.all(
+        names
+          .filter(name => name !== CACHE_NAME)
+          .map(name => caches.delete(name))
+      )
+    )
+  );
+});
+
+// Fetch event — smart cache
 self.addEventListener('fetch', (event) => {
+  const url = event.request.url;
+
+  // Always fetch fresh JS/CSS to prevent Chrome caching old scroll logic
+  if (url.endsWith('.js') || url.endsWith('.css')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Cache-first for everything else (images, HTML, icons)
   event.respondWith(
     caches.match(event.request).then(response => response || fetch(event.request))
   );
