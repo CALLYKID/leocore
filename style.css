@@ -602,7 +602,7 @@ body {
     border: none;
     border-radius: 14px;
     padding: 12px 14px;
-    font-size: 14.5px;
+    font-size: 17px;
     color: #fff;
     outline: none;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
@@ -610,12 +610,20 @@ body {
     touch-action: manipulation;
     -webkit-user-select: text;
     user-select: text;
+    overflow-y: auto; /* Show scrollbar only if it hits max-height */
+    transition: height 0.1s ease; /* Smooth expansion */
+}
   }
   
   #chatInput::placeholder {
     color: rgba(255,255,255,0.55);
   }
   
+  .chat-input-container {
+    display: flex;
+    align-items: flex-end; /* Keeps the buttons at the bottom as it grows */
+    padding: 8px;
+}
 
 
 /* hide helper */

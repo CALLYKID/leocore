@@ -745,7 +745,7 @@ setTimeout(() => {
 }, 50);
 
   chatInput.value = ""; 
-  chatInput.style.height = "auto";
+  chatInput.style.height = "42px";
   clearImagePreview();
   
   let thinkingEl = createThinkingMessage();
@@ -1191,8 +1191,27 @@ const updateButtonState = () => {
     }
 };
 
-// Listen for typing
-chatInput.addEventListener("input", updateButtonState);
+/* ================= IMPROVED AUTO-EXPAND LOGIC ================= */
+function autoExpandInput() {
+    const el = chatInput;
+    // 1. Force font size to 16px to prevent iOS "Auto-Zoom"
+    el.style.fontSize = "16px";
+    
+    // 2. The Reset-Height Trick
+    el.style.height = 'auto'; 
+    
+    // 3. Set new height based on scrollHeight
+    // We add +2 to account for border/padding so it doesn't jitter
+    const newHeight = el.scrollHeight;
+    el.style.height = (newHeight > 42 ? newHeight : 42) + 'px';
+}
+
+// Update your input listener to trigger expansion
+chatInput.addEventListener("input", () => {
+    updateButtonState();
+    autoExpandInput(); // Triggers the calculation
+});
+
 
 
 // 2. Logic for Clicking the Action Button
@@ -1254,6 +1273,7 @@ function toggleVoice() {
     
     // Update the input field with the final text plus what it's still hearing
     chatInput.value = final_transcript || interim_transcript;
+    autoExpandInput()
     
     // Auto-expand the textarea
     chatInput.style.height = 'auto';
@@ -1416,6 +1436,9 @@ chatInput.addEventListener("keydown", (e) => {
     const hasContent = chatInput.value.trim().length > 0 || selectedImageBase64 !== null;
     
     if (hasContent && !isStreaming && !isDisplaying) {
+      chatForm.requestSubmit();
+      // Reset height immediately
+      setTimeout(() => { chatInput.style.height = "44px"; }, 10);
       if (triggerVibe) triggerVibe(10); // Haptic feedback for the keypress
       chatForm.requestSubmit(); // Trigger the form submission logic
     }

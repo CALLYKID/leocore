@@ -19,7 +19,12 @@
   <meta property="og:image" content="https://leocore.vercel.app/android-chrome-512x512.png" />
 
   <title>LeoCore — Free AI Chat with Study, Research & Deep Modes</title>
-  <meta name="description" content="LeoCore is a fast, free AI chat app with multiple modes like Study, Research, Deep, Chill, and Roast. No paywalls. No limits." />
+<meta name="description" content="LeoCore is a high-velocity AI research assistant. Access Llama 3.1 powered modes for deep study, real-time web research, and unfiltered analysis. No paywalls, no limits." />
+<meta name="keywords" content="LeoCore AI, Llama 3.1, AI study assistant, real-time AI search, research AI, unfiltered AI chat" />
+
+<link rel="canonical" href="https://leocore.vercel.app/" />
+<meta property="og:title" content="LeoCore — Unfiltered AI Research Engine" />
+<meta property="og:description" content="High-velocity AI built for mobile. Real-time search, study guides, and deep reasoning modes." />
 
 <script type="application/ld+json">
 {
@@ -293,7 +298,16 @@
      
 
 
-      <textarea id="chatInput" placeholder="Ask LEOCORE" spellcheck="false" autocomplete="off" rows="1"></textarea>
+      <textarea 
+  id="chatInput" 
+  placeholder="Ask LEOCORE" 
+  spellcheck="false" 
+  autocomplete="off" 
+  rows="1"
+  aria-label="AI Chat Input"
+  role="textbox"
+></textarea>
+
 <div class="input-actions">
   <button type="button" id="actionBtn" class="chat-tool-btn primary" data-state="mic">
     <span id="btnIcon">၊၊||၊</span>
@@ -381,6 +395,17 @@
 </div>
 
 </body>
+<section class="visually-hidden" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
+  <h2>About LeoCore AI</h2>
+  <p>LeoCore is a generative AI platform specializing in Llama 3.1 orchestration. It provides dedicated AI models for different user intents:</p>
+  <ul>
+    <li><strong>Study Mode:</strong> Academic assistance and complex topic simplification.</li>
+    <li><strong>Research Mode:</strong> Real-time RAG (Retrieval-Augmented Generation) for factual data.</li>
+    <li><strong>Deep Mode:</strong> Chain-of-thought reasoning for logical problem solving.</li>
+    <li><strong>Roast Mode:</strong> Culturally-aware, unfiltered personality AI.</li>
+  </ul>
+</section>
+
 <div id="customConfirm" class="modal-overlay hidden">
   <div class="modal-content">
     <div class="modal-icon">⚠️</div>
