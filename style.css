@@ -3196,10 +3196,10 @@ body.is-listening #chatInput {
 }
 
 /* =========================================
-   SECTION 27 — DESKTOP CLICK INTENT (CURSORS)
+   SECTION 27 — DESKTOP CLICK INTENT (UPDATED)
    ========================================= */
 @media (min-width: 900px) {
-  /* 1. Main Interactive Elements */
+  /* 1. Main Interactive Elements & Empty States */
   .mode-card, 
   .mode-row, 
   .intent-strip,
@@ -3217,28 +3217,28 @@ body.is-listening #chatInput {
   #stopBtn,
   #actionBtn,
   #uploadBtn,
-  #removeImageBtn {
+  #removeImageBtn,
+  /* Empty State elements */
+  #emptyState,
+  .empty-title,
+  .empty-sub,
+  .empty-suggestions button {
     cursor: pointer !important;
   }
 
-  /* 2. Specific fixes for child elements */
-  .mode-card * {
-    cursor: inherit;
+  /* 2. Feedback: Prevent text selection on clickable titles */
+  .empty-title, .empty-sub {
+    user-select: none;
   }
 
-  /* 3. Image Previews */
-  .chat-img-thumb, 
-  #imagePreview {
-    cursor: zoom-in;
+  /* 3. Hover effect for Empty Suggestion buttons */
+  .empty-suggestions button:hover {
+    background: rgba(0, 234, 255, 0.15);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
   }
 
-  /* 4. Input handling - keep the text cursor for typing */
-  #chatInput {
-    cursor: text;
-  }
-
-  /* 5. Logic for disabled states (if any) */
-  button:disabled {
-    cursor: not-allowed !important;
-  }
+  /* 4. Image/Input Handling */
+  .chat-img-thumb { cursor: zoom-in; }
+  #chatInput { cursor: text; }
 }
