@@ -3242,3 +3242,7 @@ body.is-listening #chatInput {
   .chat-img-thumb { cursor: zoom-in; }
   #chatInput { cursor: text; }
 }
+.reply-text, .chat-message {
+    white-space: pre-wrap; /* This tells the browser to respect actual line breaks in the text */
+    word-break: break-word;
+}

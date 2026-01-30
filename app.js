@@ -270,7 +270,9 @@ function saveCurrentChat() {
         if (sourcesLabel) sourcesLabel.remove();
         
         const textContainer = tempEl.querySelector(".reply-text");
-        content = textContainer ? textContainer.innerText.trim() : tempEl.innerText.trim();
+// Use innerHTML instead of innerText to keep your <br> and <strong> tags
+content = textContainer ? textContainer.innerHTML.trim() : tempEl.innerHTML.trim();
+
       }
 
       const imgEl = el.querySelector("img:not(.source-icon)");
@@ -617,10 +619,17 @@ function renderMessage(text, role, imageData = null, savedSources = null) {
     const textContainer = document.createElement("div");
     textContainer.className = role === "leocore" ? "reply-text" : "";
     if (role === "leocore") {
-      textContainer.innerHTML = formatLeoReply(text);
-    } else {
-      textContainer.textContent = text;
-    }
+  // If the text already contains our formatting tags, just inject it
+  if (text.includes('<div class="p-container">') || text.includes('<br>')) {
+    textContainer.innerHTML = text;
+  } else {
+    // Otherwise, format it (for older saved chats)
+    textContainer.innerHTML = formatLeoReply(text);
+  }
+} else {
+  textContainer.textContent = text;
+}
+
     el.appendChild(textContainer);
   }
 
