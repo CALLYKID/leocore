@@ -154,7 +154,7 @@ body {
   padding: 72px 18px 0 !important;
     animation: fadeUp .8s cubic-bezier(.22,.61,.36,1) both;
   }
-  .modes-wrapper {
+  .-wrapper {
   flex: 1;
 }
   
@@ -166,7 +166,7 @@ body {
     margin: 16px;
     flex: 1;
   }
-  /*=====SECTION 2 — HOME UI (intent strip + modes)=====*/
+  /*=====SECTION 2 — HOME UI (intent strip + )=====*/
   .main-title {
     font-size: 30px;
     font-weight: 800;
@@ -260,7 +260,7 @@ body {
       0 0 36px rgba(138,60,255,0.25);
   }
   
-  .modes-wrapper {
+  .-wrapper {
     margin-top: 34px;
   }
   
@@ -2588,7 +2588,7 @@ overflow-y: auto;
   gap: 5px !important; /* Tightens space between title and intent strip */
 }
 
-.modes-wrapper {
+.-wrapper {
   margin-top: 0 !important; /* Moves cards up immediately after the strip */
 }
 
@@ -3062,9 +3062,9 @@ body.is-listening #chatInput {
 
 
 @media (min-width: 900px) {
-  .modes-wrapper {
-    width: 95%;
-    max-width: 950px;
+  .-wrapper {
+    width: 100%;
+    max-width: 1000px;
     margin: 28px auto;
   }
 
@@ -3085,7 +3085,7 @@ body.is-listening #chatInput {
 }
 @media (min-width: 900px) {
   .intent-strip {
-    max-width: 805px;     /* main control */
+    max-width: 900px;     /* main control */
     width: 100%;
     margin-left: auto;
     margin-right: auto;
@@ -3129,8 +3129,8 @@ body.is-listening #chatInput {
     margin-bottom: 18px;
   }
 
-  /* Bring modes up tighter */
-  .modes-wrapper {
+  /* Bring  up tighter */
+  .-wrapper {
     margin-top: 10px;
   }
 
