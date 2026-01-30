@@ -1397,4 +1397,19 @@ window.addEventListener('appinstalled', () => {
   pwaBtn?.classList.add('hidden');
   deferredPrompt = null;
 });
+/* ================= KEYBOARD SHORTCUTS ================= */
+chatInput.addEventListener("keydown", (e) => {
+  // Check if "Enter" is pressed WITHOUT the "Shift" key
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault(); // Prevent adding a new line in the textarea
+
+    // Only trigger if there is actual content or an image
+    const hasContent = chatInput.value.trim().length > 0 || selectedImageBase64 !== null;
+    
+    if (hasContent && !isStreaming && !isDisplaying) {
+      if (triggerVibe) triggerVibe(10); // Haptic feedback for the keypress
+      chatForm.requestSubmit(); // Trigger the form submission logic
+    }
+  }
+});
 
