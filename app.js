@@ -1422,34 +1422,3 @@ chatInput.addEventListener("keydown", (e) => {
   }
 });
 
-/* ================= UPDATE DETECTOR ================= */
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(reg => {
-    // Check for updates every time the page is opened/focused
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      newWorker.addEventListener('statechange', () => {
-        // When the new service worker is fully installed but waiting
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateToast();
-        }
-      });
-    });
-  });
-}
-
-function showUpdateToast() {
-  const toast = document.createElement('div');
-  toast.className = 'update-toast';
-  toast.innerHTML = `
-    <div class="toast-content">
-      <span>New version available!</span>
-      <button id="refreshApp">Update</button>
-    </div>
-  `;
-  document.body.appendChild(toast);
-
-  document.getElementById('refreshApp').addEventListener('click', () => {
-    window.location.reload();
-  });
-}
