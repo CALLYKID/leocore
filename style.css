@@ -3195,3 +3195,50 @@ body.is-listening #chatInput {
 }
 }
 
+/* =========================================
+   SECTION 27 — DESKTOP CLICK INTENT (CURSORS)
+   ========================================= */
+@media (min-width: 900px) {
+  /* 1. Main Interactive Elements */
+  .mode-card, 
+  .mode-row, 
+  .intent-strip,
+  .menu-btn,
+  .menu-link,
+  .dots-btn,
+  .dropdown-item,
+  .chat-back-btn,
+  .chat-clear-btn,
+  .chat-tool-btn,
+  .modal-btn,
+  .source-card,
+  .install-glow,
+  #sendBtn,
+  #stopBtn,
+  #actionBtn,
+  #uploadBtn,
+  #removeImageBtn {
+    cursor: pointer !important;
+  }
+
+  /* 2. Specific fixes for child elements */
+  .mode-card * {
+    cursor: inherit;
+  }
+
+  /* 3. Image Previews */
+  .chat-img-thumb, 
+  #imagePreview {
+    cursor: zoom-in;
+  }
+
+  /* 4. Input handling - keep the text cursor for typing */
+  #chatInput {
+    cursor: text;
+  }
+
+  /* 5. Logic for disabled states (if any) */
+  button:disabled {
+    cursor: not-allowed !important;
+  }
+}
