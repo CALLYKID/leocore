@@ -41,43 +41,25 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. FETCH: The Logic
+// 3. FETCH: Smart Strategy
 self.addEventListener('fetch', (event) => {
-  // We only care about GET requests
   if (event.request.method !== 'GET') return;
 
-  const url = new URL(event.request.url);
-
-  // STRATEGY: Network-First for Code (HTML, JS, CSS)
-  // This ensures your "HTML tag scrubbing" and UI fixes go live immediately.
-  if (
-    url.pathname === '/' || 
-    url.pathname.endsWith('.html') ||
-    url.pathname.endsWith('.js') || 
-    url.pathname.endsWith('.css') ||
-    url.pathname.startsWith('/modes/')
-  ) {
-    event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // If network is successful, update the cache
-          const responseClone = response.clone();
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        // Update the cache with the fresh version from the network
+        if (networkResponse && networkResponse.status === 200) {
+          const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseClone);
           });
-          return response;
-        })
-        .catch(() => {
-          // If network fails (offline), use the cache
-          return caches.match(event.request);
-        })
-    );
-  } else {
-    // STRATEGY: Cache-First for static assets (Images/Icons)
-    event.respondWith(
-      caches.match(event.request).then((response) => {
-        return response || fetch(event.request);
-      })
-    );
-  }
+        }
+        return networkResponse;
+      });
+
+      // Return the cached version immediately, or wait for the network
+      return cachedResponse || fetchPromise;
+    })
+  );
 });
