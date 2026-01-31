@@ -3,7 +3,7 @@
    Strategy: Network-First (for instant updates)
 ============================================================ */
 
-const CACHE_NAME = 'leocore-v1.2.0';
+const CACHE_NAME = 'leocore-v1.2.1';
 
 // Files to store for offline use
 const ASSETS_TO_CACHE = [
