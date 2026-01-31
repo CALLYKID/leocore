@@ -968,7 +968,7 @@ function updateCanonicalForMode(mode) {
 const MODE_META = {
   default: {
     title: "LeoCore — Fast Free AI Chat",
-    desc: "LeoCore is a fast, free AI chat platform with multiple intelligent modes for everyday use."
+    desc: "LeoCore: Fast, free AI chat with Research, Study, and Roast modes. Now featuring high-speed image vision, web-search sources, and thermal-optimized performance."
   },
   study: {
     title: "Study Mode AI | LeoCore",
