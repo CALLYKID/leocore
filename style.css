@@ -3339,19 +3339,4 @@ body.is-listening #chatInput {
   text-align: left;
   font-weight: bold;
 }
-/* Ensure the background never blocks clicks */
-#bg-root {
-  pointer-events: none;
-  z-index: -1;
-}
 
-/* Force the FAQ section to be interactive and on top */
-.faq-section {
-  position: relative;
-  z-index: 10;
-}
-
-.faq-question {
-  cursor: pointer;
-  pointer-events: auto; /* Explicitly allow clicks */
-}

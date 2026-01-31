@@ -1445,23 +1445,32 @@ chatInput.addEventListener("keydown", (e) => {
   }
 });
 
-document.addEventListener('click', function (e) {
-  // Check if the clicked element is a faq-question or inside one
-  const question = e.target.closest('.faq-question');
-  
-  if (question) {
-    const item = question.parentElement;
-    
-    // Close other FAQ items (Optional - Accordion style)
-    document.querySelectorAll('.faq-item').forEach(otherItem => {
-      if (otherItem !== item) {
-        otherItem.classList.remove('active');
-      }
-    });
+function setupFAQ() {
+  const questions = document.querySelectorAll('.faq-question');
 
-    // Toggle the clicked one
-    item.classList.toggle('active');
-    
-    console.log("FAQ Toggled"); // Debug to see if click registers
-  }
-});
+  questions.forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      // 1. Stop the click from trying to interact with background layers
+      e.stopPropagation(); 
+      
+      const item = this.parentElement;
+      const isActive = item.classList.contains('active');
+
+      // 2. Close all items
+      document.querySelectorAll('.faq-item').forEach(el => {
+        el.classList.remove('active');
+      });
+
+      // 3. Open if it wasn't already open
+      if (!isActive) {
+        item.classList.add('active');
+      }
+
+      console.log("FAQ Clicked Directly");
+    });
+  });
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', setupFAQ);
+
