@@ -23,6 +23,15 @@
       ]
     }
   ],
+  {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Clear-Site-Data",
+          "value": "\"cache\", \"storage\""
+        }
+      ]
+    }
   "rewrites": [
     { "source": "/modes/(.*)", "destination": "/index.html" },
     { "source": "/about", "destination": "/about/index.html" },
