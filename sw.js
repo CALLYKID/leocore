@@ -5,7 +5,7 @@
 // MANUALLY change this version number only when you deploy a big fix.
 // This ensures users keep using the cache (saving credits) 
 // until YOU decide it's time to force an update.
-const CACHE_NAME = 'leocore-cache-v1.5.1'; 
+const CACHE_NAME = 'leocore-cache-v1.7.1'; 
 
 const ASSETS_TO_CACHE = [
   '/',

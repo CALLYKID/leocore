@@ -1445,30 +1445,23 @@ chatInput.addEventListener("keydown", (e) => {
   }
 });
 
-function initFAQ() {
-  const faqQuestions = document.querySelectorAll('.faq-question');
+document.addEventListener('click', function (e) {
+  // Check if the clicked element is a faq-question or inside one
+  const question = e.target.closest('.faq-question');
   
-  faqQuestions.forEach(question => {
-    // Remove any existing listener first to prevent double-firing
-    question.replaceWith(question.cloneNode(true));
-  });
-
-  // Re-select and add the listener
-  document.querySelectorAll('.faq-question').forEach(question => {
-    question.addEventListener('click', () => {
-      const answer = question.nextElementSibling;
-      const isOpen = answer.style.display === 'block';
-      
-      // Close all others (optional)
-      document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
-      
-      // Toggle current
-      answer.style.display = isOpen ? 'none' : 'block';
-      question.querySelector('span').textContent = isOpen ? '+' : '-';
+  if (question) {
+    const item = question.parentElement;
+    
+    // Close other FAQ items (Optional - Accordion style)
+    document.querySelectorAll('.faq-item').forEach(otherItem => {
+      if (otherItem !== item) {
+        otherItem.classList.remove('active');
+      }
     });
-  });
-}
 
-// Run on load AND after a small delay to beat Chrome's cache-loading
-window.addEventListener('load', initFAQ);
-setTimeout(initFAQ, 500); 
+    // Toggle the clicked one
+    item.classList.toggle('active');
+    
+    console.log("FAQ Toggled"); // Debug to see if click registers
+  }
+});
