@@ -217,18 +217,26 @@ intentStrip?.addEventListener("click", () => {
 
 function formatLeoReply(text) {
   if (!text) return "";
-  // 1. Basic Safety
+
+  // 1. Escape HTML for safety, but keep our special logic
   let formatted = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
   
-  // 2. Bold/Slang emphasis
+  // 2. Bold/Underline (Markdown & Tags)
   formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/&lt;strong&gt;(.*?)&lt;\/strong&gt;/g, '<strong>$1</strong>');
+  formatted = formatted.replace(/&lt;u&gt;(.*?)&lt;\/u&gt;/g, '<u>$1</u>');
   
-  // 3. Simple line breaks for Gen Z chat style
+  // 3. Breaks
   formatted = formatted.replace(/\n/g, "<br>");
+  formatted = formatted.replace(/&lt;br\s*\/?&gt;/g, "<br>");
   
-  // 4. Handle Emojis (Optional: wrap in span for scaling)
-  return `<div class="p-container">${formatted}</div>`;
+  // IMPORTANT: Return ONLY the formatted text, no wrapping div here
+  return formatted;
 }
+
+
+
+
 
 
 /* ================ CHAT STORAGE ================= */
@@ -836,29 +844,36 @@ setTimeout(() => {
 
 
 
-/* ================= FREE-SCROLL STREAMING ENGINE ================= */
+/* ================= LIVE-FORMATTING STREAMING ENGINE ================= */
 async function processQueue(textEl) {
   if (isDisplaying) return;
   isDisplaying = true;
   
   let displayedBuffer = "";
-  const textNode = document.createTextNode("");
+  // Clear the element once at the start
   textEl.innerHTML = ""; 
-  textEl.appendChild(textNode);
 
   try {
     while (wordQueue.length > 0) {
       if (stopRequested) break;
+      
       const currentChunk = wordQueue.shift();
-      const delay = wordQueue.length > 50 ? 2 : 10; // Dynamic speed
+      // Speed up if the queue is backing up
+      const delay = wordQueue.length > 50 ? 1 : 8; 
+      
+      // Split into words/spaces to animate naturally
       const parts = currentChunk.split(/(\s+)/);
       
       for (let part of parts) {
         if (stopRequested) break;
+        
         displayedBuffer += part;
         
-        // Update content WITHOUT forcing a scroll
-        textNode.nodeValue = displayedBuffer;
+        // LIVE RENDER: Format the buffer and inject as HTML immediately
+        textEl.innerHTML = formatLeoReply(displayedBuffer);
+        
+        // Only scroll if the user is already at the bottom
+        if (userLockedScroll) butteryScroll();
         
         await new Promise(r => setTimeout(r, delay));
       }
@@ -867,13 +882,14 @@ async function processQueue(textEl) {
     isDisplaying = false;
     if (!isStreaming) setStreamingState(false);
     
+    // Final pass to ensure everything is perfect
     if (textEl && !stopRequested) {
-        textEl.innerHTML = formatLeoReply(streamBuffer);
+        textEl.innerHTML = formatLeoReply(displayedBuffer);
     }
-    // No more snapping to bottom here!
     saveCurrentChat();
   }
 }
+
 
 
 

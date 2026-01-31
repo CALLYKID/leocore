@@ -21,7 +21,7 @@ const MODE_CONFIGS = {
 
 const GLOBAL_RULES = `CORE DIRECTIVE: You are LeoCore. 
 1. Tone: Casual Gen Z style with witty slangs. Relatable partner vibe.
-2. STRICT OUTPUT FORMAT: PLAIN TEXT ONLY. NO HTML, NO MARKDOWN.
+2. FORMATTING: Use Markdown ONLY when necesary not in casual chats; for emphasis (e.g., **bold** for importance). 
 3. ZERO TOLERANCE: Never use racial slurs or derogatory terms. 
 4. SAFETY: If the user asks for anything harmful, refuse politely in your persona.`;
 
@@ -143,13 +143,16 @@ console.log(`Debug: Intent decision was [${decision}]`);
 
     // 2. BUILD PROMPT
     const persona = MODE_PROMPTS[mode] || "Be a helpful assistant.";
-    const apiMessages = [
-      { role: "system", content: `${GLOBAL_RULES}\nMODE: ${persona}\n${searchContext}` },
-      ...memory.slice(-config.memLimit).map(m => ({
-        role: m.role === "leocore" ? "assistant" : "user",
-        content: stripFormatting(Array.isArray(m.content) ? "Image uploaded" : m.content)
-      }))
-    ];
+    // Inside chat.js -> chatHandler
+const apiMessages = [
+  { role: "system", content: `${GLOBAL_RULES}\nMODE: ${persona}\n${searchContext}` },
+  ...memory.slice(-config.memLimit).map(m => ({
+    role: m.role === "leocore" ? "assistant" : "user",
+    // REMOVE stripFormatting here so Markdown reaches the AI
+    content: Array.isArray(m.content) ? "Image uploaded" : m.content 
+  }))
+];
+
 
     // Final turn
     if (image) {
@@ -181,7 +184,7 @@ console.log(`Debug: Intent decision was [${decision}]`);
 
     // 5. DISPATCH
     return res.status(200).json({
-      text: stripFormatting(aiResponse),
+      text: aiResponse,
       sources: sources
     });
 
