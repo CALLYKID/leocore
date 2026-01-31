@@ -1445,3 +1445,23 @@ chatInput.addEventListener("keydown", (e) => {
   }
 });
 
+document.addEventListener('click', function (e) {
+  // Check if the clicked element is a faq-question or inside one
+  const question = e.target.closest('.faq-question');
+  
+  if (question) {
+    const item = question.parentElement;
+    
+    // Close other FAQ items (Optional - Accordion style)
+    document.querySelectorAll('.faq-item').forEach(otherItem => {
+      if (otherItem !== item) {
+        otherItem.classList.remove('active');
+      }
+    });
+
+    // Toggle the clicked one
+    item.classList.toggle('active');
+    
+    console.log("FAQ Toggled"); // Debug to see if click registers
+  }
+});

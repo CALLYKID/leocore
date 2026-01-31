@@ -3254,3 +3254,88 @@ body.is-listening #chatInput {
     white-space: pre-wrap; /* This tells the browser to respect actual line breaks in the text */
     word-break: break-word;
 }
+/* =========================================
+   SECTION 27 — DESKTOP CLICK INTENT (FIXED)
+   ========================================= */
+@media (min-width: 900px) {
+  .mode-card, .mode-row, .intent-strip, .menu-btn, .menu-link, .dots-btn, 
+  .dropdown-item, .chat-back-btn, .chat-clear-btn, .chat-tool-btn, 
+  .modal-btn, .source-card, .install-glow, #sendBtn, #stopBtn, 
+  #actionBtn, #uploadBtn, #removeImageBtn, #emptyState, 
+  .empty-suggestions button {
+    cursor: pointer !important;
+  }
+
+  .empty-suggestions button:hover {
+    background: rgba(0, 234, 255, 0.15);
+    transform: translateY(-2px);
+    transition: all 0.2s ease;
+  }
+
+  .chat-img-thumb { cursor: zoom-in; }
+  #chatInput { cursor: text; }
+} /* <--- THIS WAS THE MISSING BRACKET */
+
+/* ============================================================
+   MASTER STABILITY & FAQ UI PATCH (NOW VISIBLE)
+============================================================ */
+
+.faq-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 18px;
+  display: block !important; /* Force visibility */
+  position: relative;
+  z-index: 10;
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding: 0 18px;
+  color: var(--text-soft);
+}
+
+.faq-item.active .faq-answer {
+  max-height: 500px;
+  padding-bottom: 18px;
+}
+.faq-item .faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease;
+  padding: 0 15px;
+  opacity: 0;
+}
+
+.faq-item.active .faq-answer {
+  max-height: 200px; /* Adjust based on text length */
+  padding: 15px;
+  opacity: 1;
+}
+
+.faq-question {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  color: white;
+  padding: 15px;
+  cursor: pointer;
+  text-align: left;
+  font-weight: bold;
+}

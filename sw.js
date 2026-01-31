@@ -52,6 +52,7 @@ self.addEventListener('fetch', (event) => {
   // This ensures your "HTML tag scrubbing" and UI fixes go live immediately.
   if (
     url.pathname === '/' || 
+    url.pathname.endsWith('.html') ||
     url.pathname.endsWith('.js') || 
     url.pathname.endsWith('.css') ||
     url.pathname.startsWith('/modes/')
