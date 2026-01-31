@@ -1,39 +1,38 @@
 /* ===========================================================
-   LEOCORE SERVICE WORKER — PRODUCTION BUILD
-   Strategy: Network-First (for instant updates)
+   LEOCORE SERVICE WORKER — VERCEL CREDIT SAVER
+   Strategy: Stale-While-Revalidate
 ============================================================ */
 
-const CACHE_NAME = 'leocore-v1.2.1';
+// Using a timestamp so the cache name is unique per deploy
+const CACHE_NAME = `leocore-v${new Date().getTime()}`;
 
-// Files to store for offline use
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
   '/style.css',
   '/app.js',
-  '/android-chrome-192x192.png'
+  '/android-chrome-192x192.png',
+  '/manifest.json'
 ];
 
-// 1. INSTALL: Save assets to cache
+// 1. INSTALL: Populate the "Shield"
 self.addEventListener('install', (event) => {
-  self.skipWaiting(); 
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('LeoCore: Caching Shell Assets');
       return cache.addAll(ASSETS_TO_CACHE);
     })
   );
 });
 
-// 2. ACTIVATE: Cleanup old versions of Leocore
+// 2. ACTIVATE: Nuke the old credits-thieves
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
+    caches.keys().then((keys) => {
       return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log('LeoCore: Clearing Old Cache', cache);
-            return caches.delete(cache);
+        keys.map((key) => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
           }
         })
       );
@@ -41,14 +40,15 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// 3. FETCH: Smart Strategy
+// 3. FETCH: The Shield Logic
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
+      // Logic: Serve from cache immediately if it exists
       const fetchPromise = fetch(event.request).then((networkResponse) => {
-        // Update the cache with the fresh version from the network
+        // If we got a fresh response from Vercel, update the cache
         if (networkResponse && networkResponse.status === 200) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -58,7 +58,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       });
 
-      // Return the cached version immediately, or wait for the network
+      // Return the cache if we have it, otherwise wait for Vercel
       return cachedResponse || fetchPromise;
     })
   );
