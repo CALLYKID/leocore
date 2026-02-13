@@ -2936,12 +2936,7 @@ body.is-listening #chatInput {
   bottom: -100%;
 }
 /* Use a smaller runway or apply it to a pseudo-element */
-#chatMessages:has(.thinking), 
-#chatMessages:has(.streaming) {
-    /* Reduced from 80vh to 40vh to prevent extreme layout shifts */
-    padding-bottom: 40vh !important;
-    transition: padding-bottom 0.3s ease;
-}
+
 
 /* Force the input area to stay put */
 .chat-input-area {
@@ -3356,4 +3351,38 @@ body.is-listening #chatInput {
 @keyframes cursor-blink {
   0%, 100% { border-color: transparent; }
   50% { border-color: #00ffcc; }
+}
+.scroll-toast {
+  position: absolute;
+  bottom: 90px; /* Adjust based on your input height */
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(20, 20, 20, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: #00ffcc;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scroll-toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.scroll-toast:hover {
+  background: rgba(0, 255, 204, 0.15);
+  border-color: #00ffcc;
 }

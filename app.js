@@ -6,13 +6,14 @@
 let isStreaming = false;
 let stopRequested = false;
 let controller = null;
-let userLockedScroll = true;
-let rafScroll = null;
+
 const MEMORY_LIMIT = 8;
 let userPowerSave = false;
 let streamBuffer = "";
 let wordQueue = []; 
 let isDisplaying = false; 
+let autoScrollPinned = true; 
+let pendingAutoScroll = false;
 let selectedImageBase64 = null; // Ensure this is global
 
 window.addEventListener("beforeunload", () => {
@@ -47,9 +48,7 @@ function saveProfile(patch) {
   return updated;
 }
 
-if ('scrollRestoration' in history) {
-  history.scrollRestoration = 'manual';
-}
+
 
 /* ================= API CONFIG ================= */
 const API_URL =
@@ -74,7 +73,7 @@ async function warmBackend() {
 let thermalSamples = [];
 let thermalActive = false;
 let lastThermalSwitch = 0;
-const THERMAL_COOLDOWN = 4000;
+const THERMAL_COOLDOWN = 120000;
 
 function getFPS(callback) {
   let last = performance.now();
@@ -93,27 +92,27 @@ function enableThermalMode() {
   if (!document.body.classList.contains("chat-open")) return;
   thermalActive = true;
   document.body.classList.add("chat-freeze");
-  requestAnimationFrame(() => chatMessages.scrollTo({ top: chatMessages.scrollHeight }));
 }
 
 function disableThermalMode() {
   if (!thermalActive) return;
   thermalActive = false;
   if (!userPowerSave) document.body.classList.remove("chat-freeze");
-  requestAnimationFrame(() => chatMessages.scrollTop = chatMessages.scrollHeight);
+  
 }
 
-setTimeout(() => {
+// Run every 2 seconds instead of constantly
+setInterval(() => {
   getFPS(fps => {
     thermalSamples.push(fps);
-    if (thermalSamples.length > 10) thermalSamples.shift();
+    if (thermalSamples.length > 5) thermalSamples.shift(); // smaller window
     const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
     const now = Date.now();
     if (now - lastThermalSwitch < THERMAL_COOLDOWN) return;
-    if (avg < 35) { enableThermalMode(); lastThermalSwitch = now; }
-    if (avg > 62) { disableThermalMode(); lastThermalSwitch = now; }
+    if (avg < 30) { enableThermalMode(); lastThermalSwitch = now; }
+    if (avg > 55) { disableThermalMode(); lastThermalSwitch = now; }
   });
-}, 3000);
+}, 180000);
 
 /* ================= IMAGE & PREVIEW LOGIC ================= */
 const imageUpload = document.getElementById('imageUpload');
@@ -144,19 +143,17 @@ imageUpload?.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onloadend = async () => {
-    const compressed = await compressImage(reader.result, 1024); 
-    selectedImageBase64 = compressed;
-    imagePreview.src = compressed;
-    imagePreviewContainer.classList.remove('hidden');
-    uploadBtn.style.color = "#00ffcc"; 
-
-    // --- ADD THIS TO MORPH THE BUTTON ---
-    actionBtn.dataset.state = "send";
-    btnIcon.textContent = "➔";
-    // ------------------------------------
-  };
-  reader.readAsDataURL(file);
+reader.onloadend = async () => {
+  // Resize to 512px first for mobile, then compress
+  const compressed = await compressImage(reader.result, 512); 
+  selectedImageBase64 = compressed;
+  imagePreview.src = compressed;
+  imagePreviewContainer.classList.remove('hidden');
+  uploadBtn.style.color = "#00ffcc"; 
+  actionBtn.dataset.state = "send";
+  btnIcon.textContent = "➔";
+};
+reader.readAsDataURL(file);
 });
 
 
@@ -194,6 +191,13 @@ const MODE_KEYS = Object.keys(MODE_MAP);
 const chatOverlay  = document.getElementById("chat-overlay");
 const chatCloseBtn = document.getElementById("chatCloseBtn");
 const chatMessages = document.getElementById("chatMessages");
+
+let bottomSpacer = document.createElement("div");
+bottomSpacer.id = "chatBottomSpacer";
+bottomSpacer.style.height = "140px";
+bottomSpacer.style.flexShrink = "0";
+
+chatMessages.appendChild(bottomSpacer);
 const webIndicator = document.getElementById("webSearchIndicator");
 const leoThinking = document.getElementById("leoThinking");
 const chatForm     = document.getElementById("chatForm");
@@ -372,11 +376,20 @@ async function shareChat() {
 function restoreChatForMode(mode) {
   const allChats = loadAllChats();
   const data = allChats[mode];
-  [...chatMessages.children].forEach(el => { if (!el.id || el.id !== "emptyState") el.remove(); });
+[...chatMessages.children].forEach(el => {
+  if (
+    el.id !== "chatTopSpacer" &&
+    el.id !== "webSearchIndicator" &&
+    el.id !== "emptyState" &&
+    el.id !== "chatBottomSpacer"
+  ) {
+    el.remove();
+  }
+});
   hideEmptyState();
   if (!data || !Array.isArray(data.messages) || data.messages.length === 0) { showEmptyState(); return; }
   data.messages.forEach(msg => renderMessage(msg.content, msg.role, msg.image, msg.sources));
-  butteryScroll();
+  
 }
 
 function getMemoryForMode(mode, limit = 8) {
@@ -387,7 +400,9 @@ function getMemoryForMode(mode, limit = 8) {
 function clearCurrentModeChat() {
   const allChats = loadAllChats();
   if (allChats[currentMode]) { delete allChats[currentMode]; localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(allChats)); }
-  [...chatMessages.children].forEach(el => { if (el.id !== "emptyState") el.remove(); });
+[...chatMessages.children].forEach(el => { 
+  if (el.id !== "emptyState" && el.id !== "chatBottomSpacer") el.remove(); 
+});
   showEmptyState();
 }
 
@@ -397,9 +412,9 @@ function compressImage(base64Str, maxWidth = 1024) {
     img.src = base64Str;
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const scale = maxWidth / img.width;
-      canvas.width = scale < 1 ? maxWidth : img.width;
-      canvas.height = scale < 1 ? img.height * scale : img.height;
+      let scale = Math.min(1, maxWidth / img.width);
+canvas.width = img.width * scale;
+canvas.height = img.height * scale;
       const ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       resolve(canvas.toDataURL('image/jpeg', 0.7));
@@ -441,9 +456,9 @@ function setMode(key) {
 
   // Update Body Class for CSS styling
   document.body.classList.forEach(c => { 
-    if (c.startsWith("mode-")) document.body.classList.remove(c); 
-  });
-  setTimeout(() => document.body.classList.add(`mode-${key}`), 2);
+  if (c.startsWith("mode-")) document.body.classList.remove(c); 
+});
+document.body.classList.add(`mode-${key}`);
 
   // Update Header UI
   if (chatMode) chatMode.textContent = m.label;
@@ -472,9 +487,7 @@ function openChat() {
   document.body.classList.add("chat-open");
   warmBackend();
   if (!hasRealMessages()) showEmptyState();
-  requestAnimationFrame(() => {
-    chatMessages.scrollTop = (chatMessages.scrollHeight <= chatMessages.clientHeight) ? 0 : chatMessages.scrollHeight;
-  });
+  
 }
 
 function closeChat() {
@@ -485,28 +498,7 @@ function closeChat() {
 }
 
 
-/* ================= SCROLL & INPUT ================= */
-function isNearBottom(el, threshold = 80) { return el.scrollHeight - el.scrollTop - el.clientHeight < threshold; }
-/* ================= BUTTERY SCROLL LOGIC ================= */
-function butteryScroll() {
-  const el = chatMessages;
-  if (!el || !userLockedScroll) return; // Only scroll if user hasn't scrolled up manually
 
-  // requestAnimationFrame is the "Butter" — it tells the GPU to 
-  // sync the scroll with the physical screen refresh
-  requestAnimationFrame(() => {
-    el.scrollTo({
-      top: el.scrollHeight,
-      behavior: 'smooth' 
-    });
-  });
-}
-
-
-chatMessages.addEventListener("scroll", () => {
-  const distance = chatMessages.scrollHeight - chatMessages.scrollTop - chatMessages.clientHeight;
-  userLockedScroll = (distance < 30);
-}, { passive: true });
 
 
 /* ================= EMPTY STATE ================= */
@@ -580,10 +572,31 @@ function addMessage(content, type, isImage = false) {
     el.textContent = content; 
   }
   
-  chatMessages.appendChild(el);
-  // Remove butteryScroll() here if you want ONLY the manual scroll-to-top to work
-  return el; // <--- ADD THIS
+  chatMessages.insertBefore(el, bottomSpacer);
+
+  // FORCE SCROLL: When a user sends, always jump to bottom
+  chatMessages.scrollTop = chatMessages.scrollHeight; 
+  
+  return el; 
 }
+
+
+/* ================= ADAPTIVE SCROLL ENGINE ================= */
+let lastScrollTime = 0;
+let scrollScheduled = false;
+
+function smartScroll() {
+  if (!autoScrollPinned) return;
+  if (scrollScheduled) return;
+
+  scrollScheduled = true;
+
+  requestAnimationFrame(() => {
+    bottomSpacer.scrollIntoView({ block: "end" });
+    scrollScheduled = false;
+  });
+}
+
 
 
 
@@ -649,9 +662,40 @@ function renderMessage(text, role, imageData = null, savedSources = null) {
     el.appendChild(textContainer);
   }
 
-  chatMessages.appendChild(el);
+  chatMessages.insertBefore(el, bottomSpacer);
   return el;
 }
+
+const scrollToast = document.getElementById('scrollToast');
+
+scrollToast.addEventListener('click', () => {
+  autoScrollPinned = true; // This re-engages the auto-scroll
+  chatMessages.scrollTo({
+    top: chatMessages.scrollHeight,
+    behavior: 'smooth'
+  });
+  if (triggerVibe) triggerVibe(10);
+});
+/* ================= CONSOLIDATED SCROLL & TOAST LOGIC ================= */
+chatMessages.addEventListener('scroll', () => {
+  // 🔒 Do NOT react to scrolls we caused ourselves
+  
+
+  const distanceToBottom =
+    chatMessages.scrollHeight -
+    chatMessages.scrollTop -
+    chatMessages.clientHeight;
+
+  autoScrollPinned = distanceToBottom <= 100;
+
+  if (distanceToBottom > 150 && (isStreaming || isDisplaying)) {
+    scrollToast.classList.add('show');
+    scrollToast.classList.remove('hidden');
+  } else {
+    scrollToast.classList.remove('show');
+  }
+});
+
 
 
 
@@ -660,8 +704,7 @@ function createLeoStreamingBlock() {
   const el = document.createElement("div");
   el.className = "chat-message leocore final-ai streaming no-bubble";
   el.innerHTML = `<div class="reply-text"></div>`;
-  chatMessages.appendChild(el);
-  butteryScroll();
+  chatMessages.insertBefore(el, bottomSpacer);
   return el;
 }
 
@@ -710,9 +753,10 @@ stopBtn.addEventListener("click", () => {
   isStreaming = false; 
   isDisplaying = false;
   
+  
   setStreamingState(false);
   saveCurrentChat();
-  butteryScroll();
+  
 });
 
 function createThinkingMessage() {
@@ -720,8 +764,8 @@ function createThinkingMessage() {
   const el = document.createElement("div");
   el.className = "chat-message leocore thinking leo-thinking-standalone";
   el.innerHTML = `<div class="leo-thinking-orbit"><div class="leo-core">L</div><div class="orbit"></div></div>`;
-  chatMessages.appendChild(el);
-  butteryScroll();
+  chatMessages.insertBefore(el, bottomSpacer);
+  
   return el;
 }
 
@@ -730,11 +774,7 @@ chatForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const text = chatInput.value.trim();
   
-  const needsSearch = currentMode !== 'vision'; 
-  if (needsSearch) {
-    webIndicator.classList.remove("hidden");
-    webIndicator.textContent = "Checking facts...";
-  }
+  
 
   const currentImageToProcess = selectedImageBase64;
   if ((!text && !selectedImageBase64) || isStreaming || isDisplaying) return;
@@ -743,6 +783,8 @@ chatForm.addEventListener("submit", async (e) => {
   streamBuffer = ""; 
   wordQueue = []; 
   isStreaming = true; 
+  autoScrollPinned = true; 
+  
   
   setStreamingState(true);
   
@@ -751,14 +793,7 @@ chatForm.addEventListener("submit", async (e) => {
   if (text) userMsgEl = addMessage(text, "user");
   if (currentImageToProcess) userMsgEl = addMessage(currentImageToProcess, "user", true);
   
-setTimeout(() => {
-  if (userMsgEl) {
-    userMsgEl.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'start'
-    });
-  }
-}, 50);
+
 
   chatInput.value = ""; 
   chatInput.style.height = "42px";
@@ -822,10 +857,10 @@ setTimeout(() => {
         <div class="sources-grid">${cardsHtml}</div>
       `;
       
-      chatMessages.appendChild(sourceEl);
+      chatMessages.insertBefore(sourceEl, bottomSpacer);
       if (triggerVibe) triggerVibe(5); // Light "click" when sources pop in
 
-      if (userLockedScroll) butteryScroll();
+
     }
 
 
@@ -865,32 +900,34 @@ async function processQueue(textEl) {
       if (stopRequested) break;
       
       const currentChunk = wordQueue.shift();
-      const delay = wordQueue.length > 50 ? 1 : 12; // Slowed down slightly for smoother visual "snapping"
+      const delay = Math.min(Math.max(10, 100 - wordQueue.length), 20); 
       
       const parts = currentChunk.split(/(\s+)/);
       
-      for (let part of parts) {
-        if (stopRequested) break;
-        
-        displayedBuffer += part;
-        
-        // --- THE FIX ---
-        // We render the HTML on every single part added. 
-        // If you are using a library like 'marked', use marked.parse(displayedBuffer)
-        // Since you are using a custom function, we update that next.
-        textEl.innerHTML = formatLeoReply(displayedBuffer);
-        
-        if (userLockedScroll) butteryScroll();
-        
-        await new Promise(r => setTimeout(r, delay));
-      }
-    }
-  } finally {
-    isDisplaying = false;
-    if (!isStreaming) setStreamingState(false);
-    saveCurrentChat();
+      // Inside your processQueue loop:
+let batch = "";
+for (let i = 0; i < parts.length; i++) {
+  if (stopRequested) break;
+  batch += parts[i];
+  
+  // Render every 3 words or at the end
+  if ((i % 3 === 0) || i === parts.length - 1) {
+    displayedBuffer += batch;
+    textEl.innerHTML = formatLeoReply(displayedBuffer);
+    smartScroll();
+    batch = "";
+    await new Promise(r => setTimeout(r, delay));
   }
 }
+
+    }
+  } finally {
+  isDisplaying = false;
+  if (!isStreaming) setStreamingState(false);
+  saveCurrentChat();
+}
+}
+
 
 
 
@@ -1022,9 +1059,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-chatMessages?.addEventListener("scroll", () => {
-  headerDropdown?.classList.add("hidden");
-}, { passive: true });
+
 
 /* ================= CUSTOM CONFIRMATION MODAL ================= */
 const clearModal = document.getElementById("customConfirm");
@@ -1168,6 +1203,8 @@ async function initApp() {
 
 function updateMicUI(active) {
   const btn = document.getElementById('micBtn');
+  if (!btn) return;
+  
   if (active) {
     btn.classList.add('active');
     document.body.classList.add('is-listening');
@@ -1221,8 +1258,7 @@ function autoExpandInput() {
     
     // 3. Set new height based on scrollHeight
     // We add +2 to account for border/padding so it doesn't jitter
-    const newHeight = el.scrollHeight;
-    el.style.height = (newHeight > 42 ? newHeight : 42) + 'px';
+    
 }
 
 // Update your input listener to trigger expansion
@@ -1234,12 +1270,14 @@ chatInput.addEventListener("input", () => {
 
 
 // 2. Logic for Clicking the Action Button
+
+
 actionBtn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation(); // Prevents double-triggering
 
     if (actionBtn.dataset.state === "send") {
-        chatForm.requestSubmit(); // Standard way to trigger form submit
+        chatForm.requestSubmit(); // Trigger form submit
     } else {
         toggleVoice();
     }
@@ -1455,12 +1493,10 @@ chatInput.addEventListener("keydown", (e) => {
     const hasContent = chatInput.value.trim().length > 0 || selectedImageBase64 !== null;
     
     if (hasContent && !isStreaming && !isDisplaying) {
-      chatForm.requestSubmit();
-      // Reset height immediately
-      setTimeout(() => { chatInput.style.height = "44px"; }, 10);
-      if (triggerVibe) triggerVibe(10); // Haptic feedback for the keypress
-      chatForm.requestSubmit(); // Trigger the form submission logic
-    }
+  chatForm.requestSubmit();
+  setTimeout(() => { chatInput.style.height = "44px"; }, 10);
+  if (triggerVibe) triggerVibe(10);
+}
   }
 });
 
@@ -1492,4 +1528,5 @@ function setupFAQ() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', setupFAQ);
+
 

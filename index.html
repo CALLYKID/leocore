@@ -168,7 +168,7 @@
     }
     .hidden { display: none !important; }
   </style>
-  <link rel="stylesheet" href="/style.css?v=1770029046572">
+  <link rel="stylesheet" href="/style.css?v=1770029056922">
 
 
 
@@ -370,6 +370,10 @@
 <div id="chat-overlay" aria-hidden="true">
   <div class="chat-backdrop"></div>
   <div class="chat-panel">
+<div id="scrollToast" class="scroll-toast hidden">
+  <span>New messages below</span>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+</div>
 
 <div class="chat-header" id="chatHeader">
   <button class="chat-back-btn" id="chatCloseBtn">‹</button>
@@ -398,6 +402,7 @@
 
 
     <div class="chat-messages" id="chatMessages">
+      <div id="chatTopSpacer"></div>
       <div id="webSearchIndicator" class="web-indicator hidden"><span id="webText">Searching the web</span></div>
       <div id="emptyState">
         <div class="empty-title"></div>
@@ -443,7 +448,7 @@
   </div>
 </div>
 
-<script src="/app.js?v=1770029046572" defer></script>
+<script src="/app.js?v=1770029456922" defer></script>
 
 <div id="menuOverlay" aria-hidden="true">
   
