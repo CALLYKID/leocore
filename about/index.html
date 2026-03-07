@@ -73,6 +73,13 @@ html, body {
   opacity: .88;
   line-height: 1.55;
 }
+.about-scroll{
+  position: relative;
+  min-height: 100vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
 
 /* ========= BACK BUTTON ========= */
 .about-back {
@@ -94,7 +101,7 @@ html, body {
 
 <body>
 
-<div class="about-page">
+<div class="about-scroll"> <div class="about-page">
 
   <h1 class="about-title">About LeoCore</h1>
   <p class="about-sub">Free. Fast. Built for real people.</p>
@@ -147,6 +154,7 @@ html, body {
 
   <a href="/" class="about-back">← Back Home</a>
 
+</div>
 </div>
 
 </body>
