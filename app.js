@@ -101,18 +101,10 @@ function disableThermalMode() {
   
 }
 
-// Run every 2 seconds instead of constantly
-setInterval(() => {
-  getFPS(fps => {
-    thermalSamples.push(fps);
-    if (thermalSamples.length > 5) thermalSamples.shift(); // smaller window
-    const avg = thermalSamples.reduce((a,b)=>a+b,0) / thermalSamples.length;
-    const now = Date.now();
-    if (now - lastThermalSwitch < THERMAL_COOLDOWN) return;
-    if (avg < 30) { enableThermalMode(); lastThermalSwitch = now; }
-    if (avg > 55) { disableThermalMode(); lastThermalSwitch = now; }
-  });
-}, 180000);
+
+getFPS(fps => {
+  thermalSamples.push(fps);
+});
 
 /* ================= IMAGE & PREVIEW LOGIC ================= */
 const imageUpload = document.getElementById('imageUpload');

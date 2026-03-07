@@ -2,57 +2,64 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <script type="application/ld+json">
+  <meta property="og:site_name" content="LeoCore">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta http-equiv="content-language" content="en">
+  <meta property="og:image:width" content="512">
+<meta property="og:image:height" content="512">
+<meta name="twitter:url" content="https://leocore.vercel.app/">
+ <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@graph": [
     {
+      "@type": "WebSite",
+      "@id": "https://leocore.vercel.app/",
+      "url": "https://leocore.vercel.app/",
+      "name": "LeoCore",
+      "alternateName": ["LeoCore AI", "LeoCore Research", "LeoCore AI Chat"],
+      "publisher": { "@id": "https://leocore.vercel.app/#organization" },
+      "potentialAction": {
+  "@type": "SearchAction",
+  "target": "https://leocore.vercel.app/?q={search_term_string}",
+  "query-input": "required name=search_term_string"
+},
+      "hasPart": [
+        { "@type": "WebPage", "name": "LeoCore Default Mode", "url": "https://leocore.vercel.app/default", "description": "Fast, balanced AI chat for everyday questions." },
+        { "@type": "WebPage", "name": "LeoCore Study Mode", "url": "https://leocore.vercel.app/study", "description": "AI-powered study guides and academic assistance." },
+        { "@type": "WebPage", "name": "LeoCore Research Mode", "url": "https://leocore.vercel.app/research", "description": "Real-time web intelligence and verified citations." },
+        { "@type": "WebPage", "name": "LeoCore Deep Mode", "url": "https://leocore.vercel.app/deep", "description": "High-velocity deep reasoning and logic analysis." },
+        { "@type": "WebPage", "name": "LeoCore Reading Mode", "url": "https://leocore.vercel.app/reading", "description": "Distraction-free AI reading assistant." },
+        { "@type": "WebPage", "name": "LeoCore Chill Mode", "url": "https://leocore.vercel.app/chill", "description": "Relaxed, conversational AI for casual chats." },
+        { "@type": "WebPage", "name": "LeoCore Precision Mode", "url": "https://leocore.vercel.app/precision", "description": "Highly accurate, fact-focused AI." },
+        { "@type": "WebPage", "name": "LeoCore Roast Mode", "url": "https://leocore.vercel.app/roast", "description": "The AI with no filter. Witty analysis and roasts." }
+        
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://leocore.vercel.app/#organization",
+      "name": "LeoCore",
+      "url": "https://leocore.vercel.app/",
+      "logo": "https://leocore.vercel.app/android-chrome-512x512.png"
+    },
+    {
+      "@id": "https://leocore.vercel.app/#app",
       "@type": ["SoftwareApplication", "MobileApplication"],
+      "url": "https://leocore.vercel.app/",
       "name": "LeoCore AI",
       "operatingSystem": "Web, iOS, Android",
       "applicationCategory": "ResearchApplication",
-      "description": "Stop searching. Start finding. LeoCore is a high-velocity AI research engine built for those who need answers, not ads. Powered by Llama 3.1 and real-time web intelligence, it slices through the noise to deliver verified data, deep reasoning, and academic-grade study guides in seconds. No paywalls, no tracking—just unfiltered AI horsepower in your pocket.",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-      "priceCurrency": "USD"
-     },
-      "author": {
-        "@type": "Person",
-        "name": "Leonard Daramola"
-      },
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "ratingCount": "127"
-      },
-      "review": [
-        {
-          "@type": "Review",
-          "author": {"@type": "Person", "name": "LeoCore User"},
-          "reviewRating": {
-            "@type": "Rating",
-            "ratingValue": "5"
-          },
-          "reviewBody": "Best free AI for research. The Roast mode is actually hilarious."
-        }
-      ]
+     "description": "Stop searching. Start finding. LeoCore is a high-velocity AI research engine built for those who need answers, not ads. Powered by Llama 3.1 and real-time web intelligence, it slices through the noise to deliver verified data, deep reasoning, and academic-grade study guides in seconds. No paywalls, no tracking—just unfiltered AI horsepower in your pocket.",
+      "offers": { "@type": "Offer", "price": 0, "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Leonard Daramola" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": 4.9, "ratingCount": 127 }
     },
     {
       "@type": "BreadcrumbList",
       "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://leocore.vercel.app/"
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Modes",
-          "item": "https://leocore.vercel.app/#modes"
-        }
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://leocore.vercel.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Modes", "item": "https://leocore.vercel.app/#modes" }
       ]
     },
     {
@@ -61,34 +68,22 @@
         {
           "@type": "Question",
           "name": "Is LeoCore AI free to use and do I need an account?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Yes, LeoCore is a completely free AI chat platform. Users can access advanced models like Llama 3.1 without a subscription or account."
-          }
+          "acceptedAnswer": { "@type": "Answer", "text": "Yes, LeoCore is a completely free AI chat platform. Users can access advanced models and vision capabilities without a subscription or account." }
         },
         {
           "@type": "Question",
           "name": "How does LeoCore Research mode provide real-time information?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "LeoCore Research mode utilizes the Brave Search API to perform live web searches for real-time data and verified citations."
-          }
+          "acceptedAnswer": { "@type": "Answer", "text": "LeoCore Research mode utilizes the Brave Search API to perform live web searches for real-time data and verified citations." }
         },
         {
           "@type": "Question",
           "name": "What are the different AI modes available on LeoCore?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "LeoCore offers specialized modes: Study, Research, Deep, and Roast, each optimized for specific user intents."
-          }
+          "acceptedAnswer": { "@type": "Answer", "text": "LeoCore offers specialized modes: Study, Research, Deep, and Roast, each optimized for specific user intents." }
         },
         {
           "@type": "Question",
           "name": "Is my data safe and private when using LeoCore?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Privacy is a core pillar of LeoCore. Conversations are stored locally on your device, giving you total control over your data."
-          }
+          "acceptedAnswer": { "@type": "Answer", "text": "Privacy is a core pillar of LeoCore. Conversations are stored locally on your device, giving you total control over your data." }
         }
       ]
     }
@@ -112,12 +107,13 @@
   <meta property="og:url" content="https://leocore.vercel.app/" />
   <meta property="og:image" content="https://leocore.vercel.app/android-chrome-512x512.png" />
 
- <title>LeoCore — Free AI Chat & Research (No Ads)</title>
+ <title>LeoCore — Free AI Chatbot & Research Engine (No Ads)</title>
 <meta name="description" content="Stop searching. Start finding. LeoCore is a high-velocity AI research engine powered by Llama 3.1. Get real-time data, deep study guides, and witty, unfiltered analysis without paywalls." />
 
 <meta property="og:title" content="LeoCore AI — Free AI chat for study, research, and deep reasoning and zero ads" />
 <meta property="og:description" content="Free, high-speed AI research and chat. Real-time search, study modes, and unfiltered reasoning powered by Llama 3.1. No limits." />
 
+<meta name="twitter:image" content="https://leocore.vercel.app/android-chrome-512x512.png">
 <meta name="twitter:card" content="summary_large_image" />
 
 <meta property="twitter:title" content="LeoCore AI — High-Velocity Research" />
@@ -168,7 +164,7 @@
     }
     .hidden { display: none !important; }
   </style>
-  <link rel="stylesheet" href="/style.css?v=1772878833636">
+  <link rel="stylesheet" href="/style.css?v=1772881665689">
 
 
 
@@ -448,7 +444,7 @@
   </div>
 </div>
 
-<script src="/app.js?v=1772878833636" defer></script>
+<script src="/app.js?v=1772881665689" defer></script>
 
 <div id="menuOverlay" aria-hidden="true">
   
@@ -518,7 +514,6 @@
   </aside>
 </div>
 
-</body>
 <section class="visually-hidden" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;">
   <h2>About LeoCore AI</h2>
   <p>LeoCore is a generative AI platform specializing in Llama 3.1 orchestration. It provides dedicated AI models for different user intents:</p>
@@ -529,6 +524,7 @@
     <li><strong>Roast Mode:</strong> Culturally-aware, unfiltered personality AI.</li>
   </ul>
 </section>
+
 
 <div id="customConfirm" class="modal-overlay hidden">
   <div class="modal-content">
@@ -541,5 +537,8 @@
     </div>
   </div>
 </div>
+</body>
+
+
 
 </html>
