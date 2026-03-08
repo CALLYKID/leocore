@@ -1292,9 +1292,10 @@ function stopVoice() {
 }
 
 
-/* ================= VOICE STREAMING ENGINE ================= */
+/* ================= ORCHESTRATED VOICE ENGINE (FIXED) ================= */
 let recognition = null;
 let isVoiceActive = false;
+let silenceTimer = null; 
 
 function toggleVoice() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1311,69 +1312,78 @@ function toggleVoice() {
     recognition.lang = 'en-US';
 
     recognition.onstart = () => {
-    isVoiceActive = true;
-    document.body.classList.add('is-listening');
-    actionBtn.dataset.state = "recording"; // Sets the CSS state
-    btnIcon.textContent = "🛑"; // Icon change
-    if (typeof triggerVibe === "function") triggerVibe(15);
-};
+        isVoiceActive = true;
+        document.body.classList.add('is-listening');
+        // LOCK THE STATE
+        actionBtn.dataset.state = "recording"; 
+        btnIcon.textContent = "🛑"; 
+        if (typeof triggerVibe === "function") triggerVibe(15);
+        resetSilenceTimer();
+    };
 
     recognition.onresult = (event) => {
-    let final_transcript = "";
-    let interim_transcript = "";
+        resetSilenceTimer(); 
+        let final_transcript = "";
+        let interim_transcript = "";
 
-    for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-            final_transcript += event.results[i][0].transcript;
-        } else {
-            interim_transcript += event.results[i][0].transcript;
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                final_transcript += event.results[i][0].transcript;
+            } else {
+                interim_transcript += event.results[i][0].transcript;
+            }
         }
-    }
-    
-    // Update the input field with the final text plus what it's still hearing
-    chatInput.value = final_transcript || interim_transcript;
-    autoExpandInput()
-    
-    // Auto-expand the textarea
-    chatInput.style.height = 'auto';
-    chatInput.style.height = chatInput.scrollHeight + 'px';
+        
+        chatInput.value = final_transcript || interim_transcript;
+        autoExpandInput();
 
-    // Morph the icon to "Send" since there is now text
-    actionBtn.dataset.state = "send";
-    btnIcon.textContent = "➔";
-};
+        // Ensure UI stays in recording mode even if browser pauses
+        actionBtn.dataset.state = "recording";
+        btnIcon.textContent = "🛑";
+    };
 
-    recognition.onerror = () => stopVoice();
+    recognition.onerror = () => {
+        isVoiceActive = false;
+        stopVoiceAndSubmit();
+    };
+
     recognition.onend = () => {
-    isVoiceActive = false;
-    document.body.classList.remove('is-listening');
-    // Important: Clean up the data-state
-    if (chatInput.value.trim().length > 0) {
-        actionBtn.dataset.state = "send";
-        btnIcon.textContent = "➔";
-    } else {
-        actionBtn.dataset.state = "mic";
-        btnIcon.textContent = "၊၊||၊";
-    }
-};
+        // If the browser kills the mic but we didn't stop it, 
+        // this ensures the UI resets correctly or submits what it has.
+        if (isVoiceActive) {
+            stopVoiceAndSubmit();
+        }
+    };
 
     recognition.start();
 }
 
+function resetSilenceTimer() {
+    clearTimeout(silenceTimer);
+    // Auto-submit after 4 seconds of silence to prevent "Ghost Listening"
+    silenceTimer = setTimeout(() => {
+        if (isVoiceActive) stopVoiceAndSubmit();
+    }, 4000); 
+}
+
 function stopVoiceAndSubmit() {
+    clearTimeout(silenceTimer);
     if (recognition) {
         recognition.stop();
         recognition = null;
     }
     
-    // Crucial: Give the DOM 100ms to register the final transcript 
-    // and then trigger the send logic
+    isVoiceActive = false;
+    document.body.classList.remove('is-listening');
+    
+    // Smooth reset to Send or Mic icon
     setTimeout(() => {
-        if (chatInput.value.trim().length > 0) {
+        const hasText = chatInput.value.trim().length > 0;
+        if (hasText) {
+            actionBtn.dataset.state = "send";
+            btnIcon.textContent = "➔";
             chatForm.requestSubmit();
-
         } else {
-            // If empty, just reset the icon
             actionBtn.dataset.state = "mic";
             btnIcon.textContent = "၊၊||၊";
         }
