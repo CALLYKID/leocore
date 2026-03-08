@@ -6,6 +6,11 @@ It delivers lightning-quick responses using Groq and offers multiple intelligent
 </p>
 
 <p align="center">
+  ![LeoCore homepage screenshot showing AI chat interface](./images/Leo-preview.png)  
+  ![LeoCore mockup illustrating multiple AI modes and neon UI](./images/Leo-preview2.png)
+</p>
+
+<p align="center">
   <a href="https://leocore.vercel.app">🌐 Live Website</a> •
   <a href="https://leocore.vercel.app/privacy">Privacy</a> •
   <a href="https://leocore.vercel.app/terms">Terms</a>
