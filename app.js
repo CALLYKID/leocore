@@ -373,21 +373,36 @@ async function shareChat() {
 function restoreChatForMode(mode) {
   const allChats = loadAllChats();
   const data = allChats[mode];
-[...chatMessages.children].forEach(el => {
-  if (
-    el.id !== "chatTopSpacer" &&
-    el.id !== "webSearchIndicator" &&
-    el.id !== "emptyState" &&
-    el.id !== "chatBottomSpacer"
-  ) {
-    el.remove();
-  }
-});
+
+  // 1. Clear current view
+  [...chatMessages.children].forEach(el => {
+    if (
+      el.id !== "chatTopSpacer" &&
+      el.id !== "webSearchIndicator" &&
+      el.id !== "emptyState" &&
+      el.id !== "chatBottomSpacer"
+    ) {
+      el.remove();
+    }
+  });
+
   hideEmptyState();
-  if (!data || !Array.isArray(data.messages) || data.messages.length === 0) { showEmptyState(); return; }
+
+  if (!data || !Array.isArray(data.messages) || data.messages.length === 0) {
+    showEmptyState();
+    return;
+  }
+
+  // 2. Render all messages
   data.messages.forEach(msg => renderMessage(msg.content, msg.role, msg.image, msg.sources));
-  
+
+  // 3. THE FIX: Jump to bottom immediately after restoring
+  // We use requestAnimationFrame to ensure the DOM has finished painting the messages
+  requestAnimationFrame(() => {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
 }
+
 
 function getMemoryForMode(mode, limit = 8) {
   const data = loadAllChats()[mode];
@@ -666,29 +681,36 @@ function renderMessage(text, role, imageData = null, savedSources = null) {
 const scrollToast = document.getElementById('scrollToast');
 
 scrollToast.addEventListener('click', () => {
-  autoScrollPinned = true; // This re-engages the auto-scroll
+  autoScrollPinned = true; 
+  
+  // Use 'instant' or 'auto' instead of 'smooth' for long chats to prevent lag
   chatMessages.scrollTo({
     top: chatMessages.scrollHeight,
-    behavior: 'smooth'
+    behavior: 'auto' 
   });
+
+  // Immediately hide the toast after clicking
+  scrollToast.classList.remove('show');
+  
   if (triggerVibe) triggerVibe(10);
 });
+
 /* ================= CONSOLIDATED SCROLL & TOAST LOGIC ================= */
 chatMessages.addEventListener('scroll', () => {
-  // 🔒 Do NOT react to scrolls we caused ourselves
-  
-
   const distanceToBottom =
     chatMessages.scrollHeight -
     chatMessages.scrollTop -
     chatMessages.clientHeight;
 
+  // We are "Pinned" if we are within 100px of the bottom
   autoScrollPinned = distanceToBottom <= 100;
 
-  if (distanceToBottom > 150 && (isStreaming || isDisplaying)) {
+  // REMOVED THE AI-ONLY CHECK: Now it shows if you are scrolled up, period.
+  if (distanceToBottom > 150) {
     scrollToast.classList.add('show');
     scrollToast.classList.remove('hidden');
   } else {
+    // Hide it if we get back to the bottom
     scrollToast.classList.remove('show');
   }
 });
