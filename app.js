@@ -214,28 +214,33 @@ intentStrip?.addEventListener("click", () => {
 function formatLeoReply(text) {
   if (!text) return "";
 
-  let formatted = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  // 1. THE PRE-PROCESSOR: Convert AI's "Illegal" HTML into temporary placeholders
+  // This saves them from being escaped in the next step
+  let processed = text
+    .replace(/<u>(.*?)<\/u>/gi, "||U||$1||/U||")
+    .replace(/<strong>(.*?)<\/strong>/gi, "||B||$1||/B||")
+    .replace(/<br\s*\/?>/gi, "\n");
 
-  // 1. Handle "In-Progress" Bold: If it starts with ** but hasn't ended, 
-  // we temporarily close it so the browser renders it bold immediately.
-  const boldCount = (formatted.match(/\*\*/g) || []).length;
-  if (boldCount % 2 !== 0) {
-    formatted += "**"; // Temporary close for the parser
-  }
+  // 2. SECURITY: Escape actual malicious HTML
+  let formatted = processed.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-  // 2. Apply Bold
+  // 3. RE-INJECT SAFE FORMATTING: Turn placeholders into real, styled HTML
+  formatted = formatted
+    .replace(/\|\|U\|\|(.*?)\|\|\/U\|\|/g, '<span style="text-decoration: underline;">$1</span>')
+    .replace(/\|\|B\|\|(.*?)\|\|\/B\|\|/g, '<strong>$1</strong>');
+
+  // 4. STANDARD MARKDOWN: Handle bold ** and lists
   formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  
-  // 3. Handle Lists/Numbering (Live detection)
-  // Detects "1. " or " - " at the start of lines
   formatted = formatted.replace(/^\d+\.\s+(.*)/gm, '<li>$1</li>');
   formatted = formatted.replace(/^-\s+(.*)/gm, '<li>$1</li>');
 
-  // 4. Line Breaks
+  // 5. FINALIZE: Convert newlines back to breaks
   formatted = formatted.replace(/\n/g, "<br>");
   
   return formatted;
 }
+
+
 
 
 
@@ -897,20 +902,25 @@ async function processQueue(textEl) {
       const parts = currentChunk.split(/(\s+)/);
       
       // Inside your processQueue loop:
+// Inside your processQueue loop:
 let batch = "";
 for (let i = 0; i < parts.length; i++) {
   if (stopRequested) break;
   batch += parts[i];
   
-  // Render every 3 words or at the end
-  if ((i % 3 === 0) || i === parts.length - 1) {
+  // High-Stability Rule: Only render if we aren't in the middle of a tag
+  const isMidTag = (batch.match(/\*/g) || []).length % 2 !== 0;
+
+  if (!isMidTag || i === parts.length - 1) {
     displayedBuffer += batch;
     textEl.innerHTML = formatLeoReply(displayedBuffer);
     smartScroll();
     batch = "";
-    await new Promise(r => setTimeout(r, delay));
+    // Faster delay for smoother "Leo" feel
+    await new Promise(r => setTimeout(r, wordQueue.length > 5 ? 5 : 15));
   }
 }
+
 
     }
   } finally {
