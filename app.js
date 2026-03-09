@@ -558,6 +558,12 @@ function showEmptyState() {
   el.style.display = "grid";
 }
 
+/* ================= ATTACH EXPANSION TO INPUT ================= */
+chatInput?.addEventListener("input", () => {
+  autoExpandInput();
+  updateButtonState(); // This ensures the icon swaps from Mic to Send as they type
+});
+
 function hideEmptyState() {
   const el = document.getElementById("emptyState");
   if (el) el.style.setProperty("display", "none", "important");
@@ -815,7 +821,7 @@ chatForm.addEventListener("submit", async (e) => {
 
 
   chatInput.value = ""; 
-  chatInput.style.height = "42px";
+  autoExpandInput();
   clearImagePreview();
   
   let thinkingEl = createThinkingMessage();
@@ -1274,22 +1280,25 @@ const updateButtonState = () => {
 /* ================= IMPROVED AUTO-EXPAND LOGIC ================= */
 function autoExpandInput() {
     const el = chatInput;
-    // 1. Force font size to 16px to prevent iOS "Auto-Zoom"
-    el.style.fontSize = "16px";
     
-    // 2. The Reset-Height Trick
+    // 1. Essential: Reset to allow shrinking
     el.style.height = 'auto'; 
     
-    // 3. Set new height based on scrollHeight
-    // We add +2 to account for border/padding so it doesn't jitter
+    // 2. Calculate height
+    // We use Math.max(44, ...) to ensure it never gets smaller than your default
+    const newHeight = Math.max(44, el.scrollHeight);
     
+    // 3. Apply with a cap
+    if (newHeight > 150) {
+        el.style.height = "150px";
+        el.style.overflowY = "auto";
+    } else {
+        el.style.height = (newHeight + 2) + "px"; // The +2 prevents jitter
+        el.style.overflowY = "hidden";
+    }
 }
 
-// Update your input listener to trigger expansion
-chatInput.addEventListener("input", () => {
-    updateButtonState();
-    autoExpandInput(); // Triggers the calculation
-});
+
 
 
 
@@ -1528,8 +1537,8 @@ chatInput.addEventListener("keydown", (e) => {
     
     if (hasContent && !isStreaming && !isDisplaying) {
   chatForm.requestSubmit();
-  setTimeout(() => { chatInput.style.height = "44px"; }, 10);
-  if (triggerVibe) triggerVibe(10);
+  setTimeout(() => { autoExpandInput(); }, 10); 
+      if (triggerVibe) triggerVibe(10);
 }
   }
 });
