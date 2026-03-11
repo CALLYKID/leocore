@@ -48,7 +48,36 @@ function saveProfile(patch) {
   return updated;
 }
 
+// Convert base64 -> Blob -> display
+function displayImage(base64Str) {
+  const container = document.getElementById('imagePreviewContainer');
+  const imgEl = document.getElementById('imagePreview');
 
+  if (!base64Str) return;
+
+  // Convert base64 to Blob
+  const byteString = atob(base64Str.split(',')[1]);
+  const mimeString = base64Str.split(',')[0].match(/:(.*?);/)[1];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  const blob = new Blob([ab], { type: mimeString });
+
+  // Create blob URL
+  const url = URL.createObjectURL(blob);
+  imgEl.src = url;
+  container.classList.remove('hidden');
+
+  // Remove button
+  const removeBtn = document.getElementById('removeImageBtn');
+  removeBtn.onclick = () => {
+    container.classList.add('hidden');
+    imgEl.src = '';
+    URL.revokeObjectURL(url); // free memory
+  };
+}
 
 /* ================= API CONFIG ================= */
 const API_URL =
@@ -271,12 +300,16 @@ function saveCurrentChat() {
           favicon: a.querySelector(".source-icon").src
         }));
       }
+// 2. Extract Content (Cleaned)
+let content = "";
+let imgEl = el.querySelector("img:not(.source-icon)");
 
-      // 2. Extract Content (Cleaned)
-      let content = "";
-      if (isUser) {
-        content = el.textContent;
-      } else {
+if (imgEl) {
+  // If message contains an image, NEVER store base64 in content
+  content = "";
+} else if (isUser) {
+  content = el.textContent;
+}else {
         // CLONE the element so we can strip the sources out without affecting the UI
         const tempEl = el.cloneNode(true);
         const sourcesGrid = tempEl.querySelector(".sources-grid");
@@ -292,7 +325,7 @@ content = textContainer ? textContainer.innerHTML.trim() : tempEl.innerHTML.trim
 
       }
 
-      const imgEl = el.querySelector("img:not(.source-icon)");
+       
       return {
         role: isUser ? "user" : "leocore",
         content: content, // This is now JUST the AI's words
@@ -394,7 +427,7 @@ function restoreChatForMode(mode) {
   }
 
   // 2. Render all messages
-  data.messages.forEach(msg => renderMessage(msg.content, msg.role, msg.image, msg.sources));
+  data.messages.forEach(msg => {   renderMessage(msg.content || "", msg.role, msg.image || null, msg.sources || null); });
 
   // 3. THE FIX: Jump to bottom immediately after restoring
   // We use requestAnimationFrame to ensure the DOM has finished painting the messages
@@ -621,7 +654,7 @@ function smartScroll() {
 function renderMessage(text, role, imageData = null, savedSources = null) {
   const el = document.createElement("div");
   // Add 'image-bubble' if it's an AI image
-  el.className = `chat-message ${role} no-bubble ${imageData ? 'image-bubble' : ''}`;
+  el.className = `chat-message ${role} ${imageData ? 'image-bubble' : ''}`;
 
   if (imageData) {
     const img = document.createElement("img");
@@ -890,7 +923,7 @@ chatForm.addEventListener("submit", async (e) => {
 
     // 2. Handle AI Image vs Text
     if (data.isImage) {
-  renderMessage(null, "leocore", data.text);
+  renderMessage("", "leocore", data.text); 
   smartScroll();
   setStreamingState(false);
   return;
