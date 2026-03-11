@@ -70,7 +70,7 @@ Answer: 4.
 // --- INITIALIZATION ---
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
-
+const HUGGINGFACE_API_KEY=process.env.LEOCORE_GEN;
 
 // --- UTILS ---
 function stripFormatting(text = "") {
@@ -103,6 +103,47 @@ export default async function chatHandler(req, res) {
 
   try {
     const { message, mode, memory = [], image = null } = req.body;
+    
+    // --- IMAGE GENERATION (HuggingFace FLUX) ---
+if (message && message.toLowerCase().startsWith("/image")) {
+  try {
+    const prompt = message.replace("/image", "").trim();
+
+    const response = await fetch(
+      "https://router.huggingface.co/hf-inference/models/black-forest-labs/FLUX.1-schnell",
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${HUGGINGFACE_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          inputs: prompt
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.text();
+      console.error("HF Error:", err);
+      return res.status(500).json({ text: "Image generation failed." });
+    }
+
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString("base64");
+
+    const imageURL = `data:image/png;base64,${base64}`;
+
+    return res.status(200).json({
+      text: imageURL,
+      isImage: true
+    });
+
+  } catch (err) {
+    console.error("Image generation crash:", err);
+    return res.status(500).json({ text: "Image generator crashed." });
+  }
+}
     const config = MODE_CONFIGS[mode] || MODE_CONFIGS.default;
     let searchContext = "";
     let sources = [];
