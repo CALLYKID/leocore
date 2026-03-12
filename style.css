@@ -3267,7 +3267,41 @@ body.is-listening #chatInput {
     transform: translateY(-2px);
     transition: all 0.2s ease;
   }
+/* AI image message container */
+.chat-message.image-bubble {
+  max-width: 65%;
+  width: fit-content;
+  display: inline-block;
+  position: relative;
+  padding: 0;
+  background: transparent;
+}
 
+/* AI generated image */
+.ai-generated-image {
+  max-width: 100%;
+  border-radius: 12px;
+  display: block;
+}
+
+/* Align AI images left */
+.chat-message.leocore.image-bubble {
+  align-self: flex-start;
+}
+
+/* Align user images right */
+.chat-message.user.image-bubble {
+  align-self: flex-end;
+}
+
+.image-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  font-size: 5px;
+  padding: 1px 3px;
+  border-radius: 6px;
+}
   .chat-img-thumb { cursor: zoom-in; }
   #chatInput { cursor: text; }
 } /* <--- THIS WAS THE MISSING BRACKET */
