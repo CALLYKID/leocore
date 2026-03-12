@@ -3432,6 +3432,6 @@ body.is-listening #chatInput {
 @media (min-width: 900px) {
   .chat-message.image-bubble {
     /* Prevents the image from taking up the whole screen on Desktop */
-    max-width: 500px !important; 
+    max-width: 350px !important; 
   }
 }
