@@ -3344,7 +3344,18 @@ body.is-listening #chatInput {
     transition: all 0.1s ease; /
 }
 
+.preview-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
 
+.preview-gallery img {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
 
 
 /* Optional: Make the "streaming" word slightly dim until it's finished */
@@ -3435,3 +3446,4 @@ body.is-listening #chatInput {
     max-width: 350px !important; 
   }
 }
+
