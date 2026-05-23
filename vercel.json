@@ -14,7 +14,7 @@
       ]
     },
     {
-      "source": "/(.*).(jpg|jpeg|png|css|js)",
+      "source": "/(.*)\\.(jpg|jpeg|png|css|js|svg|webp|ico|woff2)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -24,11 +24,6 @@
     }
   ],
   "rewrites": [
-    { "source": "/modes/(.*)", "destination": "/index.html" },
-    { "source": "/about", "destination": "/about/index.html" },
-    { "source": "/privacy", "destination": "/privacy/index.html" },
-    { "source": "/terms", "destination": "/terms/index.html" },
-    { "source": "/contact", "destination": "/contact/index.html" },
-    { "source": "/share/:id", "destination": "/share.html?id=:id" }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
