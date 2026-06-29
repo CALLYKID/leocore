@@ -8,13 +8,13 @@ import Groq from "groq-sdk";
 
 // --- CONFIGURATION ---
 const MODE_CONFIGS = {
-  default:   { model: "llama-3.1-8b-instant",       temp: 0.5, memLimit: 12 },
+  default:   { model: "openai/gpt-oss-20b",       temp: 0.5, memLimit: 12 },
   study:     { model: "llama-3.3-70b-versatile",     temp: 0.3, memLimit: 20 },
   research:  { model: "llama-3.3-70b-versatile",     temp: 0.2, memLimit: 25 },
   deep:      { model: "llama-3.3-70b-versatile",     temp: 0.7, memLimit: 30 },
-  chill:     { model: "llama-3.1-8b-instant",       temp: 0.5, memLimit: 15 },
+  chill:     { model: "openai/gpt-oss-20b",       temp: 0.5, memLimit: 15 },
   precision: { model: "llama-3.3-70b-versatile",     temp: 0.1, memLimit: 10 },
-  roast:     { model: "llama-3.1-8b-instant",       temp: 0.8, memLimit: 12 },
+  roast:     { model: "openai/gpt-oss-20b",       temp: 0.8, memLimit: 12 },
   reading:   { model: "llama-3.3-70b-versatile",     temp: 0.4, memLimit: 20 },
   vision:    { model: "meta-llama/llama-4-scout-17b-16e-instruct", temp: 0.5, memLimit: 10 }
 };
@@ -150,7 +150,7 @@ if (mode !== 'vision' && BRAVE_API_KEY) {
   try {
 // 1. ADVANCED INTENT CLASSIFIER
 const intentResponse = await groq.chat.completions.create({
-  model: "llama-3.1-8b-instant",
+  model: "openai/gpt-oss-20b",
   messages: [
     { 
       role: "system", 
